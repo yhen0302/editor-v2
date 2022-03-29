@@ -1,13 +1,13 @@
 <template>
-  <div class="home">home</div>
+  <div class="personal-center">personal-center</div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 
-/* 首页 */
+/* 个人中心 */
 export default defineComponent({
-  name: 'Home',
+  name: 'PersonalCenter',
   components: {}
 })
 </script>
