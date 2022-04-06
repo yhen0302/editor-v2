@@ -1,7 +1,7 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
 import Home from '@/views/Home.vue'
 import PersonalCenter from '@/views/PersonalCenter.vue'
-import Editor from '@/views/Editor.vue'
+import Editor from '@/views/editor/Editor.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -22,7 +22,7 @@ const routes: Array<RouteRecordRaw> = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory("/demo/editorV2/"),
   routes
 })
 

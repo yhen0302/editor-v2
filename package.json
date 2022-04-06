@@ -9,6 +9,8 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@tailwindcss/postcss7-compat": "^2.2.17",
+    "reset-css": "^5.0.1",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0"
@@ -28,11 +30,16 @@
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^7.0.0",
     "@vue/test-utils": "^2.0.0-0",
+    "autoprefixer": "^9.8.8",
     "chai": "^4.1.2",
     "eslint": "^6.7.2",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.0.0",
+    "postcss": "^7.0.39",
     "prettier": "^2.2.1",
-    "typescript": "~4.1.5"
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17",
+    "typescript": "~4.1.5",
+    "vue-cli-plugin-tailwind": "~3.0.0",
+    "vue-cli-plugin-tailwindcss": "~0.1.1"
   }
 }
