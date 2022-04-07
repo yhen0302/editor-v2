@@ -1,8 +1,13 @@
-import { createStore } from 'vuex'
+import {createStore} from 'vuex'
 
-export default createStore({
+import editor from "@/store/editor";
+
+const store = createStore({
   state: {},
   mutations: {},
   actions: {},
-  modules: {}
 })
+store.registerModule("editor",editor)
+
+
+export default store
