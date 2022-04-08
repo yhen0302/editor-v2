@@ -9,8 +9,8 @@
            @click="mutations.CHANGE_DIMENSION({dimensionType:'2d'})">2d
       </div>
     </section>
-    <section class="editor-area">
-      <aside class="select-area h-full">
+    <section class="editor-area flex justify-between">
+      <aside class="select-area h-full flex">
         <ul class="select-type-bar bg-gray-dark h-full">
           <li class="dimension-type-item text-blue text-12">{{ editorStore.dimensionType }}</li>
           <li class="select-item relative">
@@ -18,8 +18,26 @@
             <span class="select-tip absolute text-12">文本</span>
           </li>
         </ul>
+        <div class="select-detail bg-gray-dark">
+          <nav class="select-detail-header box-border flex items-center p-16 justify-between">
+            <div class="back-icon-wrap ">
+              <img src="~@/assets/images/editor_card_backarrow_btn_dark.png" alt="" class="back-icon">
+            </div>
+            <div class="header-title-wrap text-gray-light flex-grow">
+              <p class="header-title">基本形状</p>
+            </div>
+            <div class="nav-right" style="width: 16px"></div>
+          </nav>
+          <ul class="select-detail-list grid grid-cols-2  box-border p-16">
+            <li class="select-detail-item"></li>
+            <li class="select-detail-item"></li>
+
+          </ul>
+        </div>
       </aside>
-      <aside class="layer-option-area"></aside>
+      <aside class="layer-option-area">
+
+      </aside>
     </section>
   </div>
 </template>
@@ -42,7 +60,6 @@ export default defineComponent({
     for (let key of Object.keys(mutations)) {
       mutations[key] = mutations[key].bind({$store: useStore()})
     }
-    const editorState = mapState('editor', ["dimensionType"])
     return {mutations, editorStore}
   }
 
@@ -91,6 +108,32 @@ export default defineComponent({
   transform: translate(0px, -50%);
   transition-property: transform, opacity;
   transition: .15s ease-in-out;
+}
+/*select-detail*/
+.select-detail{
+  height: 100%;
+  width: 272px;
+  margin-left: 4px;
+}
+.select-detail-header{
+  height: 64px;
+}
+.select-detail-list{
+  border-top: 1px solid #363741;
+  gap: 16px;
+}
+.select-detail-item{
+  width: 112px;
+  height: 112px;
+  background: #31333D;
+}
+/*
+layer-option-area
+*/
+.layer-option-area {
+  height: 100%;
+  width: 272px;
+  left: 4px;
 }
 
 /* 2d 3d切换器 */
