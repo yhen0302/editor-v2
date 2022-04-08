@@ -13,25 +13,29 @@
       <aside class="select-area h-full flex">
         <ul class="select-type-bar bg-gray-dark h-full">
           <li class="dimension-type-item text-blue text-12">{{ editorStore.dimensionType }}</li>
-          <li class="select-item relative">
-            <img class="select-icon" width="24" height="24" src="">
-            <span class="select-tip absolute text-12">文本</span>
+          <li class="select-item relative" :class="{active:item.type===editorStore.selectBarToolType}"
+              v-for="item in selectBarData[editorStore.dimensionType]"
+              @click="mutations.CHANGE_SELECT_BAR_TOOL_TYPE({selectBarToolType:item.type})" :key="item.icon">
+            <img class="select-icon" width="24" height="24" :src="item.icon">
+            <span class="select-tip absolute text-12 pointer-events-none">{{ item.name }}</span>
           </li>
         </ul>
         <div class="select-detail bg-gray-dark">
           <nav class="select-detail-header box-border flex items-center p-16 justify-between">
             <div class="back-icon-wrap ">
-              <img src="~@/assets/images/editor_card_backarrow_btn_dark.png" alt="" class="back-icon">
+              <img src="~@/assets/images/editor_card_backarrow_btn_dark.png" alt="" class="back-icon cursor-pointer">
             </div>
             <div class="header-title-wrap text-gray-light flex-grow">
               <p class="header-title">基本形状</p>
             </div>
             <div class="nav-right" style="width: 16px"></div>
           </nav>
+          <line-el color="#363741"></line-el>
           <ul class="select-detail-list grid grid-cols-2  box-border p-16">
-            <li class="select-detail-item"></li>
-            <li class="select-detail-item"></li>
-
+            <li class="select-detail-item  flex flex-col items-center border-box justify-between">
+              <img src="~@/assets/images/editor_shape_shape_btn_dark.png" alt="" class="select-detail-sub-icon">
+              <p class="select-detail-name text-12 text-gray-light">圆角矩形</p>
+            </li>
           </ul>
         </div>
       </aside>
@@ -48,19 +52,40 @@ import NavBar from "./child/NavBar.vue"
 
 import {mapState, useStore, mapMutations} from "vuex";
 import {EditorMutation} from "@/store/editor/mutations";
+import Line from "@/component/common/Line.vue";
+import {dimensionType, EditorStore, SelectBarItem} from "@/store/editor/type";
+import {Ref, ref} from "@vue/reactivity";
 
+const selectBarList2d: Array<SelectBarItem> = [
+  {icon: require("@/assets/images/editor_text_btn_dark.png"), name: "文本", type: "text"},
+  {icon: require("@/assets/images/editor_shape_btn_dark.png"), name: "形状", type: "shape"},
+  {icon: require("@/assets/images/editor_media_btn_dark.png"), name: "多媒体", type: "media"},
+  {icon: require("@/assets/images/editor_chart_btn_dark.png"), name: "图表", type: "chart"},
+]
+const selectBarList3d: Array<SelectBarItem> = [
+  {icon: require("@/assets/images/editor_model_btn_dark.png"), name: "添加元素", type: "element"},
+  {icon: require("@/assets/images/editor_sceneeffect_btn_dark.png"), name: "场景配置", type: "scenes"},
+  {icon: require("@/assets/images/editor_postprocessing_btn_dark.png"), name: "后处理", type: "afterProcess"},
+]
 
+const selectBarData: Record<dimensionType, Array<SelectBarItem>> = {
+  "2d": selectBarList2d,
+  "3d": selectBarList3d
+}
 /* 编辑器 */
 export default defineComponent({
   name: 'Editor',
-  components: {NavBar},
+  components: {LineEl: Line, NavBar},
   setup() {
-    const editorStore = useStore().state.editor
-    const mutations = mapMutations('editor', [EditorMutation.CHANGE_DIMENSION])
+    // store
+    const editorStore: EditorStore = useStore().state.editor
+    const mutations = mapMutations('editor', [EditorMutation.CHANGE_DIMENSION, EditorMutation.CHANGE_SELECT_BAR_TOOL_TYPE])
     for (let key of Object.keys(mutations)) {
       mutations[key] = mutations[key].bind({$store: useStore()})
     }
-    return {mutations, editorStore}
+
+    // other
+    return {mutations, editorStore, selectBarData}
   }
 
 })
@@ -86,6 +111,7 @@ export default defineComponent({
   width: 100%;
   padding: 16px;
   border-radius: 4px;
+  transition: background-color .2s linear;
 }
 
 .select-item:hover {
@@ -95,6 +121,10 @@ export default defineComponent({
 .select-item:hover > .select-tip {
   opacity: .8;
   transform: translate(100%, -50%)
+}
+
+.select-item.active {
+  background-color: #6582FE;
 }
 
 .select-tip {
@@ -109,24 +139,36 @@ export default defineComponent({
   transition-property: transform, opacity;
   transition: .15s ease-in-out;
 }
+
 /*select-detail*/
-.select-detail{
+.select-detail {
   height: 100%;
   width: 272px;
   margin-left: 4px;
 }
-.select-detail-header{
+
+.select-detail-header {
   height: 64px;
 }
-.select-detail-list{
+
+.select-detail-list {
   border-top: 1px solid #363741;
   gap: 16px;
 }
-.select-detail-item{
+
+.select-detail-item {
+  padding-top: 8px;
+  padding-bottom: 16px;
   width: 112px;
   height: 112px;
   background: #31333D;
+  border-radius: 4px;
 }
+
+.select-detail-item:hover {
+  outline: 2px #6582FE solid;
+}
+
 /*
 layer-option-area
 */
