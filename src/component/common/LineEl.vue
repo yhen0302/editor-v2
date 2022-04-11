@@ -6,7 +6,7 @@
 
 
 export default {
-  name: "line",
+  name: "lineEl",
   props: {
     color: {type: String, default: 'black'},
     height: {type: String, default: '1px'},

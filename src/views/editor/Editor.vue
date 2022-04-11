@@ -22,11 +22,12 @@
         </ul>
         <div class="select-detail bg-gray-dark">
           <nav-tab v-model:index="navIndex">
-            <nav-tab-item>
+            <nav-tab-item v-for="select in stack" :key="select.key">
               <ul class="select-detail-list grid grid-cols-2  box-border p-16">
-                <li class="select-detail-item  flex flex-col items-center border-box justify-between">
-                  <img src="~@/assets/images/editor_shape_shape_btn_dark.png" alt="" class="select-detail-sub-icon">
-                  <p class="select-detail-name text-12 text-gray-light">圆角矩形</p>
+                <li class="select-detail-item  flex flex-col items-center border-box justify-between"
+                    v-for="item in select" :key="item.type">
+                  <img :src="item.icon" alt="" class="select-detail-sub-icon">
+                  <p class="select-detail-name text-12 text-gray-light">{{ item.name }}</p>
                 </li>
               </ul>
             </nav-tab-item>
@@ -40,13 +41,13 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent} from 'vue'
+import {computed, defineComponent, watch} from 'vue'
 import NavBar from "./child/NavBar.vue"
 
 import {useStore, mapMutations} from "vuex";
 import {EditorMutation} from "@/store/editor/mutations";
 import {
-  dimensionSelectBarType2d,
+  dimensionSelectBarType2d, dimensionSelectBarType3d,
   dimensionType,
   EditorStore,
   SelectBarItem,
@@ -74,32 +75,61 @@ const selectBarData: Record<dimensionType, Array<SelectBarItem>> = {
   "3d": selectBarList3d
 }
 
-const selectData2d: Record<dimensionSelectBarType2d, Array<SelectItem>> = {
-  text: [
-    {icon: require("@/assets/images/editor_text_bigtitle_btn_dark.png"), name: "大标题", type: "bigTitle"},
-    {icon: require("@/assets/images/editor_text_smalltitle_btn_dark.png"), name: "小标题", type: "smallTitle"},
-    {icon: require("@/assets/images/editor_text_title_btn_dark.png"), name: "标题", type: "title"},
-    {icon: require("@/assets/images/editor_text_content_btn_dark.png"), name: "正文", type: "content"},
-  ],
-  shape: [
-    {
+interface ViewSelectItem {
+  list: Array<SelectItem>,
+  viewType: "block" | "switch" | "radio"
+}
+
+const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, ViewSelectItem> = {
+  text: {
+    list: [
+      {icon: require("@/assets/images/editor_text_bigtitle_btn_dark.png"), name: "大标题", type: "bigTitle"},
+      {icon: require("@/assets/images/editor_text_smalltitle_btn_dark.png"), name: "小标题", type: "smallTitle"},
+      {icon: require("@/assets/images/editor_text_title_btn_dark.png"), name: "标题", type: "title"},
+      {icon: require("@/assets/images/editor_text_content_btn_dark.png"), name: "正文", type: "content"},],
+    viewType: "block"
+  },
+  shape: {
+    list: [{
       icon: require("@/assets/images/editor_shape_shape_btn_dark.png"), name: "基本形状", type: "base",
       children: [{icon: require("@/assets/images/editor_shape_roundedrectangle_btn_dark.png"), name: "圆角矩形"},
         {icon: require("@/assets/images/editor_shape_rectangle_btn_dark.png"), name: "矩形"},
         {icon: require("@/assets/images/editor_shape_circular_btn_dark.png"), name: "圆形"},
         {icon: require("@/assets/images/editor_shape_righttriangle_btn_dark.png"), name: "直角三角形"}]
     },
-    {icon: require("@/assets/images/editor_shape_button_btn_dark.png"), name: "按钮", type: "button"},
-    {icon: require("@/assets/images/editor_shape_icon_btn_dark.png"), name: "图标", type: "base"},
-  ],
-  media: [{icon: require("@/assets/images/editor_media_video_btn_dark.png"), name: "视频", type: "video"},
-    {icon: require("@/assets/images/editor_media_picture_btn_dark.png"), name: "图片", type: "image"}],
-
-  chart: [{icon: require("@/assets/images/editor_chart_histogram_btn_dark.png"), name: "柱状图", type: "bar"},
-    {icon: require("@/assets/images/editor_chart_linechart_btn_dark.png"), name: "折线图", type: "line"},
-    {icon: require("@/assets/images/editor_chart_piechart_btn_dark.png"), name: "饼图", type: "pie"},
-    {icon: require("@/assets/images/editor_chart_dashboard_btn_dark.png"), name: "柱状图", type: "gauge"},
-    {icon: require("@/assets/images/editor_chart_curvelinechart_btn_dark.png"), name: "曲线图", type: "curve"}],
+      {icon: require("@/assets/images/editor_shape_button_btn_dark.png"), name: "按钮", type: "button"},
+      {icon: require("@/assets/images/editor_shape_icon_btn_dark.png"), name: "图标", type: "base"},],
+    viewType: "block"
+  },
+  media: {
+    list: [{icon: require("@/assets/images/editor_media_video_btn_dark.png"), name: "视频", type: "video"},
+      {icon: require("@/assets/images/editor_media_picture_btn_dark.png"), name: "图片", type: "image"}],
+    viewType: "block"
+  },
+  chart: {
+    list: [{icon: require("@/assets/images/editor_chart_histogram_btn_dark.png"), name: "柱状图", type: "bar"},
+      {icon: require("@/assets/images/editor_chart_linechart_btn_dark.png"), name: "折线图", type: "line"},
+      {icon: require("@/assets/images/editor_chart_piechart_btn_dark.png"), name: "饼图", type: "pie"},
+      {icon: require("@/assets/images/editor_chart_dashboard_btn_dark.png"), name: "柱状图", type: "gauge"},
+      {icon: require("@/assets/images/editor_chart_curvelinechart_btn_dark.png"), name: "曲线图", type: "curve"}],
+    viewType: "block"
+  },
+  element: {
+    list: [{icon: require("@/assets/images/editor_element_model_btn_dark.png"), name: "模型", type: "model"},
+      {icon: require("@/assets/images/editor_element_icon_btn_dark.png"), name: "模型", type: "model"},
+      {icon: require("@/assets/images/editor_element_text_btn_dark.png"), name: "模型", type: "model"},
+      {icon: require("@/assets/images/editor_element_mark_btn_dark.png"), name: "模型", type: "model"},
+      {icon: require("@/assets/images/editor_element_flyline_btn_dark.png"), name: "模型", type: "model"},
+      {icon: require("@/assets/images/editor_element_streamer_btn_dark.png"), name: "模型", type: "model"},],
+    viewType: "block"
+  },
+  scenes: {
+    list: [], viewType: "block"
+  },
+  afterProcess: {
+    list: [],
+    viewType: "block"
+  }
 }
 
 /* 编辑器 */
@@ -115,12 +145,16 @@ export default defineComponent({
     }
 
     // other
-    const selectData = computed(() => {
-      return selectData2d[editorStore.selectBarToolType as dimensionSelectBarType2d]
+    const stack: Ref<Array<any>> = ref<Array<any>>([])
+    watch(() => editorStore.selectBarToolType, (newVal, oldVal) => {
+      if (newVal) {
+        let data: any = selectData2d[newVal as dimensionSelectBarType2d]
+        data.key = newVal
+        stack.value = [data]
+      }
     })
     const navIndex: Ref<number> = ref<number>(0)
-
-    return {mutations, editorStore, selectBarData, navIndex}
+    return {mutations, editorStore, selectBarData, navIndex, stack}
   }
 
 })

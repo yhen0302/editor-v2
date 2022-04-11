@@ -29,7 +29,7 @@ export declare type selectItemChartType2d =
   | selectItemChartType
 
 
-export declare type selectItemElementType = "model" | "icon" | "text" | "mark" | "line" | "streamer"
+export declare type selectItemElementType = "model" | "icon" | "text" | "mark" | "flyline" | "streamer"
 export declare type selectItemScreenType = "light" | "shadow" | "camera" | "background" | "HDR" | "fog"
 export declare type selectItemChartType3d = selectItemElementType | selectItemScreenType
 
