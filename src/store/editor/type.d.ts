@@ -3,7 +3,7 @@ export declare type dimensionType = "2d" | "3d"
 
 export declare interface EditorStore {
   dimensionType: dimensionType,
-  selectBarToolType:selectBarType|null
+  selectBarToolType: selectBarType | null
 
   [key: string]: any
 }
@@ -34,7 +34,8 @@ export declare type selectItemScreenType = "light" | "shadow" | "camera" | "back
 export declare type selectItemChartType3d = selectItemElementType | selectItemScreenType
 
 export declare interface SelectItem extends SelectBarItem {
-  subType: selectItemChartType2d | selectItemChartType3d
+  type: selectItemChartType2d | selectItemChartType3d,
+  children?: Array<SelectItem> | Array<any>
 }
 
 /*export declare interface DimensionSelectDetail2d {

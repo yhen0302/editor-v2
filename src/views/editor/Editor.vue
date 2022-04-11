@@ -1,7 +1,7 @@
 <template>
   <div class="editor">
     <nav-bar></nav-bar>
-    <section class="dimension-toggle-box flex items-center text-12 text-gray-light">
+    <section class="dimension-toggle-box flex items-center text-12 text-gray-light cursor-pointer">
       <div class="dimension-toggle" :class="{active:editorStore.dimensionType==='3d'}"
            @click="mutations.CHANGE_DIMENSION({dimensionType:'3d'})">3d
       </div>
@@ -21,39 +21,40 @@
           </li>
         </ul>
         <div class="select-detail bg-gray-dark">
-          <nav class="select-detail-header box-border flex items-center p-16 justify-between">
-            <div class="back-icon-wrap ">
-              <img src="~@/assets/images/editor_card_backarrow_btn_dark.png" alt="" class="back-icon cursor-pointer">
-            </div>
-            <div class="header-title-wrap text-gray-light flex-grow">
-              <p class="header-title">基本形状</p>
-            </div>
-            <div class="nav-right" style="width: 16px"></div>
-          </nav>
-          <line-el color="#363741"></line-el>
-          <ul class="select-detail-list grid grid-cols-2  box-border p-16">
-            <li class="select-detail-item  flex flex-col items-center border-box justify-between">
-              <img src="~@/assets/images/editor_shape_shape_btn_dark.png" alt="" class="select-detail-sub-icon">
-              <p class="select-detail-name text-12 text-gray-light">圆角矩形</p>
-            </li>
-          </ul>
+          <nav-tab v-model:index="navIndex">
+            <nav-tab-item>
+              <ul class="select-detail-list grid grid-cols-2  box-border p-16">
+                <li class="select-detail-item  flex flex-col items-center border-box justify-between">
+                  <img src="~@/assets/images/editor_shape_shape_btn_dark.png" alt="" class="select-detail-sub-icon">
+                  <p class="select-detail-name text-12 text-gray-light">圆角矩形</p>
+                </li>
+              </ul>
+            </nav-tab-item>
+          </nav-tab>
         </div>
       </aside>
       <aside class="layer-option-area">
-
       </aside>
     </section>
   </div>
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue'
+import {computed, defineComponent} from 'vue'
 import NavBar from "./child/NavBar.vue"
 
-import {mapState, useStore, mapMutations} from "vuex";
+import {useStore, mapMutations} from "vuex";
 import {EditorMutation} from "@/store/editor/mutations";
-import Line from "@/component/common/Line.vue";
-import {dimensionType, EditorStore, SelectBarItem} from "@/store/editor/type";
+import {
+  dimensionSelectBarType2d,
+  dimensionType,
+  EditorStore,
+  SelectBarItem,
+  selectBarType,
+  SelectItem
+} from "@/store/editor/type";
+import NavTab from "@/component/common/navTab/NavTab.vue";
+import NavTabItem from "@/component/common/navTab/NavTabItem.vue";
 import {Ref, ref} from "@vue/reactivity";
 
 const selectBarList2d: Array<SelectBarItem> = [
@@ -72,10 +73,39 @@ const selectBarData: Record<dimensionType, Array<SelectBarItem>> = {
   "2d": selectBarList2d,
   "3d": selectBarList3d
 }
+
+const selectData2d: Record<dimensionSelectBarType2d, Array<SelectItem>> = {
+  text: [
+    {icon: require("@/assets/images/editor_text_bigtitle_btn_dark.png"), name: "大标题", type: "bigTitle"},
+    {icon: require("@/assets/images/editor_text_smalltitle_btn_dark.png"), name: "小标题", type: "smallTitle"},
+    {icon: require("@/assets/images/editor_text_title_btn_dark.png"), name: "标题", type: "title"},
+    {icon: require("@/assets/images/editor_text_content_btn_dark.png"), name: "正文", type: "content"},
+  ],
+  shape: [
+    {
+      icon: require("@/assets/images/editor_shape_shape_btn_dark.png"), name: "基本形状", type: "base",
+      children: [{icon: require("@/assets/images/editor_shape_roundedrectangle_btn_dark.png"), name: "圆角矩形"},
+        {icon: require("@/assets/images/editor_shape_rectangle_btn_dark.png"), name: "矩形"},
+        {icon: require("@/assets/images/editor_shape_circular_btn_dark.png"), name: "圆形"},
+        {icon: require("@/assets/images/editor_shape_righttriangle_btn_dark.png"), name: "直角三角形"}]
+    },
+    {icon: require("@/assets/images/editor_shape_button_btn_dark.png"), name: "按钮", type: "button"},
+    {icon: require("@/assets/images/editor_shape_icon_btn_dark.png"), name: "图标", type: "base"},
+  ],
+  media: [{icon: require("@/assets/images/editor_media_video_btn_dark.png"), name: "视频", type: "video"},
+    {icon: require("@/assets/images/editor_media_picture_btn_dark.png"), name: "图片", type: "image"}],
+
+  chart: [{icon: require("@/assets/images/editor_chart_histogram_btn_dark.png"), name: "柱状图", type: "bar"},
+    {icon: require("@/assets/images/editor_chart_linechart_btn_dark.png"), name: "折线图", type: "line"},
+    {icon: require("@/assets/images/editor_chart_piechart_btn_dark.png"), name: "饼图", type: "pie"},
+    {icon: require("@/assets/images/editor_chart_dashboard_btn_dark.png"), name: "柱状图", type: "gauge"},
+    {icon: require("@/assets/images/editor_chart_curvelinechart_btn_dark.png"), name: "曲线图", type: "curve"}],
+}
+
 /* 编辑器 */
 export default defineComponent({
   name: 'Editor',
-  components: {LineEl: Line, NavBar},
+  components: {NavTabItem, NavTab, NavBar},
   setup() {
     // store
     const editorStore: EditorStore = useStore().state.editor
@@ -85,7 +115,12 @@ export default defineComponent({
     }
 
     // other
-    return {mutations, editorStore, selectBarData}
+    const selectData = computed(() => {
+      return selectData2d[editorStore.selectBarToolType as dimensionSelectBarType2d]
+    })
+    const navIndex: Ref<number> = ref<number>(0)
+
+    return {mutations, editorStore, selectBarData, navIndex}
   }
 
 })
@@ -147,12 +182,7 @@ export default defineComponent({
   margin-left: 4px;
 }
 
-.select-detail-header {
-  height: 64px;
-}
-
 .select-detail-list {
-  border-top: 1px solid #363741;
   gap: 16px;
 }
 
@@ -168,6 +198,7 @@ export default defineComponent({
 .select-detail-item:hover {
   outline: 2px #6582FE solid;
 }
+
 
 /*
 layer-option-area
@@ -194,6 +225,7 @@ layer-option-area
   height: 24px;
   line-height: 24px;
   background: #282A33;
+  transition: background-color .2s ease-in;
 }
 
 .dimension-toggle:nth-child(1) {

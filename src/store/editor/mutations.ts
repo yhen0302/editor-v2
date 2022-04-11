@@ -12,6 +12,11 @@ export default {
     state.dimensionType = payload.dimensionType
   },
   [EditorMutation.CHANGE_SELECT_BAR_TOOL_TYPE](state: EditorStore, payload: { selectBarToolType: selectBarType | null }) {
+    if (state.selectBarToolType === payload.selectBarToolType) {
+      state.selectBarToolType = null
+      return
+    }
     state.selectBarToolType = payload.selectBarToolType
+
   },
 }

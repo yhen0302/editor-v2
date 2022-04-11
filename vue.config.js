@@ -1,5 +1,7 @@
+
 module.exports = {
   publicPath: '/demo/editorV2',
+
   css: {
     loaderOptions: {
       postcss: {
@@ -7,4 +9,6 @@ module.exports = {
       },
     },
   },
-};
+  transpileDependencies: [],
+
+}

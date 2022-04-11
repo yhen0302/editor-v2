@@ -1,5 +1,5 @@
 <template>
-  <div class="line" :style="{height:props.height,width:props.width,background:props.color}"></div>
+  <div class="line" v-once :style="{height:props.height,width:props.width,background:props.color}"></div>
 </template>
 
 <script>
