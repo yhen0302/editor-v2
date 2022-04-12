@@ -1,5 +1,6 @@
 <template>
   <div class="editor">
+    <switch-el></switch-el>
     <nav-bar></nav-bar>
     <section class="dimension-toggle-box flex items-center text-12 text-gray-light cursor-pointer">
       <div class="dimension-toggle" :class="{active:editorStore.dimensionType==='3d'}"
@@ -11,7 +12,7 @@
     </section>
     <section class="editor-area flex justify-between">
       <aside class="select-area h-full flex">
-        <ul class="select-type-bar bg-gray-dark h-full">
+        <ul class="select-type-bar bg-gray-dark h-full relative z-10">
           <li class="dimension-type-item text-blue text-12">{{ editorStore.dimensionType }}</li>
           <li class="select-item relative" :class="{active:item.type===editorStore.selectBarToolType}"
               v-for="item in selectBarData[editorStore.dimensionType]"
@@ -20,19 +21,21 @@
             <span class="select-tip absolute text-12 pointer-events-none">{{ item.name }}</span>
           </li>
         </ul>
-        <div class="select-detail bg-gray-dark">
-          <nav-tab v-model:index="navIndex">
-            <nav-tab-item v-for="select in stack" :key="select.key">
-              <ul class="select-detail-list grid grid-cols-2  box-border p-16">
-                <li class="select-detail-item  flex flex-col items-center border-box justify-between"
-                    v-for="item in select" :key="item.type">
-                  <img :src="item.icon" alt="" class="select-detail-sub-icon">
-                  <p class="select-detail-name text-12 text-gray-light">{{ item.name }}</p>
-                </li>
-              </ul>
-            </nav-tab-item>
-          </nav-tab>
-        </div>
+        <transition name="bounceInLeft">
+          <div class="select-detail bg-gray-dark" v-show="editorStore.selectBarToolType">
+            <nav-tab v-model:index="navIndex">
+              <nav-tab-item v-for="select in stack" :key="select.key">
+                <ul class="select-detail-list grid grid-cols-2  box-border p-16">
+                  <li class="select-detail-item  flex flex-col items-center border-box justify-between"
+                      v-for="item in select" :key="item.type" @click="clickSelectItem(item)">
+                    <img :src="item.icon" class="select-detail-sub-icon flex-shrink-0">
+                    <p class="select-detail-name text-12 text-gray-light">{{ item.name }}</p>
+                  </li>
+                </ul>
+              </nav-tab-item>
+            </nav-tab>
+          </div>
+        </transition>
       </aside>
       <aside class="layer-option-area">
       </aside>
@@ -41,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, watch} from 'vue'
+import {computed, defineComponent, watch, markRaw} from 'vue'
 import NavBar from "./child/NavBar.vue"
 
 import {useStore, mapMutations} from "vuex";
@@ -51,12 +54,13 @@ import {
   dimensionType,
   EditorStore,
   SelectBarItem,
-  selectBarType,
-  SelectItem
+  selectItemType2d,
+  selectItemType3d,
 } from "@/store/editor/type";
 import NavTab from "@/component/common/navTab/NavTab.vue";
 import NavTabItem from "@/component/common/navTab/NavTabItem.vue";
 import {Ref, ref} from "@vue/reactivity";
+import SwitchEl from "@/component/common/SwitchEl.vue";
 
 const selectBarList2d: Array<SelectBarItem> = [
   {icon: require("@/assets/images/editor_text_btn_dark.png"), name: "文本", type: "text"},
@@ -75,9 +79,19 @@ const selectBarData: Record<dimensionType, Array<SelectBarItem>> = {
   "3d": selectBarList3d
 }
 
+interface SelectItem {
+  type?: selectItemType2d | selectItemType3d,
+  icon: string,
+  name: string,
+  key?: string,
+  children?: ViewSelectItem,
+  // children?:any
+}
+
 interface ViewSelectItem {
   list: Array<SelectItem>,
-  viewType: "block" | "switch" | "radio"
+  viewType: "block" | "switch" | "radio",
+  key?: string
 }
 
 const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, ViewSelectItem> = {
@@ -92,10 +106,13 @@ const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, 
   shape: {
     list: [{
       icon: require("@/assets/images/editor_shape_shape_btn_dark.png"), name: "基本形状", type: "base",
-      children: [{icon: require("@/assets/images/editor_shape_roundedrectangle_btn_dark.png"), name: "圆角矩形"},
-        {icon: require("@/assets/images/editor_shape_rectangle_btn_dark.png"), name: "矩形"},
-        {icon: require("@/assets/images/editor_shape_circular_btn_dark.png"), name: "圆形"},
-        {icon: require("@/assets/images/editor_shape_righttriangle_btn_dark.png"), name: "直角三角形"}]
+      children: {
+        list: [{icon: require("@/assets/images/editor_shape_roundedrectangle_btn_dark.png"), name: "圆角矩形"},
+          {icon: require("@/assets/images/editor_shape_rectangle_btn_dark.png"), name: "矩形"},
+          {icon: require("@/assets/images/editor_shape_circular_btn_dark.png"), name: "圆形"},
+          {icon: require("@/assets/images/editor_shape_righttriangle_btn_dark.png"), name: "直角三角形"}],
+        viewType: "block"
+      }
     },
       {icon: require("@/assets/images/editor_shape_button_btn_dark.png"), name: "按钮", type: "button"},
       {icon: require("@/assets/images/editor_shape_icon_btn_dark.png"), name: "图标", type: "base"},],
@@ -116,15 +133,23 @@ const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, 
   },
   element: {
     list: [{icon: require("@/assets/images/editor_element_model_btn_dark.png"), name: "模型", type: "model"},
-      {icon: require("@/assets/images/editor_element_icon_btn_dark.png"), name: "模型", type: "model"},
-      {icon: require("@/assets/images/editor_element_text_btn_dark.png"), name: "模型", type: "model"},
-      {icon: require("@/assets/images/editor_element_mark_btn_dark.png"), name: "模型", type: "model"},
-      {icon: require("@/assets/images/editor_element_flyline_btn_dark.png"), name: "模型", type: "model"},
-      {icon: require("@/assets/images/editor_element_streamer_btn_dark.png"), name: "模型", type: "model"},],
+      {icon: require("@/assets/images/editor_element_icon_btn_dark.png"), name: "图标", type: "3dicon"},
+      {icon: require("@/assets/images/editor_element_text_btn_dark.png"), name: "文本", type: "text"},
+      {icon: require("@/assets/images/editor_element_mark_btn_dark.png"), name: "自由标记", type: "mark"},
+      {icon: require("@/assets/images/editor_element_flyline_btn_dark.png"), name: "飞线", type: "flyline"},
+      {icon: require("@/assets/images/editor_element_streamer_btn_dark.png"), name: "道路流光", type: "streamer"},],
     viewType: "block"
   },
   scenes: {
-    list: [], viewType: "block"
+    list: [
+      {icon: require("@/assets/images/editor_sceneeffect_light_btn_dark.png"), name: "光照", type: "light"},
+      {icon: require("@/assets/images/editor_sceneeffect_shadow_btn_dark.png"), name: "阴影", type: "shadow"},
+      {icon: require("@/assets/images/editor_sceneeffect_camea_btn_dark.png"), name: "相机/控制器", type: "camera"},
+      {icon: require("@/assets/images/editor_sceneeffect_background_btn_dark.png"), name: "背景", type: "background"},
+      {icon: require("@/assets/images/editor_sceneeffect_hdr_btn_dark.png"), name: "HDR", type: "HDR"},
+      {icon: require("@/assets/images/editor_sceneeffect_fog_btn_dark.png"), name: "雾", type: "fog"},
+
+    ], viewType: "block"
   },
   afterProcess: {
     list: [],
@@ -135,7 +160,8 @@ const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, 
 /* 编辑器 */
 export default defineComponent({
   name: 'Editor',
-  components: {NavTabItem, NavTab, NavBar},
+  // eslint-disable-next-line vue/no-unused-components
+  components: {SwitchEl, NavTabItem, NavTab, NavBar},
   setup() {
     // store
     const editorStore: EditorStore = useStore().state.editor
@@ -148,13 +174,26 @@ export default defineComponent({
     const stack: Ref<Array<any>> = ref<Array<any>>([])
     watch(() => editorStore.selectBarToolType, (newVal, oldVal) => {
       if (newVal) {
-        let data: any = selectData2d[newVal as dimensionSelectBarType2d]
+        let data: any = markRaw(selectData2d[newVal as dimensionSelectBarType2d].list)
         data.key = newVal
         stack.value = [data]
+        navIndex.value = 0
       }
     })
     const navIndex: Ref<number> = ref<number>(0)
-    return {mutations, editorStore, selectBarData, navIndex, stack}
+    watch(() => navIndex.value, (newVal, oldVal) => {
+      if (newVal < oldVal)
+        stack.value.pop()
+    })
+
+    function clickSelectItem(selectItem: SelectItem) {
+      if (selectItem.children) {
+        stack.value.push(selectItem.children.list)
+        navIndex.value++
+      }
+    }
+
+    return {mutations, editorStore, selectBarData, navIndex, stack, clickSelectItem}
   }
 
 })
@@ -216,6 +255,25 @@ export default defineComponent({
   margin-left: 4px;
 }
 
+.bounceInLeft-enter-from,
+.bounceInLeft-leave-to {
+  transform: translateX(-272px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bounceInLeft-enter-active, .bounceInLeft-leave-active {
+  transition: transform .25s ease, opacity .25s ease;
+
+}
+
+.bounceInLeft-enter-to,
+.bounceInLeft-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .select-detail-list {
   gap: 16px;
 }
@@ -233,6 +291,11 @@ export default defineComponent({
   outline: 2px #6582FE solid;
 }
 
+.select-detail-sub-icon {
+  height: 64px;
+  width: 64px;
+  object-fit: cover;
+}
 
 /*
 layer-option-area

@@ -1,7 +1,7 @@
 <script lang="tsx">
 import LineEl from "@/component/common/LineEl.vue";
 import {Ref, ref} from "@vue/reactivity";
-import {watch} from "vue";
+import {computed, getCurrentInstance, onBeforeUpdate, onUpdated, SetupContext, watch} from "vue";
 
 export default {
   name: "NavTab",
@@ -10,10 +10,18 @@ export default {
   },
   emits: ["update:index"],
   components: {LineEl},
-  setup(props: any, context: any) {
+  setup(props: any, context: SetupContext) {
     const backImg = require("@/assets/images/editor_card_backarrow_btn_dark.png")
 
     const navIndex: Ref<number> = ref<number>(props.index)
+    const getCurrentTabCard = computed(() => {
+      let defaultSlotsRes = context.slots.default?.()
+      if (defaultSlotsRes?.[navIndex.value]) {
+        return defaultSlotsRes?.[navIndex.value]
+      } else {
+        return (defaultSlotsRes?.[0]?.children as [])?.[navIndex.value - Number(defaultSlotsRes?.length) + 1]
+      }
+    })
     watch(() => props.index, newVal => navIndex.value = newVal)
     return () => (<div class="nav-tab">
       <nav class="select-detail-header box-border flex items-center p-16 justify-between">
@@ -22,7 +30,7 @@ export default {
             navIndex.value === 0 ? '' :
                 (<img src={backImg} class="back-icon cursor-pointer" onClick={() => {
                   navIndex.value--;
-                  context.emit('update:index', navIndex)
+                  context.emit('update:index', navIndex.value)
                 }}/>)
           }
         </div>
@@ -32,7 +40,7 @@ export default {
         <div class="nav-right" style="width: 16px"></div>
       </nav>
       <line-el color="#363741"></line-el>
-      {context.slots.default()[navIndex.value]}
+      {getCurrentTabCard.value || ""}
     </div>)
   }
 }

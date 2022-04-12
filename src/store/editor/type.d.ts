@@ -22,16 +22,16 @@ export declare type selectItemTextType = "title" | "bigTitle" | "smallTitle" | "
 export declare type selectItemShapeType = "base" | "button" | "icon"
 export declare type selectItemMediaType = "video" | "image"
 export declare type selectItemChartType = "bar" | "line" | "pie" | "gauge" | "curve"
-export declare type selectItemChartType2d =
+export declare type selectItemType2d =
   selectItemTextType
   | selectItemShapeType
   | selectItemMediaType
   | selectItemChartType
 
 
-export declare type selectItemElementType = "model" | "icon" | "text" | "mark" | "flyline" | "streamer"
+export declare type selectItemElementType = "model" | "3dicon" | "text" | "mark" | "flyline" | "streamer"
 export declare type selectItemScreenType = "light" | "shadow" | "camera" | "background" | "HDR" | "fog"
-export declare type selectItemChartType3d = selectItemElementType | selectItemScreenType
+export declare type selectItemType3d = selectItemElementType | selectItemScreenType
 
 export declare interface SelectItem extends SelectBarItem {
   type: selectItemChartType2d | selectItemChartType3d,
