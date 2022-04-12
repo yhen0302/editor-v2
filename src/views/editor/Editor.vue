@@ -1,6 +1,5 @@
 <template>
   <div class="editor">
-    <switch-el></switch-el>
     <nav-bar></nav-bar>
     <section class="dimension-toggle-box flex items-center text-12 text-gray-light cursor-pointer">
       <div class="dimension-toggle" :class="{active:editorStore.dimensionType==='3d'}"
@@ -44,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, watch, markRaw} from 'vue'
+import {defineComponent, watch, markRaw} from 'vue'
 import NavBar from "./child/NavBar.vue"
 
 import {useStore, mapMutations} from "vuex";
@@ -60,7 +59,7 @@ import {
 import NavTab from "@/component/common/navTab/NavTab.vue";
 import NavTabItem from "@/component/common/navTab/NavTabItem.vue";
 import {Ref, ref} from "@vue/reactivity";
-import SwitchEl from "@/component/common/SwitchEl.vue";
+import RadioEl from "@/component/common/RadioEl.vue";
 
 const selectBarList2d: Array<SelectBarItem> = [
   {icon: require("@/assets/images/editor_text_btn_dark.png"), name: "文本", type: "text"},
@@ -161,7 +160,7 @@ const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, 
 export default defineComponent({
   name: 'Editor',
   // eslint-disable-next-line vue/no-unused-components
-  components: {SwitchEl, NavTabItem, NavTab, NavBar},
+  components: {RadioEl, NavTabItem, NavTab, NavBar},
   setup() {
     // store
     const editorStore: EditorStore = useStore().state.editor

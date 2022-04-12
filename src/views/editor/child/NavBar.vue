@@ -14,9 +14,11 @@
       </div>
 
       <div class="nav_content-right flex justify-between">
-        <img src="~@/assets/images/editor_preview_btn_dark.png" class="cursor-pointer"/>
+          <img src="~@/assets/images/editor_preview_btn_dark.png" class="cursor-pointer"/>
         <img src="~@/assets/images/editor_save_btn_dark.png" class="cursor-pointer"/>
+
         <img src="~@/assets/images/editor_download_btn_dark.png" class="cursor-pointer"/>
+
         <img src="~@/assets/images/editor_import_btn_dark.png" class="cursor-pointer"/>
       </div>
     </section>

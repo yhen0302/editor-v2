@@ -1,19 +1,26 @@
 <template>
-  <button class="switch-el relative" :class="{active:realValue}" @click="realValue=!realValue"></button>
+  <button class="switch-el relative" :class="{active:realValue}" @click="changeValue"></button>
 </template>
 
 <script lang="ts">
 import {Ref, ref} from "@vue/reactivity";
-
+import {SetupContext} from "vue";
 
 export default {
   name: "SwitchEl",
   props: {
     value: {type: Boolean, default: false}
   },
-  setup(props, context) {
+  emits: ["update:value"],
+  setup(props: any, context: SetupContext) {
     const realValue: Ref<boolean> = ref<boolean>(props.value)
-    return {realValue}
+
+    function changeValue() {
+      realValue.value = !realValue.value
+      context.emit('update:value', realValue.value)
+    }
+
+    return {realValue, changeValue}
   }
 }
 </script>
@@ -25,7 +32,8 @@ export default {
   line-height: 1;
   vertical-align: bottom;
   border-radius: 8px;
-  background: #6582FE;
+  background: #464858;
+  transition: background-color .15s ease-in-out;
 }
 
 .switch-el::before {
@@ -36,11 +44,14 @@ export default {
   border-radius: 50%;
   background: #FFF;
   transform: translateX(2px);
-  transition: transform .25s ease-in-out;
+  transition: transform .2s ease-in-out;
 }
 
 .switch-el.active::before {
   transform: translateX(18px);
 }
 
+.switch-el.active {
+  background: #6582FE;
+}
 </style>
