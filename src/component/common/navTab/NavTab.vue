@@ -7,6 +7,7 @@ export default {
   name: "NavTab",
   props: {
     index: {type: Number, default: 0},
+    title:{type:String,default:''}
   },
   emits: ["update:index"],
   components: {LineEl},
@@ -35,7 +36,7 @@ export default {
           }
         </div>
         <div class="header-title-wrap text-gray-light flex-grow">
-          <p class="header-title">基本形状</p>
+          <p class="header-title">{props.title}</p>
         </div>
         <div class="nav-right" style="width: 16px"></div>
       </nav>

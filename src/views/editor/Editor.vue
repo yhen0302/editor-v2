@@ -21,8 +21,9 @@
           </li>
         </ul>
         <transition name="bounceInLeft">
-          <div class="select-detail bg-gray-dark" v-show="editorStore.selectBarToolType">
-            <nav-tab v-model:index="navIndex">
+          <div class="select-detail bg-gray-dark" v-show="editorStore.selectBarToolType"
+               v-memo="[editorStore.selectBarToolType,navIndex]">
+            <nav-tab v-model:index="navIndex" :title="activeTitle">
               <nav-tab-item v-for="select in stack" :key="select.key">
                 <ul class="select-detail-list grid grid-cols-2  box-border p-16" v-if="select.viewType==='block'">
                   <li class="select-detail-item  flex flex-col items-center border-box justify-between"
@@ -34,7 +35,7 @@
               </nav-tab-item>
             </nav-tab>
             <after-process v-show="editorStore.selectBarToolType==='afterProcess'"></after-process>
-            <shadow-radio v-show="editorStore.selectBarToolType==='scenes'"></shadow-radio>
+            <shadow-radio v-show="isShadow"></shadow-radio>
           </div>
         </transition>
       </aside>
@@ -53,7 +54,7 @@ import {
   selectItemType2d,
   selectItemType3d,
 } from "@/store/editor/type";
-import {defineComponent, watch, markRaw} from 'vue'
+import {defineComponent, watch, markRaw, computed} from 'vue'
 import NavBar from "./child/NavBar.vue"
 
 import {useStore, mapMutations} from "vuex";
@@ -152,7 +153,7 @@ const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, 
         icon: require("@/assets/images/editor_sceneeffect_shadow_btn_dark.png"),
         name: "阴影",
         type: "shadow",
-        children: {list: [], viewType: 'switch'}
+        children: {list: [], viewType: 'switch', key: "shadowSwitch"}
       },
       {icon: require("@/assets/images/editor_sceneeffect_camea_btn_dark.png"), name: "相机/控制器", type: "camera"},
       {icon: require("@/assets/images/editor_sceneeffect_background_btn_dark.png"), name: "背景", type: "background"},
@@ -182,6 +183,9 @@ export default defineComponent({
 
     // other
     const stack: Ref<Array<any>> = ref<Array<any>>([])
+    const navIndex: Ref<number> = ref<number>(0)
+
+
     watch(() => editorStore.selectBarToolType, (newVal, oldVal) => {
       if (newVal) {
         let data: any = markRaw(selectData2d[newVal as dimensionSelectBarType2d])
@@ -190,11 +194,13 @@ export default defineComponent({
         navIndex.value = 0
       }
     })
-    const navIndex: Ref<number> = ref<number>(0)
     watch(() => navIndex.value, (newVal, oldVal) => {
-
       if (newVal < oldVal && stack.value.length > 1)
         stack.value.pop()
+    })
+
+    const isShadow = computed(() => {
+      return editorStore.selectBarToolType === 'scenes' && stack.value?.[1]?.key === 'shadowSwitch'
     })
 
     function clickSelectItem(selectItem: SelectItem) {
@@ -204,7 +210,11 @@ export default defineComponent({
       }
     }
 
-    return {mutations, editorStore, selectBarData, navIndex, stack, clickSelectItem}
+    const activeTitle = computed(() => {
+      return selectBarData[editorStore.dimensionType].find(item => item.type === editorStore.selectBarToolType)?.name
+    })
+
+    return {mutations, editorStore, selectBarData, navIndex, stack, clickSelectItem, isShadow, activeTitle}
   }
 
 })
