@@ -14,12 +14,14 @@
       </div>
 
       <div class="nav_content-right flex justify-between">
-          <img src="~@/assets/images/editor_preview_btn_dark.png" class="cursor-pointer"/>
-        <img src="~@/assets/images/editor_save_btn_dark.png" class="cursor-pointer"/>
-
-        <img src="~@/assets/images/editor_download_btn_dark.png" class="cursor-pointer"/>
-
-        <img src="~@/assets/images/editor_import_btn_dark.png" class="cursor-pointer"/>
+        <tip-button :icon="require('@/assets/images/editor_preview_btn_dark.png')"></tip-button>
+        <tip-button :icon="require('@/assets/images/editor_save_btn_dark.png')" >
+          <template v-slot:tip>
+            <span>保存&cent;</span>
+          </template>
+        </tip-button>
+        <tip-button :icon="require('@/assets/images/editor_download_btn_dark.png')"></tip-button>
+        <tip-button :icon="require('@/assets/images/editor_import_btn_dark.png')"></tip-button>
       </div>
     </section>
     <aside class="nav_right flex items-center h-full justify-end">
@@ -31,10 +33,11 @@
 
 <script>
 import Timer from "../../../component/common/Timer";
+import TipButton from "@/component/content/TipButton";
 
 export default {
   name: "NavBar",
-  components: {Timer}
+  components: {TipButton, Timer},
 }
 </script>
 
@@ -70,7 +73,7 @@ export default {
 }
 
 .nav_content-right {
-  width: 168px;
+  gap: 4px;
 }
 
 .save-icon {

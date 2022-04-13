@@ -15,9 +15,8 @@
           <li class="dimension-type-item text-blue text-12">{{ editorStore.dimensionType }}</li>
           <li class="select-item relative" :class="{active:item.type===editorStore.selectBarToolType}"
               v-for="item in selectBarData[editorStore.dimensionType]"
-              @click="mutations.CHANGE_SELECT_BAR_TOOL_TYPE({selectBarToolType:item.type})" :key="item.icon">
-            <img class="select-icon" width="24" height="24" :src="item.icon">
-            <span class="select-tip absolute text-12 pointer-events-none">{{ item.name }}</span>
+              @click="mutations.CHANGE_SELECT_BAR_TOOL_TYPE({selectBarToolType:item.type})" :key="item.type">
+            <tip-button :name="item.name" :active="item.type===editorStore.selectBarToolType" :icon="item.icon"></tip-button>
           </li>
         </ul>
         <transition name="bounceInLeft">
@@ -60,6 +59,7 @@ import NavTab from "@/component/common/navTab/NavTab.vue";
 import NavTabItem from "@/component/common/navTab/NavTabItem.vue";
 import {Ref, ref} from "@vue/reactivity";
 import RadioEl from "@/component/common/RadioEl.vue";
+import TipButton from "@/component/content/TipButton.vue";
 
 const selectBarList2d: Array<SelectBarItem> = [
   {icon: require("@/assets/images/editor_text_btn_dark.png"), name: "文本", type: "text"},
@@ -160,7 +160,7 @@ const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, 
 export default defineComponent({
   name: 'Editor',
   // eslint-disable-next-line vue/no-unused-components
-  components: {RadioEl, NavTabItem, NavTab, NavBar},
+  components: {TipButton, RadioEl, NavTabItem, NavTab, NavBar},
   setup() {
     // store
     const editorStore: EditorStore = useStore().state.editor
@@ -212,39 +212,12 @@ export default defineComponent({
 
 .dimension-type-item {
   height: 24px;
+  margin-bottom: 4px;
 }
 
 .select-item {
-  width: 100%;
-  padding: 16px;
   border-radius: 4px;
-  transition: background-color .2s linear;
-}
-
-.select-item:hover {
-  background: #323440;
-}
-
-.select-item:hover > .select-tip {
-  opacity: .8;
-  transform: translate(100%, -50%)
-}
-
-.select-item.active {
-  background-color: #6582FE;
-}
-
-.select-tip {
-  top: 50%;
-  right: -4px;
-  white-space: nowrap;
-  background: #ECECEC;
-  border-radius: 4px;
-  padding: 8px 16px;
-  opacity: 0;
-  transform: translate(0px, -50%);
-  transition-property: transform, opacity;
-  transition: .15s ease-in-out;
+  margin-bottom: 4px;
 }
 
 /*select-detail*/
