@@ -44,6 +44,11 @@ export default {
   transform: translate(100%, -50%)
 }
 
+.tip-button:hover > .select-tip.tb {
+  opacity: .8;
+  transform: translate(0, calc(100% - 15px));
+}
+
 .tip-button.active {
   background-color: #6582FE;
 }
@@ -57,7 +62,7 @@ export default {
   padding: 8px 16px;
   opacity: 0;
   transition-property: transform, opacity;
-  transition: .15s ease-in-out;
+  transition: .1s cubic-bezier(1,-0.00,1,-0.00);
 }
 
 .select-tip.lr {

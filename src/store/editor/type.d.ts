@@ -4,7 +4,8 @@ export declare type dimensionType = "2d" | "3d"
 export declare interface EditorStore {
   dimensionType: dimensionType,
   selectBarToolType: selectBarType | null
-
+  switchItemAfterProcessType:Record<switchItemAfterProcessType, boolean>
+  shadow:boolean
   [key: string]: any
 }
 
@@ -31,6 +32,16 @@ export declare type selectItemType2d =
 
 export declare type selectItemElementType = "model" | "3dicon" | "text" | "mark" | "flyline" | "streamer"
 export declare type selectItemScreenType = "light" | "shadow" | "camera" | "background" | "HDR" | "fog"
+export declare type switchItemAfterProcessType =
+  "outline"
+  | "bloom"
+  | "dof"
+  | "gammaCorrection"
+  | "ssaa"
+  | "ssr"
+  | "ssao"
+
+
 export declare type selectItemType3d = selectItemElementType | selectItemScreenType
 
 export declare interface SelectItem extends SelectBarItem {

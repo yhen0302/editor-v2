@@ -16,22 +16,25 @@
           <li class="select-item relative" :class="{active:item.type===editorStore.selectBarToolType}"
               v-for="item in selectBarData[editorStore.dimensionType]"
               @click="mutations.CHANGE_SELECT_BAR_TOOL_TYPE({selectBarToolType:item.type})" :key="item.type">
-            <tip-button :name="item.name" :active="item.type===editorStore.selectBarToolType" :icon="item.icon"></tip-button>
+            <tip-button :name="item.name" :active="item.type===editorStore.selectBarToolType"
+                        :icon="item.icon"></tip-button>
           </li>
         </ul>
         <transition name="bounceInLeft">
           <div class="select-detail bg-gray-dark" v-show="editorStore.selectBarToolType">
             <nav-tab v-model:index="navIndex">
               <nav-tab-item v-for="select in stack" :key="select.key">
-                <ul class="select-detail-list grid grid-cols-2  box-border p-16">
+                <ul class="select-detail-list grid grid-cols-2  box-border p-16" v-if="select.viewType==='block'">
                   <li class="select-detail-item  flex flex-col items-center border-box justify-between"
-                      v-for="item in select" :key="item.type" @click="clickSelectItem(item)">
+                      v-for="item in select.list" :key="item.type" @click="clickSelectItem(item)">
                     <img :src="item.icon" class="select-detail-sub-icon flex-shrink-0">
                     <p class="select-detail-name text-12 text-gray-light">{{ item.name }}</p>
                   </li>
                 </ul>
               </nav-tab-item>
             </nav-tab>
+            <after-process v-show="editorStore.selectBarToolType==='afterProcess'"></after-process>
+            <shadow-radio v-show="editorStore.selectBarToolType==='scenes'"></shadow-radio>
           </div>
         </transition>
       </aside>
@@ -42,11 +45,6 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, watch, markRaw} from 'vue'
-import NavBar from "./child/NavBar.vue"
-
-import {useStore, mapMutations} from "vuex";
-import {EditorMutation} from "@/store/editor/mutations";
 import {
   dimensionSelectBarType2d, dimensionSelectBarType3d,
   dimensionType,
@@ -55,11 +53,19 @@ import {
   selectItemType2d,
   selectItemType3d,
 } from "@/store/editor/type";
+import {defineComponent, watch, markRaw} from 'vue'
+import NavBar from "./child/NavBar.vue"
+
+import {useStore, mapMutations} from "vuex";
+import {EditorMutation} from "@/store/editor/mutations";
+
 import NavTab from "@/component/common/navTab/NavTab.vue";
 import NavTabItem from "@/component/common/navTab/NavTabItem.vue";
 import {Ref, ref} from "@vue/reactivity";
 import RadioEl from "@/component/common/RadioEl.vue";
 import TipButton from "@/component/content/TipButton.vue";
+import AfterProcess from "@/views/editor/child/AfterProcess.vue";
+import ShadowRadio from "@/views/editor/child/ShadowRadio.vue";
 
 const selectBarList2d: Array<SelectBarItem> = [
   {icon: require("@/assets/images/editor_text_btn_dark.png"), name: "文本", type: "text"},
@@ -142,7 +148,12 @@ const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, 
   scenes: {
     list: [
       {icon: require("@/assets/images/editor_sceneeffect_light_btn_dark.png"), name: "光照", type: "light"},
-      {icon: require("@/assets/images/editor_sceneeffect_shadow_btn_dark.png"), name: "阴影", type: "shadow"},
+      {
+        icon: require("@/assets/images/editor_sceneeffect_shadow_btn_dark.png"),
+        name: "阴影",
+        type: "shadow",
+        children: {list: [], viewType: 'switch'}
+      },
       {icon: require("@/assets/images/editor_sceneeffect_camea_btn_dark.png"), name: "相机/控制器", type: "camera"},
       {icon: require("@/assets/images/editor_sceneeffect_background_btn_dark.png"), name: "背景", type: "background"},
       {icon: require("@/assets/images/editor_sceneeffect_hdr_btn_dark.png"), name: "HDR", type: "HDR"},
@@ -152,7 +163,7 @@ const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, 
   },
   afterProcess: {
     list: [],
-    viewType: "block"
+    viewType: "switch"
   }
 }
 
@@ -160,7 +171,7 @@ const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, 
 export default defineComponent({
   name: 'Editor',
   // eslint-disable-next-line vue/no-unused-components
-  components: {TipButton, RadioEl, NavTabItem, NavTab, NavBar},
+  components: {ShadowRadio, AfterProcess, TipButton, RadioEl, NavTabItem, NavTab, NavBar},
   setup() {
     // store
     const editorStore: EditorStore = useStore().state.editor
@@ -173,21 +184,22 @@ export default defineComponent({
     const stack: Ref<Array<any>> = ref<Array<any>>([])
     watch(() => editorStore.selectBarToolType, (newVal, oldVal) => {
       if (newVal) {
-        let data: any = markRaw(selectData2d[newVal as dimensionSelectBarType2d].list)
+        let data: any = markRaw(selectData2d[newVal as dimensionSelectBarType2d])
         data.key = newVal
-        stack.value = [data]
+        stack.value.splice(0, stack.value.length, data)
         navIndex.value = 0
       }
     })
     const navIndex: Ref<number> = ref<number>(0)
     watch(() => navIndex.value, (newVal, oldVal) => {
-      if (newVal < oldVal)
+
+      if (newVal < oldVal && stack.value.length > 1)
         stack.value.pop()
     })
 
     function clickSelectItem(selectItem: SelectItem) {
       if (selectItem.children) {
-        stack.value.push(selectItem.children.list)
+        stack.value.push(selectItem.children)
         navIndex.value++
       }
     }

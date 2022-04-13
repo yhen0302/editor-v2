@@ -13,11 +13,12 @@
         <div class="select-box">50</div>
       </div>
 
-      <div class="nav_content-right flex justify-between">
+      <div class="nav_content-right flex justify-between" v-once>
         <tip-button :icon="require('@/assets/images/editor_preview_btn_dark.png')"></tip-button>
-        <tip-button :icon="require('@/assets/images/editor_save_btn_dark.png')" >
+        <tip-button :icon="require('@/assets/images/editor_save_btn_dark.png')" name="1" tip-position="tb">
           <template v-slot:tip>
-            <span>保存&cent;</span>
+            <p>保存</p>
+            <p>Ctrl+S</p>
           </template>
         </tip-button>
         <tip-button :icon="require('@/assets/images/editor_download_btn_dark.png')"></tip-button>

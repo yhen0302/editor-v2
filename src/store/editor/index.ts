@@ -8,7 +8,18 @@ import {dimensionSelectBarType2d, EditorStore, selectBarType} from "@/store/edit
 
 const state: EditorStore = {
   dimensionType: "2d",
-  selectBarToolType: null
+  selectBarToolType: null,
+  shadow:false,
+  // switchItemAfterProcessType
+  switchItemAfterProcessType:{
+    outline: false,
+    bloom: false,
+    dof: false,
+    gammaCorrection: false,
+    ssaa: false,
+    ssr: false,
+    ssao: false,
+  }
 }
 
 const store: Module<EditorStore, any> = {
