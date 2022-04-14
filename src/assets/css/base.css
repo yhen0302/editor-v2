@@ -1,7 +1,10 @@
-html,body {
+html, body {
     background-color: #1B1B21;
+    overflow: hidden;
 }
 
-img{
+
+
+img {
     height: initial;
 }

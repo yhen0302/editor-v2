@@ -63,6 +63,7 @@ export default {
   opacity: 0;
   transition-property: transform, opacity;
   transition: .1s cubic-bezier(1,-0.00,1,-0.00);
+  color: #1d1d1d;
 }
 
 .select-tip.lr {

@@ -1,7 +1,9 @@
 <template>
   <div class="editor">
+    <!--  上方导航工具  -->
     <nav-bar></nav-bar>
-    <section class="dimension-toggle-box flex items-center text-12 text-gray-light cursor-pointer">
+    <!--  2d, 3d 切换  -->
+    <section class="dimension-toggle-box relative z-10 flex items-center text-12 text-gray-light cursor-pointer">
       <div class="dimension-toggle" :class="{active:editorStore.dimensionType==='3d'}"
            @click="mutations.CHANGE_DIMENSION({dimensionType:'3d'})">3d
       </div>
@@ -9,6 +11,7 @@
            @click="mutations.CHANGE_DIMENSION({dimensionType:'2d'})">2d
       </div>
     </section>
+    <!--  编辑区域  -->
     <section class="editor-area flex justify-between">
       <aside class="select-area h-full flex">
         <ul class="select-type-bar bg-gray-dark h-full relative z-10">
@@ -39,7 +42,10 @@
           </div>
         </transition>
       </aside>
+      <art-board class="flex-1"></art-board>
       <aside class="layer-option-area">
+
+
       </aside>
     </section>
   </div>
@@ -67,6 +73,7 @@ import RadioEl from "@/component/common/RadioEl.vue";
 import TipButton from "@/component/content/TipButton.vue";
 import AfterProcess from "@/views/editor/child/AfterProcess.vue";
 import ShadowRadio from "@/views/editor/child/ShadowRadio.vue";
+import ArtBoard from "@/views/editor/child/ArtBoard.vue";
 
 const selectBarList2d: Array<SelectBarItem> = [
   {icon: require("@/assets/images/editor_text_btn_dark.png"), name: "文本", type: "text"},
@@ -172,7 +179,7 @@ const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, 
 export default defineComponent({
   name: 'Editor',
   // eslint-disable-next-line vue/no-unused-components
-  components: {ShadowRadio, AfterProcess, TipButton, RadioEl, NavTabItem, NavTab, NavBar},
+  components: {ArtBoard, ShadowRadio, AfterProcess, TipButton, RadioEl, NavTabItem, NavTab, NavBar},
   setup() {
     // store
     const editorStore: EditorStore = useStore().state.editor
