@@ -36,7 +36,7 @@ export default {
     const artBoard: Ref<HTMLDivElement | null> = ref<HTMLDivElement | null>(null)
 
     // wheel
-    const scale: Ref<number> = ref<number>(1)
+    const scale: Ref<number> = ref<number>(.5)
     const keySpace = ref(false)
 
     function onWheel(ev: WheelEvent) {
