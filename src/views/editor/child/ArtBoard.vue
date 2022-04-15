@@ -1,6 +1,18 @@
 <template>
-  <section class="art-board" @wheel="onWheel">
-    <section class="art-board-wrapper grid place-content-center" :style="{width:wrapperWidthPx,height:wrapperHeightPx}">
+  <section class="art-board"
+           ref="artBoard"
+           tabindex="0"
+           :class="{'cursor-grab':keySpace}"
+           @wheel="onWheel"
+           @keydown.space.prevent="spaceDown"
+           @mouseenter.prevent="enterBoard"
+           @mouseleave.prevent="leaveBoard"
+           @mousemove="boardMoveEvent"
+           @mousedown="boardDownEvent"
+           @mouseup="boardUpEvent"
+           @keyup.space.prevent="spaceUp">
+    <section class="art-board-wrapper grid place-content-center"
+             :style="{width:wrapperWidthPx,height:wrapperHeightPx}">
       <section class="art-board-box relative" :style="{width:widthPx,height:heightPx,transform:`scale(${scale})`}">
         <canvas class="canvas-renderer" :width="width" :height="height"></canvas>
         <div class="art-board-content"></div>
@@ -10,8 +22,9 @@
 </template>
 
 <script lang="ts">
-import {computed} from "vue";
-import {Ref, ref} from "@vue/reactivity";
+import {computed, markRaw, nextTick, onMounted, watch} from "vue";
+import {Ref, ref, reactive} from "@vue/reactivity";
+import {cssUnitToNumber, getCss} from "@/util/base.ts";
 
 export default {
   name: "ArtBoard",
@@ -19,12 +32,15 @@ export default {
     width: {type: Number, default: 1920},
     height: {type: Number, default: 1080},
   },
-  setup(props) {
+  setup(props: any) {
+    const artBoard: Ref<HTMLDivElement | null> = ref<HTMLDivElement | null>(null)
+
     // wheel
     const scale: Ref<number> = ref<number>(1)
+    const keySpace = ref(false)
 
     function onWheel(ev: WheelEvent) {
-      if (ev.ctrlKey) {
+      if (ev.ctrlKey || keySpace.value) {
         ev.deltaY > 0
             ? scale.value > .3
             ? scale.value -= .05
@@ -32,32 +48,95 @@ export default {
             : scale.value < 3
             ? scale.value += .05
             : null
-
         ev.preventDefault()
-
       }
     }
 
     // size
     const widthPx = computed(() => props.width + "px")
     const heightPx = computed(() => props.height + "px")
-    const WHRatio = computed(()=>props.width/props.height)
+
     const wrapperWidthPx = computed(() => {
-      let offset = 0
-      if(scale>.8){
-        offset =  props.height / 2 * scale.value
-      }
-     return  props.width * scale.value + offset + "px"
+      let offset: number = cssUnitToNumber(getCss(artBoard.value, "width") as string) * 2
+      return props.width * scale.value + offset + "px"
     })
     const wrapperHeightPx = computed(() => {
-      let offset = 0
-      if(scale>.8){
-        offset =  props.height / 2 * scale.value
-      }
-      return props.height  + offset+ "px"
+      let offset: number = cssUnitToNumber(getCss(artBoard.value, "height") as string) * 2
+      return props.height + offset + "px"
     })
 
-    return {widthPx, heightPx, wrapperWidthPx, wrapperHeightPx, onWheel, scale}
+    nextTick(() => {
+      if (artBoard.value) {
+        artBoard.value.scrollTo(
+            Number(((cssUnitToNumber(wrapperWidthPx.value) - cssUnitToNumber(getCss(artBoard.value, 'width') as string)) / 2).toFixed()),
+            Number(((cssUnitToNumber(wrapperHeightPx.value) - cssUnitToNumber(getCss(artBoard.value, 'height') as string)) / 2).toFixed())
+        )
+      }
+    })
+    // move
+    let isForces = false,
+        isMoving = false,
+        preX = 0,
+        preY = 0;
+
+    // const move = reactive()
+    function boardDownEvent(ev: MouseEvent) {
+      if (keySpace.value) {
+        isMoving = true
+        preX = ev.pageX;
+        preY = ev.pageY
+      }
+    }
+
+    function boardMoveEvent(ev: MouseEvent) {
+      if (isMoving) {
+        let offsetX = ev.pageX - preX,
+            offsetY = ev.pageY - preY
+        if (artBoard.value) {
+          artBoard.value.scrollLeft -= offsetX
+          artBoard.value.scrollTop -= offsetY
+        }
+        preX = ev.pageX
+        preY = ev.pageY
+      }
+
+    }
+
+    function boardUpEvent(ev: MouseEvent) {
+      isMoving = false
+    }
+
+    function enterBoard(ev: MouseEvent) {
+      isForces = true
+      artBoard.value?.focus()
+    }
+
+    function leaveBoard(ev: MouseEvent) {
+      isForces = false
+      keySpace.value = false
+      artBoard.value?.blur()
+    }
+
+
+    function spaceDown(ev: KeyboardEvent) {
+      console.log('down')
+      !keySpace.value ? keySpace.value = true : null
+    }
+
+    function spaceUp(ev: KeyboardEvent) {
+      keySpace.value ? keySpace.value = false : null
+    }
+
+
+    return {
+      // size
+      widthPx, heightPx, wrapperWidthPx, wrapperHeightPx, scale, artBoard,
+      // wheel
+      onWheel,
+      // move
+      keySpace, boardMoveEvent, enterBoard, leaveBoard, boardDownEvent, boardUpEvent,
+      spaceUp, spaceDown
+    }
   }
 }
 </script>
@@ -65,6 +144,27 @@ export default {
 <style scoped>
 .art-board {
   overflow: scroll;
+  outline: none;
+}
+
+.art-board::-webkit-scrollbar {
+  background: #1B1B21;
+  width: 5px;
+  height: 5px;
+}
+
+.art-board::-webkit-scrollbar-thumb {
+  background: #c2c2c2;
+  border-radius: 10px;
+  width: 10px;
+}
+
+.art-board::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.cursor-grab {
+  cursor: grab;
 }
 
 .art-board-wrapper {

@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import {Ref, ref} from '@vue/reactivity'
-import {formatterDate} from '@/util/base'
+import {formatterDate} from '@/util/base.ts'
 import {defineProps} from "vue"
 
 let props = defineProps(["formatter"])

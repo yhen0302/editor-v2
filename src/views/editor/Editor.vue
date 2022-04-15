@@ -43,9 +43,12 @@
         </transition>
       </aside>
       <art-board class="flex-1"></art-board>
-      <aside class="layer-option-area">
+      <aside class="layer-option-area flex flex-col">
+        <section class="layer-tree-box">
 
-
+        </section>
+        <section class="property-edit-box">
+        </section>
       </aside>
     </section>
   </div>
@@ -298,14 +301,6 @@ export default defineComponent({
   object-fit: cover;
 }
 
-/*
-layer-option-area
-*/
-.layer-option-area {
-  height: 100%;
-  width: 272px;
-  left: 4px;
-}
 
 /* 2d 3d切换器 */
 .dimension-toggle-box {
@@ -336,5 +331,21 @@ layer-option-area
 
 .dimension-toggle.active {
   background: #6582FE;
+}
+
+/*
+layer-option-area
+*/
+.layer-option-area {
+  height: 100%;
+  width: 272px;
+  gap: 4px;
+  left: 4px;
+}
+
+/* edit */
+.layer-tree-box, .property-edit-box {
+  flex: 1;
+  background: #25262D;
 }
 </style>
