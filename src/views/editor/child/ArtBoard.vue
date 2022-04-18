@@ -3,14 +3,14 @@
            ref="artBoard"
            tabindex="0"
            :class="{'cursor-grab':keySpace}"
-           @wheel="onWheel"
-           @keydown.space.prevent="spaceDown"
+           @wheel.capture.prevent="onWheel"
+           @keydown.space.prevent.capture="spaceDown"
            @mouseenter.prevent="enterBoard"
            @mouseleave.prevent="leaveBoard"
            @mousemove="boardMoveEvent"
            @mousedown="boardDownEvent"
            @mouseup="boardUpEvent"
-           @keyup.space.prevent="spaceUp">
+           @keyup.space.prevent.capture="spaceUp">
     <section class="art-board-wrapper grid place-content-center"
              :style="{width:wrapperWidthPx,height:wrapperHeightPx}">
       <section class="art-board-box relative"
@@ -56,7 +56,6 @@ export default {
             : editorStore.artBoardScale < 3
             ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale:editorStore.artBoardScale + .05})
             : null
-        ev.preventDefault()
       }
     }
 
@@ -88,6 +87,7 @@ export default {
         preY = 0;
 
     // const move = reactive()
+    // mouse
     function boardDownEvent(ev: MouseEvent) {
       if (keySpace.value) {
         isMoving = true
@@ -126,8 +126,8 @@ export default {
     }
 
 
+    // key
     function spaceDown(ev: KeyboardEvent) {
-      console.log('down')
       !keySpace.value ? keySpace.value = true : null
     }
 
