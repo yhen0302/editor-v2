@@ -10,7 +10,7 @@
           <img src="~@/assets/images/editor_nav_revocation_btn_dark.png" class="cursor-pointer"/>
           <img src="~@/assets/images/editor_nav_remake_btn_dark.png" class="cursor-pointer"/>
         </div>
-        <div class="select-box">50</div>
+        <div class="select-box">{{scaleRatio}}%</div>
       </div>
 
       <div class="nav_content-right flex justify-between" v-once>
@@ -35,10 +35,17 @@
 <script>
 import Timer from "../../../component/common/Timer";
 import TipButton from "@/component/content/TipButton";
+import {useState} from "@/store/helper";
+import {useStore} from "vuex";
 
 export default {
   name: "NavBar",
   components: {TipButton, Timer},
+  computed: {
+    scaleRatio() {
+      return (useState(useStore(),'editor').artBoardScale * 100).toFixed()
+    }
+  }
 }
 </script>
 

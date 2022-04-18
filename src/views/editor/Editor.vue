@@ -13,6 +13,7 @@
     </section>
     <!--  编辑区域  -->
     <section class="editor-area flex justify-between">
+<!--   组件选择   -->
       <aside class="select-area h-full flex">
         <ul class="select-type-bar bg-gray-dark h-full relative z-10">
           <li class="dimension-type-item text-blue text-12">{{ editorStore.dimensionType }}</li>
@@ -23,7 +24,7 @@
                         :icon="item.icon"></tip-button>
           </li>
         </ul>
-        <transition name="bounceInLeft">
+        <transition name="bounceInLeft" >
           <div class="select-detail bg-gray-dark" v-show="editorStore.selectBarToolType"
                v-memo="[editorStore.selectBarToolType,navIndex]">
             <nav-tab v-model:index="navIndex" :title="activeTitle">
@@ -42,10 +43,12 @@
           </div>
         </transition>
       </aside>
+      <!--   画板   -->
       <art-board class="flex-1"></art-board>
+      <!--   图层选择/编辑   -->
       <aside class="layer-option-area flex flex-col">
         <section class="layer-tree-box">
-
+          <nav-tab></nav-tab>
         </section>
         <section class="property-edit-box">
         </section>
@@ -66,7 +69,7 @@ import {
 import {defineComponent, watch, markRaw, computed} from 'vue'
 import NavBar from "./child/NavBar.vue"
 
-import {useStore, mapMutations} from "vuex";
+import {useStore, mapMutations, MutationMethod} from "vuex";
 import {EditorMutation} from "@/store/editor/mutations";
 
 import NavTab from "@/component/common/navTab/NavTab.vue";
@@ -77,6 +80,8 @@ import TipButton from "@/component/content/TipButton.vue";
 import AfterProcess from "@/views/editor/child/AfterProcess.vue";
 import ShadowRadio from "@/views/editor/child/ShadowRadio.vue";
 import ArtBoard from "@/views/editor/child/ArtBoard.vue";
+import {MutationsMapper} from "@/store";
+import {useMutation} from "@/store/helper";
 
 const selectBarList2d: Array<SelectBarItem> = [
   {icon: require("@/assets/images/editor_text_btn_dark.png"), name: "文本", type: "text"},
@@ -186,10 +191,7 @@ export default defineComponent({
   setup() {
     // store
     const editorStore: EditorStore = useStore().state.editor
-    const mutations = mapMutations('editor', [EditorMutation.CHANGE_DIMENSION, EditorMutation.CHANGE_SELECT_BAR_TOOL_TYPE])
-    for (let key of Object.keys(mutations)) {
-      mutations[key] = mutations[key].bind({$store: useStore()})
-    }
+    const mutations = useMutation(useStore(), 'editor', [EditorMutation.CHANGE_DIMENSION, EditorMutation.CHANGE_SELECT_BAR_TOOL_TYPE])
 
     // other
     const stack: Ref<Array<any>> = ref<Array<any>>([])

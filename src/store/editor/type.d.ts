@@ -5,7 +5,8 @@ export declare interface EditorStore {
   dimensionType: dimensionType,
   selectBarToolType: selectBarType | null
   switchItemAfterProcessType:Record<switchItemAfterProcessType, boolean>
-  shadow:boolean
+  shadow:boolean,
+  artBoardScale:number,
   [key: string]: any
 }
 

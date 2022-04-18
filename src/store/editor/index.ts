@@ -9,9 +9,9 @@ import {dimensionSelectBarType2d, EditorStore, selectBarType} from "@/store/edit
 const state: EditorStore = {
   dimensionType: "2d",
   selectBarToolType: null,
-  shadow:false,
+  shadow: false,
   // switchItemAfterProcessType
-  switchItemAfterProcessType:{
+  switchItemAfterProcessType: {
     outline: false,
     bloom: false,
     dof: false,
@@ -19,7 +19,8 @@ const state: EditorStore = {
     ssaa: false,
     ssr: false,
     ssao: false,
-  }
+  },
+  artBoardScale: .5
 }
 
 const store: Module<EditorStore, any> = {

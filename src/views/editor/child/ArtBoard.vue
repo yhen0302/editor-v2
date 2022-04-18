@@ -13,7 +13,8 @@
            @keyup.space.prevent="spaceUp">
     <section class="art-board-wrapper grid place-content-center"
              :style="{width:wrapperWidthPx,height:wrapperHeightPx}">
-      <section class="art-board-box relative" :style="{width:widthPx,height:heightPx,transform:`scale(${scale})`}">
+      <section class="art-board-box relative"
+               :style="{width:widthPx,height:heightPx,transform:`scale(${editorStore.artBoardScale})`}">
         <canvas class="canvas-renderer" :width="width" :height="height"></canvas>
         <div class="art-board-content"></div>
       </section>
@@ -25,6 +26,10 @@
 import {computed, markRaw, nextTick, onMounted, watch} from "vue";
 import {Ref, ref, reactive} from "@vue/reactivity";
 import {cssUnitToNumber, getCss} from "@/util/base.ts";
+import {EditorStore} from "@/store/editor/type";
+import {useMutation, useState} from "@/store/helper";
+import {EditorMutation} from "@/store/editor/mutations";
+import {useStore} from "vuex";
 
 export default {
   name: "ArtBoard",
@@ -33,20 +38,23 @@ export default {
     height: {type: Number, default: 1080},
   },
   setup(props: any) {
+    // store
+    const editorStore: EditorStore = useState(useStore(), 'editor')
+    const editorMutation = useMutation(useStore(), 'editor', [EditorMutation.CHANGE_ART_BOARD_SCALE])
+
     const artBoard: Ref<HTMLDivElement | null> = ref<HTMLDivElement | null>(null)
 
     // wheel
-    const scale: Ref<number> = ref<number>(.5)
     const keySpace = ref(false)
 
     function onWheel(ev: WheelEvent) {
       if (ev.ctrlKey || keySpace.value) {
         ev.deltaY > 0
-            ? scale.value > .3
-            ? scale.value -= .05
+            ? editorStore.artBoardScale > .3
+            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale:editorStore.artBoardScale - .05})
             : null
-            : scale.value < 3
-            ? scale.value += .05
+            : editorStore.artBoardScale < 3
+            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale:editorStore.artBoardScale + .05})
             : null
         ev.preventDefault()
       }
@@ -58,7 +66,7 @@ export default {
 
     const wrapperWidthPx = computed(() => {
       let offset: number = cssUnitToNumber(getCss(artBoard.value, "width") as string) * 2
-      return props.width * scale.value + offset + "px"
+      return props.width * editorStore.artBoardScale + offset + "px"
     })
     const wrapperHeightPx = computed(() => {
       let offset: number = cssUnitToNumber(getCss(artBoard.value, "height") as string) * 2
@@ -130,7 +138,7 @@ export default {
 
     return {
       // size
-      widthPx, heightPx, wrapperWidthPx, wrapperHeightPx, scale, artBoard,
+      widthPx, heightPx, wrapperWidthPx, wrapperHeightPx, editorStore, artBoard,
       // wheel
       onWheel,
       // move
