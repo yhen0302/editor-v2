@@ -42,6 +42,7 @@
             <shadow-radio v-show="isShadow"></shadow-radio>
           </div>
         </transition>
+
       </aside>
       <!--   画板   -->
       <art-board class="flex-1"></art-board>
