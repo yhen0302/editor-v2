@@ -25,7 +25,7 @@ export default {
     })
     watch(() => props.index, newVal => navIndex.value = newVal)
     return () => (<div class="nav-tab">
-      {context.slots.header?.()||<nav class="select-detail-header box-border flex items-center p-16 justify-between">
+      {context.slots.header?.(navIndex)||<nav class="select-detail-header box-border flex items-center p-16 justify-between">
         <div class="back-icon-wrap" style="width:16px;">
           {
             navIndex.value === 0 ? '' :

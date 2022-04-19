@@ -1,12 +1,28 @@
 export declare type dimensionType = "2d" | "3d"
 
+export interface TreeNode {
+  name: string
+  show: boolean
+  open?: boolean
+  children?: TreeNode[]
+}
+
+export interface LayerTree2dNode extends TreeNode {
+  type: dimensionSelectBarType2d | 'group'
+  subType?: selectItemType2d,
+  children?: LayerTree2dNode[]
+
+}
 
 export declare interface EditorStore {
-  dimensionType: dimensionType,
+  dimensionType: dimensionType
   selectBarToolType: selectBarType | null
-  switchItemAfterProcessType:Record<switchItemAfterProcessType, boolean>
-  shadow:boolean,
-  artBoardScale:number,
+  switchItemAfterProcessType: Record<switchItemAfterProcessType, boolean>
+  shadow: boolean
+  artBoardScale: number
+  layerTree2d: LayerTree2dNode[]
+  layerTree3d: TreeNode[]
+
   [key: string]: any
 }
 

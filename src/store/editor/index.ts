@@ -20,7 +20,22 @@ const state: EditorStore = {
     ssr: false,
     ssao: false,
   },
-  artBoardScale: .5
+  artBoardScale: .5,
+  layerTree2d: [
+    {name: "矩形1", show: true, type: 'shape', subType: 'base'},
+    {name: "矩形2", show: false, type: 'shape', subType: 'base'},
+    {
+      name: "编组1", show: true, type: 'group', children: [
+        {name: "矩形3", show: false, type: 'shape', subType: 'base'},
+        {
+          name: "编组2",
+          show: true,
+          type: 'group',
+          children: [{name: "矩形4", show: false, type: 'shape', subType: 'base'},]
+        }]
+    },
+  ],
+  layerTree3d: []
 }
 
 const store: Module<EditorStore, any> = {

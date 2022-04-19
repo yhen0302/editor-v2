@@ -13,7 +13,7 @@
     </section>
     <!--  编辑区域  -->
     <section class="editor-area flex justify-between">
-<!--   组件选择   -->
+      <!--   组件选择   -->
       <aside class="select-area h-full flex">
         <ul class="select-type-bar bg-gray-dark h-full relative z-10">
           <li class="dimension-type-item text-blue text-12">{{ editorStore.dimensionType }}</li>
@@ -24,7 +24,7 @@
                         :icon="item.icon"></tip-button>
           </li>
         </ul>
-        <transition name="bounceInLeft" >
+        <transition name="bounceInLeft">
           <div class="select-detail bg-gray-dark" v-show="editorStore.selectBarToolType"
                v-memo="[editorStore.selectBarToolType,navIndex]">
             <nav-tab v-model:index="navIndex" :title="activeTitle">
@@ -49,9 +49,96 @@
       <!--   图层选择/编辑   -->
       <aside class="layer-option-area flex flex-col">
         <section class="layer-tree-box">
-          <nav-tab></nav-tab>
+          <nav-tab v-model:index="layerTreeIndex">
+            <!--screen tree-->
+            <nav-tab-item>
+              <div class="screen-tree-box">
+                <div class="search-box flex items-center">
+                  <img class="search-icon" width="16" height="16" src="~@/assets/images/editor_search_icn_dark.png">
+                  <input class="search-inp text-12" type="text" placeholder="搜索所有元素">
+                </div>
+                <layer-list :node="editorStore.layerTree2d" v-show="editorStore.dimensionType==='2d'">
+                  <template v-slot:prefix>
+                    <div></div>
+                  </template>
+                  <template v-slot:placeholder="node" v-once>
+                    <div style="padding-right: 8px">
+                      <img :src="layerIcon[node.type]">
+                    </div>
+                  </template>
+                  <template v-slot:suffix="node">
+                    <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show">
+                    <img src="~@/assets/images/editor_seen_btn_dark.png" v-else>
+                  </template>
+                  <template v-slot:folderPrefix>
+                    <img src="~@/assets/images/editor_elementgroup_icn_dark.png" style="margin-right:8px;">
+                  </template>
+                </layer-list>
+                <layer-list :node="editorStore.layerTree2d" class="tree-3d" v-show="editorStore.dimensionType==='3d'">
+                  <template v-slot:prefix>
+                    <div></div>
+                  </template>
+                  <template v-slot:placeholder v-once>
+                    <div>
+                    </div>
+                  </template>
+                  <template v-slot:suffix="node">
+                    <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show">
+                    <img src="~@/assets/images/editor_seen_btn_dark.png" v-else>
+                  </template>
+                  <template v-slot:folderPrefix>
+                    <div></div>
+                  </template>
+                </layer-list>
+              </div>
+            </nav-tab-item>
+            <!--screen page-->
+            <nav-tab-item>
+              <div class="screen-page-tree-box">
+                <div class="add-screen-wrap box-border flex items-center justify-end">
+                  <img src="@/assets/images/editor_newscene_btn_dark.png" alt="">
+                </div>
+                <layer-list :node="editorStore.layerTree2d">
+                  <template v-slot:prefix>
+                    <div></div>
+                  </template>
+                  <template v-slot:placeholder v-once>
+                    <div style="padding-right: 8px">
+                      <img src="@/assets/images/editor_page_icn_dark.png">
+                    </div>
+                  </template>
+
+                  <template v-slot:suffix="node">
+                    <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show">
+                    <img src="~@/assets/images/editor_seen_btn_dark.png" v-else>
+                  </template>
+                  <template v-slot:folderPrefix>
+                    <img src="~@/assets/images/editor_elementgroup_icn_dark.png" style="margin-right:8px;">
+                  </template>
+                </layer-list>
+              </div>
+            </nav-tab-item>
+            <template v-slot:header>
+              <ul class="nav-tab-header items-center flex text-14">
+                <li class="nav-tab-h-item cursor-pointer " v-for="(item,index) in ['场景树','场景页面']"
+                    :class="{active:layerTreeIndex===index}" @click="layerTreeIndex=index" :key="item">{{ item }}
+                </li>
+              </ul>
+            </template>
+          </nav-tab>
         </section>
         <section class="property-edit-box">
+          <nav-tab v-model:index="propertyEditIndex">
+            <nav-tab-item>1</nav-tab-item>
+            <nav-tab-item>2</nav-tab-item>
+            <template v-slot:header>
+              <ul class="nav-tab-header items-center flex text-14">
+                <li class="nav-tab-h-item cursor-pointer " v-for="(item,index) in ['基础设置','交互事件']"
+                    :class="{active:propertyEditIndex===index}" @click="propertyEditIndex=index" :key="item">{{ item }}
+                </li>
+              </ul>
+            </template>
+          </nav-tab>
         </section>
       </aside>
     </section>
@@ -83,6 +170,7 @@ import ShadowRadio from "@/views/editor/child/ShadowRadio.vue";
 import ArtBoard from "@/views/editor/child/ArtBoard.vue";
 import {MutationsMapper} from "@/store";
 import {useMutation} from "@/store/helper";
+import LayerList from "@/plugins/layerPlugin/LayerList.vue";
 
 const selectBarList2d: Array<SelectBarItem> = [
   {icon: require("@/assets/images/editor_text_btn_dark.png"), name: "文本", type: "text"},
@@ -184,20 +272,25 @@ const selectData2d: Record<dimensionSelectBarType2d | dimensionSelectBarType3d, 
   }
 }
 
+const layerIcon: { [key in (dimensionSelectBarType2d)]: string } = {
+  shape: require('@/assets/images/editor_roundedrectangle_icn_dark.png'),
+  chart: require('@/assets/images/editor_chart_icn_dark.png'),
+  media: require('@/assets/images/editor_scene_icn_dark.png'), // 暂无图片
+  text: require('@/assets/images/editor_title_icon_dark.png'),
+}
 /* 编辑器 */
 export default defineComponent({
   name: 'Editor',
-  // eslint-disable-next-line vue/no-unused-components
-  components: {ArtBoard, ShadowRadio, AfterProcess, TipButton, RadioEl, NavTabItem, NavTab, NavBar},
+  components: {LayerList, ArtBoard, ShadowRadio, AfterProcess, TipButton, NavTabItem, NavTab, NavBar},
   setup() {
     // store
     const editorStore: EditorStore = useStore().state.editor
-    const mutations = useMutation(useStore(), 'editor', [EditorMutation.CHANGE_DIMENSION, EditorMutation.CHANGE_SELECT_BAR_TOOL_TYPE])
+    const mutations = useMutation(useStore(), 'editor',
+        [EditorMutation.CHANGE_DIMENSION, EditorMutation.CHANGE_SELECT_BAR_TOOL_TYPE])
 
     // other
     const stack: Ref<Array<any>> = ref<Array<any>>([])
     const navIndex: Ref<number> = ref<number>(0)
-
 
     watch(() => editorStore.selectBarToolType, (newVal, oldVal) => {
       if (newVal) {
@@ -212,6 +305,7 @@ export default defineComponent({
         stack.value.pop()
     })
 
+    // shadow config block
     const isShadow = computed(() => {
       return editorStore.selectBarToolType === 'scenes' && stack.value?.[1]?.key === 'shadowSwitch'
     })
@@ -227,7 +321,24 @@ export default defineComponent({
       return selectBarData[editorStore.dimensionType].find(item => item.type === editorStore.selectBarToolType)?.name
     })
 
-    return {mutations, editorStore, selectBarData, navIndex, stack, clickSelectItem, isShadow, activeTitle}
+    // layer tree
+    const layerTreeIndex: Ref<number> = ref<number>(0)
+
+    //property edit
+    const propertyEditIndex: Ref<number> = ref<number>(0)
+    return {
+      mutations,
+      editorStore,
+      selectBarData,
+      navIndex,
+      stack,
+      clickSelectItem,
+      isShadow,
+      activeTitle,
+      layerTreeIndex,
+      propertyEditIndex,
+      layerIcon
+    }
   }
 
 })
@@ -350,5 +461,59 @@ layer-option-area
 .layer-tree-box, .property-edit-box {
   flex: 1;
   background: #25262D;
+}
+
+.nav-tab-header {
+  height: 64px;
+  color: #757A87;
+}
+
+.nav-tab-h-item {
+  width: 80px;
+  height: 100%;
+  line-height: 64px;
+}
+
+.nav-tab-h-item.active {
+  color: #F2F2F2;
+  border-bottom: 2px solid #6582FE;
+}
+
+.screen-tree-box {
+  width: 100%;
+  padding-top: 16px;
+}
+
+.search-box {
+  gap: 4px;
+  height: 21px;
+  margin: 0 16px 21px;
+  border-bottom: 1px solid #363741;
+}
+
+.search-inp {
+  flex: 1;
+  outline: none;
+  color: #757A87;
+  background: transparent;
+}
+
+.search-icon {
+  height: 16px;
+}
+
+.tree-3d /deep/ .layer-child-list > .layer-item {
+  padding-left: calc((var(--level) - 1) * 14px + var(--default-pl))
+}
+
+.tree-3d /deep/ .layer-item_list > .layer-folder-item {
+  padding-left: calc((var(--level) - 2) * 14px + var(--default-pl) - 10px)
+}
+
+/* page */
+.add-screen-wrap{
+  padding: 0 16px;
+  height: 48px;
+  width: 100%;
 }
 </style>
