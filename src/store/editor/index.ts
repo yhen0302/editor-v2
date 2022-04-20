@@ -35,7 +35,20 @@ const state: EditorStore = {
         }]
     },
   ],
-  layerTree3d: []
+  layerTree3d: [
+    {
+      name: '元素组1',
+      show: true,
+      open: false,
+      children: [{name: '相机', show: true}]
+    },
+    {name: '圆锥体', show: true},
+    {name: '球', show: true},
+    {name: '平面', show: true},
+  ],
+  screenPageTree: [
+    {name: '场景1', open: false, children: [{name: '页面1'},{name: '页面2'},{name: '页面3'}]},
+    {name:'场景2',children:[]}]
 }
 
 const store: Module<EditorStore, any> = {

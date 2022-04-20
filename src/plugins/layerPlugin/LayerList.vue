@@ -16,8 +16,6 @@ export default {
   components: {SvgIcon},
   props: {node: Array},
   setup(props, {slots}) {
-
-
     let parseTree = (treeRoot) => {
       let stack = [...treeRoot],
           node = null,
@@ -110,6 +108,10 @@ export default {
   padding-right: 16px;
 }
 
+.layer-folder-item:hover, .layer-item:hover {
+  background: #323440;
+}
+
 .layer-folder-item {
   height: 30px;
   background: transparent;
@@ -193,13 +195,15 @@ export default {
   linear-gradient(90deg, #e5e5e5 0%, #e5e5e5 50%, #FFF 50%, #FFF 100%) left 25px/10px 5px repeat-x;
 }
 
-.arrow-icon.active{
+.arrow-icon.active {
   transform: rotate(90deg);
 }
-.arrow-icon{
+
+.arrow-icon {
   margin-right: 4px;
   transition: .2s transform ease;
 }
+
 /* suffix */
 .layer-item-suffix {
   justify-self: flex-end;
