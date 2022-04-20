@@ -48,7 +48,7 @@ const state: EditorStore = {
   ],
   screenPageTree: [
     {name: '场景1', open: false, children: [{name: '页面1'},{name: '页面2'},{name: '页面3'}]},
-    {name:'场景2',children:[]}]
+    {name:'场景2',open:false,children:[]}]
 }
 
 const store: Module<EditorStore, any> = {
