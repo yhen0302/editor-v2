@@ -51,10 +51,10 @@ export default {
       if (ev.ctrlKey || keySpace.value) {
         ev.deltaY > 0
             ? editorStore.artBoardScale > .3
-            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale:editorStore.artBoardScale - .05})
+            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardScale - .05})
             : null
             : editorStore.artBoardScale < 3
-            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale:editorStore.artBoardScale + .05})
+            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardScale + .05})
             : null
       }
     }
@@ -64,12 +64,13 @@ export default {
     const heightPx = computed(() => props.height + "px")
 
     const wrapperWidthPx = computed(() => {
-      let offset: number = cssUnitToNumber(getCss(artBoard.value, "width") as string) * 2
+      let offset: number = Number(artBoard.value?.getBoundingClientRect().width) * 2
+      console.log(offset)
       return props.width * editorStore.artBoardScale + offset + "px"
     })
     const wrapperHeightPx = computed(() => {
-      let offset: number = cssUnitToNumber(getCss(artBoard.value, "height") as string) * 2
-      return props.height + offset + "px"
+      let offset: number = Number(artBoard.value?.getBoundingClientRect().height) * 2
+      return props.height * editorStore.artBoardScale + offset + "px"
     })
 
     nextTick(() => {

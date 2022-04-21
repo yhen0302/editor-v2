@@ -136,7 +136,9 @@
                 <template #prefix><span class="text-12 text-gray-800 mr-8">X</span></template>
               </input-el>
               <color-picker></color-picker>
-              <select-el value="微软雅黑"></select-el>
+              <select-el value="Microsoft YaHei"
+                         :list="[{label:'微软雅黑',value:'Microsoft YaHei'},{label:'方正兰亭',value:'FangZhengLanTing'},
+                         {label:'苹方',value:'FangPing'},{label:'宋体',value:'SongTi'}]"></select-el>
               <slider-el></slider-el>
             </nav-tab-item>
             <nav-tab-item>2</nav-tab-item>

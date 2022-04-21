@@ -1,6 +1,7 @@
 <template>
   <div class="color-selector box-border relative">
     <div class="color-box z-10 relative" @click="onClick" :style="{background:colorRef }"></div>
+    <div class="color-box-bg absolute" @click="onClick"></div>
     <input class="inp absolute" type="color" ref="inpEl" v-model="colorRef">
   </div>
 </template>
@@ -21,6 +22,7 @@ export default {
     }
 
     watch(() => colorRef.value, (newVal) => {
+      console.log(newVal)
       context.emit('update:value', newVal)
     })
     return {colorRef, inpEl, onClick}
@@ -43,13 +45,22 @@ export default {
   top: 2px;
   display: inline-block;
   opacity: 0;
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 4px);
+  height:  calc(100% - 4px);
 }
 
 .color-box {
   width: 100%;
   height: 100%;
+
+}
+
+.color-box-bg {
+  width: calc(100% - 4px);
+  height:  calc(100% - 4px);
+  top: 2px;
+  left: 2px;
+  z-index: 2;
   background: linear-gradient(90deg, #FFF 0%, #FFF 50%, #e5e5e5 50%, #e5e5e5 100%) left top/10px 5px repeat-x,
   linear-gradient(90deg, #e5e5e5 0%, #e5e5e5 50%, #FFF 50%, #FFF 100%) left 5px/10px 5px repeat-x,
   linear-gradient(90deg, #FFF 0%, #FFF 50%, #e5e5e5 50%, #e5e5e5 100%) left 10px/10px 5px repeat-x,
