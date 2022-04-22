@@ -4,7 +4,7 @@
       <span class="selected-value text-12">{{ refLabel }}</span>
       <img class="arrow" src="@/assets/images/editor_back_big_btn_dark.png">
     </div>
-    <ul class="select-content-box absolute text-12 text-left z-20" :style="{height:isOpen?height+'px':0}">
+    <ul class="select-content-box absolute text-12 text-left z-20" :style="{'max-height':isOpen?height+'px':0}">
       <li class="select-item" v-for="(item,index) in list" :key="item" @click="selectClick(item,index)">{{
           item.label
         }}
@@ -60,7 +60,7 @@ export default {
   margin-top: 4px;
   width: 100%;
   background: #31333D;
-  transition: .2s height ease-out;
+  transition: .2s height ease-out,.2s max-height ease-out;
 }
 
 .select-item {

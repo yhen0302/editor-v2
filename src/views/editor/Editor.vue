@@ -48,7 +48,8 @@
       <art-board class="flex-1"></art-board>
       <!--   图层选择/编辑   -->
       <aside class="layer-option-area flex flex-col">
-        <section class="layer-tree-box">
+        <!--    图层管理    -->
+        <section class="layer-tree-box flex-1" >
           <nav-tab v-model:index="layerTreeIndex">
             <!--screen tree-->
             <nav-tab-item key="screenTree">
@@ -132,16 +133,10 @@
         <section class="property-edit-box">
           <nav-tab v-model:index="propertyEditIndex">
             <nav-tab-item>
-              <input-el class="small-inp" type="number">
-                <template #prefix><span class="text-12 text-gray-800 mr-8">X</span></template>
-              </input-el>
-              <color-picker></color-picker>
-              <select-el value="Microsoft YaHei"
-                         :list="[{label:'微软雅黑',value:'Microsoft YaHei'},{label:'方正兰亭',value:'FangZhengLanTing'},
-                         {label:'苹方',value:'FangPing'},{label:'宋体',value:'SongTi'}]"></select-el>
-              <slider-el></slider-el>
             </nav-tab-item>
-            <nav-tab-item>2</nav-tab-item>
+            <nav-tab-item>
+              <event></event>
+            </nav-tab-item>
             <template v-slot:header>
               <ul class="nav-tab-header items-center flex text-14">
                 <li class="nav-tab-h-item cursor-pointer " v-for="(item,index) in ['基础设置','交互事件']"
@@ -183,19 +178,15 @@ import {useMutation} from "@/store/helper";
 import LayerList from "@/plugins/layerPlugin/LayerList.vue";
 import InputEl from "@/component/common/InputEl.vue";
 import {layerIcon, selectBarData, selectData2d} from "@/views/editor/local_data";
-import ColorPicker from "@/component/common/ColorPicker.vue";
-import SelectEl from "@/component/common/SelectEl.vue";
-import SliderEl from "@/component/common/SliderEl.vue";
+import Event from "@/views/editor/child/Event.vue";
 
 
 /* 编辑器 */
 export default defineComponent({
   name: 'Editor',
   components: {
-    SliderEl,
-    SelectEl,
-    ColorPicker,
-    InputEl, LayerList, ArtBoard, ShadowRadio, AfterProcess, TipButton, NavTabItem, NavTab, NavBar
+    Event,
+    LayerList, ArtBoard, ShadowRadio, AfterProcess, TipButton, NavTabItem, NavTab, NavBar
   },
   setup() {
     // store

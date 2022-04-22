@@ -16,7 +16,7 @@ input::-webkit-inner-spin-button{
 }
 
 *::-webkit-scrollbar {
-    background: #1B1B21;
+    background: transparent;
     width: 5px;
     height: 5px;
 }
