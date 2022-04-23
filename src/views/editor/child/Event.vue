@@ -7,7 +7,7 @@
 
       <nav-tab-item>
         <div class="add-event-wrapper">
-          <button class="add-event-button text-12">添加事件</button>
+          <button class="add-event-button text-12" @click="navIndex=1">添加事件</button>
         </div>
       </nav-tab-item>
       <nav-tab-item>
@@ -52,10 +52,9 @@
           </div>
           <line-el color="#363741" style="margin-top: 72px"></line-el>
           <div class="footer-box text-12 flex justify-between">
-            <button class="footer-button cancel-button">取消</button>
+            <button class="footer-button cancel-button" @click="navIndex=0">取消</button>
             <button class="footer-button save-button">保存</button>
           </div>
-
         </div>
       </nav-tab-item>
     </nav-tab>
@@ -63,25 +62,23 @@
 </template>
 
 <script lang="ts">
-import NavTab from "../../../component/common/navTab/NavTab";
-import {ref} from "vue";
-import NavTabItem from "@/component/common/navTab/NavTabItem";
-import SelectEl from "@/component/common/SelectEl";
+import {ref, SetupContext} from "vue";
 import {eventAction, eventList} from "@/views/editor/child/eventConstant";
 import LineEl from "@/component/common/LineEl.vue";
 import {EditorStore} from "@/store/editor/type";
 import {useStore} from "vuex";
+import SelectEl from "@/component/common/SelectEl.vue";
+import NavTab from "@/component/common/navTab/NavTab.vue";
+import NavTabItem from "@/component/common/navTab/NavTabItem.vue";
 
 export default {
   name: "Event",
-  components: {LineEl, SelectEl, NavTabItem, NavTab},
-  setup(props, context) {
-    const navIndex = ref(1)
+  components: {NavTabItem, NavTab, SelectEl, LineEl, },
+  setup(props:any, context:SetupContext) {
+    const navIndex = ref(0)
     const selectEvent = ref('click')
     const selectEventAction = ref('linkToPage')
     const editorStore: EditorStore = useStore().state.editor
-
-
 
     return {navIndex, eventList, selectEvent, eventAction, selectEventAction,editorStore}
   }
