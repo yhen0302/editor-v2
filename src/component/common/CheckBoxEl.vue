@@ -21,8 +21,8 @@ class PropsDataItem{
 
 export default {
   name: "CheckBoxEl",
-  props: {value: {default: () => [], type: Array}, list: {type:Array as PropType<PropsDataItem[]>, default: () => []}},
-  emits: ['update:value'],
+  props: {modelValue: {default: () => [], type: Array}, list: {type:Array as PropType<PropsDataItem[]>, default: () => []}},
+  emits: ['update:modelValue'],
   setup(props, context) {
     let valueRef = ref([])
 
@@ -30,7 +30,7 @@ export default {
 
     function initValue() {
       for (let item of props.list) {
-        valueRef.value.push({isChecked: props.value.includes(item.value), label: item.label, value: item.value})
+        valueRef.value.push({isChecked: props.modelValue.includes(item.value), label: item.label, value: item.value})
       }
     }
 
@@ -40,7 +40,7 @@ export default {
       for (let item of values) {
         item.isChecked ? newValList.push(item.value) : null
       }
-      context.emit('update:value', newValList)
+      context.emit('update:modelValue', newValList)
     }, {deep: true})
 
     return {valueRef}

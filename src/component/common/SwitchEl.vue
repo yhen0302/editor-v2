@@ -14,7 +14,6 @@ export default {
   emits: ["update:value"],
   setup(props: any, context: SetupContext) {
     const realValue: Ref<boolean> = ref<boolean>(props.value)
-
     function changeValue() {
       realValue.value = !realValue.value
       context.emit('update:value', realValue.value)

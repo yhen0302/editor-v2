@@ -22,7 +22,6 @@ export default {
     }
 
     watch(() => colorRef.value, (newVal) => {
-      console.log(newVal)
       context.emit('update:value', newVal)
     })
     return {colorRef, inpEl, onClick}

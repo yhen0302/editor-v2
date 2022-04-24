@@ -49,7 +49,7 @@
       <!--   图层选择/编辑   -->
       <aside class="layer-option-area flex flex-col">
         <!--    图层管理    -->
-        <section class="layer-tree-box flex-1" >
+        <section class="layer-tree-box flex-1">
           <nav-tab v-model:index="layerTreeIndex">
             <!--screen tree-->
             <nav-tab-item key="screenTree">
@@ -153,30 +153,23 @@
 
 <script lang="ts">
 import {
-  dimensionSelectBarType2d, dimensionSelectBarType3d,
-  dimensionType,
+  dimensionSelectBarType2d,
   EditorStore,
-  SelectBarItem, SelectItem,
-  selectItemType2d,
-  selectItemType3d,
+  SelectItem,
 } from "@/store/editor/type";
 import {defineComponent, watch, markRaw, computed} from 'vue'
 import NavBar from "./child/NavBar.vue"
-
-import {useStore, mapMutations, MutationMethod} from "vuex";
+import {useStore} from "vuex";
 import {EditorMutation} from "@/store/editor/mutations";
 import NavTab from "@/component/common/navTab/NavTab.vue";
 import NavTabItem from "@/component/common/navTab/NavTabItem.vue";
 import {Ref, ref} from "@vue/reactivity";
-import RadioEl from "@/component/common/RadioEl.vue";
 import TipButton from "@/component/content/TipButton.vue";
 import AfterProcess from "@/views/editor/child/AfterProcess.vue";
 import ShadowRadio from "@/views/editor/child/ShadowRadio.vue";
 import ArtBoard from "@/views/editor/child/ArtBoard.vue";
-import {MutationsMapper} from "@/store";
 import {useMutation} from "@/store/helper";
 import LayerList from "@/plugins/layerPlugin/LayerList.vue";
-import InputEl from "@/component/common/InputEl.vue";
 import {layerIcon, selectBarData, selectData2d} from "@/views/editor/local_data";
 import Event from "@/views/editor/child/Event.vue";
 
@@ -184,6 +177,9 @@ import Event from "@/views/editor/child/Event.vue";
 /* 编辑器 */
 export default defineComponent({
   name: 'Editor',
+  data() {
+    return {testData: false}
+  },
   components: {
     Event,
     LayerList, ArtBoard, ShadowRadio, AfterProcess, TipButton, NavTabItem, NavTab, NavBar
@@ -246,7 +242,6 @@ export default defineComponent({
       layerIcon
     }
   }
-
 })
 </script>
 

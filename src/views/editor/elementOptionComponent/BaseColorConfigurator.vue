@@ -4,7 +4,7 @@
 
 <script>
 export default {
-  name: "ChartOptionSet"
+  name: "ColorConfigurator"
 }
 </script>
 
