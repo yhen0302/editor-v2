@@ -1,10 +1,13 @@
 <template>
   <section class="fold-el">
-    <div class="fold-header box-border flex items-center justify-between w-full" @click="fold=!fold"
-         :class="{fold:fold}">
-      <p class="text-12">标题</p>
-      <img src="~@/assets/images/editor_unfold_icn_dark.png" class="fold-icon">
-    </div>
+    <slot name="header" fold="fold">
+      <div class="fold-header box-border flex items-center justify-between w-full" @click="fold=!fold"
+           :class="{fold:fold}">
+        <p class="text-12">{{ title }}</p>
+        <img src="~@/assets/images/editor_unfold_icn_dark.png" class="fold-icon">
+      </div>
+    </slot>
+    <line-el color="#363741" v-if="lineShow"></line-el>
     <div class="fold-content-wrapper box-border" ref="foldContent" :style="{height:realHeight}">
       <div class="fold-content">
         <slot></slot>
@@ -15,10 +18,12 @@
 
 <script>
 import {computed, nextTick, ref, watch} from "vue";
+import LineEl from "@/component/common/LineEl";
 
 export default {
   name: "FoldEl",
-  props: {heightUpdate: {type: Boolean, default: false}},
+  components: {LineEl},
+  props: {heightUpdate: {type: Boolean, default: false}, title: String, lineShow: {type: Boolean, default: true}},
   setup(props, context) {
     const fold = ref(true)
     const foldContent = ref(null)
@@ -66,11 +71,12 @@ export default {
 }
 
 .fold-content-wrapper {
+  will-change: height;
   overflow: hidden;
   transition: .2s height ease-out;
 }
 
 .fold-content {
-  padding: 16px;
+  /*padding: 16px;*/
 }
 </style>

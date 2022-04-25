@@ -19,6 +19,7 @@ module.exports = {
     '@typescript-eslint/camelcase': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     "no-empty-function": "off",
-    "@typescript-eslint/no-empty-function":"off"
+    "@typescript-eslint/no-empty-function":"off",
+    "vue/no-unused-components":"off"
   }
 }

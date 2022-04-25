@@ -133,7 +133,7 @@ export default {
   padding-left: calc((var(--level) - 1) * 14px + var(--default-pl));
 }
 .footer-box{
-  padding: 16px 40px;
+  padding: 16px 40px 0;
 }
 .footer-button{
   padding: 8px 28px;

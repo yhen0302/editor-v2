@@ -16,7 +16,6 @@ export default {
   emits: ['update'],
   setup(props, context) {
     function updateFn(value, index) {
-      console.log('emit')
       context.emit('update', {value, index})
     }
 
@@ -27,7 +26,7 @@ export default {
 
 <style scoped>
 .multi-color-picker{
-  padding: 1px 2px;
+  padding: 2px  1px;
   background: #31333D;
 }
 .multi-color-picker /deep/ .color-selector{

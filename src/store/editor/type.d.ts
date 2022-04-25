@@ -32,6 +32,7 @@ export declare interface EditorStore {
   layerTree2d: LayerTree2dNode[]
   layerTree3d: TreeNode[]
   screenPageTree: ScreenNode[]
+  selectNodes: TreeNode[],
 
   [key: string]: any
 }

@@ -68,8 +68,12 @@
                     </div>
                   </template>
                   <template v-slot:suffix="node">
-                    <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show">
-                    <img src="~@/assets/images/editor_seen_btn_dark.png" v-else>
+                    <div class="suffix-icon-wrap cursor-pointer"
+                         :class="{'opacity-50':findHasFalseShowParentNode(node)}"
+                         @click.stop="hiddenControl(node)">
+                      <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show">
+                      <img src="~@/assets/images/editor_seen_btn_dark.png" v-else>
+                    </div>
                   </template>
                   <template v-slot:folderPrefix>
                     <img src="~@/assets/images/editor_elementgroup_icn_dark.png" style="margin-right:8px;">
@@ -133,6 +137,7 @@
         <section class="property-edit-box">
           <nav-tab v-model:index="propertyEditIndex">
             <nav-tab-item>
+              <axis-line-chart-configurator></axis-line-chart-configurator>
             </nav-tab-item>
             <nav-tab-item>
               <event></event>
@@ -155,7 +160,7 @@
 import {
   dimensionSelectBarType2d,
   EditorStore,
-  SelectItem,
+  SelectItem, TreeNode,
 } from "@/store/editor/type";
 import {defineComponent, watch, markRaw, computed} from 'vue'
 import NavBar from "./child/NavBar.vue"
@@ -172,6 +177,7 @@ import {useMutation} from "@/store/helper";
 import LayerList from "@/plugins/layerPlugin/LayerList.vue";
 import {layerIcon, selectBarData, selectData2d} from "@/views/editor/local_data";
 import Event from "@/views/editor/child/Event.vue";
+import AxisLineChartConfigurator from "@/views/editor/configurator/AxisLineChartConfigurator.vue";
 
 
 /* 编辑器 */
@@ -181,6 +187,7 @@ export default defineComponent({
     return {testData: false}
   },
   components: {
+    AxisLineChartConfigurator,
     Event,
     LayerList, ArtBoard, ShadowRadio, AfterProcess, TipButton, NavTabItem, NavTab, NavBar
   },
@@ -226,8 +233,27 @@ export default defineComponent({
     // layer tree
     const layerTreeIndex: Ref<number> = ref<number>(0)
 
+    function hiddenControl(node: any) {
+      let n = findHasFalseShowParentNode(node)
+      if (n) {
+        n.show = true
+      }
+
+      node.show = !node.show
+    }
+
+    function findHasFalseShowParentNode(node: any) {
+      while (node.parent) {
+        if (node.parent.show === false) return node.parent
+        node = node.parent
+      }
+      return false
+    }
+
     //property edit
     const propertyEditIndex: Ref<number> = ref<number>(0)
+
+
     return {
       mutations,
       editorStore,
@@ -239,7 +265,9 @@ export default defineComponent({
       activeTitle,
       layerTreeIndex,
       propertyEditIndex,
-      layerIcon
+      layerIcon,
+      hiddenControl,
+      findHasFalseShowParentNode
     }
   }
 })
@@ -362,6 +390,7 @@ layer-option-area
 .layer-tree-box, .property-edit-box {
   flex: 1;
   background: #25262D;
+  padding-bottom: 16px;
 }
 
 .nav-tab-header {

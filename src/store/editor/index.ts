@@ -47,8 +47,9 @@ const state: EditorStore = {
     {name: '平面', show: true},
   ],
   screenPageTree: [
-    {name: '场景1', open: false, children: [{name: '页面1'},{name: '页面2'},{name: '页面3'}]},
-    {name:'场景2',open:false,children:[{name: '页面4'},{name: '页面5'},{name: '页面6'}]}]
+    {name: '场景1', open: false, children: [{name: '页面1'}, {name: '页面2'}, {name: '页面3'}]},
+    {name: '场景2', open: false, children: [{name: '页面4'}, {name: '页面5'}, {name: '页面6'}]}],
+  selectNodes:[]
 }
 
 const store: Module<EditorStore, any> = {

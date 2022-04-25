@@ -2,7 +2,7 @@
   <section class="art-board"
            ref="artBoard"
            tabindex="0"
-           :class="{'cursor-grab':keySpace}"
+           :class="{'cursor-grab':keySpace,'cursor-grabbing':isMoving}"
            @wheel.capture.prevent="onWheel"
            @keydown.space.prevent.capture="spaceDown"
            @mouseenter.prevent="enterBoard"
@@ -83,7 +83,7 @@ export default {
     })
     // move
     let isForces = false,
-        isMoving = false,
+        isMoving = ref(false),
         preX = 0,
         preY = 0;
 
@@ -91,14 +91,14 @@ export default {
     // mouse
     function boardDownEvent(ev: MouseEvent) {
       if (keySpace.value) {
-        isMoving = true
+        isMoving.value = true
         preX = ev.pageX;
         preY = ev.pageY
       }
     }
 
     function boardMoveEvent(ev: MouseEvent) {
-      if (isMoving) {
+      if (isMoving.value) {
         let offsetX = ev.pageX - preX,
             offsetY = ev.pageY - preY
         if (artBoard.value) {
@@ -112,7 +112,7 @@ export default {
     }
 
     function boardUpEvent(ev: MouseEvent) {
-      isMoving = false
+      isMoving.value = false
     }
 
     function enterBoard(ev: MouseEvent) {
@@ -144,7 +144,7 @@ export default {
       onWheel,
       // move
       keySpace, boardMoveEvent, enterBoard, leaveBoard, boardDownEvent, boardUpEvent,
-      spaceUp, spaceDown
+      spaceUp, spaceDown,isMoving
     }
   }
 }
@@ -175,7 +175,9 @@ export default {
 .cursor-grab {
   cursor: grab;
 }
-
+.cursor-grabbing{
+  cursor: grabbing;
+}
 .art-board-wrapper {
   background: #1B1B21;
 }
