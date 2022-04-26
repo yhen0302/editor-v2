@@ -137,7 +137,10 @@
         <section class="property-edit-box">
           <nav-tab v-model:index="propertyEditIndex">
             <nav-tab-item>
-              <axis-line-chart-configurator></axis-line-chart-configurator>
+              <!--<axis-line-chart-configurator></axis-line-chart-configurator>-->
+<!--<text-configurator></text-configurator>-->
+              <shape-configurator></shape-configurator>
+
             </nav-tab-item>
             <nav-tab-item>
               <event></event>
@@ -178,6 +181,8 @@ import LayerList from "@/plugins/layerPlugin/LayerList.vue";
 import {layerIcon, selectBarData, selectData2d} from "@/views/editor/local_data";
 import Event from "@/views/editor/child/Event.vue";
 import AxisLineChartConfigurator from "@/views/editor/configurator/AxisLineChartConfigurator.vue";
+import TextConfigurator from "@/views/editor/configurator/TextConfigurator.vue";
+import ShapeConfigurator from "@/views/editor/configurator/ShapeConfigurator.vue";
 
 
 /* 编辑器 */
@@ -187,6 +192,8 @@ export default defineComponent({
     return {testData: false}
   },
   components: {
+    ShapeConfigurator,
+    TextConfigurator,
     AxisLineChartConfigurator,
     Event,
     LayerList, ArtBoard, ShadowRadio, AfterProcess, TipButton, NavTabItem, NavTab, NavBar

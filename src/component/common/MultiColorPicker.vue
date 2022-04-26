@@ -1,17 +1,17 @@
 <template>
   <div class="multi-color-picker flex justify-between">
-    <color-picker :value="value[index]" v-for="(item,index) in value" :key="index"
-                  @update:value="updateFn($event,index)"></color-picker>
+    <color-picker-el :value="value[index]" v-for="(item,index) in value" :key="index"
+                  @update:value="updateFn($event,index)"></color-picker-el>
   </div>
 </template>
 
 <script>
 import {ref, watch,} from "vue";
-import ColorPicker from "@/component/common/ColorPickerEl";
+import ColorPickerEl from "@/component/common/ColorPickerEl";
 
 export default {
   name: "MultiColorPicker",
-  components: {ColorPicker},
+  components: {ColorPickerEl},
   props: {value: {type: Array, default: () => []}},
   emits: ['update'],
   setup(props, context) {

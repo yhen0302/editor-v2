@@ -1,7 +1,7 @@
 <template>
-  <div class="check-box-el box-border">
-    <ul class="check-content-list flex h-full">
-      <li class="check-item h-full" :class="{checked:item.isChecked}" @click="item.isChecked=!item.isChecked"
+  <div class="check-box-el box-border w-full">
+    <ul class="check-content-list flex w-full h-full">
+      <li class="check-item flex-1 h-full" :class="{checked:item.isChecked}" @click="itemClick(item)"
           v-for="item in valueRef" :key="item.value">
         <slot :item="item">
           <span class="check-item-content">{{ item.label }}</span>
@@ -14,14 +14,18 @@
 <script lang="ts">
 import {ref, watch, toRaw, PropType} from "vue";
 
-class PropsDataItem{
+class PropsDataItem {
   label
   value
 }
 
 export default {
   name: "CheckBoxEl",
-  props: {modelValue: {default: () => [], type: Array}, list: {type:Array as PropType<PropsDataItem[]>, default: () => []}},
+  props: {
+    modelValue: {default: () => [], type: Array},
+    list: {type: Array as PropType<PropsDataItem[]>, default: () => []},
+    radio: Boolean
+  },
   emits: ['update:modelValue'],
   setup(props, context) {
     let valueRef = ref([])
@@ -43,7 +47,16 @@ export default {
       context.emit('update:modelValue', newValList)
     }, {deep: true})
 
-    return {valueRef}
+    function itemClick(item) {
+      if (props.radio) {
+        valueRef.value.forEach(item => item.isChecked = false)
+        item.isChecked = true
+      } else {
+        item.isChecked = !item.isChecked
+      }
+    }
+
+    return {valueRef, itemClick}
   }
 }
 </script>
@@ -60,7 +73,6 @@ export default {
 }
 
 .check-item {
-  width: 56px;
   border-radius: 2px;
 }
 

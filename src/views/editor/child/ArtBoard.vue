@@ -65,7 +65,6 @@ export default {
 
     const wrapperWidthPx = computed(() => {
       let offset: number = Number(artBoard.value?.getBoundingClientRect().width) * 2
-      console.log(offset)
       return props.width * editorStore.artBoardScale + offset + "px"
     })
     const wrapperHeightPx = computed(() => {

@@ -5,9 +5,9 @@
         <div class="color-picker-wrap">
           <multi-color-picker :value="colors"></multi-color-picker>
         </div>
-        <line-el color="#363741"></line-el>
       </template>
     </fold-el>
+    <line-el color="#363741"></line-el>
   </section>
 </template>
 

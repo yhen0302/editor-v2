@@ -1,5 +1,5 @@
 <template>
-  <div class="axis-line-chart">
+  <div class="axis-line-chart property-box">
     <base-position-configurator></base-position-configurator>
     <chart-color-configurator></chart-color-configurator>
     <chart-title-configurator></chart-title-configurator>

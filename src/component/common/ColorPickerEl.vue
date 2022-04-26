@@ -10,7 +10,7 @@
 import {ref, watch} from "vue";
 
 export default {
-  name: "ColorPicker",
+  name: "ColorPickerEl",
   props: ['value'],
   emits: ['update:value'],
   setup(props, context) {

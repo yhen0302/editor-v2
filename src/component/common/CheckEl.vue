@@ -4,6 +4,7 @@
       <img src="~@/assets/images/editor_selected_btn_btn.png" v-show="value">
     </button>
     <span class="text-12">{{ label }}</span>
+
   </div>
 </template>
 
