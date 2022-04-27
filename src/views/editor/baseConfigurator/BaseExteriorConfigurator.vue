@@ -43,4 +43,8 @@ export default {
 
 <style scoped>
 @import "common.css";
+
+.inp-suf {
+  color: #474A54;
+}
 </style>
