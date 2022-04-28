@@ -1,10 +1,10 @@
 <template>
   <section class="fold-el">
     <slot name="header" fold="fold">
-      <div class="fold-header box-border flex items-center justify-between w-full" @click="fold=!fold"
-           :class="{fold:fold}">
+      <div class="fold-header box-border flex items-center justify-between w-full" @click="controlFold&&(fold=!fold)"
+           :class="{fold:fold,'control-fold':controlFold}">
         <p class="text-12">{{ title }}</p>
-        <img src="~@/assets/images/editor_unfold_icn_dark.png" class="fold-icon">
+        <img src="~@/assets/images/editor_unfold_icn_dark.png" class="fold-icon" v-show="controlFold">
       </div>
     </slot>
     <line-el color="#363741" v-if="lineShow"></line-el>
@@ -23,7 +23,12 @@ import LineEl from "@/component/common/LineEl";
 export default {
   name: "FoldEl",
   components: {LineEl},
-  props: {heightUpdate: {type: Boolean, default: false}, title: String, lineShow: {type: Boolean, default: true}},
+  props: {
+    heightUpdate: {type: Boolean, default: false},
+    title: String,
+    lineShow: {type: Boolean, default: true},
+    controlFold: {type: Boolean, default: true}
+  },
   setup(props, context) {
     const fold = ref(true)
     const foldContent = ref(null)
@@ -56,8 +61,9 @@ export default {
   transition: .2s background-color ease-out;
 }
 
-.fold-header:hover {
+.fold-header.control-fold:hover{
   background: #31333D;
+
 }
 
 .fold-header.fold > .fold-icon {

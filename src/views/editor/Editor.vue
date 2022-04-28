@@ -140,7 +140,8 @@
               <!--<axis-line-chart-configurator></axis-line-chart-configurator>-->
               <!--<text-configurator></text-configurator>-->
               <!--<shape-configurator></shape-configurator>-->
-              <media-configurator></media-configurator>
+              <!--<media-configurator></media-configurator>-->
+              <model-configurator></model-configurator>
             </nav-tab-item>
             <nav-tab-item>
               <event></event>
@@ -184,6 +185,7 @@ import AxisLineChartConfigurator from "@/views/editor/configurator/AxisLineChart
 import TextConfigurator from "@/views/editor/configurator/TextConfigurator.vue";
 import ShapeConfigurator from "@/views/editor/configurator/ShapeConfigurator.vue";
 import MediaConfigurator from "@/views/editor/configurator/MediaConfigurator.vue";
+import ModelConfigurator from "@/views/editor/configurator/ModelConfigurator.vue";
 
 
 /* 编辑器 */
@@ -193,6 +195,7 @@ export default defineComponent({
     return {testData: false}
   },
   components: {
+    ModelConfigurator,
     MediaConfigurator,
     ShapeConfigurator,
     TextConfigurator,
