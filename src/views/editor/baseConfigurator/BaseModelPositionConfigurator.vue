@@ -1,6 +1,6 @@
 <template>
   <section class="base-model-position-c">
-    <fold-el title="模型名称" >
+    <fold-el title="模型名称" :control-fold="false">
       <template #default>
         <div class="sub-fold-item-wrap pr-16 pt-16 flex items-center">
           <div class="config-item-pre pl-16 text-12">填充</div>

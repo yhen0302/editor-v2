@@ -137,11 +137,11 @@
         <section class="property-edit-box">
           <nav-tab v-model:index="propertyEditIndex">
             <nav-tab-item>
-              <!--<axis-line-chart-configurator></axis-line-chart-configurator>-->
-              <!--<text-configurator></text-configurator>-->
+              <axis-line-chart-configurator></axis-line-chart-configurator>
+              <text-configurator></text-configurator>
               <!--<shape-configurator></shape-configurator>-->
               <!--<media-configurator></media-configurator>-->
-              <model-configurator></model-configurator>
+              <!--<model-configurator></model-configurator>-->
             </nav-tab-item>
             <nav-tab-item>
               <event></event>

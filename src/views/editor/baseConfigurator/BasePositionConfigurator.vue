@@ -1,11 +1,11 @@
 <template>
   <section class="base-position-configurator-wrap">
-    <fold-el title="柱状图" :show-line="false">
+    <fold-el title="柱状图" :show-line="false" :control-fold="false">
       <template #default>
         <div class="base-p-c-content-box flex flex-col">
           <div class="base-p-c-c-content flex position items-center">
             <p class="text-12 config-pre">位置</p>
-            <input-el type="number" class="inp-wrap" >
+            <input-el type="number" class="inp-wrap">
               <template #prefix><span class="inp-suffix text-12">X</span></template>
             </input-el>
             <input-el type="number" class="inp-wrap">
@@ -14,7 +14,7 @@
           </div>
           <div class="base-p-c-c-content flex size items-center">
             <p class="text-12 config-pre">尺寸</p>
-            <input-el type="number" class="inp-wrap" >
+            <input-el type="number" class="inp-wrap">
               <template #prefix><span class="inp-suffix text-12">W</span></template>
             </input-el>
             <input-el type="number" class="inp-wrap">
@@ -32,7 +32,6 @@
         <line-el color="#363741"></line-el>
       </template>
     </fold-el>
-
   </section>
 </template>
 
@@ -60,11 +59,13 @@ export default {
 .base-p-c-c-content {
   gap: 8px;
 }
-.config-pre{
+
+.config-pre {
   padding-left: 16px;
   text-align: left;
   width: 72px;
 }
+
 .inp-wrap {
   height: 32px;
   width: 80px;
