@@ -174,7 +174,7 @@ import ShadowRadio from '@/views/editor/child/ShadowRadio.vue'
 import ArtBoard from '@/views/editor/child/ArtBoard.vue'
 import { useMutation } from '@/store/helper'
 import LayerList from '@/plugins/layerPlugin/LayerList.vue'
-import { layerIcon, selectBarData, selectData2d } from '@/views/editor/local_data'
+import { layerIcon, selectBarData, selectData } from '@/views/editor/local_data'
 import Event from '@/views/editor/child/Event.vue'
 import AxisLineChartConfigurator from '@/views/editor/configurator/AxisLineChartConfigurator.vue'
 import TextConfigurator from '@/views/editor/configurator/TextConfigurator.vue'
@@ -217,7 +217,7 @@ export default defineComponent({
       () => editorStore.selectBarToolType,
       (newVal, oldVal) => {
         if (newVal) {
-          let data: any = markRaw(selectData2d[newVal as dimensionSelectBarType2d])
+          let data: any = markRaw(selectData[newVal as dimensionSelectBarType2d])
           data.key = newVal
           stack.value.splice(0, stack.value.length, data)
           navIndex.value = 0
