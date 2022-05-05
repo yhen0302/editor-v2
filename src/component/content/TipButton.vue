@@ -1,26 +1,25 @@
 <template>
-  <div class="tip-button relative" :class="{active:props.active}"
-       :key="props.icon">
-    <img class="select-icon" width="24" height="24" :src="props.icon">
-      <div class="select-tip absolute text-12 pointer-events-none" :class="props.tipPosition" v-show="props.name">
-        <slot name="tip" :tipName="name">
-          {{ props.name }}
-        </slot>
-      </div>
+  <div class="tip-button relative" :class="{ active: props.active }" :key="props.icon">
+    <img class="select-icon" width="24" height="24" :src="props.icon" />
+    <div class="select-tip absolute text-12 pointer-events-none" :class="props.tipPosition" v-show="props.name">
+      <slot name="tip" :tipName="name">
+        {{ props.name }}
+      </slot>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 export default {
-  name: "TipButton",
+  name: 'TipButton',
   props: {
-    active: {default: false, type: Boolean},
-    icon: {default: "", type: String},
-    name: {default: "", type: String},
-    tipPosition: {default: "lr", type: String}
+    active: { default: false, type: Boolean },
+    icon: { default: '', type: String },
+    name: { default: '', type: String },
+    tipPosition: { default: 'lr', type: String }
   },
   setup(props: any) {
-    return {props}
+    return { props }
   }
 }
 </script>
@@ -31,7 +30,7 @@ export default {
   height: 56px;
   padding: 16px;
   border-radius: 4px;
-  transition: background-color .2s linear;
+  transition: background-color 0.2s linear;
   z-index: 1;
 }
 
@@ -40,29 +39,34 @@ export default {
 }
 
 .tip-button:hover > .select-tip.lr {
-  opacity: .8;
-  transform: translate(100%, -50%)
+  opacity: 0.8;
+  transform: translate(100%, -50%);
 }
 
 .tip-button:hover > .select-tip.tb {
-  opacity: .8;
+  opacity: 0.8;
   transform: translate(0, calc(100% - 15px));
 }
 
+.tip-button:hover > .select-tip.middle {
+  opacity: 0.8;
+  transform: translate(8px, calc(100% + 3px));
+}
+
 .tip-button.active {
-  background-color: #6582FE;
+  background-color: #6582fe;
 }
 
 .select-tip {
   top: 50%;
   right: -4px;
-  background: #ECECEC;
+  background: #ececec;
   width: max-content;
   border-radius: 4px;
   padding: 8px 16px;
   opacity: 0;
   transition-property: transform, opacity;
-  transition: .1s cubic-bezier(1,-0.00,1,-0.00);
+  transition: 0.1s cubic-bezier(1, -0, 1, -0);
   color: #1d1d1d;
 }
 

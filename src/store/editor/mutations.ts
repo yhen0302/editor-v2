@@ -1,17 +1,16 @@
-import {dimensionType, EditorStore, selectBarType} from "@/store/editor/type";
+import { dimensionType, EditorStore, selectBarType } from '@/store/editor/type'
 
-export interface EditorMutationI{
-  CHANGE_DIMENSION: "CHANGE_DIMENSION",
-  CHANGE_SELECT_BAR_TOOL_TYPE: "CHANGE_SELECT_BAR_TOOL_TYPE",
-  CHANGE_ART_BOARD_SCALE: "CHANGE_ART_BOARD_SCALE",
+export interface EditorMutationI {
+  CHANGE_DIMENSION: 'CHANGE_DIMENSION'
+  CHANGE_SELECT_BAR_TOOL_TYPE: 'CHANGE_SELECT_BAR_TOOL_TYPE'
+  CHANGE_ART_BOARD_SCALE: 'CHANGE_ART_BOARD_SCALE'
 }
 
 export const EditorMutation: EditorMutationI = {
-  CHANGE_DIMENSION: "CHANGE_DIMENSION",
-  CHANGE_SELECT_BAR_TOOL_TYPE: "CHANGE_SELECT_BAR_TOOL_TYPE",
-  CHANGE_ART_BOARD_SCALE: "CHANGE_ART_BOARD_SCALE"
+  CHANGE_DIMENSION: 'CHANGE_DIMENSION',
+  CHANGE_SELECT_BAR_TOOL_TYPE: 'CHANGE_SELECT_BAR_TOOL_TYPE',
+  CHANGE_ART_BOARD_SCALE: 'CHANGE_ART_BOARD_SCALE'
 }
-
 
 export default {
   [EditorMutation.CHANGE_DIMENSION](state: EditorStore, payload: { dimensionType: dimensionType }) {

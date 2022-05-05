@@ -9,21 +9,22 @@
 </template>
 
 <script>
-import BasePositionConfigurator from "../baseConfigurator/BasePositionConfigurator";
-import ChartColorConfigurator from "../baseConfigurator/ChartColorConfigurator";
-import ChartTitleConfigurator from "../baseConfigurator/ChartTitleConfigurator";
-import ChartGridConfigurator from "../baseConfigurator/ChartGridConfigurator";
-import ChartLegendConfigurator from "../baseConfigurator/ChartLegendConfigurator";
+import BasePositionConfigurator from '../baseConfigurator/BasePositionConfigurator'
+import ChartColorConfigurator from '../baseConfigurator/ChartColorConfigurator'
+import ChartTitleConfigurator from '../baseConfigurator/ChartTitleConfigurator'
+import ChartGridConfigurator from '../baseConfigurator/ChartGridConfigurator'
+import ChartLegendConfigurator from '../baseConfigurator/ChartLegendConfigurator'
 
 export default {
-  name: "AxisLineChartConfigurator",
+  name: 'AxisLineChartConfigurator',
   components: {
     ChartLegendConfigurator,
-    ChartGridConfigurator, ChartTitleConfigurator, ChartColorConfigurator, BasePositionConfigurator
+    ChartGridConfigurator,
+    ChartTitleConfigurator,
+    ChartColorConfigurator,
+    BasePositionConfigurator
   }
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
