@@ -11,10 +11,11 @@ input:focus {
     outline: none;
 }
 
-input::-webkit-inner-spin-button{
+input::-webkit-inner-spin-button {
     -webkit-appearance: none;
 }
-.property-box{
+
+.property-box {
     max-height: 48vh;
     min-height: 38vh;
     overflow-y: scroll;

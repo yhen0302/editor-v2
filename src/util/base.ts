@@ -1,3 +1,6 @@
+import * as echarts from 'echarts'
+import {ECBasicOption} from "echarts/types/dist/shared";
+
 const fillZero = (num = '', length = 0) => {
   const numStr: string = num.toString()
   return numStr.length < length ? '0'.repeat(length - numStr.length) + numStr : numStr
@@ -33,4 +36,22 @@ export function getCss(el: HTMLElement | null, css: keyof CSSStyleDeclaration): 
 export function cssUnitToNumber(target: string) {
   const cssUnitRE = /^\d+(\.\d+)?(px|rem|em|vh|vw|%|cm|mm)$/
   return cssUnitRE.test(target) ? parseInt(target) : 0
+}
+
+// 将某个类型转换为url
+export function dataToUrl(data: BlobPart[], mimeType: string) {
+  const blob = new Blob(data, {type: mimeType});
+  return URL.createObjectURL(blob)
+}
+
+export function getChartUrl<Opt extends ECBasicOption>(option: Opt) {
+  const div = document.createElement('div')
+  div.style.width = '240px'
+  div.style.height = '160px'
+
+  const chart = echarts.init(div)
+  chart.setOption({animation: false, grid: {left: 30, top: 15, right: 10, bottom: 30}})
+  chart.setOption(option)
+
+  return chart.getConnectedDataURL({type: "png"})
 }
