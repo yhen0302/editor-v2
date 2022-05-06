@@ -150,7 +150,6 @@ export const selectData: Record<dimensionSelectBarType2d | dimensionSelectBarTyp
   }
 }
 
-console.log(selectData)
 export const layerIcon: { [key in dimensionSelectBarType2d]: string } = {
   shape: require('@/assets/images/editor_roundedrectangle_icn_dark.png'),
   chart: require('@/assets/images/editor_chart_icn_dark.png'),

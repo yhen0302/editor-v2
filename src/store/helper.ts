@@ -1,6 +1,5 @@
 import { moduleState, MutationsMapper } from './index'
 import { mapMutations, MutationMethod, Store } from 'vuex'
-import mutations from '@/store/editor/mutations'
 
 export function useState(store: Store<any>, namespace: moduleState) {
   if (namespace === 'global') return store

@@ -6,6 +6,7 @@ import 'reset-css'
 import "./assets/css/tailwind.css"
 import "./assets/css/base.css"
 import layerPlugin from './plugins/layerPlugin'
+import dragDropPlugin from './plugins/dragDropPlugin'
 
 
-createApp(App).use(store).use(layerPlugin).use(router).mount('#app')
+createApp(App).use(store).use(layerPlugin).use(router).use(dragDropPlugin).mount('#app')

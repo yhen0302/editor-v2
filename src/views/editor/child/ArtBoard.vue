@@ -12,6 +12,7 @@
     @mousedown="boardDownEvent"
     @mouseup="boardUpEvent"
     @keyup.space.prevent.capture="spaceUp"
+    v-dropable
   >
     <section class="art-board-wrapper grid place-content-center" :style="{ width: wrapperWidthPx, height: wrapperHeightPx }">
       <section class="art-board-box relative" :style="{ width: widthPx, height: heightPx, transform: `scale(${editorStore.artBoardScale})` }">
