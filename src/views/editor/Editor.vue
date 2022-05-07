@@ -4,12 +4,8 @@
     <nav-bar></nav-bar>
     <!--  2d, 3d 切换  -->
     <section class="dimension-toggle-box relative z-10 flex items-center text-12 text-gray-light cursor-pointer">
-      <div class="dimension-toggle" :class="{ active: editorStore.dimensionType === '3d' }"
-           @click="dimensionTypeChange('3d')">3d
-      </div>
-      <div class="dimension-toggle" :class="{ active: editorStore.dimensionType === '2d' }"
-           @click="dimensionTypeChange('2d')">2d
-      </div>
+      <div class="dimension-toggle" :class="{ active: editorStore.dimensionType === '3d' }" @click="dimensionTypeChange('3d')">3d</div>
+      <div class="dimension-toggle" :class="{ active: editorStore.dimensionType === '2d' }" @click="dimensionTypeChange('2d')">2d</div>
     </section>
     <!--  编辑区域  -->
     <section class="editor-area flex justify-between">
@@ -18,32 +14,29 @@
         <ul class="select-type-bar bg-gray-dark h-full relative z-10">
           <li class="dimension-type-item text-blue text-12">{{ editorStore.dimensionType }}</li>
           <li
-              class="select-item relative"
-              :class="{ active: item.type === editorStore.selectBarToolType }"
-              v-for="item in selectBarData[editorStore.dimensionType]"
-              @click="mutations.CHANGE_SELECT_BAR_TOOL_TYPE({ selectBarToolType: item.type })"
-              :key="item.type"
+            class="select-item relative"
+            :class="{ active: item.type === editorStore.selectBarToolType }"
+            v-for="item in selectBarData[editorStore.dimensionType]"
+            @click="mutations.CHANGE_SELECT_BAR_TOOL_TYPE({ selectBarToolType: item.type })"
+            :key="item.type"
           >
-            <tip-button :name="item.name" :active="item.type === editorStore.selectBarToolType"
-                        :icon="item.icon"></tip-button>
+            <tip-button :name="item.name" :active="item.type === editorStore.selectBarToolType" :icon="item.icon"></tip-button>
           </li>
         </ul>
         <transition name="bounceInLeft">
-          <div class="select-detail bg-gray-dark" v-show="editorStore.selectBarToolType"
-               v-memo="[editorStore.selectBarToolType, navIndex]">
+          <div class="select-detail bg-gray-dark" v-show="editorStore.selectBarToolType" v-memo="[editorStore.selectBarToolType, navIndex]">
             <nav-tab v-model:index="navIndex" :title="activeTitle">
               <nav-tab-item v-for="select in stack" :key="select.key">
                 <ul class="select-detail-list grid grid-cols-2 box-border p-16" v-if="select.viewType === 'block'">
-                  <li class="select-detail-item flex flex-col items-center border-box justify-between"
-                      v-for="item in select.list" :key="item.type" @click="clickSelectItem(item)">
-                    <img :src="item.icon" class="select-detail-sub-icon flex-shrink-0"/>
+                  <li class="select-detail-item flex flex-col items-center border-box justify-between" v-for="item in select.list" :key="item.type" @click="clickSelectItem(item)">
+                    <img :src="item.icon" class="select-detail-sub-icon flex-shrink-0" draggable="false" v-if="item.children" />
+                    <img :src="item.icon" class="select-detail-sub-icon flex-shrink-0" v-dragable="item" v-else />
                     <p class="select-detail-name text-12 text-gray-light">{{ item.name }}</p>
                   </li>
                 </ul>
-                <ul class="select-detail-list-l grid grid-cols-1 box-border p-16" v-once
-                    v-else-if="select.viewType === 'list'">
+                <ul class="select-detail-list-l grid grid-cols-1 box-border p-16" v-once v-else-if="select.viewType === 'list'">
                   <li class="select-detail-list-l-item w-full" v-for="item in select.list" :key="item.name">
-                    <img :src="item.icon" v-dragable="item"/>
+                    <img :src="item.icon" v-dragable="item" />
                   </li>
                 </ul>
               </nav-tab-item>
@@ -64,8 +57,8 @@
             <nav-tab-item key="screenTree">
               <div class="screen-tree-box">
                 <div class="search-box flex items-center">
-                  <img class="search-icon" width="16" height="16" src="~@/assets/images/editor_search_icn_dark.png"/>
-                  <input class="search-inp text-12" type="text" placeholder="搜索所有元素"/>
+                  <img class="search-icon" width="16" height="16" src="~@/assets/images/editor_search_icn_dark.png" />
+                  <input class="search-inp text-12" type="text" placeholder="搜索所有元素" />
                 </div>
                 <layer-list :node="editorStore.layerTree2d" v-show="editorStore.dimensionType === '2d'">
                   <template v-slot:prefix>
@@ -73,18 +66,17 @@
                   </template>
                   <template v-slot:placeholder="node" v-once>
                     <div style="padding-right: 8px">
-                      <img :src="layerIcon[node.type]"/>
+                      <img :src="layerIcon[node.type]" />
                     </div>
                   </template>
                   <template v-slot:suffix="node">
-                    <div class="suffix-icon-wrap cursor-pointer"
-                         :class="{ 'opacity-50': findHasFalseShowParentNode(node) }" @click.stop="hiddenControl(node)">
-                      <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show"/>
-                      <img src="~@/assets/images/editor_seen_btn_dark.png" v-else/>
+                    <div class="suffix-icon-wrap cursor-pointer" :class="{ 'opacity-50': findHasFalseShowParentNode(node) }" @click.stop="hiddenControl(node)">
+                      <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
+                      <img src="~@/assets/images/editor_seen_btn_dark.png" v-else />
                     </div>
                   </template>
                   <template v-slot:folderPrefix>
-                    <img src="~@/assets/images/editor_elementgroup_icn_dark.png" style="margin-right: 8px"/>
+                    <img src="~@/assets/images/editor_elementgroup_icn_dark.png" style="margin-right: 8px" />
                   </template>
                 </layer-list>
                 <layer-list :node="editorStore.layerTree3d" class="tree-3d" v-show="editorStore.dimensionType === '3d'">
@@ -95,8 +87,8 @@
                     <div></div>
                   </template>
                   <template v-slot:suffix="node">
-                    <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show"/>
-                    <img src="~@/assets/images/editor_seen_btn_dark.png" v-else/>
+                    <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
+                    <img src="~@/assets/images/editor_seen_btn_dark.png" v-else />
                   </template>
                   <template v-slot:folderPrefix>
                     <div></div>
@@ -108,7 +100,7 @@
             <nav-tab-item key="screenPage">
               <div class="screen-page-tree-box">
                 <div class="add-screen-wrap box-border flex items-center justify-end">
-                  <img src="@/assets/images/editor_newscene_btn_dark.png" alt=""/>
+                  <img src="@/assets/images/editor_newscene_btn_dark.png" alt="" />
                 </div>
                 <layer-list :node="editorStore.screenPageTree">
                   <template v-slot:prefix>
@@ -116,25 +108,24 @@
                   </template>
                   <template v-slot:placeholder v-once>
                     <div style="padding-right: 8px">
-                      <img src="@/assets/images/editor_page_icn_dark.png"/>
+                      <img src="@/assets/images/editor_page_icn_dark.png" />
                     </div>
                   </template>
                   <template v-slot:suffix v-once>
                     <div></div>
                   </template>
                   <template v-slot:folderPrefix v-once>
-                    <img src="~@/assets/images/editor_scene_icn_dark.png" style="margin-right: 8px"/>
+                    <img src="~@/assets/images/editor_scene_icn_dark.png" style="margin-right: 8px" />
                   </template>
                   <template v-slot:folderSuffix>
-                    <img src="~@/assets/images/editor_newpage_btn_dark.png"/>
+                    <img src="~@/assets/images/editor_newpage_btn_dark.png" />
                   </template>
                 </layer-list>
               </div>
             </nav-tab-item>
             <template v-slot:header>
               <ul class="nav-tab-header items-center flex text-14">
-                <li class="nav-tab-h-item cursor-pointer" v-for="(item, index) in ['场景树', '场景页面']"
-                    :class="{ active: layerTreeIndex === index }" @click="layerTreeIndex = index" :key="item">
+                <li class="nav-tab-h-item cursor-pointer" v-for="(item, index) in ['场景树', '场景页面']" :class="{ active: layerTreeIndex === index }" @click="layerTreeIndex = index" :key="item">
                   {{ item }}
                 </li>
               </ul>
@@ -157,11 +148,11 @@
             <template v-slot:header>
               <ul class="nav-tab-header items-center flex text-14">
                 <li
-                    class="nav-tab-h-item cursor-pointer"
-                    v-for="(item, index) in ['基础设置', '交互事件']"
-                    :class="{ active: propertyEditIndex === index }"
-                    @click="propertyEditIndex = index"
-                    :key="item"
+                  class="nav-tab-h-item cursor-pointer"
+                  v-for="(item, index) in ['基础设置', '交互事件']"
+                  :class="{ active: propertyEditIndex === index }"
+                  @click="propertyEditIndex = index"
+                  :key="item"
                 >
                   {{ item }}
                 </li>
@@ -175,21 +166,21 @@
 </template>
 
 <script lang="ts">
-import {dimensionSelectBarType2d, EditorStore, SelectItem, TreeNode} from '@/store/editor/type'
-import {defineComponent, watch, markRaw, computed} from 'vue'
+import { dimensionSelectBarType2d, EditorStore, SelectItem, TreeNode } from '@/store/editor/type'
+import { defineComponent, watch, markRaw, computed } from 'vue'
 import NavBar from './child/NavBar.vue'
-import {useStore} from 'vuex'
-import {EditorMutation} from '@/store/editor/mutations'
+import { useStore } from 'vuex'
+import { EditorMutation } from '@/store/editor/mutations'
 import NavTab from '@/component/common/navTab/NavTab.vue'
 import NavTabItem from '@/component/common/navTab/NavTabItem.vue'
-import {Ref, ref} from '@vue/reactivity'
+import { Ref, ref } from '@vue/reactivity'
 import TipButton from '@/component/content/TipButton.vue'
 import AfterProcess from '@/views/editor/child/AfterProcess.vue'
 import ShadowRadio from '@/views/editor/child/ShadowRadio.vue'
 import ArtBoard from '@/views/editor/child/ArtBoard.vue'
-import {useMutation} from '@/store/helper'
+import { useMutation } from '@/store/helper'
 import LayerList from '@/plugins/layerPlugin/LayerList.vue'
-import {layerIcon, selectBarData, selectData} from '@/views/editor/local_data'
+import { layerIcon, selectBarData, selectData } from '@/views/editor/local_data'
 import Event from '@/views/editor/child/Event.vue'
 import AxisLineChartConfigurator from '@/views/editor/configurator/AxisLineChartConfigurator.vue'
 import TextConfigurator from '@/views/editor/configurator/TextConfigurator.vue'
@@ -201,7 +192,7 @@ import ModelConfigurator from '@/views/editor/configurator/ModelConfigurator.vue
 export default defineComponent({
   name: 'Editor',
   data() {
-    return {testData: false}
+    return { testData: false }
   },
   components: {
     ModelConfigurator,
@@ -230,24 +221,24 @@ export default defineComponent({
     const selectTitle: Ref<string> = ref<string>('')
 
     watch(
-        () => editorStore.selectBarToolType,
-        (newVal, oldVal) => {
-          if (newVal) {
-            let data: any = markRaw(selectData[newVal as dimensionSelectBarType2d])
-            data.key = newVal
-            stack.value.splice(0, stack.value.length, data)
-            navIndex.value = 0
-          }
+      () => editorStore.selectBarToolType,
+      (newVal, oldVal) => {
+        if (newVal) {
+          let data: any = markRaw(selectData[newVal as dimensionSelectBarType2d])
+          data.key = newVal
+          stack.value.splice(0, stack.value.length, data)
+          navIndex.value = 0
         }
+      }
     )
     watch(
-        () => navIndex.value,
-        (newVal, oldVal) => {
-          if (newVal < oldVal && stack.value.length > 1) {
-            stack.value.pop()
-            selectTitle.value = ''
-          }
+      () => navIndex.value,
+      (newVal, oldVal) => {
+        if (newVal < oldVal && stack.value.length > 1) {
+          stack.value.pop()
+          selectTitle.value = ''
         }
+      }
     )
 
     // shadow config block
@@ -294,8 +285,8 @@ export default defineComponent({
     // dimension type change
     const dimensionTypeChange = (dimensionType: string) => {
       if (dimensionType == editorStore.dimensionType) return
-      mutations.CHANGE_DIMENSION({dimensionType})
-      mutations.CHANGE_SELECT_BAR_TOOL_TYPE({selectBarToolType: null})
+      mutations.CHANGE_DIMENSION({ dimensionType })
+      mutations.CHANGE_SELECT_BAR_TOOL_TYPE({ selectBarToolType: null })
     }
 
     return {

@@ -53,7 +53,7 @@ export const selectData: Record<dimensionSelectBarType2d | dimensionSelectBarTyp
         type: 'base',
         children: {
           list: [
-            { icon: require('@/assets/images/editor_shape_roundedrectangle_btn_dark.png'), name: '圆角矩形' },
+            { icon: require('@/assets/images/editor_shape_roundedrectangle_btn_dark.png'), name: '圆角矩形', },
             { icon: require('@/assets/images/editor_shape_rectangle_btn_dark.png'), name: '矩形' },
             { icon: require('@/assets/images/editor_shape_circular_btn_dark.png'), name: '圆形' },
             { icon: require('@/assets/images/editor_shape_righttriangle_btn_dark.png'), name: '直角三角形' }
@@ -102,8 +102,9 @@ export const selectData: Record<dimensionSelectBarType2d | dimensionSelectBarTyp
               },
               icon: ''
             }
-          ].map((item) => {
+          ].map((item:SelectItem):SelectItem => {
             item.icon = getChartUrl(item.option)
+            item.type = 'bar'
             return item
           })
         }

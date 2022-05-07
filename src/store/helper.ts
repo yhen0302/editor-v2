@@ -8,7 +8,7 @@ export function useState(store: Store<any>, namespace: moduleState) {
 
 export function useMutation<K extends keyof MutationsMapper, T extends MutationsMapper[K]>(store: Store<any>, namespace: K, mutationList: Array<keyof T>): { [key in keyof T]: MutationMethod } {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
+  //@ts-ignore8
   const mutations = mapMutations('editor', mutationList)
 
   for (const key of Object.keys(mutations)) {

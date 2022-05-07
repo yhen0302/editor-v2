@@ -11,16 +11,14 @@ export default {
       imgCloneEl.width = (el as HTMLImageElement).width * (store as any).state.editor.artBoardScale * 2
       imgCloneEl.height = (el as HTMLImageElement).height * (store as any).state.editor.artBoardScale * 2
       document.body.append(imgCloneEl)
-      ev.dataTransfer?.setData('test', JSON.stringify(binding.value))
+      ev.dataTransfer?.setData('meta', JSON.stringify(binding.value))
       ev.dataTransfer?.setDragImage(imgCloneEl, imgCloneEl.width / 2, imgCloneEl.height / 2)
     })
 
     el.addEventListener('dragend', function (ev: DragEvent) {
-      console.log('dragend')
     })
 
     el.addEventListener('drag', function (ev: DragEvent) {
-      console.log('drag')
     })
   }
 }

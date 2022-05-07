@@ -20,6 +20,7 @@ export interface ScreenNode {
 export interface LayerTree2dNode extends TreeNode {
   type: dimensionSelectBarType2d | 'group'
   subType?: selectItemType2d,
+  option: any,
   children?: LayerTree2dNode[]
 }
 
@@ -32,7 +33,7 @@ export declare interface EditorStore {
   layerTree2d: LayerTree2dNode[]
   layerTree3d: TreeNode[]
   screenPageTree: ScreenNode[]
-  selectNodes: TreeNode[],
+  select2dNodes: TreeNode[],
 
   [key: string]: any
 }

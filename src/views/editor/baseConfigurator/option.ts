@@ -1,4 +1,4 @@
-import { align, fontStyle, fontType, legendAlign } from '../type'
+import {align, fontStyle, fontType, legendAlign} from '../type'
 
 interface MatrixOption {
   left: number
@@ -41,6 +41,11 @@ interface GridLienOption {
   y: boolean
 }
 
+interface GradientColor {
+  color: string
+  transparency: number
+}
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 interface LegendOption extends TextAlignOption {
@@ -48,6 +53,7 @@ interface LegendOption extends TextAlignOption {
   align: legendAlign
 }
 
+// chart
 class BaseChart {
   matrixOption: MatrixOption
   matchColorsOption: MatchColorsOption
@@ -56,13 +62,13 @@ class BaseChart {
   legendOption: LegendOption
 
   constructor(
-    matrix: MatrixOption = { left: 0, top: 0, width: 0, height: 0, angle: 0 },
-    colors: MatchColorsOption = { colors: ['#FFF', '#FFF', '#FFF', '#FFF', '#FFF', '#FFF'] },
+    matrix: MatrixOption = {left: 0, top: 0, width: 0, height: 0, angle: 0},
+    colors: MatchColorsOption = {colors: ['#FFF', '#FFF', '#FFF', '#FFF', '#FFF', '#FFF']},
     titleOption: TitleOption = {
       color: '#FFF',
       fontFamily: 'microsoft YaHei',
       fontSize: 12,
-      fontStyle: { italic: false, weight: false, underscore: false },
+      fontStyle: {italic: false, weight: false, underscore: false},
       align: 'left',
       show: false
     },
@@ -70,7 +76,7 @@ class BaseChart {
       color: '#FFF',
       fontFamily: 'microsoft YaHei',
       fontSize: 12,
-      fontStyle: { italic: false, weight: false, underscore: false },
+      fontStyle: {italic: false, weight: false, underscore: false},
       align: 'left',
       show: false
     },
@@ -78,7 +84,7 @@ class BaseChart {
       color: '#FFF',
       fontFamily: 'microsoft YaHei',
       fontSize: 12,
-      fontStyle: { italic: false, weight: false, underscore: false },
+      fontStyle: {italic: false, weight: false, underscore: false},
       align: 'leftTop',
       show: false
     }
@@ -106,7 +112,7 @@ class AxisChart extends BaseChart {
       show: false,
       labelLineShow: false,
       fontFamily: 'microsoft YaHei',
-      fontStyle: { weight: false, italic: false, underscore: false },
+      fontStyle: {weight: false, italic: false, underscore: false},
       fontSize: 12,
       color: '#FFF'
     },
@@ -114,15 +120,28 @@ class AxisChart extends BaseChart {
       show: false,
       labelLineShow: false,
       fontFamily: 'microsoft YaHei',
-      fontStyle: { weight: false, italic: false, underscore: false },
+      fontStyle: {weight: false, italic: false, underscore: false},
       fontSize: 12,
       color: '#FFF'
     },
-    gridLineOption: GridLienOption = { x: false, y: false }
+    gridLineOption: GridLienOption = {x: false, y: false}
   ) {
     super(matrix, colors, titleOption, unitOption, legendOption)
     this.xAxisOption = xAxisOption
     this.yAxisOption = yAxisOption
     this.gridLineOption = gridLineOption
   }
+}
+
+// shape
+class BaseShape {
+  matrixOption: MatrixOption
+  gradientOption: GridLienOption
+  transparency = 1
+
+  constructor(matrix: MatrixOption, gradient: GridLienOption,) {
+    this.matrixOption = matrix
+    this.gradientOption = gradient
+  }
+
 }
