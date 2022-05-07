@@ -1,29 +1,32 @@
 <template>
   <div class="main">
+    <!--左侧工具栏-->
     <section class="left">
-      <Left />
+      <ToolBar />
     </section>
+    <!--中间画板-->
     <section class="middle">
-      <Middle />
+      <DrawingBoard />
     </section>
+    <!--右侧操作菜单-->
     <section class="right">
-      <Right />
+      <EditMenu />
     </section>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Left from './main/Left.vue'
-import Middle from './main/Middle.vue'
-import Right from './main/Right.vue'
+import ToolBar from './ToolBar.vue'
+import DrawingBoard from './DrawingBoard.vue'
+import EditMenu from './EditMenu.vue'
 
 export default defineComponent({
   name: 'Main',
   components: {
-    Left,
-    Middle,
-    Right
+    ToolBar,
+    DrawingBoard,
+    EditMenu
   },
   setup() {
     //

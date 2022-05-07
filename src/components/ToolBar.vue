@@ -26,14 +26,14 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Nav2D from '@/components/2d/left/Nav2D.vue'
-import NavMenu2D from '@/components/2d/left/NavMenu2D.vue'
-import Nav3D from '@/components/3d/left/Nav3D.vue'
-import NavMenu3D from '@/components/3d/left/NavMenu3D.vue'
+import Nav2D from '@/components/2d/toolbar/Nav2D.vue'
+import NavMenu2D from '@/components/2d/toolbar/NavMenu2D.vue'
+import Nav3D from '@/components/3d/toolbar/Nav3D.vue'
+import NavMenu3D from '@/components/3d/toolbar/NavMenu3D.vue'
 import { useStore } from 'vuex'
 
 export default defineComponent({
-  name: 'Left',
+  name: 'ToolBar',
   components: {
     Nav2D,
     Nav3D,
