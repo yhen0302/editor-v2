@@ -8,7 +8,7 @@ export default {
 
     el.addEventListener('drop', function (ev) {
       // 将数据添加到树结构中
-      console.log(ev.dataTransfer?.getData('test'));
+      console.log(JSON.parse(<string>ev.dataTransfer?.getData('test')).icon)
       console.log('drop')
     })
   }
