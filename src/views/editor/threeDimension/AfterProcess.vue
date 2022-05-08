@@ -58,11 +58,11 @@
 </template>
 
 <script lang="ts">
-import ListItem from "@/views/editor/child/ListItem.vue";
-import SwitchEl from "@/component/common/SwitchEl.vue";
+import ListItem from "../../../component/content/ListItem.vue";
+import SwitchEl from "../../../component/common/SwitchEl.vue";
 import {useStore} from "vuex";
-import {EditorStore} from "@/store/editor/type";
-import LineEl from "@/component/common/LineEl.vue";
+import {EditorStore} from "../../../store/editor/type";
+import LineEl from "../../../component/common/LineEl.vue";
 
 export default {
   name: "AfterProcess",

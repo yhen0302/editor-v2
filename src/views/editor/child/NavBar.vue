@@ -1,3 +1,4 @@
+<!--顶部导航-->
 <template>
   <nav class="editor_nav box-border w-full bg-gray-dark flex justify-between">
     <aside class="nav_left flex items-center h-full">

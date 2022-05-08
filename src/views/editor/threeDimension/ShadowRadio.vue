@@ -13,9 +13,9 @@
 </template>
 
 <script lang="ts">
-import RadioEl from "@/component/common/RadioEl.vue";
-import ListItem from "@/views/editor/child/ListItem.vue";
-import {EditorStore} from "@/store/editor/type";
+import RadioEl from "../../../component/common/RadioEl.vue";
+import ListItem from "../../../component/content/ListItem.vue";
+import {EditorStore} from "../../../store/editor/type";
 import {useStore} from "vuex";
 export default {
   name: "ShadowRadio",

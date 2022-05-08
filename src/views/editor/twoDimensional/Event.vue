@@ -63,13 +63,13 @@
 
 <script lang="ts">
 import {ref, SetupContext} from "vue";
-import {eventAction, eventList} from "@/views/editor/child/eventConstant";
-import LineEl from "@/component/common/LineEl.vue";
-import {EditorStore} from "@/store/editor/type";
+import {eventAction, eventList} from "./eventConstant";
+import LineEl from "../../../component/common/LineEl.vue";
+import {EditorStore} from "../../../store/editor/type";
 import {useStore} from "vuex";
-import SelectEl from "@/component/common/SelectEl.vue";
-import NavTab from "@/component/common/navTab/NavTab.vue";
-import NavTabItem from "@/component/common/navTab/NavTabItem.vue";
+import SelectEl from "../../../component/common/SelectEl.vue";
+import NavTab from "../../../component/common/navTab/NavTab.vue";
+import NavTabItem from "../../../component/common/navTab/NavTabItem.vue";
 
 export default {
   name: "Event",

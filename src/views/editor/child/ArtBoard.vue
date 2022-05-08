@@ -1,21 +1,23 @@
 <template>
   <section
-    class="art-board"
-    ref="artBoard"
-    tabindex="0"
-    :class="{ 'cursor-grab': keySpace, 'cursor-grabbing': isMoving }"
-    @wheel.capture.prevent="onWheel"
-    @keydown.space.prevent.capture="spaceDown"
-    @mouseenter.prevent="enterBoard"
-    @mouseleave.prevent="leaveBoard"
-    @mousemove="boardMoveEvent"
-    @mousedown="boardDownEvent"
-    @mouseup="boardUpEvent"
-    @keyup.space.prevent.capture="spaceUp"
-    v-dropable
+      class="art-board"
+      ref="artBoard"
+      tabindex="0"
+      :class="{ 'cursor-grab': keySpace, 'cursor-grabbing': isMoving }"
+      @wheel.capture.prevent="onWheel"
+      @keydown.space.prevent.capture="spaceDown"
+      @mouseenter.prevent="enterBoard"
+      @mouseleave.prevent="leaveBoard"
+      @mousemove="boardMoveEvent"
+      @mousedown="boardDownEvent"
+      @mouseup="boardUpEvent"
+      @keyup.space.prevent.capture="spaceUp"
+      v-dropable
   >
-    <section class="art-board-wrapper grid place-content-center" :style="{ width: wrapperWidthPx, height: wrapperHeightPx }">
-      <section class="art-board-box relative" :style="{ width: widthPx, height: heightPx, transform: `scale(${editorStore.artBoardScale})` }">
+    <section class="art-board-wrapper grid place-content-center"
+             :style="{ width: wrapperWidthPx, height: wrapperHeightPx }">
+      <section class="art-board-box relative"
+               :style="{ width: widthPx, height: heightPx, transform: `scale(${editorStore.artBoardScale})` }">
         <canvas ref="scene" class="canvas-renderer" :width="width" :height="height"></canvas>
         <div class="art-board-content"></div>
       </section>
@@ -24,24 +26,26 @@
 </template>
 
 <script lang="ts">
-import { computed, markRaw, nextTick, onMounted, watch } from 'vue'
-import { Ref, ref, reactive } from '@vue/reactivity'
-import { cssUnitToNumber, getCss } from '@/util/base'
-import { EditorStore } from '@/store/editor/type'
-import { useMutation, useState } from '@/store/helper'
-import { EditorMutation } from '@/store/editor/mutations'
-import { useStore } from 'vuex'
-import { loadScene } from '@/core/3d'
+import {computed, getCurrentInstance, markRaw, nextTick, onMounted, SetupContext, watch} from 'vue'
+import {Ref, ref, reactive} from '@vue/reactivity'
+import {cssUnitToNumber, debounce, getCss} from '@/util/base'
+import {EditorStore} from '@/store/editor/type'
+import {useMutation, useState} from '@/store/helper'
+import {EditorMutation} from '@/store/editor/mutations'
+import {useStore} from 'vuex'
+import {loadScene} from '@/core/3d'
+import {ComponentInternalInstance} from '@vue/runtime-core'
 
 declare const Bol3D: any
 
 export default {
   name: 'ArtBoard',
   props: {
-    width: { type: Number, default: 1920 },
-    height: { type: Number, default: 1080 }
+    width: {type: Number, default: 1920},
+    height: {type: Number, default: 1080}
   },
-  setup(props: any) {
+  setup(props: any, context: SetupContext) {
+    const app: ComponentInternalInstance = getCurrentInstance() as ComponentInternalInstance
     // store
     const editorStore: EditorStore = useState(useStore(), 'editor')
     const editorMutation = useMutation(useStore(), 'editor', [EditorMutation.CHANGE_ART_BOARD_SCALE])
@@ -55,12 +59,12 @@ export default {
     function onWheel(ev: WheelEvent) {
       if (ev.ctrlKey || keySpace.value) {
         ev.deltaY > 0
-          ? editorStore.artBoardScale > 0.3
-            ? editorMutation.CHANGE_ART_BOARD_SCALE({ artBoardScale: editorStore.artBoardScale - 0.05 })
+            ? editorStore.artBoardScale > 0.3
+            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardScale - 0.05})
             : null
-          : editorStore.artBoardScale < 3
-          ? editorMutation.CHANGE_ART_BOARD_SCALE({ artBoardScale: editorStore.artBoardScale + 0.05 })
-          : null
+            : editorStore.artBoardScale < 3
+            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardScale + 0.05})
+            : null
       }
     }
 
@@ -68,28 +72,47 @@ export default {
     const widthPx = computed(() => props.width + 'px')
     const heightPx = computed(() => props.height + 'px')
 
+    const artBoardRect = ref<DOMRect>()
     const wrapperWidthPx = computed(() => {
-      let offset: number = Number(artBoard.value?.getBoundingClientRect().width) * 2
+      let offset: number = Number(artBoardRect.value?.width) * 2
       return props.width * editorStore.artBoardScale + offset + 'px'
     })
     const wrapperHeightPx = computed(() => {
-      let offset: number = Number(artBoard.value?.getBoundingClientRect().height) * 2
+      let offset: number = Number(artBoardRect.value?.height) * 2
       return props.height * editorStore.artBoardScale + offset + 'px'
     })
 
-    nextTick(() => {
+    onMounted(() => {
+      artBoardRect.value = artBoard.value?.getBoundingClientRect()
+    })
+
+    function artBoardToCenter() {
       if (artBoard.value) {
         artBoard.value.scrollTo(
-          Number(((cssUnitToNumber(wrapperWidthPx.value) - cssUnitToNumber(getCss(artBoard.value, 'width') as string)) / 2).toFixed()),
-          Number(((cssUnitToNumber(wrapperHeightPx.value) - cssUnitToNumber(getCss(artBoard.value, 'height') as string)) / 2).toFixed())
+            Number(((cssUnitToNumber(wrapperWidthPx.value) - cssUnitToNumber(getCss(artBoard.value, 'width') as string)) / 2).toFixed()),
+            Number(((cssUnitToNumber(wrapperHeightPx.value) - cssUnitToNumber(getCss(artBoard.value, 'height') as string)) / 2).toFixed())
         )
       }
+    }
+
+    const artBoardToCenterDebounce = debounce(function () {
+      artBoardRect.value = artBoard.value?.getBoundingClientRect()
+      console.log('update', artBoardRect.value)
+      artBoardToCenter()
+    }, 300)
+    // resize
+    window.addEventListener('resize', () => {
+      artBoardToCenterDebounce()
+    })
+
+    nextTick(() => {
+      artBoardToCenter()
     })
     // move
     let isForces = false,
-      isMoving = ref(false),
-      preX = 0,
-      preY = 0
+        isMoving = ref(false),
+        preX = 0,
+        preY = 0
 
     // const move = reactive()
     // mouse
@@ -104,7 +127,7 @@ export default {
     function boardMoveEvent(ev: MouseEvent) {
       if (isMoving.value) {
         let offsetX = ev.pageX - preX,
-          offsetY = ev.pageY - preY
+            offsetY = ev.pageY - preY
         if (artBoard.value) {
           artBoard.value.scrollLeft -= offsetX
           artBoard.value.scrollTop -= offsetY
@@ -142,19 +165,6 @@ export default {
     onMounted(() => {
       const publicPath = './'
       const modelUrls = [
-        // NeiBu
-        // 'models/HangKong/NeiBu/FeiJi_02.glb',
-        // 'models/HangKong/NeiBu/FeiJi_03.glb',
-        // 'models/HangKong/NeiBu/FJ_01.glb',
-        // 'models/HangKong/NeiBu/FJ_02.glb',
-        // 'models/HangKong/NeiBu/NeiBu.glb',
-        // 'models/HangKong/NeiBu/NeiBu01.glb',
-        // 'models/HangKong/NeiBu/NeiBu02.glb',
-        // 'models/HangKong/NeiBu/NeiBu03.glb',
-        // 'models/HangKong/NeiBu/NeiBu04.glb',
-        // 'models/HangKong/NeiBu/NeiBu05.glb',
-        // 'models/HangKong/NeiBu/Qiang.glb',
-        // ChangJing
         'models/HangKong/ChangJing/CangFang.glb',
         'models/HangKong/ChangJing/Dimian_BOX.glb',
         'models/HangKong/ChangJing/DiMian.glb',
@@ -228,9 +238,11 @@ export default {
 .cursor-grab {
   cursor: grab;
 }
+
 .cursor-grabbing {
   cursor: grabbing;
 }
+
 .art-board-wrapper {
   background: #1b1b21;
 }
