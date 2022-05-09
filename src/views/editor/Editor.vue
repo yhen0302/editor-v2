@@ -13,9 +13,9 @@
         <template #2dContent>
           <art-board2-d-content></art-board2-d-content>
         </template>
-        <template v-slot:3dContent="data">
+<!--        <template v-slot:3dContent="data">
           <art-board3-d-content :height="data.rect.height" :width="data.rect.width"></art-board3-d-content>
-        </template>
+        </template>-->
       </art-board>
       <!--   图层选择/编辑   -->
       <aside class="layer-option-area flex flex-col">

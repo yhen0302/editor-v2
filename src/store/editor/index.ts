@@ -15,13 +15,6 @@ const props = reactive(<RectShapeProps>{
     transparency: 1,
     transparencyColor: {color: '#FF0000', transparency: 1}
 })
-console.log(Date.now())
-setTimeout(() => {
-    console.log(Date.now(), '变')
-
-    props.matrixOption.width = 500
-}, 4000)
-console.log(RectShape)
 const instance: VNode = markRaw(h(RectShape, {...props}))
 const state: EditorStore = {
     dimensionType: '3d',
