@@ -1,4 +1,4 @@
-import {align, fontStyle, fontType, legendAlign} from '../type'
+import {align, fontStyle, fontType, legendAlign} from '../../type'
 
 export interface MatrixOption {
   left: number
@@ -41,7 +41,7 @@ export interface GridLienOption {
   y: boolean
 }
 
-export interface GradientColor {
+export interface TransparencyColor {
   color: string
   transparency: number
 }

@@ -1,6 +1,10 @@
+import RectShape from './shape/RectShape.vue'
+import {App} from "vue";
+
 export default {
-  install() {
-  }
+    install(app: App) {
+        app.component("RectShape", RectShape)
+    }
 }
 
-export {default as RectShape} from './shape/RectShape.vue'
+export {RectShape}

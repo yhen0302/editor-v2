@@ -63,7 +63,7 @@ import CheckBoxEl from "@/component/common/CheckBoxEl";
 import LineEl from "@/component/common/LineEl"
 import ColorPickerEl from "@/component/common/ColorPickerEl"
 import {markRaw, SetupContext} from "vue";
-import {FONT_STYLE, FONT_ALIGN, FONT_VERTICAL_ALIGN} from "@/views/editor/baseConfigurator/constant";
+import {FONT_STYLE, FONT_ALIGN, FONT_VERTICAL_ALIGN} from "@/views/editor/twoDimension/elements/constant";
 
 export default {
   name: "BaseTextConfigurator",

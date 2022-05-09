@@ -112,7 +112,7 @@ import CheckBoxEl from "@/component/common/CheckBoxEl";
 import {markRaw, SetupContext} from "vue";
 import LineEl from "@/component/common/LineEl.vue";
 import ColorPickerEl from "@/component/common/ColorPickerEl.vue";
-import {POSITION_ALIGN, FONT_STYLE} from "@/views/editor/baseConfigurator/constant";
+import {POSITION_ALIGN, FONT_STYLE} from "@/views/editor/twoDimension/elements/constant";
 
 
 export default {
