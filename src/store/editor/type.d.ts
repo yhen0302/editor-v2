@@ -24,6 +24,13 @@ export interface LayerTree2dNode extends TreeNode {
   children?: LayerTree2dNode[]
 }
 
+export interface LayerTree3dNode extends TreeNode {
+  type: dimensionSelectBarType3d | 'group'
+  subType?: selectItemType3d,
+  option: any,
+  children?: LayerTree2dNode[]
+}
+
 export declare interface EditorStore {
   dimensionType: dimensionType
   selectBarToolType: selectBarType | null

@@ -1,4 +1,7 @@
 import { LoadSceneOpts } from './type'
+import store from '../../store'
+import { useMutation } from '../../store/helper'
+import { parseModelNode } from './util'
 
 declare const Bol3D: any
 
@@ -21,6 +24,11 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: LoadS
         far: 100000,
         fov: 60
       }
+    },
+    onProgress: (model: any) => {
+      const node = {}
+      parseModelNode(model, node)
+      useMutation(store, 'editor', ['ADD_3D_TREE_NODE'])['ADD_3D_TREE_NODE']({ node })
     },
     onLoad: (evt: any) => {
       callback && callback(evt)
