@@ -18,8 +18,9 @@
              :style="{ width: wrapperWidthPx, height: wrapperHeightPx }">
       <section class="art-board-box relative"
                :style="{ width: widthPx, height: heightPx, transform: `scale(${editorStore.artBoardScale})` }">
-        <canvas ref="scene" class="canvas-renderer" :width="width" :height="height"></canvas>
-        <div class="art-board-content"></div>
+
+        <slot name="3dContent" :rect="{width,height}"></slot>
+        <slot name="2dContent"></slot>
       </section>
     </section>
   </section>
@@ -51,7 +52,6 @@ export default {
     const editorMutation = useMutation(useStore(), 'editor', [EditorMutation.CHANGE_ART_BOARD_SCALE])
 
     const artBoard: Ref<HTMLDivElement | null> = ref<HTMLDivElement | null>(null)
-    const scene: Ref<HTMLCanvasElement | null> = ref<HTMLCanvasElement | null>(null)
 
     // wheel
     const keySpace = ref(false)
@@ -114,7 +114,6 @@ export default {
         preX = 0,
         preY = 0
 
-    // const move = reactive()
     // mouse
     function boardDownEvent(ev: MouseEvent) {
       if (keySpace.value) {
@@ -162,30 +161,6 @@ export default {
     }
 
     // mounted
-    onMounted(() => {
-      const publicPath = './'
-      const modelUrls = [
-        'models/HangKong/ChangJing/CangFang.glb',
-        'models/HangKong/ChangJing/Dimian_BOX.glb',
-        'models/HangKong/ChangJing/DiMian.glb',
-        'models/HangKong/ChangJing/FangC01.glb',
-        'models/HangKong/ChangJing/FangH.glb',
-        'models/HangKong/ChangJing/FangT28.glb',
-        'models/HangKong/ChangJing/FangX.glb',
-        'models/HangKong/ChangJing/PeiLou.glb',
-        'models/HangKong/ChangJing/Tree.glb',
-        'models/HangKong/ChangJing/WeiQiang.glb'
-      ]
-
-      loadScene({
-        publicPath,
-        modelUrls,
-        domElement: scene.value,
-        callback: (evt: any) => {
-          console.log('container', evt)
-        }
-      })
-    })
 
     return {
       // size
@@ -207,7 +182,6 @@ export default {
       spaceUp,
       spaceDown,
       isMoving,
-      scene
     }
   }
 }
@@ -247,11 +221,7 @@ export default {
   background: #1b1b21;
 }
 
-.art-board-content {
-  width: 100%;
-  height: 100%;
-  background: coral;
-}
+
 
 .art-board-content,
 .canvas-renderer {

@@ -9,7 +9,14 @@
       <!--   组件选择   -->
       <select-area></select-area>
       <!--   画板   -->
-      <art-board class="flex-1"></art-board>
+      <art-board class="flex-1" :height="500">
+        <template #2dContent>
+          <art-board2-d-content></art-board2-d-content>
+        </template>
+        <template v-slot:3dContent="data">
+          <art-board3-d-content :height="data.rect.height" :width="data.rect.width"></art-board3-d-content>
+        </template>
+      </art-board>
       <!--   图层选择/编辑   -->
       <aside class="layer-option-area flex flex-col">
         <!--    图层管理    -->
@@ -92,9 +99,9 @@
               </ul>
             </template>
             <nav-tab-item>
-              <axis-line-chart-configurator></axis-line-chart-configurator>
-              <!-- <text-configurator></text-configurator> -->
-              <!--<shape-configurator></shape-configurator>-->
+              <!--<axis-line-chart-configurator></axis-line-chart-configurator>-->
+              <!--<text-configurator></text-configurator> -->
+              <shape-configurator></shape-configurator>
               <!--<media-configurator></media-configurator>-->
               <!--<model-configurator></model-configurator>-->
             </nav-tab-item>
@@ -113,7 +120,6 @@ import {defineComponent} from 'vue'
 import {Ref, ref} from '@vue/reactivity'
 import {layerIcon} from '@/views/editor/local_data'
 
-
 import NavBar from './child/NavBar.vue'
 import NavTab from '@/component/common/navTab/NavTab.vue'
 import NavTabItem from '@/component/common/navTab/NavTabItem.vue'
@@ -122,17 +128,19 @@ import AfterProcess from '@/views/editor/threeDimension/AfterProcess.vue'
 import ShadowRadio from '@/views/editor/threeDimension/ShadowRadio.vue'
 import ArtBoard from '@/views/editor/child/ArtBoard.vue'
 import LayerList from '@/plugins/layerPlugin/LayerList.vue'
-import Event from '@/views/editor/twoDimensional/Event.vue'
+import Event from '@/views/editor/twoDimension/Event.vue'
 import AxisLineChartConfigurator from '@/views/editor/configurator/AxisLineChartConfigurator.vue'
 import TextConfigurator from '@/views/editor/configurator/TextConfigurator.vue'
 import ShapeConfigurator from '@/views/editor/configurator/ShapeConfigurator.vue'
 import MediaConfigurator from '@/views/editor/configurator/MediaConfigurator.vue'
 import ModelConfigurator from '@/views/editor/configurator/ModelConfigurator.vue'
-import DimensionNavBar from "@/views/editor/child/DimensionNavBar.vue";
-import SelectArea from "@/views/editor/child/SelectArea.vue";
-import ScreenPageTree from "@/views/editor/child/ScreenPageTree.vue";
-import {useStore} from "vuex";
-import {useState} from "@/store/helper";
+import DimensionNavBar from '@/views/editor/child/DimensionNavBar.vue'
+import SelectArea from '@/views/editor/child/SelectArea.vue'
+import ScreenPageTree from '@/views/editor/child/ScreenPageTree.vue'
+import {useStore} from 'vuex'
+import {useState} from '@/store/helper'
+import ArtBoard3DContent from "@/views/editor/threeDimension/ArtBoard3DContent.vue";
+import ArtBoard2DContent from "@/views/editor/twoDimension/ArtBoard2DContent.vue";
 
 /* 编辑器 */
 export default defineComponent({
@@ -141,6 +149,8 @@ export default defineComponent({
     return {testData: false}
   },
   components: {
+    ArtBoard2DContent,
+    ArtBoard3DContent,
     ScreenPageTree,
     SelectArea,
     DimensionNavBar,

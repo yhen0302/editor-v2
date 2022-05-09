@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import NavTabItem from '@/component/common/navTab/NavTabItem'
+import NavTabItem from '@/component/common/navTab/NavTabItem.vue'
 import { useStore } from 'vuex'
 import { useState } from '@/store/helper'
 export default {

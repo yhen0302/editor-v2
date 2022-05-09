@@ -1,6 +1,6 @@
 import {align, fontStyle, fontType, legendAlign} from '../type'
 
-interface MatrixOption {
+export interface MatrixOption {
   left: number
   top: number
   width: number
@@ -8,47 +8,47 @@ interface MatrixOption {
   angle: number
 }
 
-interface MatchColorsOption {
+export interface MatchColorsOption {
   colors: string[]
 }
 
-interface TextOption {
+export interface TextOption {
   color: string
   fontFamily: fontType
   fontSize: number
   fontStyle: Record<fontStyle, boolean>
 }
 
-interface TextAlignOption extends TextOption {
+export interface TextAlignOption extends TextOption {
   align: align
 }
 
-interface TitleOption extends TextAlignOption {
+export interface TitleOption extends TextAlignOption {
   show: boolean
 }
 
-interface UnitOption extends TextAlignOption {
+export interface UnitOption extends TextAlignOption {
   show: boolean
 }
 
-interface AxisLabelOption extends TextOption {
+export interface AxisLabelOption extends TextOption {
   show: boolean
   labelLineShow: boolean
 }
 
-interface GridLienOption {
+export interface GridLienOption {
   x: boolean
   y: boolean
 }
 
-interface GradientColor {
+export interface GradientColor {
   color: string
   transparency: number
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-interface LegendOption extends TextAlignOption {
+export interface LegendOption extends TextAlignOption {
   show: boolean
   align: legendAlign
 }
@@ -131,17 +131,4 @@ class AxisChart extends BaseChart {
     this.yAxisOption = yAxisOption
     this.gridLineOption = gridLineOption
   }
-}
-
-// shape
-class BaseShape {
-  matrixOption: MatrixOption
-  gradientOption: GridLienOption
-  transparency = 1
-
-  constructor(matrix: MatrixOption, gradient: GridLienOption,) {
-    this.matrixOption = matrix
-    this.gradientOption = gradient
-  }
-
 }

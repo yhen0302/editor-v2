@@ -21,7 +21,12 @@ const state: EditorStore = {
   },
   artBoardScale: 0.5,
   layerTree2d: [
-    {name: '矩形1', show: true, type: 'chart', option: ''},
+    {
+      name: '矩形1',
+      show: true,
+      type: 'shape',
+      option: ''
+    },
   ],
   layerTree3d: [
     {

@@ -43,17 +43,17 @@
 </template>
 
 <script lang="ts">
-import AfterProcess from '@/views/editor/threeDimension/AfterProcess'
-import ShadowRadio from '@/views/editor/threeDimension/ShadowRadio'
-import NavTab from '@/component/common/navTab/NavTab'
-import NavTabItem from '@/component/common/navTab/NavTabItem'
-import TipButton from '@/component/content/TipButton'
+import AfterProcess from '@/views/editor/threeDimension/AfterProcess.vue'
+import ShadowRadio from '@/views/editor/threeDimension/ShadowRadio.vue'
+import NavTab from '@/component/common/navTab/NavTab.vue'
+import NavTabItem from '@/component/common/navTab/NavTabItem.vue'
+import TipButton from '@/component/content/TipButton.vue'
 import {selectBarData, selectData} from '@/views/editor/local_data'
 import {useStore} from 'vuex'
 import {useMutation, useState} from '@/store/helper'
 import {computed, markRaw, ref, watch} from 'vue'
 import {Ref} from '@vue/reactivity'
-import {dimensionSelectBarType2d, SelectItem} from '@/store/editor/type'
+import {dimensionSelectBarType2d, dimensionType, SelectBarItem, SelectItem} from '@/store/editor/type'
 import {EditorMutation} from "@/store/editor/mutations";
 
 export default {
@@ -112,7 +112,7 @@ export default {
     )
     const activeTitle = computed(() => {
       // console.log(stack.value[navIndex.value])
-      return selectTitle.value || selectBarData[editorStore.dimensionType].find((item) => item.type === editorStore.selectBarToolType)?.name
+      return selectTitle.value || selectBarData[editorStore.dimensionType as dimensionType].find((item:SelectBarItem ) => item.type === editorStore.selectBarToolType)?.name
     })
 
     return {
