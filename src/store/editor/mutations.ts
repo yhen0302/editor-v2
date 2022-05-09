@@ -1,4 +1,4 @@
-import {dimensionType, EditorStore, LayerTree2dNode, LayerTree3dNode, selectBarType} from '@/store/editor/type'
+import { dimensionType, EditorStore, LayerTree2dNode, LayerTree3dNode, selectBarType } from '@/store/editor/type'
 
 export interface EditorMutationI {
   CHANGE_DIMENSION: 'CHANGE_DIMENSION'
@@ -32,9 +32,8 @@ export default {
   [EditorMutation.CHANGE_ART_BOARD_SCALE](state: EditorStore, payload: { artBoardScale: number }) {
     state.artBoardScale = payload.artBoardScale
   },
-  [EditorMutation.ADD_2D_TREE_NODE](state: EditorStore, payload: { node: LayerTree2dNode }) {
-  },
-  [EditorMutation.ADD_3D_TREE_NODE](state: EditorStore, payload: { node: LayerTree3dNode }){
+  [EditorMutation.ADD_2D_TREE_NODE](state: EditorStore, payload: { node: LayerTree2dNode }) {},
+  [EditorMutation.ADD_3D_TREE_NODE](state: EditorStore, payload: { node: LayerTree3dNode }) {
     state.layerTree3d.push(payload.node)
   }
 }
