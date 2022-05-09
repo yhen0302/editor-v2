@@ -25,7 +25,10 @@ const state: EditorStore = {
       name: '矩形1',
       show: true,
       type: 'shape',
-      option: ''
+      detail: {
+        componentInstance: null,
+        options: {}
+      }
     },
   ],
   layerTree3d: [

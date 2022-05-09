@@ -20,7 +20,7 @@ export interface ScreenNode {
 export interface LayerTree2dNode extends TreeNode {
   type: dimensionSelectBarType2d | 'group'
   subType?: selectItemType2d,
-  option: any,
+  detail: {componentInstance:any,options:any},
   children?: LayerTree2dNode[]
 }
 
