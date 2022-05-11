@@ -7,27 +7,32 @@
 
  -->
 <script>
-import SvgIcon from "@/plugins/SvgIcon";
-import TreeItem from "@/plugins/layerPlugin/TreeItem";
-import TreeFolderItem from "@/plugins/layerPlugin/TreeFolderItem";
+import SvgIcon from '@/plugins/SvgIcon'
+import TreeItem from '@/plugins/layerPlugin/TreeItem'
+import TreeFolderItem from '@/plugins/layerPlugin/TreeFolderItem'
+import { h } from 'vue'
 
 export default {
-  name: "LayerList",
-  components: {SvgIcon},
-  props: {node: Array},
-  setup(props, {slots}) {
+  name: 'LayerList',
+  components: { SvgIcon },
+  props: { node: Array },
+  setup(props, { slots }) {
     let parseTree = (treeRoot) => {
+      let startTime = Date.now()
+
       let stack = [...treeRoot],
-          node = null,
-          arr = [],
-          path = [treeRoot.length],
-          parentNode = [treeRoot,],
-          depth = 1
+        node = null,
+        arr = [],
+        path = [treeRoot.length],
+        parentNode = [treeRoot],
+        depth = 1
+      let i = 0
 
       while ((node = stack.shift())) {
+        i++
         node.depth = depth
         // 数组
-        if (node.children) {
+        if (node.children && node.open) {
           stack.unshift(...node.children)
           arr.push(node)
           // --path[path.length - 1]
@@ -35,7 +40,7 @@ export default {
           path[path.length - 1]--
           node.parent = parentNode[parentNode.length - 1]
           if (node.children.length) {
-            path.push(node.children.length);
+            path.push(node.children.length)
             parentNode.push(node)
             depth++
           }
@@ -45,7 +50,7 @@ export default {
           node.parent = parentNode[parentNode.length - 1]
           // 遍历到路径最后一个清空路径存储的长度
           while (path[path.length - 1] === 0) {
-            path.pop();
+            path.pop()
             depth--
           }
           while (parentNode.length > path.length) {
@@ -60,9 +65,11 @@ export default {
           let node = arr[i]
           // 如果是一个有子树的元素
           if (node.children) {
-            let realPathLength = node.children.length
+            // 子元素的长度
+            let realPathLength = node.open ? node.children.length : 0
             let children = arr.splice(i + 1, realPathLength)
             //放入文件夹
+            // if (!node.open) children = []
             arr[i] = TreeFolderItem(node, children, slots.folderPrefix || slots.prefix, slots.folderSuffix || slots.suffix)
           } else {
             arr[i] = TreeItem(node, slots.prefix, slots.suffix, slots.placeholder)
@@ -70,15 +77,11 @@ export default {
         }
       }
 
-      return (<ul className="layer-list root">
-        {...arr}
-      </ul>)
+      return <ul className="layer-list root">{...arr}</ul>
     }
 
-    return () => (<section id="layer-list-wrapper">
-      {parseTree(props.node)}
-    </section>)
-  },
+    return () => <section id="layer-list-wrapper">{parseTree(props.node)}</section>
+  }
 }
 </script>
 
@@ -88,19 +91,20 @@ export default {
   font-size: 12px;
   background: transparent;
   --layer-item-prefix-width: 0px;
-  --default-pl: calc(var(--layer-item-prefix-width) + 28px)
+  --default-pl: calc(var(--layer-item-prefix-width) + 28px);
 }
 
-
-.layer-list, .layer-child-list {
+.layer-list,
+.layer-child-list {
   padding: 0;
   margin: 0;
   list-style: none;
   will-change: max-height;
-  transition: max-height .25s ease;
+  transition: max-height 0.25s ease;
 }
 
-.layer-folder-item, .layer-item {
+.layer-folder-item,
+.layer-item {
   display: flex;
   align-items: center;
   position: relative;
@@ -108,7 +112,8 @@ export default {
   padding-right: 16px;
 }
 
-.layer-folder-item:hover, .layer-item:hover {
+.layer-folder-item:hover,
+.layer-item:hover {
   background: #323440;
 }
 
@@ -125,7 +130,8 @@ export default {
   padding-left: calc((var(--level) - 1) * 24px + var(--default-pl));
 }
 
-.root > .layer-item_list > .layer-folder-item, .layer-item {
+.root > .layer-item_list > .layer-folder-item,
+.layer-item {
 }
 
 .layer-item {
@@ -187,12 +193,10 @@ export default {
   width: 30px;
   height: 30px;
   margin-right: 5px;
-  background: linear-gradient(90deg, #FFF 0%, #FFF 50%, #e5e5e5 50%, #e5e5e5 100%) left top/10px 5px repeat-x,
-  linear-gradient(90deg, #e5e5e5 0%, #e5e5e5 50%, #FFF 50%, #FFF 100%) left 5px/10px 5px repeat-x,
-  linear-gradient(90deg, #FFF 0%, #FFF 50%, #e5e5e5 50%, #e5e5e5 100%) left 10px/10px 5px repeat-x,
-  linear-gradient(90deg, #e5e5e5 0%, #e5e5e5 50%, #FFF 50%, #FFF 100%) left 15px/10px 5px repeat-x,
-  linear-gradient(90deg, #FFF 0%, #FFF 50%, #e5e5e5 50%, #e5e5e5 100%) left 20px/10px 5px repeat-x,
-  linear-gradient(90deg, #e5e5e5 0%, #e5e5e5 50%, #FFF 50%, #FFF 100%) left 25px/10px 5px repeat-x;
+  background: linear-gradient(90deg, #fff 0%, #fff 50%, #e5e5e5 50%, #e5e5e5 100%) left top/10px 5px repeat-x,
+    linear-gradient(90deg, #e5e5e5 0%, #e5e5e5 50%, #fff 50%, #fff 100%) left 5px/10px 5px repeat-x, linear-gradient(90deg, #fff 0%, #fff 50%, #e5e5e5 50%, #e5e5e5 100%) left 10px/10px 5px repeat-x,
+    linear-gradient(90deg, #e5e5e5 0%, #e5e5e5 50%, #fff 50%, #fff 100%) left 15px/10px 5px repeat-x, linear-gradient(90deg, #fff 0%, #fff 50%, #e5e5e5 50%, #e5e5e5 100%) left 20px/10px 5px repeat-x,
+    linear-gradient(90deg, #e5e5e5 0%, #e5e5e5 50%, #fff 50%, #fff 100%) left 25px/10px 5px repeat-x;
 }
 
 .arrow-icon.active {
@@ -201,7 +205,7 @@ export default {
 
 .arrow-icon {
   margin-right: 4px;
-  transition: .2s transform ease;
+  transition: 0.2s transform ease;
 }
 
 /* suffix */

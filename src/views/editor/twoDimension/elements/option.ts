@@ -1,4 +1,5 @@
 import {align, fontStyle, fontType, legendAlign} from '../../type'
+import {RectShapeProps} from "@/views/editor/twoDimension/elements/shape/RectShapeProps";
 
 export interface MatrixOption {
   left: number
@@ -131,4 +132,8 @@ class AxisChart extends BaseChart {
     this.yAxisOption = yAxisOption
     this.gridLineOption = gridLineOption
   }
+}
+
+export interface BaseProps {
+  matrixOption: MatrixOption
 }

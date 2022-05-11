@@ -9,9 +9,8 @@ export default {
     const sotre = useStore()
     const editorStore = useState(sotre, 'editor') as EditorStore
     // 解析二维树的内容，然后渲染
-    console.log(editorStore)
-    return () => <div class="art-board-content w-full h-full absolute">
-      {editorStore.layerTree2d[0].detail.componentInstance}
+    return () => <div class="art-board-content w-full h-full absolute z-10 pointer-events-none">
+      {editorStore.layerTree2d.map(item=>item.element.instance)}
     </div>
 
   }

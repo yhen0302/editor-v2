@@ -1,5 +1,7 @@
 import { dimensionSelectBarType2d, dimensionSelectBarType3d, dimensionType, SelectBarItem, selectItemType2d, selectItemType3d } from '../../store/editor/type'
 import { getChartUrl } from '@/util/base'
+import RectShape from "@/views/editor/twoDimension/elements/shape/RectShape.vue";
+import {RectShapeProps} from "@/views/editor/twoDimension/elements/shape/RectShapeProps";
 
 export const selectBarList2d: Array<SelectBarItem> = [
   { icon: require('@/assets/images/editor_text_btn_dark.png'), name: '文本', type: 'text' },
@@ -19,7 +21,7 @@ export const selectBarData: Record<dimensionType, Array<SelectBarItem>> = {
 }
 
 interface SelectItem {
-  type?: selectItemType2d | selectItemType3d
+  type?: selectItemType2d | selectItemType3d | string
   icon: string
   name: string
   key?: string
@@ -53,8 +55,17 @@ export const selectData: Record<dimensionSelectBarType2d | dimensionSelectBarTyp
         type: 'base',
         children: {
           list: [
-            { icon: require('@/assets/images/editor_shape_roundedrectangle_btn_dark.png'), name: '圆角矩形', },
-            { icon: require('@/assets/images/editor_shape_rectangle_btn_dark.png'), name: '矩形' },
+            { icon: require('@/assets/images/editor_shape_roundedrectangle_btn_dark.png'), name: '圆角矩形' },
+            {
+              icon: require('@/assets/images/editor_shape_rectangle_btn_dark.png'),
+              name: '矩形',
+              type: 'rect',
+              option: {
+                matrixOption: { left: 20, top: 20, height: 100, width: 200, angle: 0 },
+                transparency: 1,
+                transparencyColor: { color: '#FF0000', transparency: 0.5 }
+              } as RectShapeProps
+            },
             { icon: require('@/assets/images/editor_shape_circular_btn_dark.png'), name: '圆形' },
             { icon: require('@/assets/images/editor_shape_righttriangle_btn_dark.png'), name: '直角三角形' }
           ],
@@ -102,7 +113,7 @@ export const selectData: Record<dimensionSelectBarType2d | dimensionSelectBarTyp
               },
               icon: ''
             }
-          ].map((item:SelectItem):SelectItem => {
+          ].map((item: SelectItem): SelectItem => {
             item.icon = getChartUrl(item.option)
             item.type = 'bar'
             return item

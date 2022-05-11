@@ -32,7 +32,9 @@ export default {
   [EditorMutation.CHANGE_ART_BOARD_SCALE](state: EditorStore, payload: { artBoardScale: number }) {
     state.artBoardScale = payload.artBoardScale
   },
-  [EditorMutation.ADD_2D_TREE_NODE](state: EditorStore, payload: { node: LayerTree2dNode }) {},
+  [EditorMutation.ADD_2D_TREE_NODE](state: EditorStore, payload: { node: LayerTree2dNode }) {
+    state.layerTree2d.push(payload.node)
+  },
   [EditorMutation.ADD_3D_TREE_NODE](state: EditorStore, payload: { node: LayerTree3dNode }) {
     state.layerTree3d.push(payload.node)
   }

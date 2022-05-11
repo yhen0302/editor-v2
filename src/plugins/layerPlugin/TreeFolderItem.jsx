@@ -13,7 +13,9 @@ function getNodeDepLength(node) {
 }
 
 export default (node, Children, prefix, suffix) => {
-  const height = node.open ? `max-height:${getNodeDepLength(node) * 32}px;` : 'max-height:0;'
+  // const height = node.open ? `max-height:${getNodeDepLength(node) * 32}px;` : 'max-height:0;'
+  const height = node.open ? 'height:auto' : 'height:0'
+
   const arrowIcon = require('@/assets/images/editor_unfold_icn_dark.png')
 
   return (<li className="layer-item_list" style={`--level:${node.depth + 1};`}>

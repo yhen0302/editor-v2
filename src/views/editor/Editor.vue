@@ -31,7 +31,7 @@
               </ul>
             </template>
             <!--screen tree-->
-            <nav-tab-item key="screenTree">
+            <nav-tab-item key="screenTree" class="screen-tree-wrap">
               <div class="screen-tree-box">
                 <div class="search-box flex items-center">
                   <img class="search-icon" width="16" height="16" src="~@/assets/images/editor_search_icn_dark.png"/>
@@ -79,7 +79,9 @@
                 </layer-list>
               </div>
             </nav-tab-item>
-            <screen-page-tree></screen-page-tree>
+            <nav-tab-item>
+              <screen-page-tree></screen-page-tree>
+            </nav-tab-item>
           </nav-tab>
         </section>
         <!--    元素编辑    -->
@@ -276,5 +278,10 @@ layer-option-area
 
 .tree-3d /deep/ .layer-item_list > .layer-folder-item {
   padding-left: calc((var(--level) - 2) * 14px + var(--default-pl) - 10px);
+}
+.screen-tree-wrap{
+  max-height: 50vh;
+  overflow-y: scroll;
+
 }
 </style>

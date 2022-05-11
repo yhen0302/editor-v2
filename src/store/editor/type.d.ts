@@ -1,3 +1,4 @@
+import {Element} from "@/views/editor/twoDimension/elements";
 export declare type dimensionType = "2d" | "3d"
 
 export interface TreeNode {
@@ -20,7 +21,7 @@ export interface ScreenNode {
 export interface LayerTree2dNode extends TreeNode {
   type: dimensionSelectBarType2d | 'group'
   subType?: selectItemType2d,
-  detail: {componentInstance:any,options:any},
+  element: Element<any>,
   children?: LayerTree2dNode[]
 }
 

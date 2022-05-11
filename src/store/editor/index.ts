@@ -32,12 +32,12 @@ const state: EditorStore = {
     },
     artBoardScale: 0.5,
     layerTree2d: [
-        {
+     /*   {
             name: '矩形1',
             show: true,
             type: 'shape',
             detail: {componentInstance: instance, options: props}
-        }
+        }*/
     ],
     layerTree3d: [
         // {
