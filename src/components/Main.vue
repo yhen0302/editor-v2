@@ -38,14 +38,15 @@ export default defineComponent({
 .main {
   padding-top: 4px;
   height: calc(100vh - 64px);
-  @apply flex justify-between w-full;
+  @apply flex justify-between w-full select-none;
 }
 .left {
   width: 64px;
-  @apply h-full flex bg-gray-dark;
+  @apply h-full flex bg-gray-dark z-20;
 }
 .middle {
   width: calc(100vw - 64px - 272px);
+  @apply z-10;
 }
 .right {
   @apply flex flex-col h-full bg-gray-dark;

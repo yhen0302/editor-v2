@@ -50,9 +50,9 @@ export default defineComponent({
   @apply w-full h-full flex-row;
 }
 .select-item {
-  width: 60px;
-  height: 60px;
-  padding: 16px 4px;
+  width: 56px;
+  height: 56px;
+  margin: 0 4px 4px 4px;
   box-sizing: border-box;
 }
 </style>

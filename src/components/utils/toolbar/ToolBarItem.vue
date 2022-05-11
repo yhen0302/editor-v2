@@ -28,11 +28,11 @@ export default defineComponent({
   height: 112px;
   border-radius: 4px;
   background-color: #31333d;
-  @apply flex items-center flex-col justify-between select-none;
   margin-top: 16px;
   margin-bottom: 0;
   padding-top: 8px;
   padding-bottom: 16px;
+  @apply flex items-center flex-col justify-between select-none cursor-pointer;
 }
 .toolbar-item:nth-child(odd) {
   margin-left: 16px;

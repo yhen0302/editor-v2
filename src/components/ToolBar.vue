@@ -1,23 +1,20 @@
 <template>
   <div class="left-main">
-    <div class="dimension-type-item">
-      <p>{{ store.state.dimensionType }}</p>
-    </div>
-
-    <div class="nav" v-if="store.state.dimensionType === '2d'">
-      <Nav2D />
-    </div>
-
-    <div class="nav" v-else-if="store.state.dimensionType === '3d'">
-      <Nav3D />
+    <div class="left1">
+      <div class="title">
+        <p>{{ store.state.dimensionType }}</p>
+      </div>
+      <div class="nav">
+        <Nav2D v-if="store.state.dimensionType === '2d'" />
+        <Nav3D v-else-if="store.state.dimensionType === '3d'" />
+      </div>
     </div>
 
     <transition name="bounceInLeft">
-      <div class="nav-menu" v-if="store.state.dimensionType === '2d' && store.state.selectBarToolType != ''">
+      <div class="left2" v-if="store.state.dimensionType === '2d' && store.state.selectBarToolType != ''">
         <NavMenu2D />
       </div>
-
-      <div class="nav-menu" v-else-if="store.state.dimensionType === '3d' && store.state.selectBarToolType != ''">
+      <div class="left2" v-else-if="store.state.dimensionType === '3d' && store.state.selectBarToolType != ''">
         <NavMenu3D />
       </div>
     </transition>
@@ -25,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import Nav2D from '@/components/2d/toolbar/Nav2D.vue'
 import NavMenu2D from '@/components/2d/toolbar/NavMenu2D.vue'
 import Nav3D from '@/components/3d/toolbar/Nav3D.vue'
@@ -52,22 +49,28 @@ export default defineComponent({
 
 <style lang="postcss" scoped>
 .left-main {
-  @apply w-full h-full flex-row relative;
+  @apply w-full h-full flex flex-row relative;
+}
+.left1 {
+  padding-top: 16px;
+  left: 0;
+  top: 0;
+  @apply w-full h-full flex-row z-20 absolute bg-gray-dark;
+}
+.title {
+  height: 24px;
+  @apply text-blue text-12;
 }
 .nav {
   @apply w-full flex-row;
   height: calc(100% - 24px);
 }
-.dimension-type-item {
-  height: 24px;
-  padding-top: 12px;
-  @apply text-blue text-12;
-}
-.nav-menu {
+
+.left2 {
   width: 272px;
   left: 68px;
   top: 0;
-  @apply h-full absolute bg-gray-dark;
+  @apply h-full absolute bg-gray-dark z-10;
 }
 
 .bounceInLeft-enter-from,

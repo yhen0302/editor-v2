@@ -1,7 +1,7 @@
 <template>
   <div class="middle-main">
     <div class="drawing-board">
-      <div ref="drawingBoard" class="bg-gray-light" :style="{ width: widthPx, height: heightPx, transform: `scale(${scale}%)`, left: `${(100 - scale) / 2}%`, top: `${(100 - scale) / 2}%` }">
+      <div ref="drawingBoard" :style="{ width: widthPx, height: heightPx, transform: `scale(${scale}%)`, left: `${(100 - scale) / 2}%`, top: `${(100 - scale) / 2}%` }">
         <DrawingBoard2D />
         <DrawingBoard3D />
       </div>
