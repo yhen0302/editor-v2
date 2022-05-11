@@ -9,7 +9,7 @@
       <!--   组件选择   -->
       <select-area></select-area>
       <!--   画板   -->
-      <art-board class="flex-1" :height="500">
+      <art-board class="flex-1" :height="editorStore.artBoardConfig.height" :width="editorStore.artBoardConfig.width">
         <template #2dContent>
           <art-board2-d-content></art-board2-d-content>
         </template>
@@ -24,8 +24,7 @@
           <nav-tab v-model:index="layerTreeIndex">
             <template v-slot:header>
               <ul class="nav-tab-header items-center flex text-14">
-                <li class="nav-tab-h-item cursor-pointer" v-for="(item, index) in ['场景树', '场景页面']"
-                    :class="{ active: layerTreeIndex === index }" @click="layerTreeIndex = index" :key="item">
+                <li class="nav-tab-h-item cursor-pointer" v-for="(item, index) in ['场景树', '场景页面']" :class="{ active: layerTreeIndex === index }" @click="layerTreeIndex = index" :key="item">
                   {{ item }}
                 </li>
               </ul>
@@ -34,8 +33,8 @@
             <nav-tab-item key="screenTree" class="screen-tree-wrap">
               <div class="screen-tree-box">
                 <div class="search-box flex items-center">
-                  <img class="search-icon" width="16" height="16" src="~@/assets/images/editor_search_icn_dark.png"/>
-                  <input class="search-inp text-12" type="text" placeholder="搜索所有元素"/>
+                  <img class="search-icon" width="16" height="16" src="~@/assets/images/editor_search_icn_dark.png" />
+                  <input class="search-inp text-12" type="text" placeholder="搜索所有元素" />
                 </div>
                 <!--二维图层树-->
                 <layer-list :node="editorStore.layerTree2d" v-show="editorStore.dimensionType === '2d'">
@@ -44,18 +43,17 @@
                   </template>
                   <template v-slot:placeholder="node" v-once>
                     <div style="padding-right: 8px">
-                      <img :src="layerIcon[node.type]"/>
+                      <img :src="layerIcon[node.type]" />
                     </div>
                   </template>
                   <template v-slot:suffix="node">
-                    <div class="suffix-icon-wrap cursor-pointer"
-                         :class="{ 'opacity-50': findHasFalseShowParentNode(node) }" @click.stop="hiddenControl(node)">
-                      <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show"/>
-                      <img src="~@/assets/images/editor_seen_btn_dark.png" v-else/>
+                    <div class="suffix-icon-wrap cursor-pointer" :class="{ 'opacity-50': findHasFalseShowParentNode(node) }" @click.stop="hiddenControl(node)">
+                      <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
+                      <img src="~@/assets/images/editor_seen_btn_dark.png" v-else />
                     </div>
                   </template>
                   <template v-slot:folderPrefix>
-                    <img src="~@/assets/images/editor_elementgroup_icn_dark.png" style="margin-right: 8px"/>
+                    <img src="~@/assets/images/editor_elementgroup_icn_dark.png" style="margin-right: 8px" />
                   </template>
                 </layer-list>
                 <!--三维图层树-->
@@ -67,10 +65,9 @@
                     <div></div>
                   </template>
                   <template v-slot:suffix="node">
-                    <div class="suffix-icon-wrap cursor-pointer"
-                         :class="{ 'opacity-50': findHasFalseShowParentNode(node) }" @click.stop="hiddenControl(node)">
-                      <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show"/>
-                      <img src="~@/assets/images/editor_seen_btn_dark.png" v-else/>
+                    <div class="suffix-icon-wrap cursor-pointer" :class="{ 'opacity-50': findHasFalseShowParentNode(node) }" @click.stop="hiddenControl(node)">
+                      <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
+                      <img src="~@/assets/images/editor_seen_btn_dark.png" v-else />
                     </div>
                   </template>
                   <template v-slot:folderPrefix>
@@ -90,11 +87,11 @@
             <template v-slot:header>
               <ul class="nav-tab-header items-center flex text-14">
                 <li
-                    class="nav-tab-h-item cursor-pointer"
-                    v-for="(item, index) in ['基础设置', '交互事件']"
-                    :class="{ active: propertyEditIndex === index }"
-                    @click="propertyEditIndex = index"
-                    :key="item"
+                  class="nav-tab-h-item cursor-pointer"
+                  v-for="(item, index) in ['基础设置', '交互事件']"
+                  :class="{ active: propertyEditIndex === index }"
+                  @click="propertyEditIndex = index"
+                  :key="item"
                 >
                   {{ item }}
                 </li>
@@ -118,9 +115,9 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue'
-import {Ref, ref} from '@vue/reactivity'
-import {layerIcon} from '@/views/editor/local_data'
+import { defineComponent } from 'vue'
+import { Ref, ref } from '@vue/reactivity'
+import { layerIcon } from '@/views/editor/local_data'
 
 import NavBar from './child/NavBar.vue'
 import NavTab from '@/component/common/navTab/NavTab.vue'
@@ -139,16 +136,17 @@ import ModelConfigurator from '@/views/editor/configurator/ModelConfigurator.vue
 import DimensionNavBar from '@/views/editor/child/DimensionNavBar.vue'
 import SelectArea from '@/views/editor/child/SelectArea.vue'
 import ScreenPageTree from '@/views/editor/child/ScreenPageTree.vue'
-import {useStore} from 'vuex'
-import {useState} from '@/store/helper'
-import ArtBoard3DContent from "@/views/editor/threeDimension/ArtBoard3DContent.vue";
-import ArtBoard2DContent from "@/views/editor/twoDimension/ArtBoard2DContent.vue";
+import { useStore } from 'vuex'
+import { useState } from '@/store/helper'
+import ArtBoard3DContent from '@/views/editor/threeDimension/ArtBoard3DContent.vue'
+import ArtBoard2DContent from '@/views/editor/twoDimension/ArtBoard2DContent.vue'
+import { EditorStore } from '@/store/editor/type'
 
 /* 编辑器 */
 export default defineComponent({
   name: 'Editor',
   data() {
-    return {testData: false}
+    return { testData: false }
   },
   components: {
     ArtBoard2DContent,
@@ -173,7 +171,7 @@ export default defineComponent({
   },
   setup() {
     const sotre = useStore()
-    const editorStore = useState(sotre, 'editor')
+    const editorStore = useState(sotre, 'editor') as EditorStore
     // layer tree
     const layerTreeIndex: Ref<number> = ref<number>(0)
 
@@ -279,9 +277,8 @@ layer-option-area
 .tree-3d /deep/ .layer-item_list > .layer-folder-item {
   padding-left: calc((var(--level) - 2) * 14px + var(--default-pl) - 10px);
 }
-.screen-tree-wrap{
+.screen-tree-wrap {
   max-height: 50vh;
   overflow-y: scroll;
-
 }
 </style>

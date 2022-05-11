@@ -28,6 +28,30 @@ export function formatterDate(formatter = 'yyyy-MM-dd hh:mm:ss', date = new Date
   return res
 }
 
+export interface PxTargetObject {
+  [key: string]: string | number
+}
+
+export function toPx(target: number | PxTargetObject): string | PxTargetObject {
+  const cssUnitRE = /^\d+(px|rem|em|vh|vw|%|cm|mm)$/
+  if (typeof target === 'number') {
+    return target + 'px'
+  } else if (typeof target === 'object') {
+    const result: PxTargetObject = Object.assign({}, target)
+    const excludeStyleKey = ['zoom', 'opacity', 'zIndex']
+    for (const key of Object.keys(target)) {
+      if (!excludeStyleKey.includes(key)) {
+        if (!cssUnitRE.test(target[key].toString())) {
+          result[key] = target[key] + 'px'
+        }
+      }
+    }
+    return result
+  } else {
+    return target
+  }
+}
+
 export function getCss(el: HTMLElement | null, css: keyof CSSStyleDeclaration): CSSStyleDeclaration[keyof CSSStyleDeclaration] {
   return el && window.getComputedStyle(el)[css]
 }

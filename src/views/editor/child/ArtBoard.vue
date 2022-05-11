@@ -17,7 +17,7 @@
     <section class="art-board-wrapper grid place-content-center"
              :style="{ width: wrapperWidthPx, height: wrapperHeightPx }">
       <section class="art-board-box relative"
-               :style="{ width: widthPx, height: heightPx, transform: `scale(${editorStore.artBoardScale})` }">
+               :style="{ width: widthPx, height: heightPx, transform: `scale(${editorStore.artBoardConfig.artBoardScale})` }">
 
         <slot name="3dContent" :rect="{width,height}"></slot>
         <slot name="2dContent"></slot>
@@ -59,11 +59,11 @@ export default {
     function onWheel(ev: WheelEvent) {
       if (ev.ctrlKey || keySpace.value) {
         ev.deltaY > 0
-            ? editorStore.artBoardScale > 0.3
-            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardScale - 0.05})
+            ? editorStore.artBoardConfig.artBoardScale > 0.3
+            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardConfig.artBoardScale - 0.05})
             : null
-            : editorStore.artBoardScale < 3
-            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardScale + 0.05})
+            : editorStore.artBoardConfig.artBoardScale < 3
+            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardConfig.artBoardScale + 0.05})
             : null
       }
     }
@@ -75,11 +75,11 @@ export default {
     const artBoardRect = ref<DOMRect>()
     const wrapperWidthPx = computed(() => {
       let offset: number = Number(artBoardRect.value?.width) * 2
-      return props.width * editorStore.artBoardScale + offset + 'px'
+      return props.width * editorStore.artBoardConfig.artBoardScale + offset + 'px'
     })
     const wrapperHeightPx = computed(() => {
       let offset: number = Number(artBoardRect.value?.height) * 2
-      return props.height * editorStore.artBoardScale + offset + 'px'
+      return props.height * editorStore.artBoardConfig.artBoardScale + offset + 'px'
     })
 
     onMounted(() => {

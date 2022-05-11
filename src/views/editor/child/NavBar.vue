@@ -57,7 +57,7 @@ export default {
   components: { TipButton, Timer },
   computed: {
     scaleRatio() {
-      return (useState(useStore(), 'editor').artBoardScale * 100).toFixed()
+      return (useState(useStore(), 'editor').artBoardConfig.artBoardScale * 100).toFixed()
     }
   }
 }

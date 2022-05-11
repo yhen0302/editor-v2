@@ -61,7 +61,7 @@ export const selectData: Record<dimensionSelectBarType2d | dimensionSelectBarTyp
               name: '矩形',
               type: 'rect',
               option: {
-                matrixOption: { left: 20, top: 20, height: 100, width: 200, angle: 0 },
+                matrixOption: { left: 0, top: 0, height: 100, width: 200, angle: 0 },
                 transparency: 1,
                 transparencyColor: { color: '#FF0000', transparency: 0.5 }
               } as RectShapeProps

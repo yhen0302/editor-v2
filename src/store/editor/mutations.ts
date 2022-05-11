@@ -30,7 +30,7 @@ export default {
     state.selectBarToolType = payload.selectBarToolType
   },
   [EditorMutation.CHANGE_ART_BOARD_SCALE](state: EditorStore, payload: { artBoardScale: number }) {
-    state.artBoardScale = payload.artBoardScale
+    state.artBoardConfig.artBoardScale = payload.artBoardScale
   },
   [EditorMutation.ADD_2D_TREE_NODE](state: EditorStore, payload: { node: LayerTree2dNode }) {
     state.layerTree2d.push(payload.node)
