@@ -63,7 +63,8 @@ export const selectData: Record<dimensionSelectBarType2d | dimensionSelectBarTyp
               option: {
                 matrixOption: { left: 0, top: 0, height: 100, width: 200, angle: 0 },
                 transparency: 1,
-                transparencyColor: { color: '#FF0000', transparency: 0.5 }
+                transparencyColor: { color: '#FF0000', transparency: 0.5 },
+                value:''
               } as RectShapeProps
             },
             { icon: require('@/assets/images/editor_shape_circular_btn_dark.png'), name: '圆形' },

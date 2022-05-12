@@ -1,5 +1,7 @@
 <template>
-  <div class="rect-shape pointer-events-auto absolute" :style="{ width, height, left, top }"></div>
+  <div class="rect-shape pointer-events-auto absolute"
+       v-drag
+       :style="{ width, height, left, top,backgroundColor:transparencyColor.color}">{{value}}</div>
 </template>
 
 <script lang="ts">
@@ -8,7 +10,7 @@ import { computed } from 'vue'
 
 export default {
   name: 'RectShape',
-  props: ['transparency', 'transparencyColor', 'matrixOption'],
+  props: ['transparency', 'transparencyColor', 'matrixOption',"value"],
   setup(props: any) {
     const width = computed(() => toPx(props.matrixOption.width))
     const height = computed(() => toPx(props.matrixOption.height))

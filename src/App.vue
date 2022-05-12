@@ -9,3 +9,7 @@
   color: #F2F2F2;
 }
 </style>
+<script>
+export default {
+}
+</script>

@@ -1,5 +1,5 @@
 import RectShape from './shape/RectShape.vue'
-import { App, h } from 'vue'
+import { App, Directive, h, resolveDirective, withDirectives } from 'vue'
 import { reactive, UnwrapNestedRefs } from '@vue/reactivity'
 import { BaseProps } from '@/views/editor/twoDimension/elements/option'
 import { clone } from '@/util/base'
@@ -15,13 +15,17 @@ export default {
   }
 }
 
+let id = 0
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 export class Element<T extends BaseProps> {
   props: UnwrapNestedRefs<T>
   eleType: string
   instance: VNode
+  id: number = id++
 
   constructor(eleType: string, props: T) {
+
     this.props = this.getProps<T>(props)
     this.eleType = eleType
     this.instance = h(elementComponentsMap[this.eleType], { ...this.props })

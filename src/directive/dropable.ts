@@ -1,8 +1,8 @@
 import { DirectiveBinding, h } from 'vue'
 import { Element } from '@/views/editor/twoDimension/elements'
-import { LayerTree2dNode } from '@/store/editor/type'
-import { useMutation } from '@/store/helper'
+import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
 import store from '@/store'
+import { useMutation, useState } from '@/store/helper'
 
 export default {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
@@ -11,23 +11,31 @@ export default {
     })
 
     el.addEventListener('drop', function (ev: DragEvent) {
-      const { offsetX, offsetY } = ev
+      let { offsetX, offsetY } = ev
+      const editorStore: EditorStore = useState(store, 'editor')
       const mutations = useMutation(store, 'editor', ['ADD_2D_TREE_NODE'])
       // 将数据添加到树结构中
       const data = JSON.parse(<string>ev.dataTransfer?.getData('meta'))
-      initData()
 
-      function initData() {
-        data.option.matrixOption.left = offsetX
-        data.option.matrixOption.top = offsetY
-        console.log(data.option.matrixOption.left)
+      initData(ev)
+
+      function initData(ev: DragEvent) {
+        const target = ev.target as HTMLDivElement
+        const matrixOption = data.option.matrixOption
+        if (target.className.includes('art-board-wrapper')) {
+          const targetRect = target.getBoundingClientRect()
+          const childRect = (target.firstElementChild as HTMLDivElement).getBoundingClientRect()
+          const scale = editorStore.artBoardConfig.artBoardScale
+          offsetX = -((targetRect.width - childRect.width) / 2 - offsetX) / scale - (matrixOption.width) / 2
+          offsetY = -((targetRect.height - childRect.height) / 2 - offsetY) / scale - (matrixOption.height) / 2
+        }
+        matrixOption.left = offsetX
+        matrixOption.top = offsetY
       }
 
       const element = new Element<typeof data.option>(data.type, data.option)
-
       const node: LayerTree2dNode = { name: data.name, element, type: data.type, show: true }
       mutations['ADD_2D_TREE_NODE']({ node })
-      console.log(node)
     })
   }
 }
