@@ -51,6 +51,7 @@
 import { computed, defineComponent, ref } from 'vue'
 import Timer from '@/components/utils/common/Timer.vue'
 import TipButton from '@/components/utils/TipButton.vue'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'Header',
@@ -59,13 +60,13 @@ export default defineComponent({
     TipButton
   },
   setup() {
-    const scale = ref(0.5)
+    const store = useStore()
     const scaleRatio = computed(() => {
-      return (scale.value * 100).toFixed()
+      return (store.state.drawingBoard.scale * 100).toFixed()
     })
 
     return {
-      scale,
+      store,
       scaleRatio
     }
   }
