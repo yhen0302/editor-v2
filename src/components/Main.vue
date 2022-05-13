@@ -49,7 +49,8 @@ export default defineComponent({
   @apply z-10;
 }
 .right {
-  @apply flex flex-col h-full bg-gray-dark;
+  background-color: transparent;
+  @apply flex flex-col h-full;
   width: 272px;
 }
 </style>

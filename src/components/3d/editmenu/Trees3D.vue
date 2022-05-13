@@ -1,5 +1,5 @@
 <template>
-  <div class="trees-3d-main"></div>
+  <div class="trees-3d-main">trees3d</div>
 </template>
 
 <script lang="ts">
