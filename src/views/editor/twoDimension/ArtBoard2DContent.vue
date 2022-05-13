@@ -1,19 +1,20 @@
 <script lang="tsx">
-import {useStore} from "vuex";
-import {useState} from "@/store/helper";
-import {EditorStore} from "@/store/editor/type";
+import { useStore } from 'vuex'
+import { useState } from '@/store/helper'
+import { EditorStore } from '@/store/editor/type'
 
 export default {
-  name: "ArtBoard2DContent",
+  name: 'ArtBoard2DContent',
   setup() {
     const sotre = useStore()
     const editorStore = useState(sotre, 'editor') as EditorStore
     // 解析二维树的内容，然后渲染
-    return () => <div class="art-board-content w-full h-full absolute z-10 pointer-events-none" >
-      {editorStore.layerTree2d.map(item=>item.element.instance)}
-      <drag-wrapper></drag-wrapper>
-    </div>
-
+    return () => (
+      <div class="art-board-content w-full h-full absolute z-10 pointer-events-none">
+        <drag-wrapper></drag-wrapper>
+        {editorStore.layerTree2d.map((item) => item.element.instance)}
+      </div>
+    )
   }
 }
 </script>

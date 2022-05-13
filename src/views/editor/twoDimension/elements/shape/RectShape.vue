@@ -1,6 +1,7 @@
 <template>
   <div class="rect-shape pointer-events-auto absolute"
        v-drag
+       draggable="false"
        :style="{ width, height, left, top,backgroundColor:transparencyColor.color}">{{value}}</div>
 </template>
 

@@ -3,7 +3,7 @@ export interface PxTargetObject {
 }
 
 export function toPx(target: number | PxTargetObject): string | PxTargetObject {
-  const cssUnitRE = /^\d+(px|rem|em|vh|vw|%|cm|mm)$/
+  const cssUnitRE = /^-?\d+(px|rem|em|vh|vw|%|cm|mm)$/
   if (typeof target === 'number') {
     return target + 'px'
   } else if (typeof target === 'object') {
@@ -23,19 +23,29 @@ export function toPx(target: number | PxTargetObject): string | PxTargetObject {
 }
 
 export function cssUnitToNumber(target: string) {
-  const cssUnitRE = /^\d+(px|rem|em|vh|vw|%|cm|mm)$/
+  const cssUnitRE = /^-?\d+(px|rem|em|vh|vw|%|cm|mm)$/
   return cssUnitRE.test(target) ? parseInt(target) : 0
 }
 
-export function getCss(el: HTMLElement, css: keyof CSSStyleDeclaration): CSSStyleDeclaration[keyof CSSStyleDeclaration] {
-  return window.getComputedStyle(el)[css]
+export function getCss(el: HTMLElement, css: keyof CSSStyleDeclaration | [keyof CSSStyleDeclaration]): CSSStyleDeclaration[keyof CSSStyleDeclaration] | CSSStyleDeclaration {
+  if (Array.isArray(css)) {
+    let map = <CSSStyleDeclaration>{}
+    const cssStyles = window.getComputedStyle(el)
+    for (const key of css.values()) {
+      // @ts-ignore
+      map[key] = cssStyles[key]
+    }
+    return map
+  } else {
+    return window.getComputedStyle(el)[css]
+  }
 }
 
 export function findParentPathHasEl(target: HTMLElement | null, el: HTMLElement | null): boolean {
   do {
     if (target === el) return true
     // eslint-disable-next-line no-cond-assign
-  } while (target = target?.parentElement || null);
+  } while ((target = target?.parentElement || null))
 
   return false
 }
@@ -54,13 +64,28 @@ export function debounce<T extends Function>(targetFn: T, delay: number, ctx?: a
   }
 }
 
-export function computedElementsRect(els: HTMLElement[]) {
+export function computedElementsRect(els: HTMLElement[], type: 'css' | 'bounding' = 'bounding') {
   const leftNumSet: Set<number> = new Set<number>(),
     rightNumSet: Set<number> = new Set<number>(),
     topNumSet: Set<number> = new Set<number>(),
     bottomNumSet: Set<number> = new Set<number>()
   for (const el of els) {
-    const {left, right, bottom, top} = el.getBoundingClientRect()
+    let rect
+    if (type === 'bounding') {
+      rect = el.getBoundingClientRect()
+    } else {
+      // @ts-ignore
+      rect = getCss(el, ['left', 'top', 'width', 'height']) as { left: any; width: any; top: any; height: any; [key: string]: any }
+      for (const key of Object.keys(rect)) {
+        // @ts-ignore
+        rect[key] = cssUnitToNumber(rect[key])
+      }
+      rect.right = rect.left + rect.width
+      rect.bottom = rect.top + rect.height
+      console.log('r', rect)
+    }
+    // @ts-ignore
+    const { left, right, bottom, top } = rect
     leftNumSet.add(left)
     rightNumSet.add(right)
     topNumSet.add(top)
@@ -72,7 +97,10 @@ export function computedElementsRect(els: HTMLElement[]) {
     bottom = Math.max(...bottomNumSet)
 
   return {
-    left, right, top, bottom,
+    left,
+    right,
+    top,
+    bottom,
     width: right - left,
     height: bottom - top
   }

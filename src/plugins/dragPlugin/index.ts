@@ -3,6 +3,9 @@ import { debounce, findParentPathHasEl, getCss, toPx} from "./util/util";
 import {Ref} from "@vue/reactivity";
 import {rectProperties, RectProperty} from "./convert";
 import DragWrapper from "./DragWrapper.vue";
+import {useState} from "@/store/helper";
+import store from '@/store'
+import {EditorStore} from "@/store/editor/type";
 
 
 let activeEl: Ref<HTMLElement[]> = ref<HTMLElement[]>([]);
@@ -60,6 +63,8 @@ const dragPlugin: Plugin = {
 
           // 监听鼠标按下
           function listenElMouseDown() {
+            const editorStore = <EditorStore>useState(store,'editor')
+            const scale = editorStore.artBoardConfig.artBoardScale
             let change = dragOpt?.change && debounce(dragOpt.change, dragOpt?.inputDelay || 300)
 
             function watchRect() {
@@ -73,8 +78,8 @@ const dragPlugin: Plugin = {
                   let rect = el.rect
                   if (activeEl.value.length < 2 || ['left', 'top'].includes(key)) {
                     // @ts-ignore
-                    el.style[key] = toPx(rect[key] + newVal - oldVal)
-                    el.rect[key] = rect[key] + newVal - oldVal
+                    el.style[key] = toPx((rect[key] + newVal - oldVal))
+                    el.rect[key] = (rect[key] + newVal - oldVal)
                   } else { // 在多选时的计算方式
                     let ratio: number = newVal / oldVal
                     // @ts-ignore
@@ -82,9 +87,7 @@ const dragPlugin: Plugin = {
                     el.rect[key] = rect[key] * ratio
 
                     let mappingKey: keyof DOMRect = key === 'width' ? 'left' : 'top'
-
                     let offset = rect[mappingKey] - rectProperties[mappingKey]
-
                     el.rect[mappingKey] = offset * (ratio - 1) + rect[mappingKey]
                     el.style[mappingKey] = toPx(offset * (ratio - 1) + rect[mappingKey]) as string
                   }
@@ -105,7 +108,6 @@ const dragPlugin: Plugin = {
 
               activeEl.value.push(el)
               dragOpt?.active?.({el, rect: toRaw<RectProperty>(rectProperties)})
-              console.log(activeEl.value)
               checkCssPosition()
               watchRect()
 

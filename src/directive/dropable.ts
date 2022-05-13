@@ -24,13 +24,14 @@ export default {
         const matrixOption = data.option.matrixOption
         if (target.className.includes('art-board-wrapper')) {
           const targetRect = target.getBoundingClientRect()
-          const childRect = (target.firstElementChild as HTMLDivElement).getBoundingClientRect()
+          const childRect = (target.querySelector('.art-board-box') as HTMLDivElement).getBoundingClientRect()
           const scale = editorStore.artBoardConfig.artBoardScale
-          offsetX = -((targetRect.width - childRect.width) / 2 - offsetX) / scale - (matrixOption.width) / 2
-          offsetY = -((targetRect.height - childRect.height) / 2 - offsetY) / scale - (matrixOption.height) / 2
+
+          offsetX = -((targetRect.width - childRect.width) / 2 - offsetX) / scale
+          offsetY = -((targetRect.height - childRect.height) / 2 - offsetY) / scale
         }
-        matrixOption.left = offsetX
-        matrixOption.top = offsetY
+        matrixOption.left = offsetX - matrixOption.width / 2
+        matrixOption.top = offsetY - matrixOption.height / 2
       }
 
       const element = new Element<typeof data.option>(data.type, data.option)

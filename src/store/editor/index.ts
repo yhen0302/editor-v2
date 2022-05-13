@@ -31,8 +31,8 @@ const state: EditorStore = {
     ssao: false
   },
   artBoardConfig: {
-    height: 1080,
-    width: 1920,
+    height: 500,
+    width: 500,
     artBoardScale: 0.5
   },
   layerTree2d: [

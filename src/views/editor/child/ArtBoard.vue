@@ -16,6 +16,7 @@
   >
     <section class="art-board-wrapper grid place-content-center"
              :style="{ width: wrapperWidthPx, height: wrapperHeightPx }">
+
       <section class="art-board-box relative"
                :style="{ width: widthPx, height: heightPx, transform: `scale(${editorStore.artBoardConfig.artBoardScale})` }">
 
@@ -97,7 +98,6 @@ export default {
 
     const artBoardToCenterDebounce = debounce(function () {
       artBoardRect.value = artBoard.value?.getBoundingClientRect()
-      console.log('update', artBoardRect.value)
       artBoardToCenter()
     }, 300)
     // resize
