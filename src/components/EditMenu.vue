@@ -15,19 +15,19 @@
           <img src="@/assets/images/main/left/editor_card_backarrow_btn_dark.png" />
         </div>
         <div class="title">
-          <p>场景1-页1</p>
+          <p>{{ pageTitle }}</p>
         </div>
       </div>
 
       <LineEl :color="'#363741'" />
 
-      <div class="tree" v-if="pageIndex === 0">
+      <div class="tree" v-show="pageIndex === 0">
         <SceneTree />
       </div>
 
-      <div class="tree" v-else-if="pageIndex === 1">
-        <Trees2D v-if="store.state.dimensionType === '2d'" />
-        <Trees3D v-else-if="store.state.dimensionType === '3d'" />
+      <div class="tree" v-show="pageIndex === 1">
+        <Trees2D v-show="store.state.dimensionType === '2d'" />
+        <Trees3D v-show="store.state.dimensionType === '3d'" />
       </div>
     </div>
 
@@ -43,6 +43,8 @@ import SceneTree from '@/components/utils/editmenu/SceneTree.vue'
 import Trees2D from '@/components/2d/editmenu/Trees2D.vue'
 import Trees3D from '@/components/3d/editmenu/Trees3D.vue'
 
+import { EventsBus } from '@/core/EventsBus'
+
 export default defineComponent({
   name: 'Right',
   components: {
@@ -54,22 +56,37 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const pageIndex = ref(0)
+    const pageTitle = ref('')
 
     // 新增场景
     const addScene = () => {
-      //
+      const e = event as any
+      if (e.button != 0) return
+      EventsBus.emit('sceneAdded', {})
     }
 
     // 返回上级
     const goBack = () => {
+      const e = event as any
+      if (e.button != 0) return
       pageIndex.value--
     }
+
+    // 查看详情页
+    EventsBus.on('pageEnter', (e: any) => {
+      const { node, parent } = e
+      // load page details --todo
+      pageIndex.value++
+      // update title
+      pageTitle.value = parent.name + '-' + node.name
+    })
 
     return {
       store,
       pageIndex,
       addScene,
-      goBack
+      goBack,
+      pageTitle
     }
   }
 })

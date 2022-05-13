@@ -1,7 +1,7 @@
 <template>
   <div class="node">
-    <div class="scene-node">
-      <div class="spread-btn" :class="node.spread ? 'animation-spread' : 'animation-packup'" @mouseup="spread(node)">
+    <div class="scene-node" :class="node.selected ? 'scene-node-selected' : ''" @mouseup="spread(node)">
+      <div class="spread-btn" :class="node.spread ? 'animation-spread' : 'animation-packup'">
         <img src="@/assets/images/main/right/editor_unfold_icn_dark.png" />
       </div>
 
@@ -13,13 +13,13 @@
         <p>{{ node.name }}</p>
       </div>
 
-      <div class="scene-add-btn">
+      <div class="scene-add-btn" @mouseup.stop="addPage(node)" v-if="node.selected">
         <img src="@/assets/images/main/right/editor_newpage_btn_dark.png" />
       </div>
     </div>
 
     <div v-if="node.spread && node.children && node.children.length > 0" class="page-nodes">
-      <div v-for="item in node.children" :key="item" class="page-node">
+      <div v-for="item in node.children" :key="item" class="page-node" :class="item.selected ? 'page-node-selected' : ''" @mouseup="selectPage(item)" @dblclick="enterPage(item, node)">
         <div class="page-icon">
           <img src="@/assets/images/main/right/editor_page_icn_dark.png" />
         </div>
@@ -35,16 +35,51 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 
+import { EventsBus } from '@/core/EventsBus'
+
 export default defineComponent({
   name: 'SceneTreeNode',
   props: ['node'],
   components: {},
   setup() {
     const spread = (node: any) => {
+      const e = event as any
+      if (e.button != 0) return
+
       node.spread = !node.spread
     }
+
+    const addPage = (node: any) => {
+      const e = event as any
+      if (e.button != 0) return
+
+      EventsBus.emit('pageAdded', {
+        node
+      })
+    }
+
+    const selectPage = (page: any) => {
+      const e = event as any
+      if (e.button != 0) return
+      EventsBus.emit('pageSelected', {
+        node: page
+      })
+    }
+
+    const enterPage = (page: any, node: any) => {
+      const e = event as any
+      if (e.button != 0) return
+      EventsBus.emit('pageEnter', {
+        node: page,
+        parent: node
+      })
+    }
+
     return {
-      spread
+      spread,
+      addPage,
+      selectPage,
+      enterPage
     }
   }
 })
@@ -59,10 +94,16 @@ export default defineComponent({
   height: 32px;
   @apply w-full relative flex items-center;
 }
+.scene-node:hover {
+  background-color: rgba(50, 52, 64, 1);
+  @apply cursor-pointer;
+}
+.scene-node-selected {
+  background-color: #484848 !important;
+}
 .spread-btn {
   margin-left: 16px;
   margin-right: 5px;
-  @apply cursor-pointer;
 }
 .animation-spread {
   animation: animate-spread 0.1s;
@@ -126,6 +167,12 @@ export default defineComponent({
 .page-node {
   height: 32px;
   @apply w-full flex items-center;
+}
+.page-node:hover {
+  background-color: rgba(50, 52, 64, 1);
+}
+.page-node-selected {
+  background-color: rgba(101, 130, 254, 1) !important;
 }
 .page-icon {
   margin-left: 56px;
