@@ -1,24 +1,106 @@
 <template>
-  <section id="drag-wrapper" v-show="isActive" dragType="DRAG_MOVE" :style="toPx(rectProperties)" ref="dragEl" @click.stop.prevent>
+  <section
+    id="drag-wrapper"
+    v-show="isActive"
+    dragType="DRAG_MOVE"
+    :style="toPx(rectProperties)"
+    ref="dragEl"
+    @click.stop.prevent
+  >
     <!--  控制顶点缩放的四个圆点  -->
-    <div class="circle nw-resize drag-wrapper_left drag-wrapper_top" dragType="DRAG_LEFT_TOP" v-show="!isDrag" v-memo="[isDrag]" :ref="tempEls"></div>
-    <div class="circle ne-resize drag-wrapper_right drag-wrapper_top" dragType="DRAG_RIGHT_TOP" v-show="!isDrag" v-memo="[isDrag]" :ref="tempEls"></div>
-    <div class="circle se-resize drag-wrapper_right drag-wrapper_bottom" dragType="DRAG_RIGHT_BOTTOM" v-show="!isDrag" v-memo="[isDrag]" :ref="tempEls"></div>
-    <div class="circle sw-resize drag-wrapper_left drag-wrapper_bottom" dragType="DRAG_LEFT_BOTTOM" v-show="!isDrag" v-memo="[isDrag]" :ref="tempEls"></div>
+    <div
+      class="circle nw-resize drag-wrapper_left drag-wrapper_top"
+      dragType="DRAG_LEFT_TOP"
+      v-show="!isDrag"
+      v-memo="[isDrag]"
+      :ref="tempEls"
+      :style="`transform:scale(${
+        1 / editorStore.artBoardConfig.artBoardScale
+      });`"
+    ></div>
+    <div
+      class="circle ne-resize drag-wrapper_right drag-wrapper_top"
+      dragType="DRAG_RIGHT_TOP"
+      v-show="!isDrag"
+      v-memo="[isDrag]"
+      :ref="tempEls"
+      :style="`transform:scale(${
+        1 / editorStore.artBoardConfig.artBoardScale
+      });`"
+    ></div>
+    <div
+      class="circle se-resize drag-wrapper_right drag-wrapper_bottom"
+      dragType="DRAG_RIGHT_BOTTOM"
+      v-show="!isDrag"
+      v-memo="[isDrag]"
+      :ref="tempEls"
+      :style="`transform:scale(${
+        1 / editorStore.artBoardConfig.artBoardScale
+      });`"
+    ></div>
+    <div
+      class="circle sw-resize drag-wrapper_left drag-wrapper_bottom"
+      dragType="DRAG_LEFT_BOTTOM"
+      v-show="!isDrag"
+      v-memo="[isDrag]"
+      :ref="tempEls"
+      :style="`transform:scale(${
+        1 / editorStore.artBoardConfig.artBoardScale
+      });`"
+    ></div>
     <!--  控制上下左右拖拽的四条边  -->
-    <div class="border n-resize drag-wrapper_top" dragType="DRAG_TOP" v-once :ref="tempEls"></div>
-    <div class="border e-resize drag-wrapper_right" dragType="DRAG_RIGHT" v-once :ref="tempEls"></div>
-    <div class="border n-resize drag-wrapper_bottom" dragType="DRAG_BOTTOM" v-once :ref="tempEls"></div>
-    <div class="border e-resize drag-wrapper_left" dragType="DRAG_LEFT" v-once :ref="tempEls"></div>
+    <div
+      class="border n-resize drag-wrapper_top"
+      dragType="DRAG_TOP"
+      v-once
+      :ref="tempEls"
+      :style="`transform:scaleY(${
+        1 / editorStore.artBoardConfig.artBoardScale
+      });`"
+    ></div>
+    <div
+      class="border e-resize drag-wrapper_right"
+      dragType="DRAG_RIGHT"
+      v-once
+      :ref="tempEls"
+      :style="`transform:scaleX(${
+        1 / editorStore.artBoardConfig.artBoardScale
+      });`"
+    ></div>
+    <div
+      class="border n-resize drag-wrapper_bottom"
+      dragType="DRAG_BOTTOM"
+      v-once
+      :ref="tempEls"
+      :style="`transform:scaleY(${
+        1 / editorStore.artBoardConfig.artBoardScale
+      });`"
+    ></div>
+    <div
+      class="border e-resize drag-wrapper_left"
+      dragType="DRAG_LEFT"
+      v-once
+      :ref="tempEls"
+      :style="`transform:scaleX(${
+        1 / editorStore.artBoardConfig.artBoardScale
+      });`"
+    ></div>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance, onMounted, reactive, ref, watch } from 'vue'
-import { cssUnitToNumber, toPx, getCss, findParentPathHasEl, computedElementsRect } from '@/plugins/dragPlugin/util/util'
+import { defineComponent, getCurrentInstance, ref, watch } from 'vue'
+import {
+  toPx,
+  findParentPathHasEl,
+  computedElementsRect
+} from '@/plugins/dragPlugin/util/util'
 import { Ref } from '@vue/reactivity'
 import { activeEl, isCalculating } from './index'
 import { rectProperties } from '@/plugins/dragPlugin/convert'
+import { EditorStore } from '@/store/editor/type'
+import { useState } from '@/store/helper'
+import store from '@/store'
 
 enum DRAG_STATUS {
   IDLE,
@@ -43,6 +125,8 @@ export default defineComponent({
     const isRunning = ref<boolean>(false)
     const dragStatus = ref<DRAG_STATUS>(DRAG_STATUS.IDLE)
     const isDrag = ref<boolean>(false)
+    const editorStore = useState(store, 'editor') as EditorStore
+
     let dragEl: Ref<HTMLElement | null> = ref<HTMLElement | null>(null)
 
     const dragElList = ref<Array<HTMLElement>>([])
@@ -62,7 +146,9 @@ export default defineComponent({
         function wrapperDragDown(ev: MouseEvent) {
           isDrag.value = false
           let target: HTMLElement = ev.target as HTMLElement
-          let dragType = target.getAttribute('dragType') as keyof typeof DRAG_STATUS
+          let dragType = target.getAttribute(
+            'dragType'
+          ) as keyof typeof DRAG_STATUS
 
           isRunning.value = verifyDragWrapperActive(target)
 
@@ -90,6 +176,11 @@ export default defineComponent({
           if (isRunning.value) {
             offsetX = pageX - preX
             offsetY = pageY - preY
+
+            const scale = editorStore.artBoardConfig.artBoardScale
+            offsetX /= scale
+            offsetY /= scale
+
             preX = pageX
             preY = pageY
 
@@ -283,8 +374,8 @@ export default defineComponent({
         if (els.length) {
           isCalculating.value = true
           isActive.value = true
-          let rect = computedElementsRect(els,'css')
-          console.log('elRect',rect)
+          let rect = computedElementsRect(els, 'css')
+          console.log('elRect', rect)
           for (let key of Object.keys(rectProperties)) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
@@ -303,7 +394,8 @@ export default defineComponent({
       isActive,
       isDrag,
       dragEl,
-      tempEls
+      tempEls,
+      editorStore
     }
   }
 })

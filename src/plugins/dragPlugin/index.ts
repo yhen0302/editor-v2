@@ -1,5 +1,5 @@
 import {Plugin, App,    watch, ref, WatchStopHandle, toRaw} from "vue";
-import { debounce, findParentPathHasEl, getCss, toPx} from "./util/util";
+import {computedElementsRect, debounce, findParentPathHasEl, getCss, toPx} from "./util/util";
 import {Ref} from "@vue/reactivity";
 import {rectProperties, RectProperty} from "./convert";
 import DragWrapper from "./DragWrapper.vue";
@@ -53,7 +53,7 @@ const dragPlugin: Plugin = {
           let dragOpt: DragDirectiveOpt = binding.value || Object.create(null)
           listenElMouseDown()
           const checkCssPosition = () => getCss(el, 'position') === 'static' && (el.style.position = 'absolute');
-          const rect = el.getBoundingClientRect()
+          const rect = computedElementsRect([el],'css')
           el.rect = {
             left: rect.left,
             top: rect.top,

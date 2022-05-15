@@ -3,7 +3,7 @@ export interface PxTargetObject {
 }
 
 export function toPx(target: number | PxTargetObject): string | PxTargetObject {
-  const cssUnitRE = /^-?\d+(px|rem|em|vh|vw|%|cm|mm)$/
+  const cssUnitRE = /^-?\d+(\.\d+)?(px|rem|em|vh|vw|%|cm|mm)$/
   if (typeof target === 'number') {
     return target + 'px'
   } else if (typeof target === 'object') {
@@ -23,7 +23,7 @@ export function toPx(target: number | PxTargetObject): string | PxTargetObject {
 }
 
 export function cssUnitToNumber(target: string) {
-  const cssUnitRE = /^-?\d+(px|rem|em|vh|vw|%|cm|mm)$/
+  const cssUnitRE = /^-?\d+(\.\d+)?(px|rem|em|vh|vw|%|cm|mm)$/
   return cssUnitRE.test(target) ? parseInt(target) : 0
 }
 
