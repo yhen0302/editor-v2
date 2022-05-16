@@ -1,8 +1,9 @@
 <template>
   <div
     class="rect-shape pointer-events-auto absolute"
-    v-drag="{ active: onDragActive, rect: matrixOption, node }"
+    v-drag="{ active: onDragActive, rect: matrixOption, select:node.select }"
     draggable="false"
+
     :style="{
       width,
       height,
@@ -28,11 +29,6 @@ export default {
     const height = computed(() => toPx(props.matrixOption.height))
     const left = computed(() => toPx(props.matrixOption.left))
     const top = computed(() => toPx(props.matrixOption.top))
-
-    const select = computed(() => {
-      console.log('computed')
-      return props.node.select
-    })
 
     return {
       width,

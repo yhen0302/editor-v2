@@ -1,4 +1,5 @@
 import { Element } from '@/views/editor/twoDimension/elements'
+import {Ref} from "@vue/reactivity";
 export declare type dimensionType = '2d' | '3d'
 
 export interface TreeNode {
@@ -22,7 +23,7 @@ export interface LayerTree2dNode extends TreeNode {
   type: dimensionSelectBarType2d | 'group'
   subType?: selectItemType2d
   element?: Element<any>
-  select: boolean
+  select: Ref<boolean>
   children?: LayerTree2dNode[]
 }
 

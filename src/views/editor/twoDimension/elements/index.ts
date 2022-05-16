@@ -30,7 +30,10 @@ export class Element<T extends BaseProps> {
 
     this.props = this.getProps<T>(props)
     this.eleType = eleType
-    this.instance = h(elementComponentsMap[this.eleType], { ...this.props,node })
+    this.instance = h(elementComponentsMap[this.eleType], {
+      ...this.props,
+      node
+    })
     this.node = node
   }
 

@@ -1,4 +1,4 @@
-import { DirectiveBinding, h, nextTick } from 'vue'
+import {DirectiveBinding, h, nextTick, ref} from 'vue'
 import { Element } from '@/views/editor/twoDimension/elements'
 import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
 import store from '@/store'
@@ -40,7 +40,7 @@ export default {
       const node: LayerTree2dNode = {
         name: data.name,
         type: data.type,
-        select: true,
+        select: ref(true),
         show: true
       }
       const element = new Element<typeof data.option>(
