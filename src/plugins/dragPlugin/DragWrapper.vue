@@ -52,7 +52,7 @@
     <div
       class="border n-resize drag-wrapper_top"
       dragType="DRAG_TOP"
-      v-once
+      v-memo="[editorStore.artBoardConfig.artBoardScale]"
       :ref="tempEls"
       :style="`transform:scaleY(${
         1 / editorStore.artBoardConfig.artBoardScale
@@ -61,7 +61,7 @@
     <div
       class="border e-resize drag-wrapper_right"
       dragType="DRAG_RIGHT"
-      v-once
+      v-memo="[editorStore.artBoardConfig.artBoardScale]"
       :ref="tempEls"
       :style="`transform:scaleX(${
         1 / editorStore.artBoardConfig.artBoardScale
@@ -70,7 +70,7 @@
     <div
       class="border n-resize drag-wrapper_bottom"
       dragType="DRAG_BOTTOM"
-      v-once
+      v-memo="[editorStore.artBoardConfig.artBoardScale]"
       :ref="tempEls"
       :style="`transform:scaleY(${
         1 / editorStore.artBoardConfig.artBoardScale
@@ -79,7 +79,7 @@
     <div
       class="border e-resize drag-wrapper_left"
       dragType="DRAG_LEFT"
-      v-once
+      v-memo="[editorStore.artBoardConfig.artBoardScale]"
       :ref="tempEls"
       :style="`transform:scaleX(${
         1 / editorStore.artBoardConfig.artBoardScale

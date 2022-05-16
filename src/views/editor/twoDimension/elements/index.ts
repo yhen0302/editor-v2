@@ -4,6 +4,7 @@ import { reactive, UnwrapNestedRefs } from '@vue/reactivity'
 import { BaseProps } from '@/views/editor/twoDimension/elements/option'
 import { clone } from '@/util/base'
 import { VNode } from '@vue/runtime-core'
+import {LayerTree2dNode} from "@/store/editor/type";
 
 const elementComponentsMap = {
   rect: RectShape
@@ -23,12 +24,14 @@ export class Element<T extends BaseProps> {
   eleType: string
   instance: VNode
   id: number = id++
+  node:LayerTree2dNode
 
-  constructor(eleType: string, props: T) {
+  constructor(eleType: string, props: T,node:LayerTree2dNode) {
 
     this.props = this.getProps<T>(props)
     this.eleType = eleType
-    this.instance = h(elementComponentsMap[this.eleType], { ...this.props })
+    this.instance = h(elementComponentsMap[this.eleType], { ...this.props,node })
+    this.node = node
   }
 
   init() {}

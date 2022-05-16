@@ -27,7 +27,10 @@ export function cssUnitToNumber(target: string) {
   return cssUnitRE.test(target) ? parseInt(target) : 0
 }
 
-export function getCss(el: HTMLElement, css: keyof CSSStyleDeclaration | [keyof CSSStyleDeclaration]): CSSStyleDeclaration[keyof CSSStyleDeclaration] | CSSStyleDeclaration {
+export function getCss(
+  el: HTMLElement,
+  css: keyof CSSStyleDeclaration | [keyof CSSStyleDeclaration]
+): CSSStyleDeclaration[keyof CSSStyleDeclaration] | CSSStyleDeclaration {
   if (Array.isArray(css)) {
     let map = <CSSStyleDeclaration>{}
     const cssStyles = window.getComputedStyle(el)
@@ -41,7 +44,10 @@ export function getCss(el: HTMLElement, css: keyof CSSStyleDeclaration | [keyof 
   }
 }
 
-export function findParentPathHasEl(target: HTMLElement | null, el: HTMLElement | null): boolean {
+export function findParentPathHasEl(
+  target: HTMLElement | null,
+  el: HTMLElement | null
+): boolean {
   do {
     if (target === el) return true
     // eslint-disable-next-line no-cond-assign
@@ -52,7 +58,11 @@ export function findParentPathHasEl(target: HTMLElement | null, el: HTMLElement 
 
 // 防抖。
 // eslint-disable-next-line @typescript-eslint/ban-types
-export function debounce<T extends Function>(targetFn: T, delay: number, ctx?: any): Function {
+export function debounce<T extends Function>(
+  targetFn: T,
+  delay: number,
+  ctx?: any
+): Function {
   let timer: number | null = null
   return function (...args: any[]) {
     if (timer) {
@@ -64,7 +74,10 @@ export function debounce<T extends Function>(targetFn: T, delay: number, ctx?: a
   }
 }
 
-export function computedElementsRect(els: HTMLElement[], type: 'css' | 'bounding' = 'bounding') {
+export function computedElementsRect(
+  els: HTMLElement[],
+  type: 'css' | 'bounding' = 'bounding'
+) {
   const leftNumSet: Set<number> = new Set<number>(),
     rightNumSet: Set<number> = new Set<number>(),
     topNumSet: Set<number> = new Set<number>(),
@@ -75,14 +88,19 @@ export function computedElementsRect(els: HTMLElement[], type: 'css' | 'bounding
       rect = el.getBoundingClientRect()
     } else {
       // @ts-ignore
-      rect = getCss(el, ['left', 'top', 'width', 'height']) as { left: any; width: any; top: any; height: any; [key: string]: any }
+      rect = getCss(el, ['left', 'top', 'width', 'height']) as {
+        left: any
+        width: any
+        top: any
+        height: any
+        [key: string]: any
+      }
       for (const key of Object.keys(rect)) {
         // @ts-ignore
         rect[key] = cssUnitToNumber(rect[key])
       }
       rect.right = rect.left + rect.width
       rect.bottom = rect.top + rect.height
-      console.log('r', rect)
     }
     // @ts-ignore
     const { left, right, bottom, top } = rect

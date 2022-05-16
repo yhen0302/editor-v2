@@ -1,4 +1,4 @@
-import { DirectiveBinding, h } from 'vue'
+import { DirectiveBinding, h, nextTick } from 'vue'
 import { Element } from '@/views/editor/twoDimension/elements'
 import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
 import store from '@/store'
@@ -24,19 +24,41 @@ export default {
         const matrixOption = data.option.matrixOption
         if (target.className.includes('art-board-wrapper')) {
           const targetRect = target.getBoundingClientRect()
-          const childRect = (target.querySelector('.art-board-box') as HTMLDivElement).getBoundingClientRect()
+          const childRect = (
+            target.querySelector('.art-board-box') as HTMLDivElement
+          ).getBoundingClientRect()
           const scale = editorStore.artBoardConfig.artBoardScale
 
-          offsetX = -((targetRect.width - childRect.width) / 2 - offsetX) / scale
-          offsetY = -((targetRect.height - childRect.height) / 2 - offsetY) / scale
+          offsetX =
+            -((targetRect.width - childRect.width) / 2 - offsetX) / scale
+          offsetY =
+            -((targetRect.height - childRect.height) / 2 - offsetY) / scale
         }
         matrixOption.left = offsetX - matrixOption.width / 2
         matrixOption.top = offsetY - matrixOption.height / 2
       }
+      const node: LayerTree2dNode = {
+        name: data.name,
+        type: data.type,
+        select: true,
+        show: true
+      }
+      const element = new Element<typeof data.option>(
+        data.type,
+        data.option,
+        node
+      )
+      node.element = element
 
-      const element = new Element<typeof data.option>(data.type, data.option)
-      const node: LayerTree2dNode = { name: data.name, element, type: data.type, show: true }
       mutations['ADD_2D_TREE_NODE']({ node })
+
+      nextTick().then(() => {
+        editorStore.select2dNodes.splice(
+          0,
+          editorStore.select2dNodes.length,
+          node
+        )
+      })
     })
   }
 }

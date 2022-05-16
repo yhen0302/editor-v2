@@ -1,14 +1,16 @@
-import {Plugin, App,    watch, ref, WatchStopHandle, toRaw} from "vue";
-import {computedElementsRect, debounce, findParentPathHasEl, getCss, toPx} from "./util/util";
-import {Ref} from "@vue/reactivity";
-import {rectProperties, RectProperty} from "./convert";
-import DragWrapper from "./DragWrapper.vue";
-import {useState} from "@/store/helper";
-import store from '@/store'
-import {EditorStore} from "@/store/editor/type";
+import { Plugin, App, watch, ref, WatchStopHandle, toRaw, computed } from 'vue'
+import {
+  computedElementsRect,
+  debounce,
+  findParentPathHasEl,
+  getCss,
+  toPx
+} from './util/util'
+import { ComputedRef, Ref } from '@vue/reactivity'
+import { rectProperties, RectProperty } from './convert'
+import DragWrapper from './DragWrapper.vue'
 
-
-let activeEl: Ref<HTMLElement[]> = ref<HTMLElement[]>([]);
+let activeEl: Ref<HTMLElement[]> = ref<HTMLElement[]>([])
 let watcherSet: Set<WatchStopHandle> = new Set<WatchStopHandle>()
 let isCalculating: Ref<boolean> = ref<boolean>(false)
 
@@ -25,21 +27,26 @@ function listenClearEvent() {
 }
 
 interface DragEvent {
-  el: HTMLElement,
+  el: HTMLElement
   rect: RectProperty
 }
 
 interface DragDirectiveOpt {
-  change?: (ev: DragEvent) => void,
-  input?: (ev: DragEvent) => void,
-  active: (ev: DragEvent) => void,
-  inputDelay?: number,
+  change?: (ev: DragEvent) => void
+  input?: (ev: DragEvent) => void
+  active: (ev: DragEvent) => void
+  inputDelay?: number
 }
 
 interface CustomElement extends HTMLElement {
-  rect: { left: number, top: number, width: number, height: number, [key: string]: any }
+  rect: {
+    left: number
+    top: number
+    width: number
+    height: number
+    [key: string]: any
+  }
 }
-
 
 const dragPlugin: Plugin = {
   install(app: App, option: Object) {
@@ -52,46 +59,60 @@ const dragPlugin: Plugin = {
         mounted(el: CustomElement, binding) {
           let dragOpt: DragDirectiveOpt = binding.value || Object.create(null)
           listenElMouseDown()
-          const checkCssPosition = () => getCss(el, 'position') === 'static' && (el.style.position = 'absolute');
-          const rect = computedElementsRect([el],'css')
-          el.rect = {
-            left: rect.left,
-            top: rect.top,
-            height: rect.height,
-            width: rect.width
-          }
+          const checkCssPosition = () =>
+            getCss(el, 'position') === 'static' &&
+            (el.style.position = 'absolute')
+
+          const rect = binding.value.rect || computedElementsRect([el], 'css')
+          el.rect = rect
 
           // 监听鼠标按下
           function listenElMouseDown() {
-            const editorStore = <EditorStore>useState(store,'editor')
-            const scale = editorStore.artBoardConfig.artBoardScale
-            let change = dragOpt?.change && debounce(dragOpt.change, dragOpt?.inputDelay || 300)
+            let change =
+              dragOpt?.change &&
+              debounce(dragOpt.change, dragOpt?.inputDelay || 300)
 
             function watchRect() {
               for (let key of Object.keys(rectProperties)) {
-                let watchStop: WatchStopHandle = watch(() => rectProperties[key], (newVal, oldVal) => {
-                  // 如果当前变化是正在计算选择区域就不做计算。
-                  if (isCalculating.value) return
-                  dragOpt?.input?.({el, rect: toRaw<RectProperty>(rectProperties)})
-                  change && change({el, rect: toRaw<RectProperty>(rectProperties)})
+                let watchStop: WatchStopHandle = watch(
+                  () => rectProperties[key],
+                  (newVal, oldVal) => {
+                    // 如果当前变化是正在计算选择区域就不做计算。
+                    if (isCalculating.value) return
+                    dragOpt?.input?.({
+                      el,
+                      rect: toRaw<RectProperty>(rectProperties)
+                    })
+                    change &&
+                      change({ el, rect: toRaw<RectProperty>(rectProperties) })
 
-                  let rect = el.rect
-                  if (activeEl.value.length < 2 || ['left', 'top'].includes(key)) {
-                    // @ts-ignore
-                    el.style[key] = toPx((rect[key] + newVal - oldVal))
-                    el.rect[key] = (rect[key] + newVal - oldVal)
-                  } else { // 在多选时的计算方式
-                    let ratio: number = newVal / oldVal
-                    // @ts-ignore
-                    el.style[key] = toPx(rect[key] * ratio)
-                    el.rect[key] = rect[key] * ratio
+                    let rect = el.rect
+                    if (
+                      activeEl.value.length < 2 ||
+                      ['left', 'top'].includes(key)
+                    ) {
+                      // @ts-ignore
+                      el.style[key] = toPx(rect[key] + newVal - oldVal)
+                      el.rect[key] = rect[key] + newVal - oldVal
+                    } else {
+                      // 在多选时的计算方式
+                      let ratio: number = newVal / oldVal
+                      // @ts-ignore
+                      el.style[key] = toPx(rect[key] * ratio)
+                      el.rect[key] = rect[key] * ratio
 
-                    let mappingKey: keyof DOMRect = key === 'width' ? 'left' : 'top'
-                    let offset = rect[mappingKey] - rectProperties[mappingKey]
-                    el.rect[mappingKey] = offset * (ratio - 1) + rect[mappingKey]
-                    el.style[mappingKey] = toPx(offset * (ratio - 1) + rect[mappingKey]) as string
-                  }
-                }, {flush: 'sync'})
+                      let mappingKey: keyof DOMRect =
+                        key === 'width' ? 'left' : 'top'
+                      let offset = rect[mappingKey] - rectProperties[mappingKey]
+                      el.rect[mappingKey] =
+                        offset * (ratio - 1) + rect[mappingKey]
+                      el.style[mappingKey] = toPx(
+                        offset * (ratio - 1) + rect[mappingKey]
+                      ) as string
+                    }
+                  },
+                  { flush: 'sync' }
+                )
 
                 watcherSet.add(watchStop)
               }
@@ -107,20 +128,19 @@ const dragPlugin: Plugin = {
               }
 
               activeEl.value.push(el)
-              dragOpt?.active?.({el, rect: toRaw<RectProperty>(rectProperties)})
+              dragOpt?.active?.({
+                el,
+                rect: toRaw<RectProperty>(rectProperties)
+              })
               checkCssPosition()
               watchRect()
-
             })
           }
-
         }
       })
     }
-
   }
 }
-
 
 function clearWatcher(): void {
   for (let watchStop of watcherSet.values()) {
@@ -133,6 +153,6 @@ export function clearEl(): void {
   activeEl.value.splice(0, activeEl.value.length)
 }
 
-export {activeEl, isCalculating}
+export { activeEl, isCalculating }
 
-export default dragPlugin;
+export default dragPlugin

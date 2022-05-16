@@ -9,7 +9,7 @@ import {
 import {editElNameEventFn, enterOkEventFn, preventEventFn} from "./edit";
 
 export default (node, prefix, suffix, placeholder) => (
-  <li className="layer-item" draggable="true"
+  <li className={`layer-item ${node.select?'select':''}`} draggable="true"
       onDragenter={(ev) => dragEnterEventFn(ev, node)}
       onDragoverCapture={(ev) => dragOverEventFn(ev, node)}
       onDragstartCapture={(ev) => dragStartEventFn(ev, node)}

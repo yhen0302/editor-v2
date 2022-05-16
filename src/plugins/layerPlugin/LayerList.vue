@@ -140,7 +140,9 @@ export default {
   width: 100%;
   background-repeat: no-repeat;
 }
-
+.layer-item.select,.layer-folder-item.select{
+  background: #6582FE;
+}
 .layer-item_list {
   overflow: hidden;
 }
