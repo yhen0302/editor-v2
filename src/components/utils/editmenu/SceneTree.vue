@@ -11,6 +11,7 @@ import { computed, defineComponent, ref } from 'vue'
 import SceneTreeNode from './SceneTreeNode.vue'
 
 import { EventsBus } from '@/core/EventsBus'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'SceneTree',
@@ -18,6 +19,9 @@ export default defineComponent({
     SceneTreeNode
   },
   setup() {
+    const store = useStore()
+
+    // trees: {threeDimension, twoDimension}
     const nodes = ref([
       {
         name: '场景1',
@@ -31,11 +35,19 @@ export default defineComponent({
             type: 'page',
             selected: true,
             parent: '0',
-            id: '0-0'
+            id: '0-0',
+            trees: {} // 见上方注释
           }
         ]
       }
     ])
+
+    // 初始化场景/页
+    EventsBus.on('sceneLoaded', (e: any) => {
+      if (e.type === '3d') {
+        nodes.value[0].children[0].trees = store.state.template
+      }
+    })
 
     // 添加场景
     EventsBus.on('sceneAdded', () => {
@@ -51,7 +63,8 @@ export default defineComponent({
             type: 'page',
             selected: false,
             parent: '' + nodes.value.length,
-            id: '' + nodes.value.length + '-0'
+            id: '' + nodes.value.length + '-0',
+            trees: store.state.template
           }
         ]
       })
@@ -67,7 +80,8 @@ export default defineComponent({
         type: 'page',
         selected: false,
         parent: node.id,
-        id: '' + node.id + '-' + node.children.length
+        id: '' + node.id + '-' + node.children.length,
+        trees: store.state.template
       })
     })
 

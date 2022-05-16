@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <div v-if="node.spread && node.children && node.children.length > 0" class="page-nodes">
+    <div v-if="node.type == 'scene' && node.spread && node.children && node.children.length > 0" class="page-nodes">
       <div v-for="item in node.children" :key="item" class="page-node" :class="item.selected ? 'page-node-selected' : ''" @mouseup="selectPage(item)" @dblclick="enterPage(item, node)">
         <div class="page-icon">
           <img src="@/assets/images/main/right/editor_page_icn_dark.png" />
