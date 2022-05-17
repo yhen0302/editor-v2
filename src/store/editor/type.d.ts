@@ -22,8 +22,8 @@ export interface ScreenNode {
 export interface LayerTree2dNode extends TreeNode {
   type: dimensionSelectBarType2d | 'group'
   subType?: selectItemType2d
-  element?: Element<any>
-  select: Ref<boolean>
+  option:any
+  select: boolean
   children?: LayerTree2dNode[]
 }
 

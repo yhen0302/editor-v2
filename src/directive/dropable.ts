@@ -1,11 +1,11 @@
-import {DirectiveBinding, h, nextTick, ref} from 'vue'
-import { Element } from '@/views/editor/twoDimension/elements'
+import { DirectiveBinding, h, markRaw, nextTick, ref } from 'vue'
 import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
 import store from '@/store'
 import { useMutation, useState } from '@/store/helper'
+import { clone } from '@/util/base'
 
 export default {
-  mounted(el: HTMLElement, binding: DirectiveBinding) {
+  mounted: function (el: HTMLElement, binding: DirectiveBinding) {
     el.addEventListener('dragover', function (ev: DragEvent) {
       ev.preventDefault()
     })
@@ -13,7 +13,10 @@ export default {
     el.addEventListener('drop', function (ev: DragEvent) {
       let { offsetX, offsetY } = ev
       const editorStore: EditorStore = useState(store, 'editor')
-      const mutations = useMutation(store, 'editor', ['ADD_2D_TREE_NODE'])
+      const mutations = useMutation(store, 'editor', [
+        'ADD_2D_TREE_NODE',
+        'SELECT_2D_TREE_NODE'
+      ])
       // 将数据添加到树结构中
       const data = JSON.parse(<string>ev.dataTransfer?.getData('meta'))
 
@@ -37,28 +40,20 @@ export default {
         matrixOption.left = offsetX - matrixOption.width / 2
         matrixOption.top = offsetY - matrixOption.height / 2
       }
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const node: LayerTree2dNode = {
         name: data.name,
         type: data.type,
-        select: ref(true),
+        option: clone(data.option),
+        select: true,
         show: true
       }
-      const element = new Element<typeof data.option>(
-        data.type,
-        data.option,
-        node
-      )
-      node.element = element
 
       mutations['ADD_2D_TREE_NODE']({ node })
 
-      nextTick().then(() => {
-        editorStore.select2dNodes.splice(
-          0,
-          editorStore.select2dNodes.length,
-          node
-        )
-      })
+      mutations['SELECT_2D_TREE_NODE']({ node })
     })
   }
 }

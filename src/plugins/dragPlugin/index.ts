@@ -121,10 +121,11 @@ const dragPlugin: Plugin = {
           const rect = binding.value.rect || computedElementsRect([el], 'css')
           el.rect = rect
 
-          console.log(select)
+          console.log('params', select)
           watch(
             () => select?.value,
             (newVal, oldVal) => {
+              console.log(newVal, oldVal)
               // 如果是选中状态
               if (newVal) {
                 watchStopSet = watchRect(el, rect, changeCb, inputCb)
@@ -161,9 +162,13 @@ const dragPlugin: Plugin = {
               }
 
               activeEl.value.push(el)
+              console.log(select)
               ;(select as Ref<boolean>).value = true
             })
           }
+        },
+        updated(el: CustomElement) {
+          console.log('dir,update')
         }
       })
     }

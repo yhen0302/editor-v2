@@ -12,7 +12,7 @@
       class="circle nw-resize drag-wrapper_left drag-wrapper_top"
       dragType="DRAG_LEFT_TOP"
       v-show="!isDrag"
-      v-memo="[isDrag]"
+      v-memo="[isDrag, editorStore.artBoardConfig.artBoardScale]"
       :ref="tempEls"
       :style="`transform:scale(${
         1 / editorStore.artBoardConfig.artBoardScale
@@ -22,7 +22,7 @@
       class="circle ne-resize drag-wrapper_right drag-wrapper_top"
       dragType="DRAG_RIGHT_TOP"
       v-show="!isDrag"
-      v-memo="[isDrag]"
+      v-memo="[isDrag, editorStore.artBoardConfig.artBoardScale]"
       :ref="tempEls"
       :style="`transform:scale(${
         1 / editorStore.artBoardConfig.artBoardScale
@@ -32,7 +32,7 @@
       class="circle se-resize drag-wrapper_right drag-wrapper_bottom"
       dragType="DRAG_RIGHT_BOTTOM"
       v-show="!isDrag"
-      v-memo="[isDrag]"
+      v-memo="[isDrag, editorStore.artBoardConfig.artBoardScale]"
       :ref="tempEls"
       :style="`transform:scale(${
         1 / editorStore.artBoardConfig.artBoardScale
@@ -42,7 +42,7 @@
       class="circle sw-resize drag-wrapper_left drag-wrapper_bottom"
       dragType="DRAG_LEFT_BOTTOM"
       v-show="!isDrag"
-      v-memo="[isDrag]"
+      v-memo="[isDrag, editorStore.artBoardConfig.artBoardScale]"
       :ref="tempEls"
       :style="`transform:scale(${
         1 / editorStore.artBoardConfig.artBoardScale
@@ -375,7 +375,6 @@ export default defineComponent({
           isCalculating.value = true
           isActive.value = true
           let rect = computedElementsRect(els, 'css')
-          console.log('elRect', rect)
           for (let key of Object.keys(rectProperties)) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore

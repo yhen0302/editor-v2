@@ -12,10 +12,11 @@
       @mousedown="boardDownEvent"
       @mouseup="boardUpEvent"
       @keyup.space.prevent.capture="spaceUp"
+      @click="artBoardClick()"
       v-dropable
   >
     <section class="art-board-wrapper grid place-content-center"
-             :style="{ width: wrapperWidthPx, height: wrapperHeightPx }">
+             :style="{ width: wrapperWidthPx, height: wrapperHeightPx }" >
 
       <section class="art-board-box relative"
                :style="{ width: widthPx, height: heightPx, transform: `scale(${editorStore.artBoardConfig.artBoardScale})` }">
@@ -50,7 +51,7 @@ export default {
     const app: ComponentInternalInstance = getCurrentInstance() as ComponentInternalInstance
     // store
     const editorStore: EditorStore = useState(useStore(), 'editor')
-    const editorMutation = useMutation(useStore(), 'editor', [EditorMutation.CHANGE_ART_BOARD_SCALE])
+    const editorMutation = useMutation(useStore(), 'editor', [EditorMutation.CHANGE_ART_BOARD_SCALE,EditorMutation.CLEAR_SELECT_2D_NODES])
 
     const artBoard: Ref<HTMLDivElement | null> = ref<HTMLDivElement | null>(null)
 
@@ -160,8 +161,11 @@ export default {
       keySpace.value ? (keySpace.value = false) : null
     }
 
+    function artBoardClick(){
+      console.log('click')
+      editorMutation["CLEAR_SELECT_2D_NODES"]()
+    }
     // mounted
-
     return {
       // size
       widthPx,
@@ -182,6 +186,7 @@ export default {
       spaceUp,
       spaceDown,
       isMoving,
+      artBoardClick
     }
   }
 }
