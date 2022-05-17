@@ -14,7 +14,8 @@ export default createStore({
       // 模板缓存
       threeDimension: [],
       twoDimension: []
-    }
+    },
+    threeDimensionContainer: null
   },
   mutations: {},
   actions: {},

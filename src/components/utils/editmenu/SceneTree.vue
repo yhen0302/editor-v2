@@ -7,11 +7,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref, toRaw } from 'vue'
 import SceneTreeNode from './SceneTreeNode.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 import { useStore } from 'vuex'
+
+import { reloadThreeDimensionScene } from '@/core/3d/util'
 
 export default defineComponent({
   name: 'SceneTree',
@@ -45,7 +47,8 @@ export default defineComponent({
     // 初始化场景/页
     EventsBus.on('sceneLoaded', (e: any) => {
       if (e.type === '3d') {
-        nodes.value[0].children[0].trees = store.state.template
+        nodes.value[0].children[0].trees = JSON.parse(JSON.stringify(toRaw(store.state.template)))
+        store.state.threeDimensionContainer = e.container
       }
     })
 
@@ -64,7 +67,7 @@ export default defineComponent({
             selected: false,
             parent: '' + nodes.value.length,
             id: '' + nodes.value.length + '-0',
-            trees: store.state.template
+            trees: JSON.parse(JSON.stringify(toRaw(store.state.template)))
           }
         ]
       })
@@ -81,13 +84,14 @@ export default defineComponent({
         selected: false,
         parent: node.id,
         id: '' + node.id + '-' + node.children.length,
-        trees: store.state.template
+        trees: JSON.parse(JSON.stringify(toRaw(store.state.template)))
       })
     })
 
     // 选中页
     EventsBus.on('pageSelected', (e: any) => {
       const node = e.node
+      if (node.selected) return
       nodes.value.forEach((n: any) => {
         n.selected = false
 
@@ -98,6 +102,9 @@ export default defineComponent({
           })
         }
       })
+
+      // reload 3d scene
+      reloadThreeDimensionScene(node)
     })
 
     return {

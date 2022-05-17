@@ -34,7 +34,7 @@ export default defineComponent({
         modelUrls,
         domElement: scene.value,
         callback: (evt: any) => {
-          console.log('container', evt)
+          // console.log('container', evt)
         }
       })
     })

@@ -10,6 +10,7 @@
 import { defineComponent, ref } from 'vue'
 import { EventsBus } from '@/core/EventsBus'
 import PageTreeNode3d from '@/components/utils/editmenu/PageTreeNode3d.vue'
+import { traverseResetSelectedOfNodes } from '@/core/3d/util'
 
 export default defineComponent({
   name: 'Trees3D',
@@ -21,8 +22,16 @@ export default defineComponent({
 
     // 查看详情页
     EventsBus.on('pageEnter', (e: any) => {
-      const { node, parent } = e
-      console.log('trees3d', e.node.trees)
+      // console.log('trees3d', e.node.trees)
+
+      nodes.value = e.node.trees.threeDimension
+    })
+
+    // 选中元素:单选
+    EventsBus.on('treeSelected', (e: any) => {
+      const flag = e.node.selected
+      traverseResetSelectedOfNodes(nodes.value)
+      e.node.selected = !flag
     })
 
     return {
@@ -34,6 +43,6 @@ export default defineComponent({
 
 <style lang="postcss" scoped>
 .trees-3d-main {
-  @apply w-full h-full;
+  @apply w-full h-full overflow-scroll;
 }
 </style>

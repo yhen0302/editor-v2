@@ -1,7 +1,7 @@
 <template>
   <div class="node">
-    <div class="scene-node" :class="node.selected ? 'scene-node-selected' : ''" @mouseup="spread(node)">
-      <div class="spread-btn" :class="node.spread ? 'animation-spread' : 'animation-packup'">
+    <div class="scene-node" :class="node.selected ? 'scene-node-selected' : ''">
+      <div class="spread-btn" :class="node.spread ? 'spread-btn-rotate' : ''" @mouseup="spread(node)">
         <img src="@/assets/images/main/right/editor_unfold_icn_dark.png" />
       </div>
 
@@ -53,17 +53,13 @@ export default defineComponent({
       const e = event as any
       if (e.button != 0) return
 
-      EventsBus.emit('pageAdded', {
-        node
-      })
+      EventsBus.emit('pageAdded', { node })
     }
 
     const selectPage = (page: any) => {
       const e = event as any
       if (e.button != 0) return
-      EventsBus.emit('pageSelected', {
-        node: page
-      })
+      EventsBus.emit('pageSelected', { node: page })
     }
 
     const enterPage = (page: any, node: any) => {
@@ -96,7 +92,6 @@ export default defineComponent({
 }
 .scene-node:hover {
   background-color: rgba(50, 52, 64, 1);
-  @apply cursor-pointer;
 }
 .scene-node-selected {
   background-color: #484848 !important;
@@ -104,31 +99,10 @@ export default defineComponent({
 .spread-btn {
   margin-left: 16px;
   margin-right: 5px;
+  @apply cursor-pointer;
 }
-.animation-spread {
-  animation: animate-spread 0.1s;
-  animation-fill-mode: forwards;
-}
-@keyframes animate-spread {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(90deg);
-  }
-}
-
-.animation-packup {
-  animation: animate-packup 0.1s;
-  animation-fill-mode: forwards;
-}
-@keyframes animate-packup {
-  0% {
-    transform: rotate(90deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
+.spread-btn-rotate {
+  transform: rotate(90deg);
 }
 
 .scene-icon {
@@ -154,7 +128,7 @@ export default defineComponent({
   width: 16px;
   height: 16px;
   right: 16px;
-  @apply absolute;
+  @apply absolute cursor-pointer;
 }
 .scene-add-btn img {
   width: 16px;

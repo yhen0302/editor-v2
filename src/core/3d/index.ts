@@ -26,12 +26,35 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     },
     onProgress: (model: any) => {
       const node = {}
+      const index = 0
       // 3d模板 存入缓存
-      parseModelNode(model, node)
+      parseModelNode(model, index, node)
       ;(store as any).state.template.threeDimension.push(node)
     },
     onLoad: (evt: any) => {
       callback && callback(evt)
+
+      // 相机节点
+      let camera: any
+      if (evt.viewState === 'orbit') {
+        camera = evt.orbitCamera
+      } else if (evt.viewState === 'firstPerson') {
+        camera = evt.firstPersonCamera
+      } else if (evt.viewState === 'map') {
+        camera = evt.mapCamera
+      }
+
+      const cameraNode = {
+        id: camera.uuid,
+        name: 'Camera',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: camera.type,
+        children: []
+      }
+
+      ;(store as any).state.template.threeDimension.unshift(cameraNode)
 
       EventsBus.emit('sceneLoaded', {
         type: '3d',
