@@ -47,6 +47,7 @@ interface CustomElement extends HTMLElement {
     height: number
     [key: string]: any
   }
+  watchStopSet: Set<WatchStopHandle>
 }
 
 const checkCssPosition = (el: HTMLElement) =>
@@ -106,53 +107,55 @@ const dragPlugin: Plugin = {
     registryDragDirective()
     app.component(DragWrapper.name, DragWrapper)
 
+    function parseBinding(binding: any) {
+      let dragOpt: DragDirectiveOpt = binding.value || Object.create(null)
+
+      const changeCb =
+        dragOpt?.change && debounce(dragOpt.change, dragOpt?.inputDelay || 300)
+      const select = dragOpt?.select
+      const inputCb = dragOpt?.input
+
+      return {
+        select,
+        input: inputCb,
+        change: changeCb,
+        active: dragOpt.active
+      }
+    }
     function registryDragDirective() {
       app.directive('drag', {
         mounted(el: CustomElement, binding) {
-          let dragOpt: DragDirectiveOpt = binding.value || Object.create(null)
+          const { select, input, change, active } = parseBinding(binding)
           let watchStopSet: Set<WatchStopHandle>
           listenElMouseDown()
-          const select = dragOpt?.select
-          const changeCb =
-            dragOpt?.change &&
-            debounce(dragOpt.change, dragOpt?.inputDelay || 300)
 
-          const inputCb = dragOpt?.input
+          console.log('mounted select', select)
           const rect = binding.value.rect || computedElementsRect([el], 'css')
           el.rect = rect
+          // 如果是选中状态
 
-          console.log('params', select)
-          watch(
-            () => select?.value,
-            (newVal, oldVal) => {
-              console.log(newVal, oldVal)
-              // 如果是选中状态
-              if (newVal) {
-                watchStopSet = watchRect(el, rect, changeCb, inputCb)
-                watcherTotalSet.add(watchStopSet)
-                activeEl.value.push(el)
-                dragOpt?.active?.({
-                  el,
-                  rect: toRaw<RectProperty>(rectProperties)
-                })
-              } else {
-                if (watchStopSet) {
-                  stopWatchers(watchStopSet)
-                }
-                // 取消选中
-                activeEl.value.splice(
-                  activeEl.value.findIndex((item) => item === el),
-                  1
-                )
-              }
-            },
-            { immediate: true }
-          )
+          if (select) {
+            activeEl.value.push(el)
+            watchStopSet = watchRect(el, rect, change, input)
+            watcherTotalSet.add(watchStopSet)
+
+            el.watchStopSet = watchStopSet
+          } else {
+            if (el.watchStopSet) {
+              stopWatchers(el.watchStopSet)
+            }
+            // 取消选中
+            activeEl.value.splice(
+              activeEl.value.findIndex((item) => item === el),
+              1
+            )
+          }
 
           // 监听鼠标按下
           function listenElMouseDown() {
             checkCssPosition(el)
             el.addEventListener('mousedown', (ev: MouseEvent) => {
+              console.log(el)
               // 清空上次调用的元素
               let includes = activeEl.value.includes(el)
               if (includes) return
@@ -160,15 +163,33 @@ const dragPlugin: Plugin = {
                 clearEl()
                 clearWatcher()
               }
-
-              activeEl.value.push(el)
-              console.log(select)
-              ;(select as Ref<boolean>).value = true
+              active && active({ el, rect })
             })
           }
         },
-        updated(el: CustomElement) {
-          console.log('dir,update')
+
+        updated(el: CustomElement, binding) {
+          const { change, input, select } = parseBinding(binding)
+          console.log('update select: el', select)
+          if (select) {
+            // 当前元素已经被选中了
+            if (activeEl.value.includes(el)) return
+            console.log('监听')
+            const watchStopSet = watchRect(el, el.rect, change, input)
+            watcherTotalSet.add(watchStopSet)
+            activeEl.value.push(el)
+
+            el.watchStopSet = watchStopSet
+          } else {
+            if (el.watchStopSet) {
+              stopWatchers(el.watchStopSet)
+            }
+            const deleteIndex = activeEl.value.indexOf(el)
+            // 取消选中
+            activeEl.value.splice(deleteIndex, 1)
+          }
+
+          console.log(activeEl.value)
         }
       })
     }

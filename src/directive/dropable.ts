@@ -4,6 +4,7 @@ import store from '@/store'
 import { useMutation, useState } from '@/store/helper'
 import { clone } from '@/util/base'
 
+let id = 0
 export default {
   mounted: function (el: HTMLElement, binding: DirectiveBinding) {
     el.addEventListener('dragover', function (ev: DragEvent) {
@@ -15,7 +16,8 @@ export default {
       const editorStore: EditorStore = useState(store, 'editor')
       const mutations = useMutation(store, 'editor', [
         'ADD_2D_TREE_NODE',
-        'SELECT_2D_TREE_NODE'
+        'SELECT_2D_TREE_NODE',
+        'CLEAR_SELECT_2D_NODES'
       ])
       // 将数据添加到树结构中
       const data = JSON.parse(<string>ev.dataTransfer?.getData('meta'))
@@ -44,7 +46,8 @@ export default {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const node: LayerTree2dNode = {
-        name: data.name,
+        name: data.name+String(id++),
+        id,
         type: data.type,
         option: clone(data.option),
         select: true,
@@ -52,7 +55,7 @@ export default {
       }
 
       mutations['ADD_2D_TREE_NODE']({ node })
-
+      mutations['CLEAR_SELECT_2D_NODES']()
       mutations['SELECT_2D_TREE_NODE']({ node })
     })
   }

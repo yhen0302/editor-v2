@@ -35,9 +35,6 @@ export default {
     const left = computed(() => toPx(props.matrixOption.left))
     const top = computed(() => toPx(props.matrixOption.top))
 
-    function onDragActive(){
-      mutation.SELECT_2D_TREE_NODE({node:props.node})
-    }
     return {
       width,
       height,

@@ -67,11 +67,9 @@ export default {
   },
 
   [EditorMutation.CLEAR_SELECT_2D_NODES](state: EditorStore) {
-    console.log(state)
     while (state.select2dNodes.length > 0) {
       const node = state.select2dNodes.pop()
       if(node){
-        console.log('set select',node.select)
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         node.select = false
