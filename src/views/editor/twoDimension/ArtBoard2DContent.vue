@@ -1,57 +1,45 @@
-
+<template>
+  <div
+    class="art-board-content w-full h-full absolute z-10 pointer-events-none"
+  >
+    <drag-wrapper></drag-wrapper>
+    <component
+      :is="item.type"
+      v-for="item in editorStore.layerTree2d"
+      :key="item.name"
+      :node="item"
+      @select="selectNode(item)"
+      @append="appendSelectNode(item)"
+    ></component>
+  </div>
+</template>
 
 <script lang="tsx">
 import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
-import { elementComponentsMap } from '@/views/editor/twoDimension/elements'
-import { h, resolveDirective, withDirectives } from 'vue'
-import { Directive } from '@vue/runtime-core'
 
 export default {
   name: 'ArtBoard2DContent',
   setup() {
     const store = useStore()
     const editorStore = useState(store, 'editor') as EditorStore
-    const editorMutations = useMutation(store, 'editor', [
-      'SELECT_2D_TREE_NODE'
+    const mutation = useMutation(store, 'editor', [
+      'SELECT_2D_TREE_NODE',
+      'CLEAR_SELECT_2D_NODES'
     ])
-    // 解析二维树的内容，然后渲染
-    function parseLayerTreeToView(layerTree: LayerTree2dNode[]) {
-
-      const stack = [...layerTree]
-      const parentList = []
-      const vnodes = []
-      while (stack.length > 0) {
-        const node = stack.pop()
-        console.log(node)
-        if (node!.children) {
-          parentList.push(node)
-        } else {
-          const dragDirective = resolveDirective('drag') as Directive
-          const directiveOption = {
-            select: node?.select,
-            active({ el }: any) {
-              if (!node!.select) {
-                node!.select = true
-                editorMutations['SELECT_2D_TREE_NODE']({ node })
-              }
-            },
-            rect: node?.option.matrixOption
-          }
-
-            const vnode = h(elementComponentsMap[node!.type], { ...node?.option,key:node!.id})
-          vnodes.push(vnode)
-        }
-      }
-      return vnodes
+    function selectNode(node: LayerTree2dNode) {
+      mutation['CLEAR_SELECT_2D_NODES']()
+      mutation['SELECT_2D_TREE_NODE']({ node })
     }
-    return () => (
-      <div class="art-board-content w-full h-full absolute z-10 pointer-events-none">
-        <drag-wrapper></drag-wrapper>
-        {...parseLayerTreeToView(editorStore.layerTree2d)}
-      </div>
-    )
+    function appendSelectNode(node: LayerTree2dNode) {
+      mutation['SELECT_2D_TREE_NODE']({ node })
+    }
+    return {
+      editorStore,
+      selectNode,
+      appendSelectNode
+    }
   }
 }
 </script>

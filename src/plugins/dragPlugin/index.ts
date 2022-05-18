@@ -127,9 +127,7 @@ const dragPlugin: Plugin = {
         mounted(el: CustomElement, binding) {
           const { select, input, change, active } = parseBinding(binding)
           let watchStopSet: Set<WatchStopHandle>
-          listenElMouseDown()
 
-          console.log('mounted select', select)
           const rect = binding.value.rect || computedElementsRect([el], 'css')
           el.rect = rect
           // 如果是选中状态
@@ -150,31 +148,13 @@ const dragPlugin: Plugin = {
               1
             )
           }
-
-          // 监听鼠标按下
-          function listenElMouseDown() {
-            checkCssPosition(el)
-            el.addEventListener('mousedown', (ev: MouseEvent) => {
-              console.log(el)
-              // 清空上次调用的元素
-              let includes = activeEl.value.includes(el)
-              if (includes) return
-              if (!ev.shiftKey) {
-                clearEl()
-                clearWatcher()
-              }
-              active && active({ el, rect })
-            })
-          }
         },
 
         updated(el: CustomElement, binding) {
           const { change, input, select } = parseBinding(binding)
-          console.log('update select: el', select)
           if (select) {
             // 当前元素已经被选中了
             if (activeEl.value.includes(el)) return
-            console.log('监听')
             const watchStopSet = watchRect(el, el.rect, change, input)
             watcherTotalSet.add(watchStopSet)
             activeEl.value.push(el)
@@ -189,7 +169,6 @@ const dragPlugin: Plugin = {
             activeEl.value.splice(deleteIndex, 1)
           }
 
-          console.log(activeEl.value)
         }
       })
     }

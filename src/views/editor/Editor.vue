@@ -9,12 +9,19 @@
       <!--   组件选择   -->
       <select-area></select-area>
       <!--   画板   -->
-      <art-board class="flex-1" :height="editorStore.artBoardConfig.height" :width="editorStore.artBoardConfig.width">
+      <art-board
+        class="flex-1"
+        :height="editorStore.artBoardConfig.height"
+        :width="editorStore.artBoardConfig.width"
+      >
         <template #2dContent>
           <art-board2-d-content></art-board2-d-content>
         </template>
         <template v-slot:3dContent="data">
-          <art-board3-d-content :height="data.rect.height" :width="data.rect.width"></art-board3-d-content>
+          <art-board3-d-content
+            :height="data.rect.height"
+            :width="data.rect.width"
+          ></art-board3-d-content>
         </template>
       </art-board>
       <!--   图层选择/编辑   -->
@@ -24,7 +31,13 @@
           <nav-tab v-model:index="layerTreeIndex">
             <template v-slot:header>
               <ul class="nav-tab-header items-center flex text-14">
-                <li class="nav-tab-h-item cursor-pointer" v-for="(item, index) in ['场景树', '场景页面']" :class="{ active: layerTreeIndex === index }" @click="layerTreeIndex = index" :key="item">
+                <li
+                  class="nav-tab-h-item cursor-pointer"
+                  v-for="(item, index) in ['场景树', '场景页面']"
+                  :class="{ active: layerTreeIndex === index }"
+                  @click="layerTreeIndex = index"
+                  :key="item"
+                >
                   {{ item }}
                 </li>
               </ul>
@@ -33,11 +46,23 @@
             <nav-tab-item key="screenTree" class="screen-tree-wrap">
               <div class="screen-tree-box">
                 <div class="search-box flex items-center">
-                  <img class="search-icon" width="16" height="16" src="~@/assets/images/editor_search_icn_dark.png" />
-                  <input class="search-inp text-12" type="text" placeholder="搜索所有元素" />
+                  <img
+                    class="search-icon"
+                    width="16"
+                    height="16"
+                    src="~@/assets/images/editor_search_icn_dark.png"
+                  />
+                  <input
+                    class="search-inp text-12"
+                    type="text"
+                    placeholder="搜索所有元素"
+                  />
                 </div>
                 <!--二维图层树-->
-                <layer-list :node="editorStore.layerTree2d" v-show="editorStore.dimensionType === '2d'">
+                <layer-list
+                  :node="editorStore.layerTree2d"
+                  v-show="editorStore.dimensionType === '2d'"
+                >
                   <template v-slot:prefix>
                     <div></div>
                   </template>
@@ -47,17 +72,36 @@
                     </div>
                   </template>
                   <template v-slot:suffix="node">
-                    <div class="suffix-icon-wrap cursor-pointer" :class="{ 'opacity-50': findHasFalseShowParentNode(node) }" @click.stop="hiddenControl(node)">
-                      <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
-                      <img src="~@/assets/images/editor_seen_btn_dark.png" v-else />
+                    <div
+                      class="suffix-icon-wrap cursor-pointer"
+                      :class="{
+                        'opacity-50': findHasFalseShowParentNode(node)
+                      }"
+                      @click.stop="hiddenControl(node)"
+                    >
+                      <img
+                        src="~@/assets/images/editor_unseen_btn_dark.png"
+                        v-if="node.show"
+                      />
+                      <img
+                        src="~@/assets/images/editor_seen_btn_dark.png"
+                        v-else
+                      />
                     </div>
                   </template>
                   <template v-slot:folderPrefix>
-                    <img src="~@/assets/images/editor_elementgroup_icn_dark.png" style="margin-right: 8px" />
+                    <img
+                      src="~@/assets/images/editor_elementgroup_icn_dark.png"
+                      style="margin-right: 8px"
+                    />
                   </template>
                 </layer-list>
                 <!--三维图层树-->
-                <layer-list :node="editorStore.layerTree3d" class="tree-3d" v-show="editorStore.dimensionType === '3d'">
+                <layer-list
+                  :node="editorStore.layerTree3d"
+                  class="tree-3d"
+                  v-show="editorStore.dimensionType === '3d'"
+                >
                   <template v-slot:prefix>
                     <div></div>
                   </template>
@@ -65,9 +109,21 @@
                     <div></div>
                   </template>
                   <template v-slot:suffix="node">
-                    <div class="suffix-icon-wrap cursor-pointer" :class="{ 'opacity-50': findHasFalseShowParentNode(node) }" @click.stop="hiddenControl(node)">
-                      <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
-                      <img src="~@/assets/images/editor_seen_btn_dark.png" v-else />
+                    <div
+                      class="suffix-icon-wrap cursor-pointer"
+                      :class="{
+                        'opacity-50': findHasFalseShowParentNode(node)
+                      }"
+                      @click.stop="hiddenControl(node)"
+                    >
+                      <img
+                        src="~@/assets/images/editor_unseen_btn_dark.png"
+                        v-if="node.show"
+                      />
+                      <img
+                        src="~@/assets/images/editor_seen_btn_dark.png"
+                        v-else
+                      />
                     </div>
                   </template>
                   <template v-slot:folderPrefix>
@@ -98,9 +154,10 @@
               </ul>
             </template>
             <nav-tab-item>
+              <component :is="currentConfigurator"></component>
               <!--<axis-line-chart-configurator></axis-line-chart-configurator>-->
               <!--<text-configurator></text-configurator> -->
-              <shape-configurator></shape-configurator>
+              <!--<shape-configurator></shape-configurator>-->
               <!--<media-configurator></media-configurator>-->
               <!--<model-configurator></model-configurator>-->
             </nav-tab-item>
@@ -115,7 +172,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { Ref, ref } from '@vue/reactivity'
 import { layerIcon } from '@/views/editor/local_data'
 
@@ -195,13 +252,28 @@ export default defineComponent({
     //property edit
     const propertyEditIndex: Ref<number> = ref<number>(0)
 
+    const currentConfigurator = computed(() => {
+      // 选择了多个
+      if (editorStore.layerTree2d.length > 1) {
+        // pass
+      } else if (editorStore.layerTree2d.length > 0) {
+        const node = editorStore.layerTree2d[0]
+        switch (node.type as string) {
+          case 'RectShape':
+            return 'ShapeConfigurator'
+        }
+      }
+      return ''
+    })
+
     return {
       layerTreeIndex,
       propertyEditIndex,
       layerIcon,
       hiddenControl,
       findHasFalseShowParentNode,
-      editorStore
+      editorStore,
+      currentConfigurator
     }
   }
 })

@@ -59,7 +59,7 @@ export const selectData: Record<dimensionSelectBarType2d | dimensionSelectBarTyp
             {
               icon: require('@/assets/images/editor_shape_rectangle_btn_dark.png'),
               name: '矩形',
-              type: 'rect',
+              type: 'RectShape',
               option: {
                 matrixOption: { left: 0, top: 0, height: 100, width: 200, angle: 0 },
                 transparency: 1,

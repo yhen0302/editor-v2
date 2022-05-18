@@ -20,6 +20,7 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     "no-empty-function": "off",
     "@typescript-eslint/no-empty-function":"off",
-    "vue/no-unused-components":"off"
+    "vue/no-unused-components":"off",
+    "@typescript-eslint/ban-ts-comment":"off"
   }
 }
