@@ -1,5 +1,5 @@
 <template>
-  <div class="edit-forms-2d-main"></div>
+  <div class="edit-forms-2d-main">2d-forms</div>
 </template>
 
 <script lang="ts">
@@ -14,4 +14,8 @@ export default defineComponent({
 })
 </script>
 
-<style lang="postcss" scoped></style>
+<style lang="postcss" scoped>
+.edit-forms-2d-main {
+  @apply w-full h-full;
+}
+</style>

@@ -11,6 +11,7 @@ import { defineComponent, ref } from 'vue'
 import { EventsBus } from '@/core/EventsBus'
 import PageTreeNode3d from '@/components/utils/editmenu/PageTreeNode3d.vue'
 import { traverseResetSelectedOfNodes } from '@/core/3d/util'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'Trees3D',
@@ -18,6 +19,7 @@ export default defineComponent({
     PageTreeNode3d
   },
   setup() {
+    const store = useStore()
     const nodes = ref([])
 
     // 查看详情页
@@ -35,6 +37,7 @@ export default defineComponent({
     })
 
     return {
+      store,
       nodes
     }
   }

@@ -36,12 +36,25 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
 
       // 相机节点
       let camera: any
+      let controls: any
+      let options: any = {}
       if (evt.viewState === 'orbit') {
         camera = evt.orbitCamera
+        controls = evt.orbitControls
+        options = {
+          position: [camera.position.x, camera.position.y, camera.position.z],
+          near: camera.near,
+          far: camera.far,
+          minDistance: controls.minDistance,
+          maxDistance: controls.maxDistance,
+          target: [controls.target.x, controls.target.y, controls.target.z]
+        }
       } else if (evt.viewState === 'firstPerson') {
         camera = evt.firstPersonCamera
+        controls = evt.firstPersonControls
       } else if (evt.viewState === 'map') {
         camera = evt.mapCamera
+        controls = evt.mapControls
       }
 
       const cameraNode = {
@@ -51,7 +64,8 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         index: 0,
         spread: false,
         type: camera.type,
-        children: []
+        children: [],
+        options
       }
 
       ;(store as any).state.template.threeDimension.unshift(cameraNode)

@@ -10,6 +10,7 @@ export function parseModelNode(node: any, index: number, result: any) {
   result.spread = false
   result.type = node.type
   result.children = []
+  result.options = {}
   if (node.children.length > 0) {
     index++
     node.children.forEach((n: any) => {

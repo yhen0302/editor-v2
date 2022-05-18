@@ -31,7 +31,10 @@
       </div>
     </div>
 
-    <div class="forms"></div>
+    <div class="forms">
+      <EditForms2D v-show="store.state.dimensionType === '2d'" />
+      <EditForms3D v-show="store.state.dimensionType === '3d'" />
+    </div>
   </div>
 </template>
 
@@ -42,6 +45,8 @@ import LineEl from './utils/common/LineEl.vue'
 import SceneTree from '@/components/utils/editmenu/SceneTree.vue'
 import Trees2D from '@/components/2d/editmenu/Trees2D.vue'
 import Trees3D from '@/components/3d/editmenu/Trees3D.vue'
+import EditForms2D from '@/components/2d/editmenu/EditForms2D.vue'
+import EditForms3D from '@/components/3d/editmenu/EditForms3D.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 
@@ -51,7 +56,9 @@ export default defineComponent({
     LineEl,
     Trees2D,
     Trees3D,
-    SceneTree
+    SceneTree,
+    EditForms2D,
+    EditForms3D
   },
   setup() {
     const store = useStore()

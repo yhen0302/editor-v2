@@ -51,11 +51,10 @@ export default defineComponent({
       node.visible = !node.visible
 
       store.state.threeDimensionContainer.scene.children.forEach((c: any) => {
-        if (c.type === 'Group') {
+        if (c.traverse)
           c.traverse((gc: any) => {
             if (gc.uuid === node.id) gc.visible = node.visible
           })
-        }
       })
     }
 
