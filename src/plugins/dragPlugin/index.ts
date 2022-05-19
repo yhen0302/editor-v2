@@ -101,10 +101,38 @@ function watchRect(
   return watchStopSet
 }
 
+function stopWatchers(watchStopSet: Set<WatchStopHandle>) {
+  for (let watchStop of watchStopSet) {
+    watchStop()
+  }
+  watchStopSet.clear()
+}
+function clearWatcher(): void {
+  for (let watchStopSet of watcherTotalSet.values()) {
+    stopWatchers(watchStopSet)
+  }
+  watcherTotalSet.clear()
+}
+
+export function clearEl(): void {
+  activeEl.value.splice(0, activeEl.value.length)
+}
+
 const dragPlugin: Plugin = {
   install(app: App, option: Object) {
+    // function set
+    const keys = Object.keys(rectProperties)
+    keys.forEach((key) => {
+      app.config.globalProperties[
+        '$setDragPluginRect' + key[0].toUpperCase() + key.substring(1)
+      ] = function (val: number) {
+        rectProperties[key] = val
+      }
+    })
+
     // listenClearEvent()
     registryDragDirective()
+
     app.component(DragWrapper.name, DragWrapper)
 
     function parseBinding(binding: any) {
@@ -168,28 +196,10 @@ const dragPlugin: Plugin = {
             // 取消选中
             activeEl.value.splice(deleteIndex, 1)
           }
-
         }
       })
     }
   }
-}
-
-function stopWatchers(watchStopSet: Set<WatchStopHandle>) {
-  for (let watchStop of watchStopSet) {
-    watchStop()
-  }
-  watchStopSet.clear()
-}
-function clearWatcher(): void {
-  for (let watchStopSet of watcherTotalSet.values()) {
-    stopWatchers(watchStopSet)
-  }
-  watcherTotalSet.clear()
-}
-
-export function clearEl(): void {
-  activeEl.value.splice(0, activeEl.value.length)
 }
 
 export { activeEl, isCalculating }

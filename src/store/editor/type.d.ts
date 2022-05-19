@@ -43,7 +43,7 @@ export declare interface EditorStore {
   layerTree2d: LayerTree2dNode[]
   layerTree3d: TreeNode[]
   screenPageTree: ScreenNode[]
-  select2dNodes: LayerTree2dNode[]
+  select2dNodes: Set<LayerTree2dNode>
   artBoardConfig: {
     artBoardScale: number
     height: number

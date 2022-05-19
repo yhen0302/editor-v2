@@ -8,7 +8,13 @@ import {
   dragStartEventFn
 } from './drag'
 import { editElNameEventFn, enterOkEventFn, preventEventFn } from './edit'
+import store from '@/store'
+import { useMutation } from '../../store/helper'
 
+const editorMutation = useMutation(store, 'editor', [
+  'SELECT_2D_TREE_NODE',
+  'CANCEL_SELECT_2D_NODE'
+])
 export default (node, prefix, suffix, placeholder) => (
   <li
     className={`layer-item ${node.select ? 'select' : ''}`}
@@ -22,7 +28,9 @@ export default (node, prefix, suffix, placeholder) => (
     onDragendCapture={(ev) => dragEndEventFn(ev, node)}
     treenode={true}
     onClick={() => {
-      node.select = !node.select
+      node.select
+        ? editorMutation['CANCEL_SELECT_2D_NODE']({ node })
+        : editorMutation['SELECT_2D_TREE_NODE']({ node })
     }}
   >
     <div className="layer-item-prefix">

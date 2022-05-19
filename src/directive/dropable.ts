@@ -1,4 +1,4 @@
-import { DirectiveBinding, h, markRaw, nextTick, ref } from 'vue'
+import {DirectiveBinding, h, markRaw, nextTick, reactive, ref} from 'vue'
 import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
 import store from '@/store'
 import { useMutation, useState } from '@/store/helper'
@@ -49,7 +49,7 @@ export default {
         name: data.name+String(id++),
         id,
         type: data.type,
-        option: clone(data.option),
+        option: reactive(clone(data.option)),
         select: true,
         show: true
       }

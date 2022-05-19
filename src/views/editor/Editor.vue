@@ -1,5 +1,5 @@
 <template>
-  <div class="editor">
+  <div class="editor" >
     <!--  上方导航工具  -->
     <nav-bar></nav-bar>
     <!--  2d, 3d 切换  -->
@@ -154,7 +154,7 @@
               </ul>
             </template>
             <nav-tab-item>
-              <component :is="currentConfigurator"></component>
+              <component :is="GET_CONFIGURATOR"></component>
               <!--<axis-line-chart-configurator></axis-line-chart-configurator>-->
               <!--<text-configurator></text-configurator> -->
               <!--<shape-configurator></shape-configurator>-->
@@ -194,16 +194,17 @@ import DimensionNavBar from '@/views/editor/child/DimensionNavBar.vue'
 import SelectArea from '@/views/editor/child/SelectArea.vue'
 import ScreenPageTree from '@/views/editor/child/ScreenPageTree.vue'
 import { useStore } from 'vuex'
-import { useState } from '@/store/helper'
+import {useGetter, useState} from '@/store/helper'
 import ArtBoard3DContent from '@/views/editor/threeDimension/ArtBoard3DContent.vue'
 import ArtBoard2DContent from '@/views/editor/twoDimension/ArtBoard2DContent.vue'
 import { EditorStore } from '@/store/editor/type'
+import {EditorGetter} from "@/store/editor/getters";
 
 /* 编辑器 */
 export default defineComponent({
   name: 'Editor',
   data() {
-    return { testData: false }
+    return { testData: false}
   },
   components: {
     ArtBoard2DContent,
@@ -227,8 +228,9 @@ export default defineComponent({
     NavBar
   },
   setup() {
-    const sotre = useStore()
-    const editorStore = useState(sotre, 'editor') as EditorStore
+    const store = useStore()
+    const editorStore = useState(store, 'editor') as EditorStore
+    const editorGetter = useGetter(store,'editor',[EditorGetter.GET_CONFIGURATOR])
     // layer tree
     const layerTreeIndex: Ref<number> = ref<number>(0)
 
@@ -252,19 +254,6 @@ export default defineComponent({
     //property edit
     const propertyEditIndex: Ref<number> = ref<number>(0)
 
-    const currentConfigurator = computed(() => {
-      // 选择了多个
-      if (editorStore.layerTree2d.length > 1) {
-        // pass
-      } else if (editorStore.layerTree2d.length > 0) {
-        const node = editorStore.layerTree2d[0]
-        switch (node.type as string) {
-          case 'RectShape':
-            return 'ShapeConfigurator'
-        }
-      }
-      return ''
-    })
 
     return {
       layerTreeIndex,
@@ -273,7 +262,7 @@ export default defineComponent({
       hiddenControl,
       findHasFalseShowParentNode,
       editorStore,
-      currentConfigurator
+      ...editorGetter
     }
   }
 })
