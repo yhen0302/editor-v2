@@ -8,25 +8,37 @@
 import { defineComponent, ref } from 'vue'
 import { useStore } from 'vuex'
 import CameraForms3D from './editForms/CameraForms3D.vue'
+import GroupForms3D from './editForms/GroupForms3D.vue'
 import { EventsBus } from '@/core/EventsBus'
 
 export default defineComponent({
   name: 'EditForms3D',
   components: {
-    CameraForms3D
+    CameraForms3D,
+    GroupForms3D
   },
   setup() {
     const store = useStore()
     const type = ref('')
-    const node = ref([])
+    const node: any = ref(null)
 
+    // 选中元素
     EventsBus.on('treeSelected', (e: any) => {
       console.log('e.node.type', e.node)
 
+      if (!e.node.selected) {
+        type.value = ''
+        return
+      }
+
       // 展示编辑表单
       switch (e.node.type) {
-        case 'PerspectiveCamera':
+        case 'PerspectiveCamera': // todo 正交相机 墨卡托相机
           type.value = 'CameraForms3D'
+          node.value = e.node
+          break
+        case 'Group':
+          type.value = 'GroupForms3D'
           node.value = e.node
           break
       }

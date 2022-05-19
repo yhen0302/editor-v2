@@ -157,8 +157,7 @@ export default defineComponent({
 
 .forms {
   width: 272px;
-  height: 560px;
-  min-height: 560px;
+  height: calc(100% - 448px - 4px);
   background: #25262d;
 }
 </style>

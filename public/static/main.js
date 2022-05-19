@@ -92113,7 +92113,7 @@ void main() {
               float r = floor(hex / 65535.0);
               float g = floor((hex - r * 65535.0) / 255.0);
               float b = floor(hex - r * 65535.0 - g * 255.0);
-              float a = sign(depth) >= 0.0 ? 1.0 : 0.0; // depth大于等于0,为1.0;小于0,为0.0。
+              float a = sign(depth) >= 0.0 ? 1.0 : 0.0;
           
               gl_FragColor = vec4(r / 255.0, g / 255.0, b / 255.0, a);
             }
@@ -92255,23 +92255,29 @@ void main() {
 	    }
 	    set viewState(state) {
 	        this._viewState = state;
+	        this.orbitControls.enabled = false;
+	        this.firstPersonControls.enabled = false;
+	        this.mapControls.enabled = false;
 	        if (this._viewState == 'orbit') {
 	            this.renderPass.camera = this.orbitCamera;
 	            this.bokehPass.camera = this.orbitCamera;
 	            this.outlinePass.renderCamera = this.orbitCamera;
 	            this.ssaaPass.camera = this.orbitCamera;
+	            this.orbitControls.enabled = true;
 	        }
 	        else if (this._viewState == 'firstPerson') {
 	            this.renderPass.camera = this.firstPersonCamera;
 	            this.bokehPass.camera = this.firstPersonCamera;
 	            this.outlinePass.renderCamera = this.firstPersonCamera;
 	            this.ssaaPass.camera = this.firstPersonCamera;
+	            this.firstPersonControls.enabled = true;
 	        }
 	        else if (this._viewState == 'map') {
 	            this.renderPass.camera = this.mapCamera;
 	            this.bokehPass.camera = this.mapCamera;
 	            this.outlinePass.renderCamera = this.mapCamera;
 	            this.ssaaPass.camera = this.mapCamera;
+	            this.mapControls.enabled = true;
 	        }
 	    }
 	    initialize(attrs) {
@@ -92645,7 +92651,7 @@ void main() {
 	        }
 	        // camera controls bounds
 	        let bounds = {
-	            radius: 10000,
+	            radius: 1000000,
 	            center: [0, 0, 0]
 	        };
 	        if (attrs && attrs.bounds) {
@@ -92750,6 +92756,7 @@ void main() {
 	        this.orbitControls.autoRotateSpeed = orbit.autoRotateSpeed;
 	        this.orbitControls.enableDamping = orbit.enableDamping;
 	        this.orbitControls.dampingFactor = orbit.dampingFactor;
+	        this.orbitControls.enabled = this.viewState === 'orbit';
 	        this.antiShake = attrs && attrs.antiShake != undefined ? attrs.antiShake : true;
 	        this.orbitControls.addEventListener('start', () => {
 	            if (this.antiShake)
@@ -92777,6 +92784,7 @@ void main() {
 	        this.firstPersonControls.movementSpeed = firstPerson.movementSpeed; //相机移动速度
 	        this.firstPersonControls.lon = firstPerson.lon;
 	        this.firstPersonControls.lat = firstPerson.lat;
+	        this.firstPersonControls.enabled = this.viewState === 'firstPerson';
 	        // transform controls
 	        const self = this;
 	        this.transformControl = new TransformControls(this.orbitCamera, this.renderer.domElement);
@@ -92806,6 +92814,7 @@ void main() {
 	            minPitch: mapControls.minPitch,
 	            maxPitch: mapControls.maxPitch
 	        });
+	        this.mapControls.enabled = this.viewState === 'map';
 	        this.mapControls.addEventListener('change', (e) => {
 	            if (this.viewState != 'map')
 	                return;

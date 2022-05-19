@@ -1,5 +1,5 @@
 <template>
-  <div class="camera-forms-3d-main">
+  <div class="group-forms-3d-main">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
         <EditFormsNavItem :active="item.active" :name="item.name" :type="item.type" />
@@ -8,11 +8,11 @@
 
     <LineEl :color="'#363741'" />
 
-    <BaseTitle :value="'相机'" :height="48" :width="72" />
+    <BaseTitle :value="'Group'" :height="48" :width="72" />
 
     <LineEl :color="'#363741'" />
 
-    <div class="content camera">
+    <div class="content group">
       <div v-for="item in formSettings" :key="item" class="content-item">
         <div class="setting-item">
           <BaseTitle :value="item.name" :height="56" :width="72" :marginRight="8" />
@@ -40,7 +40,7 @@ import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 
 export default defineComponent({
-  name: 'CameraForms3D',
+  name: 'GroupForms3D',
   components: {
     LineEl,
     EditFormsNavItem,
@@ -63,19 +63,8 @@ export default defineComponent({
     // content settings
     const formSettings: any = ref([])
 
-    const cameraChanged = (event: any) => {
-      const { position, target } = event
-      formSettings.value.forEach((item: any) => {
-        if (item.type === 'position') {
-          item.settings[0].value = position[0]
-          item.settings[1].value = position[1]
-          item.settings[2].value = position[2]
-        } else if (item.type === 'target') {
-          item.settings[0].value = target[0]
-          item.settings[1].value = target[1]
-          item.settings[2].value = target[2]
-        }
-      })
+    const groupChanged = (event: any) => {
+      //
     }
 
     onMounted(() => {
@@ -104,69 +93,54 @@ export default defineComponent({
           ]
         },
         {
-          type: 'near',
-          name: 'near',
-          settings: [
-            {
-              value: options.near,
-              type: 'input'
-            }
-          ]
-        },
-        {
-          type: 'far',
-          name: 'far',
-          settings: [
-            {
-              value: options.far,
-              type: 'input'
-            }
-          ]
-        },
-        {
-          type: 'distance',
-          name: 'distance',
-          settings: [
-            {
-              name: 'MIN',
-              value: options.minDistance,
-              type: 'input'
-            },
-            {
-              name: 'MAX',
-              value: options.maxDistance,
-              type: 'input'
-            }
-          ]
-        },
-        {
-          type: 'target',
-          name: 'target',
+          type: 'rotation',
+          name: 'rotation',
           settings: [
             {
               name: 'X',
-              value: options.target[0],
+              value: options.rotation[0],
               type: 'input'
             },
             {
               name: 'Y',
-              value: options.target[1],
+              value: options.rotation[1],
               type: 'input'
             },
             {
               name: 'Z',
-              value: options.target[2],
+              value: options.rotation[2],
+              type: 'input'
+            }
+          ]
+        },
+        {
+          type: 'scale',
+          name: 'scale',
+          settings: [
+            {
+              name: 'X',
+              value: options.scale[0],
+              type: 'input'
+            },
+            {
+              name: 'Y',
+              value: options.scale[1],
+              type: 'input'
+            },
+            {
+              name: 'Z',
+              value: options.scale[2],
               type: 'input'
             }
           ]
         }
       ]
 
-      EventsBus.on('cameraChanged', cameraChanged)
+      EventsBus.on('groupChanged', groupChanged)
     })
 
     onUnmounted(() => {
-      EventsBus.off('cameraChanged', cameraChanged)
+      EventsBus.off('groupChanged', groupChanged)
     })
 
     return {
@@ -179,7 +153,7 @@ export default defineComponent({
 </script>
 
 <style lang="postcss" scoped>
-.camera-forms-3d-main {
+.group-forms-3d-main {
   @apply w-full h-full;
 }
 .header {

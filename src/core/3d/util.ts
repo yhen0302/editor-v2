@@ -11,6 +11,13 @@ export function parseModelNode(node: any, index: number, result: any) {
   result.type = node.type
   result.children = []
   result.options = {}
+  if (node.type === 'Group') {
+    result.options = {
+      position: [parseFloat(node.position.x.toFixed(4)), parseFloat(node.position.y.toFixed(4)), parseFloat(node.position.z.toFixed(4))],
+      rotation: [parseFloat(node.rotation.x.toFixed(4)), parseFloat(node.rotation.y.toFixed(4)), parseFloat(node.rotation.z.toFixed(4))],
+      scale: [parseFloat(node.scale.x.toFixed(4)), parseFloat(node.scale.y.toFixed(4)), parseFloat(node.scale.z.toFixed(4))]
+    }
+  }
   if (node.children.length > 0) {
     index++
     node.children.forEach((n: any) => {

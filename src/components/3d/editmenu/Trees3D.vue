@@ -36,6 +36,21 @@ export default defineComponent({
       e.node.selected = !flag
     })
 
+    /*************** 3d event start ***************/
+    // 相机改变
+    EventsBus.on('cameraChanged', (e: any) => {
+      const { position, target } = e
+
+      nodes.value.forEach((n: any) => {
+        if (n.type === 'PerspectiveCamera') {
+          n.options.position = position
+          n.options.target = target
+        }
+      })
+    })
+
+    /*************** 3d event end ***************/
+
     return {
       store,
       nodes

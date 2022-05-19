@@ -1,6 +1,6 @@
 <template>
   <div class="base-input-main" :style="{ width: widthPx, height: heightPx, marginRight: marginRightPx, marginLeft: marginLeftPx, marginTop: marginTopPx, marginBottom: marginBottomPx }">
-    <div class="title" v-if="name">
+    <div class="title" v-if="name" :style="{ width: name ? name.length * 16 + 'px' : '0', height: '16px' }">
       <p>{{ name }}</p>
     </div>
     <div class="val-input">
@@ -42,9 +42,10 @@ export default defineComponent({
   border-radius: 2px;
   @apply flex items-center;
 }
+
 .title {
   margin-left: 8px;
-  @apply flex items-center justify-center w-16 h-16;
+  @apply flex items-center justify-center;
 }
 .title p {
   font-size: 12px;

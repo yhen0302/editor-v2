@@ -24,8 +24,13 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         fov: 60
       }
     },
+    controls: {
+      orbitControls: {
+        enableDamping: false
+      }
+    },
     onProgress: (model: any) => {
-      const node = {}
+      const node: any = {}
       const index = 0
       // 3d模板 存入缓存
       parseModelNode(model, index, node)
@@ -42,12 +47,12 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         camera = evt.orbitCamera
         controls = evt.orbitControls
         options = {
-          position: [camera.position.x, camera.position.y, camera.position.z],
+          position: [parseFloat(camera.position.x.toFixed(4)), parseFloat(camera.position.y.toFixed(4)), parseFloat(camera.position.z.toFixed(4))],
           near: camera.near,
           far: camera.far,
           minDistance: controls.minDistance,
           maxDistance: controls.maxDistance,
-          target: [controls.target.x, controls.target.y, controls.target.z]
+          target: [parseFloat(controls.target.x.toFixed(4)), parseFloat(controls.target.y.toFixed(4)), parseFloat(controls.target.z.toFixed(4))]
         }
       } else if (evt.viewState === 'firstPerson') {
         camera = evt.firstPersonCamera
@@ -73,6 +78,28 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       EventsBus.emit('sceneLoaded', {
         type: '3d',
         container: evt
+      })
+
+      // 相机事件
+      let controlsFlag = false
+      controls.addEventListener('start', () => {
+        controlsFlag = true
+      })
+      controls.addEventListener('end', () => {
+        controlsFlag = false
+      })
+      controls.addEventListener('change', (event: any) => {
+        if (controlsFlag) {
+          const t = event.target
+          const { target, object } = t
+          const { position } = object
+
+          // 相机状态变化
+          EventsBus.emit('cameraChanged', {
+            position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))],
+            target: [parseFloat(target.x.toFixed(4)), parseFloat(target.y.toFixed(4)), parseFloat(target.z.toFixed(4))]
+          })
+        }
       })
     }
     // bgColor: 0x333333,
