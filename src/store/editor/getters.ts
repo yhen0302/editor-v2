@@ -22,8 +22,13 @@ export default {
       const iterator = store.select2dNodes.values()
       const node = iterator.next()
       switch (node.value.type as string) {
+        case 'TriangleShape':
+        case 'CircleShape':
+        case 'RoundedRectShape':
         case 'RectShape':
           return 'ShapeConfigurator'
+        case 'ImageMedia':
+          return 'MediaConfigurator'
       }
     }
     return ''

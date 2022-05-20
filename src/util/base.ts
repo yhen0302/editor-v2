@@ -3,10 +3,15 @@ import { ECBasicOption } from 'echarts/types/dist/shared'
 
 const fillZero = (num = '', length = 0) => {
   const numStr: string = num.toString()
-  return numStr.length < length ? '0'.repeat(length - numStr.length) + numStr : numStr
+  return numStr.length < length
+    ? '0'.repeat(length - numStr.length) + numStr
+    : numStr
 }
 
-export function formatterDate(formatter = 'yyyy-MM-dd hh:mm:ss', date = new Date()) {
+export function formatterDate(
+  formatter = 'yyyy-MM-dd hh:mm:ss',
+  date = new Date()
+) {
   const formatterObj = {
     'y+': date.getFullYear(),
     'M+': date.getMonth() + 1,
@@ -19,9 +24,12 @@ export function formatterDate(formatter = 'yyyy-MM-dd hh:mm:ss', date = new Date
 
   Object.keys(formatterObj).forEach((regKey) => {
     res = res.replace(new RegExp(regKey), (...args) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore
-      return fillZero(formatterObj[regKey].toString().substr(0, args[0].length), args[0].length)
+      return fillZero(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        formatterObj[regKey].toString().substr(0, args[0].length),
+        args[0].length
+      )
     })
   })
 
@@ -52,7 +60,10 @@ export function toPx(target: number | PxTargetObject): string | PxTargetObject {
   }
 }
 
-export function getCss(el: HTMLElement | null, css: keyof CSSStyleDeclaration): CSSStyleDeclaration[keyof CSSStyleDeclaration] {
+export function getCss(
+  el: HTMLElement | null,
+  css: keyof CSSStyleDeclaration
+): CSSStyleDeclaration[keyof CSSStyleDeclaration] {
   return el && window.getComputedStyle(el)[css]
 }
 
@@ -73,7 +84,10 @@ export function getChartUrl<Opt extends ECBasicOption>(option: Opt) {
   div.style.height = '160px'
 
   const chart = echarts.init(div)
-  chart.setOption({ animation: false, grid: { left: 30, top: 15, right: 10, bottom: 30 } })
+  chart.setOption({
+    animation: false,
+    grid: { left: 30, top: 15, right: 10, bottom: 30 }
+  })
   chart.setOption(option)
 
   return chart.getConnectedDataURL({ type: 'png' })
@@ -101,9 +115,19 @@ export function clone<T extends Object>(object: T, deep = true): T {
     const newObj = new object.constructor()
 
     for (const key of Object.keys(object)) {
-      newObj[key] = deep ? clone(object[key as keyof typeof object], deep) : object[key as keyof typeof object]
+      newObj[key] = deep
+        ? clone(object[key as keyof typeof object], deep)
+        : object[key as keyof typeof object]
     }
 
     return newObj
   } else return object // 基本数据类型
+}
+
+export function hexColorToRgba(hexColor: string, opacity: number) {
+  const hexColorReg = /^#([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})$/g
+  const matchRes = hexColorReg.exec(hexColor) as RegExpExecArray
+  return `rgba(${Number('0x' + matchRes[1])},${Number(
+    '0x' + matchRes[2]
+  )},${Number('0x' + matchRes[3])},${(opacity / 100).toFixed(2)})`
 }

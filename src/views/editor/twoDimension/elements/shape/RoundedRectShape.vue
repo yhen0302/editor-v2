@@ -1,10 +1,10 @@
 <template>
   <div
-    class="rect-shape pointer-events-auto absolute"
-    @click.stop
-    draggable="false"
-    v-drag="{ rect: node.option.matrixOption, select: node.select }"
-    :style="{
+      class="rounded-rect-shape pointer-events-auto absolute"
+      @click.stop
+      draggable="false"
+      v-drag="{ rect: node.option.matrixOption, select: node.select }"
+      :style="{
       width,
       height,
       left,
@@ -12,8 +12,8 @@
       backgroundColor: color,
       opacity
     }"
-    @mousedown="onMouseDown"
-    ref="el"
+      @mousedown="onMouseDown"
+      ref="el"
   ></div>
 </template>
 
@@ -25,7 +25,7 @@ import { useMutation, useState } from '@/store/helper'
 import { EditorMutation } from '@/store/editor/mutations'
 
 export default {
-  name: 'RectShape',
+  name: 'RoundedRectShape',
   props: ['node'],
   emits: ['select', 'append'],
   setup(props: any) {
@@ -40,8 +40,8 @@ export default {
     const top = computed(() => toPx(props.node.option.matrixOption.top))
     const color = computed(() => {
       return hexColorToRgba(
-        props.node.option.transparencyColor.color,
-        props.node.option.transparencyColor.transparency
+          props.node.option.transparencyColor.color,
+          props.node.option.transparencyColor.transparency
       )
     })
     const opacity = computed(() => {
@@ -73,4 +73,8 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.rounded-rect-shape{
+  border-radius: 10%;
+}
+</style>

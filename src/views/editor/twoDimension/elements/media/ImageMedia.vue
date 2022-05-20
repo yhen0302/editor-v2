@@ -1,6 +1,6 @@
 <template>
-  <div
-    class="rect-shape pointer-events-auto absolute"
+  <img
+    class="image-media pointer-events-auto absolute"
     @click.stop
     draggable="false"
     v-drag="{ rect: node.option.matrixOption, select: node.select }"
@@ -9,12 +9,11 @@
       height,
       left,
       top,
-      backgroundColor: color,
-      opacity
     }"
+    dragable="false"
     @mousedown="onMouseDown"
     ref="el"
-  ></div>
+  />
 </template>
 
 <script lang="ts">
@@ -38,22 +37,11 @@ export default {
     const height = computed(() => toPx(props.node.option.matrixOption.height))
     const left = computed(() => toPx(props.node.option.matrixOption.left))
     const top = computed(() => toPx(props.node.option.matrixOption.top))
-    const color = computed(() => {
-      return hexColorToRgba(
-        props.node.option.transparencyColor.color,
-        props.node.option.transparencyColor.transparency
-      )
-    })
-    const opacity = computed(() => {
-      return (props.node.option.transparency / 100).toFixed(2)
-    })
     return {
       width,
       height,
       left,
       top,
-      color,
-      opacity
     }
   },
   mounted() {},

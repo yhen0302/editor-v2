@@ -9,16 +9,12 @@
         <div class="base-p-c-content-box flex flex-col">
           <div class="base-p-c-c-content flex position items-center">
             <p class="text-12 config-pre">位置</p>
-            <input-el type="number" class="inp-wrap" v-model:value="GET_SELECT_NODE.option.matrixOption.left">
+            <input-el type="number" class="inp-wrap" v-model:value="left">
               <template #prefix
                 ><span class="inp-suffix text-12">X</span></template
               >
             </input-el>
-            <input-el
-              type="number"
-              class="inp-wrap"
-              v-model:value="GET_SELECT_NODE.option.matrixOption.top"
-            >
+            <input-el type="number" class="inp-wrap" v-model:value="top">
               <template #prefix
                 ><span class="inp-suffix text-12">Y</span></template
               >
@@ -26,20 +22,12 @@
           </div>
           <div class="base-p-c-c-content flex size items-center">
             <p class="text-12 config-pre">尺寸</p>
-            <input-el
-              type="number"
-              class="inp-wrap"
-              v-model:value="GET_SELECT_NODE.option.matrixOption.width"
-            >
+            <input-el type="number" class="inp-wrap" v-model:value="width">
               <template #prefix
                 ><span class="inp-suffix text-12">W</span></template
               >
             </input-el>
-            <input-el
-              type="number"
-              class="inp-wrap"
-              v-model:value="GET_SELECT_NODE.option.matrixOption.height"
-            >
+            <input-el type="number" class="inp-wrap" v-model:value="height">
               <template #prefix
                 ><span class="inp-suffix text-12">H</span></template
               >
@@ -75,12 +63,21 @@ export default {
   setup() {
     const store = useStore()
     const editorGetters = useGetter(store, 'editor', ['GET_SELECT_NODE'])
+    const computedFns = { left: '', top: '', width: '', height: '' }
+    Object.keys(computedFns).map((key) => {
+      computedFns[key] = computed({
+        get() {
+          return editorGetters['GET_SELECT_NODE'].value.option.matrixOption[key]
+        },
+        set(val) {
+          editorGetters['GET_SELECT_NODE'].value.option.matrixOption[key] = val
+        }
+      })
+    })
 
     return {
       ...editorGetters,
-      // top,
-      // width,
-      // height
+      ...computedFns
     }
   }
 }
