@@ -1,4 +1,4 @@
-import { moduleState, MutationsMapper } from './index'
+import {GetterMapper, moduleState, MutationsMapper} from './index'
 import {mapGetters, mapMutations, MutationMethod, Store} from 'vuex'
 import {computed, ComputedRef} from 'vue'
 
@@ -9,7 +9,7 @@ export function useState(store: Store<any>, namespace: moduleState) {
 
 export function useMutation<K extends keyof MutationsMapper, T extends MutationsMapper[K]>(store: Store<any>, namespace: K, mutationList: Array<keyof T>): { [key in keyof T]: MutationMethod } {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore8
+  //@ts-ignore
   const mutations = mapMutations('editor', mutationList)
 
   for (const key of Object.keys(mutations)) {
@@ -22,7 +22,8 @@ export function useMutation<K extends keyof MutationsMapper, T extends Mutations
 
 
 
-export function useGetter<K extends keyof MutationsMapper, T extends MutationsMapper[K]>(store: Store<any>, namespace: string, getterList: "GET_CONFIGURATOR"[]): { [key in keyof T]: ComputedRef<any> } {
+export function useGetter<K extends keyof GetterMapper, T extends GetterMapper[K]>(store: Store<any>, namespace: string, getterList: Array<keyof T>): { [key in keyof T]: ComputedRef<any> } {
+  // @ts-ignore
   const storeGettersFns = mapGetters(namespace,getterList);
 
   // 对数据进行转换

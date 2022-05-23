@@ -22,6 +22,7 @@ export interface MutationsMapper{
   global: GlobalMutationsI,
 }
 
+
 export interface GetterMapper {
   editor:EditorGetterI
 }

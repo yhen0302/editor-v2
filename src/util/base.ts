@@ -131,3 +131,8 @@ export function hexColorToRgba(hexColor: string, opacity: number) {
     '0x' + matchRes[2]
   )},${Number('0x' + matchRes[3])},${(opacity / 100).toFixed(2)})`
 }
+
+export function fileToBlobUrl(file: File) {
+  return URL.createObjectURL(file)
+}
+

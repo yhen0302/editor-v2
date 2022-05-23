@@ -199,7 +199,18 @@ export const selectData: Record<
       {
         icon: require('@/assets/images/editor_media_video_btn_dark.png'),
         name: '视频',
-        type: 'video'
+        type: 'VideoMedia',
+        option: {
+          matrixOption: {
+            left: 0,
+            top: 0,
+            height: 100,
+            width: 200,
+            angle: 0
+          },
+          src: ''
+        }
+
       },
       {
         icon: require('@/assets/images/editor_media_picture_btn_dark.png'),

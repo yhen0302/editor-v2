@@ -28,6 +28,7 @@ export default {
         case 'RectShape':
           return 'ShapeConfigurator'
         case 'ImageMedia':
+        case 'VideoMedia':
           return 'MediaConfigurator'
       }
     }

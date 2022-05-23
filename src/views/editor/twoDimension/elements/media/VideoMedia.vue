@@ -1,23 +1,25 @@
 <template>
   <div
-    class="image-media-wrap"
-    :style="{
+      class="image-media-wrap"
+      :style="{
       width,
       height,
       left,
       top
     }"
-    ref="el"
-    @mousedown="onMouseDown"
-    @click.stop
-    v-drag="{ rect: node.option.matrixOption, select: node.select }"
-    draggable="false"
-  >
-    <img
-      class="image-media pointer-events-auto absolute"
+      ref="el"
+      @mousedown="onMouseDown"
+      @click.stop
+      v-drag="{ rect: node.option.matrixOption, select: node.select }"
       draggable="false"
-      :src="src"
-      v-if="src"
+  >
+    <video
+        class="video-media pointer-events-auto absolute"
+        draggable="false"
+        autoplay
+        loop
+        :src="src"
+        v-if="src"
     />
     <div class="img-placeholder" v-else></div>
   </div>
@@ -31,7 +33,7 @@ import { useMutation, useState } from '@/store/helper'
 import { EditorMutation } from '@/store/editor/mutations'
 
 export default {
-  name: 'ImageMedia',
+  name: 'VideoMedia',
   props: ['node'],
   emits: ['select', 'append'],
   setup(props: any) {
@@ -53,7 +55,6 @@ export default {
       src
     }
   },
-  mounted() {},
   methods: {
     onMouseDown(ev: MouseEvent) {
       // @ts-ignore
@@ -75,7 +76,7 @@ export default {
   position: absolute;
   pointer-events: auto;
 }
-.image-media{
+.video-media{
   width: 100%;
   height: 100%;
   object-fit: fill;
