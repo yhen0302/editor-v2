@@ -39,12 +39,40 @@ export default defineComponent({
     /*************** 3d event start ***************/
     // 相机改变
     EventsBus.on('cameraChanged', (e: any) => {
-      const { position, target } = e
+      const { position } = e
 
       nodes.value.forEach((n: any) => {
         if (n.type === 'PerspectiveCamera') {
           n.options.position = position
-          n.options.target = target
+        }
+      })
+    })
+
+    // 相机表单改变
+    EventsBus.on('cameraInputChanged', (e: any) => {
+      const { node } = e
+
+      nodes.value.forEach((n: any) => {
+        if (n.type === 'PerspectiveCamera') {
+          console.log('node', node)
+
+          node.forEach((c: any) => {
+            if (c.name === 'position') {
+              n.options.position = [c.settings[0].value, c.settings[1].value, c.settings[2].value]
+            } else if (c.name === 'near') {
+              n.options.near = c.settings[0].value
+            } else if (c.name === 'far') {
+              n.options.far = c.settings[0].value
+            } else if (c.name === 'fov') {
+              n.options.fov = c.settings[0].value
+            } else if (c.name === 'distance') {
+              n.options.minDistance = c.settings[0].value
+              n.options.maxDistance = c.settings[1].value
+            } else if (c.name === 'angle') {
+              n.options.minPolarAngle = c.settings[0].value
+              n.options.maxPolarAngle = c.settings[1].value
+            }
+          })
         }
       })
     })

@@ -4,7 +4,7 @@
       <p>{{ name }}</p>
     </div>
     <div class="val-input">
-      <input :value="value" />
+      <input :value="value" @change="change(target)" />
     </div>
   </div>
 </template>
@@ -14,7 +14,7 @@ import { computed, defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'BaseInput',
-  props: ['name', 'value', 'width', 'height', 'marginRight', 'marginLeft', 'marginTop', 'marginBottom'],
+  props: ['name', 'value', 'width', 'height', 'marginRight', 'marginLeft', 'marginTop', 'marginBottom', 'change', 'target'],
   components: {},
   setup(props: any) {
     const widthPx = computed(() => props.width + 'px')

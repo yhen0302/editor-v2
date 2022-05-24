@@ -50,9 +50,11 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
           position: [parseFloat(camera.position.x.toFixed(4)), parseFloat(camera.position.y.toFixed(4)), parseFloat(camera.position.z.toFixed(4))],
           near: camera.near,
           far: camera.far,
+          fov: camera.fov,
           minDistance: controls.minDistance,
           maxDistance: controls.maxDistance,
-          target: [parseFloat(controls.target.x.toFixed(4)), parseFloat(controls.target.y.toFixed(4)), parseFloat(controls.target.z.toFixed(4))]
+          minPolarAngle: (controls.minPolarAngle * 180) / Math.PI,
+          maxPolarAngle: (controls.maxPolarAngle * 180) / Math.PI
         }
       } else if (evt.viewState === 'firstPerson') {
         camera = evt.firstPersonCamera

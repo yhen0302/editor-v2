@@ -20,7 +20,18 @@
 
         <div class="setting-item">
           <div v-for="setting in item.settings" :key="setting" class="setting">
-            <BaseInput v-if="setting.type === 'input'" :name="setting.name" :value="setting.value" :width="100" :height="32" :marginRight="4" :marginTop="12" :marginBottom="0" />
+            <BaseInput
+              v-if="setting.type === 'input'"
+              :target="setting"
+              :change="inputChange"
+              :name="setting.name"
+              :value="setting.value"
+              :width="100"
+              :height="32"
+              :marginRight="4"
+              :marginTop="12"
+              :marginBottom="0"
+            />
           </div>
         </div>
 
@@ -67,70 +78,85 @@ export default defineComponent({
       //
     }
 
+    let currentObj: any
+
     onMounted(() => {
-      const { type, options } = props.node
+      const { type, options, id } = props.node
+
+      const threeDimensionContainer = store.state.threeDimensionContainer
+
+      threeDimensionContainer.scene.traverse((c: any) => {
+        if (c.uuid == id) currentObj = c
+      })
+
       // 展示编辑表单
       formSettings.value = [
         {
-          type: 'position',
           name: 'position',
           settings: [
             {
               name: 'X',
               value: options.position[0],
-              type: 'input'
+              type: 'input',
+              root: 'position'
             },
             {
               name: 'Y',
               value: options.position[1],
-              type: 'input'
+              type: 'input',
+              root: 'position'
             },
             {
               name: 'Z',
               value: options.position[2],
-              type: 'input'
+              type: 'input',
+              root: 'position'
             }
           ]
         },
         {
-          type: 'rotation',
           name: 'rotation',
           settings: [
             {
               name: 'X',
-              value: options.rotation[0],
-              type: 'input'
+              value: (options.rotation[0] * 180) / Math.PI,
+              type: 'input',
+              root: 'rotation'
             },
             {
               name: 'Y',
-              value: options.rotation[1],
-              type: 'input'
+              value: (options.rotation[1] * 180) / Math.PI,
+              type: 'input',
+              root: 'rotation'
             },
             {
               name: 'Z',
-              value: options.rotation[2],
-              type: 'input'
+              value: (options.rotation[2] * 180) / Math.PI,
+              type: 'input',
+              root: 'rotation'
             }
           ]
         },
         {
-          type: 'scale',
           name: 'scale',
           settings: [
             {
               name: 'X',
               value: options.scale[0],
-              type: 'input'
+              type: 'input',
+              root: 'scale'
             },
             {
               name: 'Y',
               value: options.scale[1],
-              type: 'input'
+              type: 'input',
+              root: 'scale'
             },
             {
               name: 'Z',
               value: options.scale[2],
-              type: 'input'
+              type: 'input',
+              root: 'scale'
             }
           ]
         }
@@ -143,10 +169,47 @@ export default defineComponent({
       EventsBus.off('groupChanged', groupChanged)
     })
 
+    const inputChange = (setting: any) => {
+      const e = event as any
+
+      const val = e.target.value
+      if (isNaN(val)) return
+
+      const { name, root } = setting
+      setting.value = parseFloat(val)
+
+      if (root === 'position') {
+        if (name === 'X') {
+          currentObj.position.x = parseFloat(val)
+        } else if (name === 'Y') {
+          currentObj.position.y = parseFloat(val)
+        } else if (name === 'Z') {
+          currentObj.position.z = parseFloat(val)
+        }
+      } else if (root === 'rotation') {
+        if (name === 'X') {
+          currentObj.rotation.x = (parseFloat(val) * Math.PI) / 180
+        } else if (name === 'Y') {
+          currentObj.rotation.y = (parseFloat(val) * Math.PI) / 180
+        } else if (name === 'Z') {
+          currentObj.rotation.z = (parseFloat(val) * Math.PI) / 180
+        }
+      } else if (root === 'scale') {
+        if (name === 'X') {
+          currentObj.scale.x = parseFloat(val)
+        } else if (name === 'Y') {
+          currentObj.scale.y = parseFloat(val)
+        } else if (name === 'Z') {
+          currentObj.scale.z = parseFloat(val)
+        }
+      }
+    }
+
     return {
       store,
       headerItems,
-      formSettings
+      formSettings,
+      inputChange
     }
   }
 })

@@ -1,6 +1,6 @@
 <template>
   <div class="edit-forms-3d-main">
-    <component :is="type" v-if="type != ''" :node="node" />
+    <component :is="type" v-if="type != ''" :node="node" :key="new Date().getTime()" />
   </div>
 </template>
 
