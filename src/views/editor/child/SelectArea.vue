@@ -24,7 +24,7 @@
                 <img :src="item.icon" class="select-detail-sub-icon flex-shrink-0" draggable="false"
                      v-if="item.children"/>
                 <img :src="item.icon" class="select-detail-sub-icon flex-shrink-0" v-dragable="item" v-else/>
-                <p class="select-detail-name text-12 text-gray-light">{{ item.name }}</p>
+                <p class="select-detail-name select-none text-12 text-gray-light">{{ item.name }}</p>
               </li>
             </ul>
             <ul class="select-detail-list-l grid grid-cols-1 box-border p-16" v-once

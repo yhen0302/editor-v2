@@ -4,6 +4,7 @@ import CircleShape from './shape/CircleShape.vue'
 import TriangleShape from './shape/TriangleShape.vue'
 import ImageMedia from './media/ImageMedia.vue'
 import VideoMedia from './media/VideoMedia.vue'
+import BigTitle from './text/BigTitle.vue'
 
 import { App } from 'vue'
 
@@ -15,6 +16,8 @@ export default {
     app.component('TriangleShape', TriangleShape)
     app.component('ImageMedia', ImageMedia)
     app.component('VideoMedia', VideoMedia)
+    app.component('BigTitle', BigTitle)
+
   }
 }
 

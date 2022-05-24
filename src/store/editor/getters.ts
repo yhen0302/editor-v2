@@ -30,6 +30,11 @@ export default {
         case 'ImageMedia':
         case 'VideoMedia':
           return 'MediaConfigurator'
+        case 'BigTitle':
+        case 'SmallTitle':
+        case 'BaseTitle':
+        case 'TextContent':
+          return 'TextConfigurator'
       }
     }
     return ''

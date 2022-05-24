@@ -56,7 +56,6 @@ export default {
       opacity
     }
   },
-  mounted() {},
   methods: {
     onMouseDown(ev: MouseEvent) {
       // @ts-ignore

@@ -9,6 +9,8 @@ import {
 import { getChartUrl } from '@/util/base'
 import RectShape from '@/views/editor/twoDimension/elements/shape/RectShape.vue'
 import { RectShapeProps } from '@/views/editor/twoDimension/elements/shape/RectShapeProps'
+import { TextAlignOption } from '@/views/editor/twoDimension/elements/option'
+import { fontType } from '@/views/editor/type'
 
 export const selectBarList2d: Array<SelectBarItem> = [
   {
@@ -81,7 +83,28 @@ export const selectData: Record<
       {
         icon: require('@/assets/images/editor_text_bigtitle_btn_dark.png'),
         name: '大标题',
-        type: 'bigTitle'
+        type: 'BigTitle',
+        option: {
+          matrixOption: {
+            left: 0,
+            top: 0,
+            height: 100,
+            width: 200,
+            angle: 0
+          },
+          transparency: 100,
+          transparencyColor: { color: '', transparency: 100 },
+          value: 'Hello World',
+          contentEditable: false,
+          textOption: {
+            color: '#FFFFFF',
+            fontFamily: 'microsoft YaHei',
+            fontSize: 21,
+            fontStyle: [],
+            align: 'left',
+            verticalAlign: 'center'
+          } as TextAlignOption
+        }
       },
       {
         icon: require('@/assets/images/editor_text_smalltitle_btn_dark.png'),
@@ -210,7 +233,6 @@ export const selectData: Record<
           },
           src: ''
         }
-
       },
       {
         icon: require('@/assets/images/editor_media_picture_btn_dark.png'),

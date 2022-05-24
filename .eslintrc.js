@@ -1,4 +1,7 @@
 module.exports = {
+  globals: {
+    IS_EDITOR:true,
+  },
   root: true,
   env: {
     node: true

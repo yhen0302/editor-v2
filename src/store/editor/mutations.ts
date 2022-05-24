@@ -74,12 +74,14 @@ export default {
     { node }: { node: LayerTree2dNode }
   ) {
     node.select = false
+    if (node.contentEditable) node.contentEditable = false
     state.select2dNodes.delete(node)
   },
 
   [EditorMutation.CLEAR_SELECT_2D_NODES](state: EditorStore) {
     state.select2dNodes.forEach((node) => {
       node.select = false
+      if (node.contentEditable) node.contentEditable = false
     })
     state.select2dNodes.clear()
   },

@@ -127,6 +127,7 @@ export function clone<T extends Object>(object: T, deep = true): T {
 export function hexColorToRgba(hexColor: string, opacity: number) {
   const hexColorReg = /^#([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})$/g
   const matchRes = hexColorReg.exec(hexColor) as RegExpExecArray
+  if (!matchRes) return 'transparent'
   return `rgba(${Number('0x' + matchRes[1])},${Number(
     '0x' + matchRes[2]
   )},${Number('0x' + matchRes[3])},${(opacity / 100).toFixed(2)})`
@@ -135,4 +136,3 @@ export function hexColorToRgba(hexColor: string, opacity: number) {
 export function fileToBlobUrl(file: File) {
   return URL.createObjectURL(file)
 }
-

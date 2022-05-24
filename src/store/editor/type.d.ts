@@ -24,6 +24,7 @@ export interface LayerTree2dNode extends TreeNode {
   type: dimensionSelectBarType2d | 'group'
   subType?: selectItemType2d
   option: any
+  contentEditable?:boolean
   select: boolean
   children?: LayerTree2dNode[]
 }

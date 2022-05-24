@@ -6,7 +6,7 @@
           <upload-el @update="onUpdate" :type-verification="typeVerification">
             <template #upload-content>
               <div class="relative w-full h-full flex-1" v-if="src">
-                <img :src="src" v-if="viewType === 'ImageMedia'" />
+                <img :src="src" v-if="viewType === 'ImageMedia'" class="w-full h-full"/>
                 <video class="upload-placeholder absolute" v-else :src="src" />
               </div>
             </template>

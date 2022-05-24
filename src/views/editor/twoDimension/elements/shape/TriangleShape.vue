@@ -1,10 +1,10 @@
 <template>
   <div
-      class="triangle-shape pointer-events-auto absolute"
-      @click.stop
-      draggable="false"
-      v-drag="{ rect: node.option.matrixOption, select: node.select }"
-      :style="{
+    class="triangle-shape pointer-events-auto absolute"
+    @click.stop
+    draggable="false"
+    v-drag="{ rect: node.option.matrixOption, select: node.select }"
+    :style="{
       width,
       height,
       left,
@@ -12,8 +12,8 @@
       backgroundColor: color,
       opacity
     }"
-      @mousedown="onMouseDown"
-      ref="el"
+    @mousedown="onMouseDown"
+    ref="el"
   ></div>
 </template>
 
@@ -34,19 +34,22 @@ export default {
     const mutation = useMutation(store, 'editor', [
       EditorMutation.SELECT_2D_TREE_NODE
     ])
+    // matrix
     const width = computed(() => toPx(props.node.option.matrixOption.width))
     const height = computed(() => toPx(props.node.option.matrixOption.height))
     const left = computed(() => toPx(props.node.option.matrixOption.left))
     const top = computed(() => toPx(props.node.option.matrixOption.top))
+    // exterior
     const color = computed(() => {
       return hexColorToRgba(
-          props.node.option.transparencyColor.color,
-          props.node.option.transparencyColor.transparency
+        props.node.option.transparencyColor.color,
+        props.node.option.transparencyColor.transparency
       )
     })
     const opacity = computed(() => {
       return (props.node.option.transparency / 100).toFixed(2)
     })
+
     return {
       width,
       height,
@@ -74,7 +77,7 @@ export default {
 </script>
 
 <style scoped>
-.triangle-shape{
+.triangle-shape {
   clip-path: polygon(0 0, 0% 100%, 100% 100%);
 }
 </style>
