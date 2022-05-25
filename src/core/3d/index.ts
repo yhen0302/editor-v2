@@ -65,7 +65,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       }
 
       const cameraNode = {
-        id: camera.uuid,
+        uuid: camera.uuid,
         name: 'Camera',
         selected: false,
         index: 0,
@@ -94,12 +94,13 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         if (controlsFlag) {
           const t = event.target
           const { target, object } = t
-          const { position } = object
+          const { position, uuid } = object
 
           // 相机状态变化
           EventsBus.emit('cameraChanged', {
             position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))],
-            target: [parseFloat(target.x.toFixed(4)), parseFloat(target.y.toFixed(4)), parseFloat(target.z.toFixed(4))]
+            target: [parseFloat(target.x.toFixed(4)), parseFloat(target.y.toFixed(4)), parseFloat(target.z.toFixed(4))],
+            uuid
           })
         }
       })

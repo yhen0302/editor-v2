@@ -1,5 +1,5 @@
 <template>
-  <div class="camera-forms-3d-main">
+  <div class="object-forms-3d-main">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
         <EditFormsNavItem :active="item.active" :name="item.name" :type="item.type" />
@@ -8,11 +8,11 @@
 
     <LineEl :color="'#363741'" />
 
-    <BaseTitle :value="'相机'" :height="48" :width="72" />
+    <BaseTitle :value="'Object3D'" :height="48" :width="72" />
 
     <LineEl :color="'#363741'" />
 
-    <div class="content camera">
+    <div class="content object">
       <div v-for="item in formSettings" :key="item" class="content-item">
         <div class="setting-item">
           <BaseTitle :value="item.name" :height="56" :width="72" :marginRight="8" />
@@ -51,7 +51,7 @@ import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 
 export default defineComponent({
-  name: 'CameraForms3D',
+  name: 'ObjectForms3D',
   components: {
     LineEl,
     EditFormsNavItem,
@@ -74,19 +74,20 @@ export default defineComponent({
     // content settings
     const formSettings: any = ref([])
 
-    const cameraChanged = (event: any) => {
-      const { position } = event
-      formSettings.value.forEach((item: any) => {
-        if (item.name === 'position') {
-          item.settings[0].value = position[0]
-          item.settings[1].value = position[1]
-          item.settings[2].value = position[2]
-        }
-      })
+    const object3DChanged = (event: any) => {
+      //
     }
 
+    let currentObj: any
+
     onMounted(() => {
-      const { type, options } = props.node
+      const { type, options, uuid } = props.node
+
+      const threeDimensionContainer = store.state.threeDimensionContainer
+
+      threeDimensionContainer.scene.traverse((c: any) => {
+        if (c.uuid == uuid) currentObj = c
+      })
 
       // 展示编辑表单
       formSettings.value = [
@@ -114,132 +115,97 @@ export default defineComponent({
           ]
         },
         {
-          name: 'fov',
+          name: 'rotation',
           settings: [
             {
-              value: options.fov,
+              name: 'X',
+              value: options.rotation[0],
               type: 'input',
-              root: 'fov'
-            }
-          ]
-        },
-        {
-          name: 'near',
-          settings: [
-            {
-              value: options.near,
-              type: 'input',
-              root: 'near'
-            }
-          ]
-        },
-        {
-          name: 'far',
-          settings: [
-            {
-              value: options.far,
-              type: 'input',
-              root: 'far'
-            }
-          ]
-        },
-        {
-          name: 'distance',
-          settings: [
-            {
-              name: 'MIN',
-              value: options.minDistance,
-              type: 'input',
-              root: 'distance'
+              root: 'rotation'
             },
             {
-              name: 'MAX',
-              value: options.maxDistance,
+              name: 'Y',
+              value: options.rotation[1],
               type: 'input',
-              root: 'distance'
+              root: 'rotation'
+            },
+            {
+              name: 'Z',
+              value: options.rotation[2],
+              type: 'input',
+              root: 'rotation'
             }
           ]
         },
         {
-          name: 'angle',
+          name: 'scale',
           settings: [
             {
-              name: 'MIN',
-              value: options.minPolarAngle,
+              name: 'X',
+              value: options.scale[0],
               type: 'input',
-              root: 'angle'
+              root: 'scale'
             },
             {
-              name: 'MAX',
-              value: options.maxPolarAngle,
+              name: 'Y',
+              value: options.scale[1],
               type: 'input',
-              root: 'angle'
+              root: 'scale'
+            },
+            {
+              name: 'Z',
+              value: options.scale[2],
+              type: 'input',
+              root: 'scale'
             }
           ]
         }
       ]
 
-      EventsBus.on('cameraChanged', cameraChanged)
+      EventsBus.on('object3DChanged', object3DChanged)
     })
 
     onUnmounted(() => {
-      EventsBus.off('cameraChanged', cameraChanged)
+      EventsBus.off('object3DChanged', object3DChanged)
     })
 
     const inputChange = (setting: any) => {
       const e = event as any
 
-      // console.log('input change', e.target.value, setting)
-
       const val = e.target.value
       if (isNaN(val)) return
 
-      const threeDimensionContainer = store.state.threeDimensionContainer
       const { name, root } = setting
       setting.value = parseFloat(val)
 
-      let controls: any
-      if (threeDimensionContainer.viewState === 'orbit') {
-        controls = threeDimensionContainer.orbitControls
-      } else if (threeDimensionContainer.viewState === 'firstPerson') {
-        controls = threeDimensionContainer.firstPersonControls
-      } else if (threeDimensionContainer.viewState === 'map') {
-        controls = threeDimensionContainer.mapControls
-      }
-
       if (root === 'position') {
         if (name === 'X') {
-          controls.object.position.x = parseFloat(val)
+          currentObj.position.x = parseFloat(val)
         } else if (name === 'Y') {
-          controls.object.position.y = parseFloat(val)
+          currentObj.position.y = parseFloat(val)
         } else if (name === 'Z') {
-          controls.object.position.z = parseFloat(val)
+          currentObj.position.z = parseFloat(val)
         }
-      } else if (root === 'near') {
-        controls.object.near = parseFloat(val)
-      } else if (root === 'far') {
-        controls.object.far = parseFloat(val)
-      } else if (root === 'fov') {
-        controls.object.fov = parseFloat(val)
-      } else if (root === 'distance') {
-        if (name === 'MIN') {
-          controls.minDistance = parseFloat(val)
-        } else if (name === 'MAX') {
-          controls.maxDistance = parseFloat(val)
+      } else if (root === 'rotation') {
+        if (name === 'X') {
+          currentObj.rotation.x = (parseFloat(val) * Math.PI) / 180
+        } else if (name === 'Y') {
+          currentObj.rotation.y = (parseFloat(val) * Math.PI) / 180
+        } else if (name === 'Z') {
+          currentObj.rotation.z = (parseFloat(val) * Math.PI) / 180
         }
-      } else if (root === 'angle') {
-        if (name === 'MIN') {
-          controls.minPolarAngle = (parseFloat(val) * Math.PI) / 180
-        } else if (name === 'MAX') {
-          controls.maxPolarAngle = (parseFloat(val) * Math.PI) / 180
+      } else if (root === 'scale') {
+        if (name === 'X') {
+          currentObj.scale.x = parseFloat(val)
+        } else if (name === 'Y') {
+          currentObj.scale.y = parseFloat(val)
+        } else if (name === 'Z') {
+          currentObj.scale.z = parseFloat(val)
         }
       }
 
-      controls.object.updateProjectionMatrix()
-      controls.update()
-
-      // update camera node
-      EventsBus.emit('cameraInputChanged', { node: formSettings.value, uuid: props.node.uuid })
+      // update object3d node
+      EventsBus.emit('Object3DInputChanged', { node: formSettings.value, uuid: props.node.uuid })
     }
 
     return {
@@ -253,7 +219,7 @@ export default defineComponent({
 </script>
 
 <style lang="postcss" scoped>
-.camera-forms-3d-main {
+.object-forms-3d-main {
   @apply w-full h-full;
 }
 .header {

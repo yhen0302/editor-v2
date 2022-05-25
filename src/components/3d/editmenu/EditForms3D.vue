@@ -9,13 +9,17 @@ import { defineComponent, ref } from 'vue'
 import { useStore } from 'vuex'
 import CameraForms3D from './editForms/CameraForms3D.vue'
 import GroupForms3D from './editForms/GroupForms3D.vue'
+import MeshForms3D from './editForms/MeshForms3D.vue'
+import ObjectForms3D from './editForms/ObjectForms3D.vue'
 import { EventsBus } from '@/core/EventsBus'
 
 export default defineComponent({
   name: 'EditForms3D',
   components: {
     CameraForms3D,
-    GroupForms3D
+    GroupForms3D,
+    MeshForms3D,
+    ObjectForms3D
   },
   setup() {
     const store = useStore()
@@ -41,7 +45,21 @@ export default defineComponent({
           type.value = 'GroupForms3D'
           node.value = e.node
           break
+        case 'Mesh':
+          type.value = 'MeshForms3D'
+          node.value = e.node
+          break
+        case 'Object3D':
+          type.value = 'ObjectForms3D'
+          node.value = e.node
+          break
       }
+    })
+
+    // 重置编辑表单
+    EventsBus.on('formsReset', () => {
+      type.value = ''
+      node.value = null
     })
 
     return {

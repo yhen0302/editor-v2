@@ -77,6 +77,8 @@ export default defineComponent({
       const e = event as any
       if (e.button != 0) return
       pageIndex.value--
+      // 重置右下角表单
+      EventsBus.emit('formsReset', {})
     }
 
     // 查看详情页

@@ -53,7 +53,7 @@ export default defineComponent({
       store.state.threeDimensionContainer.scene.children.forEach((c: any) => {
         if (c.traverse)
           c.traverse((gc: any) => {
-            if (gc.uuid === node.id) gc.visible = node.visible
+            if (gc.uuid === node.uuid) gc.visible = node.visible
           })
       })
     }
