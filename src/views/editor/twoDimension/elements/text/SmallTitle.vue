@@ -19,7 +19,7 @@
     @scroll.stop
     ref="el"
   >
-    <h1
+    <h6
       class="big-title flex-1"
       :class="fontStyle"
       :style="{
@@ -35,7 +35,7 @@
       @keypress.stop
     >
       {{ value }}
-    </h1>
+    </h6>
   </div>
 </template>
 
@@ -45,14 +45,11 @@ import { hexColorToRgba, toPx } from '@/util/base'
 import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { EditorMutation } from '@/store/editor/mutations'
-import matrixMixin from '@/views/editor/twoDimension/elements/matrixMixin'
 
 export default {
-  name: 'BigTitle',
+  name: 'SmallTitle',
   props: ['node'],
   emits: ['select', 'append'],
-  mixins: [matrixMixin],
-
   setup(props: any) {
     const h1 = ref<HTMLElement>()
     // exterior
@@ -123,14 +120,15 @@ export default {
       h1,
       textElInput
     }
-  }
+  },
 }
 </script>
 
 <style scoped>
-.text-wrapper {
+.text-wrapper{
   overflow-y: scroll;
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y:contain;
+
 }
 .weight {
   font-weight: bold;

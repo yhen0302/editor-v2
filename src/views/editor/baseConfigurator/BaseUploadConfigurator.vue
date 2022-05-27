@@ -58,7 +58,6 @@ export default {
       if (editorGetter['GET_SELECT_NODE'].value.type === 'ImageMedia') {
         return imageMimeTypeVerification(file)
       } else {
-        console.log(file)
         return videoMimeTypeVerification(file)
       }
     }

@@ -31,43 +31,19 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { EditorMutation } from '@/store/editor/mutations'
+import matrixMixin from "@/views/editor/twoDimension/elements/matrixMixin";
 
 export default {
   name: 'VideoMedia',
   props: ['node'],
   emits: ['select', 'append'],
+  mixins:[matrixMixin],
   setup(props: any) {
-    const store = useStore()
-    const editorStore = useState(store, 'editor')
-    const mutation = useMutation(store, 'editor', [
-      EditorMutation.SELECT_2D_TREE_NODE
-    ])
-    const width = computed(() => toPx(props.node.option.matrixOption.width))
-    const height = computed(() => toPx(props.node.option.matrixOption.height))
-    const left = computed(() => toPx(props.node.option.matrixOption.left))
-    const top = computed(() => toPx(props.node.option.matrixOption.top))
     const src = computed(() => props.node.option.src)
     return {
-      width,
-      height,
-      left,
-      top,
       src
     }
   },
-  methods: {
-    onMouseDown(ev: MouseEvent) {
-      // @ts-ignore
-      if (this.node.select) return
-      if (ev.shiftKey) {
-        // @ts-ignore
-        this.$emit('append')
-        return
-      }
-      // @ts-ignore
-      this.$emit('select')
-    }
-  }
 }
 </script>
 

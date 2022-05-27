@@ -4,8 +4,8 @@
       ref="artBoard"
       tabindex="0"
       :class="{ 'cursor-grab': keySpace, 'cursor-grabbing': isMoving }"
-      @wheel.capture.prevent="onWheel"
-      @keydown.space.prevent.capture="spaceDown"
+      @wheel.prevent="onWheel"
+      @keydown.space.prevent.stop="spaceDown"
       @mouseenter.prevent="enterBoard"
       @mouseleave.prevent="leaveBoard"
       @mousemove="boardMoveEvent"
@@ -195,6 +195,7 @@ export default {
 <style scoped>
 .art-board {
   overflow: scroll;
+  overscroll-behavior: contain;
   outline: none;
 }
 

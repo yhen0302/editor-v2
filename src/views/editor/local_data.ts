@@ -6,7 +6,7 @@ import {
   selectItemType2d,
   selectItemType3d
 } from '../../store/editor/type'
-import { getChartUrl } from '@/util/base'
+import { clone, getChartUrl } from '@/util/base'
 import RectShape from '@/views/editor/twoDimension/elements/shape/RectShape.vue'
 import { RectShapeProps } from '@/views/editor/twoDimension/elements/shape/RectShapeProps'
 import { TextAlignOption } from '@/views/editor/twoDimension/elements/option'
@@ -88,38 +88,101 @@ export const selectData: Record<
           matrixOption: {
             left: 0,
             top: 0,
-            height: 100,
-            width: 200,
+            height: 40,
+            width: 300,
             angle: 0
           },
           transparency: 100,
           transparencyColor: { color: '', transparency: 100 },
-          value: 'Hello World',
+          value: '大标题',
           contentEditable: false,
           textOption: {
             color: '#FFFFFF',
             fontFamily: 'microsoft YaHei',
-            fontSize: 21,
+            fontSize: 30,
             fontStyle: [],
             align: 'left',
-            verticalAlign: 'center'
+            verticalAlign: 'start'
           } as TextAlignOption
         }
       },
       {
         icon: require('@/assets/images/editor_text_smalltitle_btn_dark.png'),
         name: '小标题',
-        type: 'smallTitle'
+        type: 'SmallTitle',
+        option: {
+          matrixOption: {
+            left: 0,
+            top: 0,
+            height: 30,
+            width: 300,
+            angle: 0
+          },
+          transparency: 100,
+          transparencyColor: { color: '', transparency: 100 },
+          value: '小标题',
+          contentEditable: false,
+          textOption: {
+            color: '#FFFFFF',
+            fontFamily: 'microsoft YaHei',
+            fontSize: 20,
+            fontStyle: [],
+            align: 'left',
+            verticalAlign: 'start'
+          } as TextAlignOption
+        }
       },
       {
         icon: require('@/assets/images/editor_text_title_btn_dark.png'),
         name: '标题',
-        type: 'title'
+        type: 'BaseTitle',
+        option: {
+          matrixOption: {
+            left: 0,
+            top: 0,
+            height: 30,
+            width: 300,
+            angle: 0
+          },
+          transparency: 100,
+          transparencyColor: { color: '', transparency: 100 },
+          value: '标题',
+          contentEditable: false,
+          textOption: {
+            color: '#FFFFFF',
+            fontFamily: 'microsoft YaHei',
+            fontSize: 24,
+            fontStyle: [],
+            align: 'left',
+            verticalAlign: 'start'
+          } as TextAlignOption
+        }
       },
       {
         icon: require('@/assets/images/editor_text_content_btn_dark.png'),
         name: '正文',
-        type: 'content'
+        type: 'TextContent',
+        option: {
+          matrixOption: {
+            left: 0,
+            top: 0,
+            height: 30,
+            width: 300,
+            angle: 0
+          },
+          transparency: 100,
+          transparencyColor: { color: '', transparency: 100 },
+          value: '正文',
+          contentEditable: false,
+          textOption: {
+            color: '#FFFFFF',
+            fontFamily: 'microsoft YaHei',
+            fontSize: 16,
+            fontStyle: [],
+            align: 'left',
+            verticalAlign: 'start'
+          } as TextAlignOption
+        }
       }
     ],
     viewType: 'block'
@@ -257,42 +320,67 @@ export const selectData: Record<
       {
         icon: require('@/assets/images/editor_chart_histogram_btn_dark.png'),
         name: '柱状图',
-        type: 'bar',
+        type: 'bar'
+      },
+
+      {
+        icon: require('@/assets/images/editor_chart_linechart_btn_dark.png'),
+        name: '折线图',
+        type: 'line',
         children: {
           viewType: 'list',
           list: [
             {
               name: '图表样式x001',
               option: {
-                xAxis: {
-                  type: 'category',
-                  data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                matrixOption: {
+                  left: 0,
+                  top: 0,
+                  height: 100,
+                  width: 200,
+                  angle: 0
                 },
-                yAxis: {
-                  type: 'value'
-                },
-                series: [
-                  {
-                    data: [10, 40, 50, 80, 100, 25, 40],
-                    type: 'line',
-                    smooth: true
-                  }
-                ]
+                echartsOption: {
+                  color: [
+                    '#5470c6',
+                    '#91cc75',
+                    '#fac858',
+                    '#ee6666',
+                    '#73c0de',
+                    '#3ba272',
+                  ],
+                  xAxis: {
+                    type: 'category',
+                    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                  },
+                  grid: {
+                    top: '10%',
+                    bottom: '10%'
+                  },
+                  yAxis: {
+                    type: 'value'
+                  },
+                  series: [
+                    {
+                      data: [10, 40, 50, 80, 100, 25, 40],
+                      type: 'line',
+                      smooth: true
+                    }
+                  ]
+                }
               },
               icon: ''
             }
           ].map((item: SelectItem): SelectItem => {
-            item.icon = getChartUrl(item.option)
-            item.type = 'bar'
+            const option = clone(item.option.echartsOption, true)
+            option.grid.bottom = '15%'
+            option.grid.top = '15%'
+
+            item.icon = getChartUrl(option)
+            item.type = 'ChartBar'
             return item
           })
         }
-      },
-
-      {
-        icon: require('@/assets/images/editor_chart_linechart_btn_dark.png'),
-        name: '折线图',
-        type: 'line'
       },
       {
         icon: require('@/assets/images/editor_chart_piechart_btn_dark.png'),
@@ -301,7 +389,7 @@ export const selectData: Record<
       },
       {
         icon: require('@/assets/images/editor_chart_dashboard_btn_dark.png'),
-        name: '柱状图',
+        name: '仪表盘',
         type: 'gauge'
       },
       {

@@ -35,6 +35,8 @@ export default {
         case 'BaseTitle':
         case 'TextContent':
           return 'TextConfigurator'
+        case 'ChartBar':
+          return 'AxisLineChartConfigurator'
       }
     }
     return ''

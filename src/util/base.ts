@@ -95,13 +95,14 @@ export function getChartUrl<Opt extends ECBasicOption>(option: Opt) {
 
 // 防抖
 // eslint-disable-next-line @typescript-eslint/ban-types
-export function debounce(fn: Function, delay: number) {
+export function debounce(fn: Function, delay: number, ctx: any = null) {
   let timer: number
 
   return function (...args: any) {
+    const that = this
     if (timer) clearTimeout(timer)
     timer = <number>(<unknown>setTimeout(function () {
-      fn.call(null, args)
+      fn.call(ctx || that, args)
     }, delay))
   }
 }
