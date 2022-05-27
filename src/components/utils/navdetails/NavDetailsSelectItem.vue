@@ -1,5 +1,5 @@
 <template>
-  <div class="toolbar-switch" :key="icon.type">
+  <div class="nav-details-select-item" :key="icon.type" :class="selected ? 'selected' : ''">
     <div class="icon">
       <img :src="props.icon" v-show="props.icon !== ''" />
     </div>
@@ -8,25 +8,20 @@
       <p>{{ props.name }}</p>
       <p>{{ props.type }}</p>
     </div>
-
-    <div class="switch">
-      <SwitchEl :value="props.val" />
-    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import SwitchEl from '@/components/utils/common/SwitchEl.vue'
 
 export default defineComponent({
-  name: 'ToolBarSwitch',
-  components: { SwitchEl },
+  name: 'NavDetailsSelectItem',
+  components: {},
   props: {
     type: { default: '', type: String },
     icon: { default: '', type: String },
     name: { default: '', type: String },
-    val: { default: false, type: Boolean }
+    selected: { default: false, type: Boolean }
   },
   setup(props: any) {
     return { props }
@@ -35,7 +30,7 @@ export default defineComponent({
 </script>
 
 <style lang="postcss" scoped>
-.toolbar-switch {
+.nav-details-select-item {
   background: #31333d;
   border-radius: 4px;
   width: 240px;
@@ -43,8 +38,15 @@ export default defineComponent({
   margin: 16px 16px;
   @apply flex flex-row items-center relative;
 }
-.toolbar-switch:first-child {
+.nav-details-select-item:first-child {
   margin-top: 24px;
+}
+.nav-details-select-item:hover {
+  outline: 1px rgba(238, 238, 238, 1) solid;
+  cursor: pointer;
+}
+.selected {
+  outline: 1px #6582fe solid !important;
 }
 .icon {
   width: 24px;
@@ -64,8 +66,5 @@ export default defineComponent({
 .title p:last-child {
   color: #757a87;
   @apply text-12;
-}
-.switch {
-  @apply absolute right-16 flex items-center;
 }
 </style>

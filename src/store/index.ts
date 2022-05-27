@@ -4,8 +4,8 @@ export default createStore({
   state: {
     dimensionType: '3d', // 2D/3D
     selectBarToolType: '', // 左边工具栏选择类型
-    selectedSceneTreeNode: null, // 选中的scene tree node
-    selectedPageTreeNode: null, // 选中的page tree node
+    selectedSceneTreeNode: null, // 右边选中的scene tree node
+    selectedPageTreeNode: null, // 右边选中的page tree node
     drawingBoard: {
       // 中间画布宽高
       width: 1920,

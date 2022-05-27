@@ -39,14 +39,35 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     onLoad: (evt: any) => {
       callback && callback(evt)
 
+      // 环境光节点
+      const ambientLight = evt.ambientLight
+      const ambientLightOptions = {
+        color: [ambientLight.color.r * 255, ambientLight.color.g * 255, ambientLight.color.b * 255],
+        intensity: ambientLight.intensity
+      }
+
+      const ambientLightNode = {
+        uuid: ambientLight.uuid,
+        name: 'AmbientLight',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: ambientLight.type,
+        children: [],
+        show: false,
+        options: ambientLightOptions
+      }
+
+      ;(store as any).state.template.threeDimension.unshift(ambientLightNode)
+
       // 相机节点
       let camera: any
       let controls: any
-      let options: any = {}
+      let cameraOptions: any = {}
       if (evt.viewState === 'orbit') {
         camera = evt.orbitCamera
         controls = evt.orbitControls
-        options = {
+        cameraOptions = {
           position: [parseFloat(camera.position.x.toFixed(4)), parseFloat(camera.position.y.toFixed(4)), parseFloat(camera.position.z.toFixed(4))],
           near: camera.near,
           far: camera.far,
@@ -72,7 +93,8 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         spread: false,
         type: camera.type,
         children: [],
-        options
+        show: false,
+        options: cameraOptions
       }
 
       ;(store as any).state.template.threeDimension.unshift(cameraNode)

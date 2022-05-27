@@ -17,7 +17,7 @@
 
     <div v-if="node.spread && node.children.length > 0" class="node-children">
       <div class="children-item" v-for="item in node.children" :key="item">
-        <PageTreeNode3d :node="item" />
+        <PageTreeNode3D :node="item" />
       </div>
     </div>
   </div>
@@ -29,7 +29,7 @@ import { EventsBus } from '@/core/EventsBus'
 import { useStore } from 'vuex'
 
 export default defineComponent({
-  name: 'PageTreeNode3d',
+  name: 'PageTreeNode3D',
   props: ['node'],
   components: {},
   setup() {

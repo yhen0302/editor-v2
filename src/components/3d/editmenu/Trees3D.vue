@@ -1,7 +1,7 @@
 <template>
   <div class="trees-3d-main">
     <div class="node-item" v-for="item in nodes" :key="item">
-      <PageTreeNode3d :node="item" />
+      <PageTreeNode3D :node="item" v-if="item.show" />
     </div>
   </div>
 </template>
@@ -9,14 +9,14 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue'
 import { EventsBus } from '@/core/EventsBus'
-import PageTreeNode3d from '@/components/utils/editmenu/PageTreeNode3d.vue'
+import PageTreeNode3D from '@/components/utils/editmenu/PageTreeNode3D.vue'
 import { traverseFindNodeById, traverseResetSelectedOfNodes, traverseResetSpreadOfNodes } from '@/core/3d/util'
 import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'Trees3D',
   components: {
-    PageTreeNode3d
+    PageTreeNode3D
   },
   setup() {
     const store = useStore()

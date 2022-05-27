@@ -59,10 +59,20 @@ export default defineComponent({
     EventsBus.on('navMenuItemChoosed', (e: any) => {
       if (e.dimension != '2d') return
       pageIndex.value = e.pageIndex
+      title.value = e.name
     })
 
     const goBack = () => {
       pageIndex.value = 0
+
+      switch (type.value) {
+        case 'NavMenuChart2D':
+          title.value = '图表'
+          break
+        case 'NavMenuShape2D':
+          title.value = '形状'
+          break
+      }
 
       EventsBus.emit('navMenuGoBack', {
         dimension: '2d',

@@ -11,6 +11,8 @@ import CameraForms3D from './editForms/CameraForms3D.vue'
 import GroupForms3D from './editForms/GroupForms3D.vue'
 import MeshForms3D from './editForms/MeshForms3D.vue'
 import ObjectForms3D from './editForms/ObjectForms3D.vue'
+
+import AmbientLightForms3D from './editForms/AmbientLightForms3D.vue'
 import { EventsBus } from '@/core/EventsBus'
 
 export default defineComponent({
@@ -19,14 +21,15 @@ export default defineComponent({
     CameraForms3D,
     GroupForms3D,
     MeshForms3D,
-    ObjectForms3D
+    ObjectForms3D,
+    AmbientLightForms3D
   },
   setup() {
     const store = useStore()
     const type = ref('')
     const node: any = ref(null)
 
-    // 选中元素
+    // 右方pageTree选中元素
     EventsBus.on('treeSelected', (e: any) => {
       // console.log('e.node.type', e.node)
 
@@ -51,6 +54,24 @@ export default defineComponent({
           break
         case 'Object3D':
           type.value = 'ObjectForms3D'
+          node.value = e.node
+          break
+      }
+    })
+
+    // 左方toolBar选中元素
+    EventsBus.on('toolBarSelected', (e: any) => {
+      console.log('e.node.type', e.node)
+
+      if (!e.node.selected) {
+        type.value = ''
+        return
+      }
+
+      // 展示编辑表单
+      switch (e.node.type) {
+        case 'AmbientLight':
+          type.value = 'AmbientLightForms3D'
           node.value = e.node
           break
       }

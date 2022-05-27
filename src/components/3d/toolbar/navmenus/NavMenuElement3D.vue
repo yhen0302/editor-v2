@@ -1,6 +1,6 @@
 <template>
   <div class="nav-element-3d" v-if="pageIndex === 0">
-    <ToolBarItem v-for="item in dataList" :key="item.type" :icon="item.icon" :name="item.name" @click="chooseItem(item.type)" />
+    <ToolBarItem v-for="item in dataList" :key="item.type" :icon="item.icon" :name="item.name" @click="chooseItem(item)" />
   </div>
 
   <div class="nav-element-details-3d" v-if="pageIndex === 1">
@@ -29,13 +29,14 @@ export default defineComponent({
       { icon: require('@/assets/images/main/left/editor_element_streamer_btn_dark.png'), name: '道路流光', type: 'streamer' }
     ])
 
-    const chooseItem = (type: string) => {
+    const chooseItem = (item: any) => {
       pageIndex.value = 1
 
       EventsBus.emit('navMenuItemChoosed', {
         dimension: '3d',
         pageIndex: pageIndex.value,
-        type
+        type: item.type,
+        name: item.name
       })
     }
 

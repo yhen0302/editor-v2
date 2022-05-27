@@ -1,6 +1,6 @@
 <template>
   <div class="nav-chart-2d" v-if="pageIndex === 0">
-    <ToolBarItem v-for="item in dataList" :key="item.type" :icon="item.icon" :name="item.name" @click="chooseItem(item.type)" />
+    <ToolBarItem v-for="item in dataList" :key="item.type" :icon="item.icon" :name="item.name" @click="chooseItem(item)" />
   </div>
 
   <div class="nav-chart-details-2d" v-if="pageIndex === 1">
@@ -28,13 +28,14 @@ export default defineComponent({
       { icon: require('@/assets/images/main/left/editor_chart_curvelinechart_btn_dark.png'), name: '曲线图', type: 'curve' }
     ])
 
-    const chooseItem = (type: string) => {
+    const chooseItem = (item: any) => {
       pageIndex.value = 1
 
       EventsBus.emit('navMenuItemChoosed', {
         dimension: '2d',
         pageIndex: pageIndex.value,
-        type
+        type: item.type,
+        name: item.name
       })
     }
 

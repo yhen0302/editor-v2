@@ -54,10 +54,20 @@ export default defineComponent({
     EventsBus.on('navMenuItemChoosed', (e: any) => {
       if (e.dimension != '3d') return
       pageIndex.value = e.pageIndex
+      title.value = e.name
     })
 
     const goBack = () => {
       pageIndex.value = 0
+
+      switch (type.value) {
+        case 'NavMenuElement3D':
+          title.value = '添加元素'
+          break
+        case 'NavMenuScenes3D':
+          title.value = '场景配置'
+          break
+      }
 
       EventsBus.emit('navMenuGoBack', {
         dimension: '3d',

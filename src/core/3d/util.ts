@@ -11,6 +11,7 @@ export function parseModelNode(node: any, index: number, result: any) {
   result.type = node.type
   result.children = []
   result.options = {}
+  result.show = true
   if (node.type === 'Group') {
     result.options = {
       position: [parseFloat(node.position.x.toFixed(4)), parseFloat(node.position.y.toFixed(4)), parseFloat(node.position.z.toFixed(4))],
@@ -67,8 +68,13 @@ export function reloadThreeDimensionScene(pageNode: any) {
   for (const k in flatSceneNodes) {
     const n = flatSceneNodes[k]
 
-    if (n.type === 'PerspectiveCamera') {
-      console.log('n.options', n)
+    if (n.type === 'AmbientLight') {
+      console.log('n.options', n.options)
+      container.ambientLight.intensity = n.options.intensity
+      container.ambientLight.color.r = n.options.color[0] / 255
+      container.ambientLight.color.g = n.options.color[1] / 255
+      container.ambientLight.color.b = n.options.color[2] / 255
+    } else if (n.type === 'PerspectiveCamera') {
       // todo 正交相机,墨卡托相机 , 相机重置（动画）
       // 1. update camera
       container.orbitControls.object.position.set(n.options.position[0], n.options.position[1], n.options.position[2])
