@@ -7,13 +7,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, toRaw } from 'vue'
+import { computed, defineComponent, onMounted, ref, toRaw } from 'vue'
 import SceneTreeNode from './SceneTreeNode.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 import { useStore } from 'vuex'
 
-import { reloadThreeDimensionScene } from '@/core/3d/util'
+import { reloadThreeDimensionScene, traverseFindNodeById } from '@/core/3d/util'
 
 export default defineComponent({
   name: 'SceneTree',
@@ -30,14 +30,14 @@ export default defineComponent({
         type: 'scene',
         selected: true,
         spread: true,
-        id: '0',
+        uuid: '0',
         children: [
           {
             name: '页1',
             type: 'page',
             selected: true,
             parent: '0',
-            id: '0-0',
+            uuid: '0-0',
             trees: {} // 见上方注释
           }
         ]
@@ -57,7 +57,7 @@ export default defineComponent({
       nodes.value.push({
         name: '场景' + (nodes.value.length + 1),
         type: 'scene',
-        id: '' + nodes.value.length,
+        uuid: '' + nodes.value.length,
         selected: false,
         spread: true,
         children: [
@@ -66,7 +66,7 @@ export default defineComponent({
             type: 'page',
             selected: false,
             parent: '' + nodes.value.length,
-            id: '' + nodes.value.length + '-0',
+            uuid: '' + nodes.value.length + '-0',
             trees: JSON.parse(JSON.stringify(toRaw(store.state.template)))
           }
         ]
@@ -82,8 +82,8 @@ export default defineComponent({
         name: '页' + (node.children.length + 1),
         type: 'page',
         selected: false,
-        parent: node.id,
-        id: '' + node.id + '-' + node.children.length,
+        parent: node.uuid,
+        uuid: '' + node.uuid + '-' + node.children.length,
         trees: JSON.parse(JSON.stringify(toRaw(store.state.template)))
       })
     })
@@ -91,20 +91,30 @@ export default defineComponent({
     // 选中页
     EventsBus.on('pageSelected', (e: any) => {
       const node = e.node
+
       if (node.selected) return
+
+      store.state.selectedSceneTreeNode = null
       nodes.value.forEach((n: any) => {
         n.selected = false
 
         if (n.children && n.children.length > 0) {
           n.children.forEach((c: any) => {
-            c.selected = node.id === c.id
-            if (c.selected) n.selected = true
+            c.selected = node.uuid === c.uuid
+            if (c.selected) {
+              n.selected = true
+              store.state.selectedSceneTreeNode = c
+            }
           })
         }
       })
 
       // reload 3d scene
       reloadThreeDimensionScene(node)
+    })
+
+    onMounted(() => {
+      store.state.selectedSceneTreeNode = nodes.value[0].children[0]
     })
 
     return {

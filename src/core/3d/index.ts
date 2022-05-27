@@ -96,12 +96,26 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
           const { target, object } = t
           const { position, uuid } = object
 
-          // 相机状态变化
-          EventsBus.emit('cameraChanged', {
-            position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))],
-            target: [parseFloat(target.x.toFixed(4)), parseFloat(target.y.toFixed(4)), parseFloat(target.z.toFixed(4))],
+          // update editForms
+          EventsBus.emit('pageTreeNodeUpdate', {
+            type: '3d',
+            options: {
+              position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))]
+            },
             uuid
           })
+
+          // update pageTreeNode
+          if ((store as any).state.selectedPageTreeNode && (store as any).state.selectedPageTreeNode.uuid === camera.uuid) {
+            Object.assign((store as any).state.selectedPageTreeNode.options, { position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))] })
+          }
+
+          // update sceneTreeNode
+          if ((store as any).state.selectedSceneTreeNode) {
+            ;(store as any).state.selectedSceneTreeNode.trees.threeDimension.forEach((c: any) => {
+              if (c.uuid === camera.uuid) Object.assign(c.options, { position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))] })
+            })
+          }
         }
       })
     }

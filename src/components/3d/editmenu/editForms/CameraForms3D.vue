@@ -13,16 +13,16 @@
     <LineEl :color="'#363741'" />
 
     <div class="content camera">
-      <div v-for="item in formSettings" :key="item" class="content-item">
+      <div v-for="(item, key) in formSettings" :key="key" class="content-item">
         <div class="setting-item">
-          <BaseTitle :value="item.name" :height="56" :width="72" :marginRight="8" />
+          <BaseTitle :value="key" :height="56" :width="72" :marginRight="8" />
         </div>
 
         <div class="setting-item">
-          <div v-for="setting in item.settings" :key="setting" class="setting">
+          <div v-for="setting in item" :key="setting" class="setting">
             <BaseInput
               v-if="setting.type === 'input'"
-              :target="setting"
+              :target="{ key, setting }"
               :change="inputChange"
               :name="setting.name"
               :value="setting.value"
@@ -49,6 +49,7 @@ import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
+import { traverseFindNodeById } from '@/core/3d/util'
 
 export default defineComponent({
   name: 'CameraForms3D',
@@ -74,128 +75,96 @@ export default defineComponent({
     // content settings
     const formSettings: any = ref([])
 
-    const cameraChanged = (event: any) => {
-      const { position } = event
-      formSettings.value.forEach((item: any) => {
-        if (item.name === 'position') {
-          item.settings[0].value = position[0]
-          item.settings[1].value = position[1]
-          item.settings[2].value = position[2]
-        }
-      })
+    const pageTreeNodeUpdate = (event: any) => {
+      const { position } = event.options
+
+      formSettings.value['position'][0].value = position[0]
+      formSettings.value['position'][1].value = position[1]
+      formSettings.value['position'][2].value = position[2]
     }
 
     onMounted(() => {
       const { type, options } = props.node
 
       // 展示编辑表单
-      formSettings.value = [
-        {
-          name: 'position',
-          settings: [
-            {
-              name: 'X',
-              value: options.position[0],
-              type: 'input',
-              root: 'position'
-            },
-            {
-              name: 'Y',
-              value: options.position[1],
-              type: 'input',
-              root: 'position'
-            },
-            {
-              name: 'Z',
-              value: options.position[2],
-              type: 'input',
-              root: 'position'
-            }
-          ]
-        },
-        {
-          name: 'fov',
-          settings: [
-            {
-              value: options.fov,
-              type: 'input',
-              root: 'fov'
-            }
-          ]
-        },
-        {
-          name: 'near',
-          settings: [
-            {
-              value: options.near,
-              type: 'input',
-              root: 'near'
-            }
-          ]
-        },
-        {
-          name: 'far',
-          settings: [
-            {
-              value: options.far,
-              type: 'input',
-              root: 'far'
-            }
-          ]
-        },
-        {
-          name: 'distance',
-          settings: [
-            {
-              name: 'MIN',
-              value: options.minDistance,
-              type: 'input',
-              root: 'distance'
-            },
-            {
-              name: 'MAX',
-              value: options.maxDistance,
-              type: 'input',
-              root: 'distance'
-            }
-          ]
-        },
-        {
-          name: 'angle',
-          settings: [
-            {
-              name: 'MIN',
-              value: options.minPolarAngle,
-              type: 'input',
-              root: 'angle'
-            },
-            {
-              name: 'MAX',
-              value: options.maxPolarAngle,
-              type: 'input',
-              root: 'angle'
-            }
-          ]
-        }
-      ]
+      formSettings.value = {
+        position: [
+          {
+            name: 'X',
+            value: options.position[0],
+            type: 'input'
+          },
+          {
+            name: 'Y',
+            value: options.position[1],
+            type: 'input'
+          },
+          {
+            name: 'Z',
+            value: options.position[2],
+            type: 'input'
+          }
+        ],
+        fov: [
+          {
+            value: options.fov,
+            type: 'input'
+          }
+        ],
+        near: [
+          {
+            value: options.near,
+            type: 'input'
+          }
+        ],
+        far: [
+          {
+            value: options.far,
+            type: 'input'
+          }
+        ],
+        distance: [
+          {
+            name: 'MIN',
+            value: options.minDistance,
+            type: 'input'
+          },
+          {
+            name: 'MAX',
+            value: options.maxDistance,
+            type: 'input'
+          }
+        ],
+        angle: [
+          {
+            name: 'MIN',
+            value: options.minPolarAngle,
+            type: 'input'
+          },
+          {
+            name: 'MAX',
+            value: options.maxPolarAngle,
+            type: 'input'
+          }
+        ]
+      }
 
-      EventsBus.on('cameraChanged', cameraChanged)
+      EventsBus.on('pageTreeNodeUpdate', pageTreeNodeUpdate)
     })
 
     onUnmounted(() => {
-      EventsBus.off('cameraChanged', cameraChanged)
+      EventsBus.off('pageTreeNodeUpdate', pageTreeNodeUpdate)
     })
 
-    const inputChange = (setting: any) => {
+    const inputChange = (target: any) => {
       const e = event as any
-
-      // console.log('input change', e.target.value, setting)
 
       const val = e.target.value
       if (isNaN(val)) return
 
       const threeDimensionContainer = store.state.threeDimensionContainer
-      const { name, root } = setting
+      const { key, setting } = target
+      const { name } = setting
       setting.value = parseFloat(val)
 
       let controls: any
@@ -207,7 +176,7 @@ export default defineComponent({
         controls = threeDimensionContainer.mapControls
       }
 
-      if (root === 'position') {
+      if (key === 'position') {
         if (name === 'X') {
           controls.object.position.x = parseFloat(val)
         } else if (name === 'Y') {
@@ -215,19 +184,19 @@ export default defineComponent({
         } else if (name === 'Z') {
           controls.object.position.z = parseFloat(val)
         }
-      } else if (root === 'near') {
+      } else if (key === 'near') {
         controls.object.near = parseFloat(val)
-      } else if (root === 'far') {
+      } else if (key === 'far') {
         controls.object.far = parseFloat(val)
-      } else if (root === 'fov') {
+      } else if (key === 'fov') {
         controls.object.fov = parseFloat(val)
-      } else if (root === 'distance') {
+      } else if (key === 'distance') {
         if (name === 'MIN') {
           controls.minDistance = parseFloat(val)
         } else if (name === 'MAX') {
           controls.maxDistance = parseFloat(val)
         }
-      } else if (root === 'angle') {
+      } else if (key === 'angle') {
         if (name === 'MIN') {
           controls.minPolarAngle = (parseFloat(val) * Math.PI) / 180
         } else if (name === 'MAX') {
@@ -238,8 +207,26 @@ export default defineComponent({
       controls.object.updateProjectionMatrix()
       controls.update()
 
-      // update camera node
-      EventsBus.emit('cameraInputChanged', { node: formSettings.value, uuid: props.node.uuid })
+      // update pageTreeNode
+      const position = [formSettings.value['position'][0].value, formSettings.value['position'][1].value, formSettings.value['position'][2].value]
+      const near = formSettings.value['near'][0].value
+      const far = formSettings.value['far'][0].value
+      const fov = formSettings.value['fov'][0].value
+      const minDistance = formSettings.value['distance'][0].value
+      const maxDistance = formSettings.value['distance'][1].value
+      const minPolarAngle = formSettings.value['angle'][0].value
+      const maxPolarAngle = formSettings.value['angle'][1].value
+
+      Object.assign(store.state.selectedPageTreeNode.options, {
+        position,
+        near,
+        far,
+        fov,
+        minDistance,
+        maxDistance,
+        minPolarAngle,
+        maxPolarAngle
+      })
     }
 
     return {

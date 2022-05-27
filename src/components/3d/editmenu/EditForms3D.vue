@@ -28,7 +28,7 @@ export default defineComponent({
 
     // 选中元素
     EventsBus.on('treeSelected', (e: any) => {
-      console.log('e.node.type', e.node)
+      // console.log('e.node.type', e.node)
 
       if (!e.node.selected) {
         type.value = ''

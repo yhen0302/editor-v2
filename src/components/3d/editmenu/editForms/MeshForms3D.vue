@@ -13,16 +13,16 @@
     <LineEl :color="'#363741'" />
 
     <div class="content mesh" v-show="headerItems[0].active">
-      <div v-for="item in formSettings" :key="item" class="content-item">
+      <div v-for="(item, key) in formSettings" :key="key" class="content-item">
         <div class="setting-item">
-          <BaseTitle :value="item.name" :height="56" :width="72" :marginRight="8" />
+          <BaseTitle :value="key" :height="56" :width="72" :marginRight="8" />
         </div>
 
         <div class="setting-item">
-          <div v-for="setting in item.settings" :key="setting" class="setting">
+          <div v-for="setting in item" :key="setting" class="setting">
             <BaseInput
               v-if="setting.type === 'input'"
-              :target="setting"
+              :target="{ key, setting }"
               :change="inputChange"
               :name="setting.name"
               :value="setting.value"
@@ -40,16 +40,16 @@
     </div>
 
     <div class="content mat" v-show="headerItems[1].active">
-      <div v-for="item in formSettings2" :key="item" class="content-item">
+      <div v-for="(item, key) in formSettings2" :key="key" class="content-item">
         <div class="setting-item">
-          <BaseTitle :value="item.name" :height="56" :width="72" :marginRight="8" />
+          <BaseTitle :value="key" :height="56" :width="72" :marginRight="8" />
         </div>
 
         <div class="setting-item">
-          <div v-for="setting in item.settings" :key="setting" class="setting">
+          <div v-for="setting in item" :key="setting" class="setting">
             <BaseInput
               v-if="setting.type === 'input'"
-              :target="setting"
+              :target="{ key, setting }"
               :change="inputChange"
               :name="setting.name"
               :value="setting.value"
@@ -135,77 +135,59 @@ export default defineComponent({
       })
 
       // 展示编辑表单
-      formSettings.value = [
-        {
-          name: 'position',
-          settings: [
-            {
-              name: 'X',
-              value: options.position[0],
-              type: 'input',
-              root: 'position'
-            },
-            {
-              name: 'Y',
-              value: options.position[1],
-              type: 'input',
-              root: 'position'
-            },
-            {
-              name: 'Z',
-              value: options.position[2],
-              type: 'input',
-              root: 'position'
-            }
-          ]
-        },
-        {
-          name: 'rotation',
-          settings: [
-            {
-              name: 'X',
-              value: options.rotation[0],
-              type: 'input',
-              root: 'rotation'
-            },
-            {
-              name: 'Y',
-              value: options.rotation[1],
-              type: 'input',
-              root: 'rotation'
-            },
-            {
-              name: 'Z',
-              value: options.rotation[2],
-              type: 'input',
-              root: 'rotation'
-            }
-          ]
-        },
-        {
-          name: 'scale',
-          settings: [
-            {
-              name: 'X',
-              value: options.scale[0],
-              type: 'input',
-              root: 'scale'
-            },
-            {
-              name: 'Y',
-              value: options.scale[1],
-              type: 'input',
-              root: 'scale'
-            },
-            {
-              name: 'Z',
-              value: options.scale[2],
-              type: 'input',
-              root: 'scale'
-            }
-          ]
-        }
-      ]
+      formSettings.value = {
+        position: [
+          {
+            name: 'X',
+            value: options.position[0],
+            type: 'input'
+          },
+          {
+            name: 'Y',
+            value: options.position[1],
+            type: 'input'
+          },
+          {
+            name: 'Z',
+            value: options.position[2],
+            type: 'input'
+          }
+        ],
+        rotation: [
+          {
+            name: 'X',
+            value: options.rotation[0],
+            type: 'input'
+          },
+          {
+            name: 'Y',
+            value: options.rotation[1],
+            type: 'input'
+          },
+          {
+            name: 'Z',
+            value: options.rotation[2],
+            type: 'input'
+          }
+        ],
+        scale: [
+          {
+            name: 'X',
+            value: options.scale[0],
+            type: 'input'
+          },
+          {
+            name: 'Y',
+            value: options.scale[1],
+            type: 'input'
+          },
+          {
+            name: 'Z',
+            value: options.scale[2],
+            type: 'input'
+          }
+        ]
+      }
 
       EventsBus.on('meshChanged', meshChanged)
     })
@@ -214,17 +196,18 @@ export default defineComponent({
       EventsBus.off('meshChanged', meshChanged)
     })
 
-    const inputChange = (setting: any) => {
+    const inputChange = (target: any) => {
       const e = event as any
       const val = e.target.value
       // update mesh node --- Geometry
       if (title.value === 'Geometry') {
         if (isNaN(val)) return
 
-        const { name, root } = setting
+        const { key, setting } = target
+        const { name } = setting
         setting.value = parseFloat(val)
 
-        if (root === 'position') {
+        if (key === 'position') {
           if (name === 'X') {
             currentObj.position.x = parseFloat(val)
           } else if (name === 'Y') {
@@ -232,7 +215,7 @@ export default defineComponent({
           } else if (name === 'Z') {
             currentObj.position.z = parseFloat(val)
           }
-        } else if (root === 'rotation') {
+        } else if (key === 'rotation') {
           if (name === 'X') {
             currentObj.rotation.x = (parseFloat(val) * Math.PI) / 180
           } else if (name === 'Y') {
@@ -240,7 +223,7 @@ export default defineComponent({
           } else if (name === 'Z') {
             currentObj.rotation.z = (parseFloat(val) * Math.PI) / 180
           }
-        } else if (root === 'scale') {
+        } else if (key === 'scale') {
           if (name === 'X') {
             currentObj.scale.x = parseFloat(val)
           } else if (name === 'Y') {
@@ -250,12 +233,22 @@ export default defineComponent({
           }
         }
 
-        EventsBus.emit('MeshInputChanged', { node: formSettings.value, uuid: props.node.uuid, type: title.value })
+        // update pageTreeNode
+        const position = [formSettings.value['position'][0].value, formSettings.value['position'][1].value, formSettings.value['position'][2].value]
+        const rotation = [formSettings.value['rotation'][0].value, formSettings.value['rotation'][1].value, formSettings.value['rotation'][2].value]
+        const scale = [formSettings.value['scale'][0].value, formSettings.value['scale'][1].value, formSettings.value['scale'][2].value]
+
+        Object.assign(store.state.selectedPageTreeNode.options, {
+          position,
+          rotation,
+          scale
+        })
       } else if (title.value === 'Material') {
-        const { name, root } = setting
+        const { key, setting } = target
+        const { name } = setting
         setting.value = parseFloat(val)
 
-        EventsBus.emit('MeshInputChanged', { node: formSettings2.value, uuid: props.node.uuid, type: title.value })
+        // update pageTreeNode --- todo
       }
     }
 

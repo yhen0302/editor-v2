@@ -4,6 +4,8 @@ export default createStore({
   state: {
     dimensionType: '3d', // 2D/3D
     selectBarToolType: '', // 左边工具栏选择类型
+    selectedSceneTreeNode: null, // 选中的scene tree node
+    selectedPageTreeNode: null, // 选中的page tree node
     drawingBoard: {
       // 中间画布宽高
       width: 1920,
@@ -15,7 +17,7 @@ export default createStore({
       threeDimension: [],
       twoDimension: []
     },
-    threeDimensionContainer: null
+    threeDimensionContainer: null // 3d container cache
   },
   mutations: {},
   actions: {},

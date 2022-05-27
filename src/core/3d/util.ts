@@ -87,7 +87,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
       if (resultNode.length === 0) {
-        console.warn('can not found object which uuid is ' + n.uuid)
+        console.warn('can not find object which uuid is ' + n.uuid)
         continue
       }
 
@@ -102,7 +102,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
       if (resultNode.length === 0) {
-        console.warn('can not found object which uuid is ' + n.uuid)
+        console.warn('can not find object which uuid is ' + n.uuid)
         continue
       }
 
@@ -117,7 +117,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
       if (resultNode.length === 0) {
-        console.warn('can not found object which uuid is ' + n.uuid)
+        console.warn('can not find object which uuid is ' + n.uuid)
         continue
       }
 
