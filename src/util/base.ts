@@ -99,6 +99,7 @@ export function debounce(fn: Function, delay: number, ctx: any = null) {
   let timer: number
 
   return function (...args: any) {
+    // @ts-ignore
     const that = this
     if (timer) clearTimeout(timer)
     timer = <number>(<unknown>setTimeout(function () {

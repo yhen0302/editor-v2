@@ -23,13 +23,14 @@
 import matrixMixin from '@/views/editor/twoDimension/elements/matrixMixin'
 import * as echarts from 'echarts'
 import { debounce } from '@/util/base'
-import { getCurrentInstance } from 'vue'
+import {getCurrentInstance, watch} from 'vue'
 
 export default {
   name: 'ChartBar',
   mixins: [matrixMixin],
   props: ['node'],
   mounted() {
+    console.log(this.node.option.echartsOption.title)
     this.myChart = echarts.init(this.$refs.chartWrap)
     this.myChart.setOption(this.node.option.echartsOption)
   },
@@ -38,18 +39,27 @@ export default {
     updateEchartsSize() {
       this.myChart.resize()
     },
+    updateEchartsOption() {
+      console.log(this.node.option.echartsOption)
+      this.myChart.setOption(this.node.option.echartsOption)
+    },
     debounceSetOption: debounce(function () {
-      console.log(this)
+      this.updateEchartsOption()
     }, 300)
+  },
+  setup(props){
+    const instance = getCurrentInstance()
+    watch(()=>props.node.option.echartsOption.title,(newVal,oldVal)=>{
+      instance.ctx.debounceSetOption()
+    },{deep:true})
   },
   watch: {
     'node.option.echartsOption.color': {
       handler(newVal, oldVal) {
-        console.log(this)
         this.debounceSetOption()
       },
       deep: true
-    }
+    },
   }
 }
 </script>

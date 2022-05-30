@@ -1,25 +1,31 @@
 <template>
-  <button class="switch-el relative" :class="{active:realValue}" @click="changeValue"></button>
+  <button
+    class="switch-el relative"
+    :class="{ active: valueComputed }"
+    @click="valueComputed = !valueComputed"
+  ></button>
 </template>
 
 <script lang="ts">
-import {Ref, ref} from "@vue/reactivity";
-import {SetupContext} from "vue";
+import { computed, SetupContext } from 'vue'
 
 export default {
-  name: "SwitchEl",
+  name: 'SwitchEl',
   props: {
-    value: {type: Boolean, default: false}
+    value: { type: Boolean, default: false }
   },
-  emits: ["update:value"],
+  emits: ['update:value'],
   setup(props: any, context: SetupContext) {
-    const realValue: Ref<boolean> = ref<boolean>(props.value)
-    function changeValue() {
-      realValue.value = !realValue.value
-      context.emit('update:value', realValue.value)
-    }
+    const valueComputed = computed({
+      get() {
+        return props.value
+      },
+      set(newVal) {
+        context.emit('update:value', newVal)
+      }
+    })
 
-    return {realValue, changeValue}
+    return { valueComputed }
   }
 }
 </script>
@@ -32,18 +38,18 @@ export default {
   vertical-align: bottom;
   border-radius: 8px;
   background: #464858;
-  transition: background-color .15s ease-in-out;
+  transition: background-color 0.15s ease-in-out;
 }
 
 .switch-el::before {
-  content: "";
+  content: '';
   display: block;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #FFF;
+  background: #fff;
   transform: translateX(2px);
-  transition: transform .2s ease-in-out;
+  transition: transform 0.2s ease-in-out;
 }
 
 .switch-el.active::before {
@@ -51,6 +57,6 @@ export default {
 }
 
 .switch-el.active {
-  background: #6582FE;
+  background: #6582fe;
 }
 </style>

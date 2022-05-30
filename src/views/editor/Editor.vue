@@ -174,7 +174,7 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { Ref, ref } from '@vue/reactivity'
-import { layerIcon } from '@/views/editor/local_data'
+import { layerIcon } from '@/views/editor/localData'
 
 import NavBar from './child/NavBar.vue'
 import NavTab from '@/component/common/navTab/NavTab.vue'

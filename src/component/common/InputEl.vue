@@ -1,46 +1,65 @@
 <template>
   <div class="input-el-wrapper box-border flex items-center">
     <slot name="prefix"></slot>
-    <input class="inp text-12" :type="type" v-model="valueComputed">
+    <input class="inp text-12" :type="type" v-model="valueComputed" />
     <slot name="suffix"></slot>
-    <div class="arrow-box flex flex-col justify-between" v-show="type==='number'&&numberIcon">
-      <img class="arrow" src="@/assets/images/editor_add_btn_dark.png" @click="valueComputed++">
-      <img class="arrow" src="@/assets/images/editor_minus_btn_dark.png" @click="valueComputed--">
+    <div
+      class="arrow-box flex flex-col justify-between"
+      v-show="type === 'number' && numberIcon"
+    >
+      <img
+        class="arrow"
+        src="@/assets/images/editor_add_btn_dark.png"
+        @click="valueComputed++"
+      />
+      <img
+        class="arrow"
+        src="@/assets/images/editor_minus_btn_dark.png"
+        @click="valueComputed--"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import {computed, ref, watch} from "vue";
+import { computed, ref, watch } from 'vue'
 
 export default {
-  name: "InputEl",
-  props: {value: {default: ''}, type: {type: String, default: ''}, numberIcon: {type: Boolean, default: true}},
+  name: 'InputEl',
+  props: {
+    value: { default: '' },
+    type: { type: String, default: '' },
+    numberIcon: { type: Boolean, default: true }
+  },
   setup(props, context) {
-    const valueComputed = computed({get(){return toType(props.type,props.value)},set(val){
+    const valueComputed = computed({
+      get() {
+        return toType(props.type, props.value)
+      },
+      set(val) {
         context.emit('update:value', toType(props.type, val))
-      }})
-
+      }
+    })
 
     function toType(type, value) {
       switch (type) {
         case '':
           return value.toString()
         case 'number':
-          return Number(value)
+          return Number(value).toFixed(0)
         case 'angle':
           return Number(value) + '°'
       }
     }
 
-    return {valueComputed}
+    return { valueComputed }
   }
 }
 </script>
 
 <style scoped>
 .input-el-wrapper {
-  background: #31333D;
+  background: #31333d;
   border-radius: 2px;
   padding: 0 8px 0 10px;
 }
@@ -49,7 +68,7 @@ export default {
   display: inline-block;
   width: 100%;
   background: inherit;
-  color: #F2F2F2;
+  color: #f2f2f2;
 }
 
 .arrow-box {
@@ -65,6 +84,6 @@ export default {
 }
 
 .arrow:hover {
-  opacity: .5;
+  opacity: 0.5;
 }
 </style>
