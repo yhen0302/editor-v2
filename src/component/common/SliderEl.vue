@@ -1,11 +1,13 @@
 <template>
-  <div class="slider-el flex items-center"
-       @mousedown="onMouseDown">
+  <div class="slider-el flex items-center" @mousedown="onMouseDown">
     <div class="slider-wrapper flex items-center" ref="sliderWrapper">
-      <div class="slider-process" :style="{width:widthRatio+'%'}"></div>
-      <div class="slider-button-wrapper relative grid place-content-center" :class="{active:run}"
-           @mousedown.capture.prevent>
-        <span class="slider-tip text-12 absolute">{{ valueRef }}</span>
+      <div class="slider-process" :style="{ width: widthRatio + '%' }"></div>
+      <div
+        class="slider-button-wrapper relative grid place-content-center"
+        :class="{ active: run }"
+        @mousedown.capture.prevent
+      >
+        <span class="slider-tip text-12 absolute">{{ valueComputed }}</span>
         <div class="slider-button relative pointer-events-none"></div>
       </div>
     </div>
@@ -13,29 +15,37 @@
 </template>
 
 <script>
-
-import {computed, nextTick, ref} from "vue";
+import { computed, nextTick, ref } from 'vue'
 
 export default {
-  name: "SliderEl",
-  props: {'value': {type: Number, default: 0}, 'max': {type: Number, default: 100}, 'min': {type: Number, default: 0}},
+  name: 'SliderEl',
+  props: {
+    value: { type: Number, default: 0 },
+    max: { type: Number, default: 100 },
+    min: { type: Number, default: 0 }
+  },
   emits: ['update:value'],
   setup(props, context) {
-    let valueRef = ref(props.value || 20),
-        sliderWrapper = ref(null),
-        run = ref(false),
-        rect,
-        pre = 0
+    let valueComputed = computed({
+        get() {
+          return props.value
+        },
+        set(val) {
+          context.emit('update:value', Number(val))
+        }
+      }),
+      sliderWrapper = ref(null),
+      run = ref(false),
+      rect,
+      pre = 0
 
-    nextTick(() => rect = getSliderWrapperClientRect())
-
+    nextTick(() => (rect = getSliderWrapperClientRect()))
 
     let offsetVal = computed(() => props.max - props.min)
 
     function getSliderWrapperClientRect() {
       return sliderWrapper.value.getBoundingClientRect()
     }
-
 
     function onMouseDown(ev) {
       rect = getSliderWrapperClientRect()
@@ -44,9 +54,12 @@ export default {
 
     function onMouseMove(ev) {
       if (!run.value) return
-      let newVal = ((ev.pageX - rect.left) / rect.width * offsetVal.value).toFixed()
-      valueRef.value = newVal > props.max ? props.max : newVal < props.min ? props.min : newVal
-      context.emit('update:value', valueRef.value)
+      let newVal = (
+        ((ev.pageX - rect.left) / rect.width) *
+        offsetVal.value
+      ).toFixed()
+      valueComputed.value =
+        newVal > props.max ? props.max : newVal < props.min ? props.min : newVal
     }
 
     function onMouseUp() {
@@ -58,10 +71,10 @@ export default {
     document.addEventListener('mousemove', onMouseMove)
 
     const widthRatio = computed(() => {
-      return ((valueRef.value / offsetVal.value) * 100).toFixed()
+      return ((valueComputed.value / offsetVal.value) * 100).toFixed()
     })
     return {
-      valueRef,
+      valueComputed,
       widthRatio,
       onMouseDown,
       sliderWrapper,
@@ -81,11 +94,11 @@ export default {
   width: 100%;
   height: 2px;
   border-radius: 2px;
-  background: #31333D;
+  background: #31333d;
 }
 
 .slider-process {
-  background: #6582FE;
+  background: #6582fe;
   flex-shrink: 0;
   height: 100%;
 }
@@ -101,7 +114,8 @@ export default {
   transform: scale(1.4);
 }
 
-.slider-button-wrapper.active > .slider-tip,.slider-button-wrapper:hover>.slider-tip {
+.slider-button-wrapper.active > .slider-tip,
+.slider-button-wrapper:hover > .slider-tip {
   opacity: 1;
 }
 
@@ -110,7 +124,7 @@ export default {
   height: 8px;
   border-radius: 8px;
   background: #fff;
-  transition: .3s transform ease;
+  transition: 0.3s transform ease;
 }
 
 .slider-button::before {
@@ -119,8 +133,8 @@ export default {
   left: 50%;
   width: 5px;
   height: 5px;
-  content: "";
-  background: radial-gradient(#6582FE 0%, #6582FE 30%, transparent 100%);
+  content: '';
+  background: radial-gradient(#6582fe 0%, #6582fe 30%, transparent 100%);
   border-radius: 4px;
   transform: translate(-50%, -50%);
 }
@@ -134,11 +148,11 @@ export default {
   transform: translateX(-50%);
   opacity: 0;
   pointer-events: none;
-  transition: .25s opacity ease-out;
+  transition: 0.25s opacity ease-out;
 }
 
 .slider-tip::before {
-  content: "";
+  content: '';
   position: absolute;
   bottom: -10px;
   left: 50%;

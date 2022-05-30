@@ -1,37 +1,62 @@
-import {DirectiveBinding, h} from 'vue'
-import store from '@/store/index'
-import {useMutation} from '@/store/helper'
-import {EditorMutation} from '@/store/editor/mutations'
-import {LayerTree2dNode} from '@/store/editor/type'
-import {reactive} from '@vue/reactivity'
-import {VNode} from '@vue/runtime-core'
-import {RectShapeProps} from '@/views/editor/twoDimension/elements/shape/RectShapeProps'
-import RectShape from "@/views/editor/twoDimension/elements/shape/RectShape.vue";
+import {DirectiveBinding, h, markRaw, nextTick, reactive, ref} from 'vue'
+import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
+import store from '@/store'
+import { useMutation, useState } from '@/store/helper'
+import { clone } from '@/util/base'
 
+let id = 0
 export default {
-    mounted(el: HTMLElement, binding: DirectiveBinding) {
-        el.addEventListener('dragover', function (ev: DragEvent) {
-            ev.preventDefault()
-        })
+  mounted: function (el: HTMLElement, binding: DirectiveBinding) {
+    el.addEventListener('dragover', function (ev: DragEvent) {
+      ev.preventDefault()
+    })
 
-        el.addEventListener('drop', function (ev: DragEvent) {
-            const {pageX, pageY} = ev
-            // 将数据添加到树结构中
-            const data = JSON.parse(<string>ev.dataTransfer?.getData('meta'))
-            const mutations = useMutation(store, 'editor', ['ADD_2D_TREE_NODE'])
-            const props = reactive(<RectShapeProps>{
-                matrixOption: {left: 10, top: 10, width: 100, height: 50, angle: 0},
-                transparency: 1,
-                transparencyColor: {color: '#FF0000', transparency: 1}
-            })
-            const instance: VNode = h(RectShape, {props})
+    el.addEventListener('drop', function (ev: DragEvent) {
+      let { offsetX, offsetY } = ev
+      const editorStore: EditorStore = useState(store, 'editor')
+      const mutations = useMutation(store, 'editor', [
+        'ADD_2D_TREE_NODE',
+        'SELECT_2D_TREE_NODE',
+        'CLEAR_SELECT_2D_NODES'
+      ])
+      // 将数据添加到树结构中
+      const data = JSON.parse(<string>ev.dataTransfer?.getData('meta'))
 
-            mutations[EditorMutation.ADD_2D_TREE_NODE]({
-                node: {
-                    name: '矩形',
-                    detail: {componentInstance: instance, options: props}
-                } as LayerTree2dNode
-            })
-        })
-    }
+      initData(ev)
+
+      function initData(ev: DragEvent) {
+        const target = ev.target as HTMLDivElement
+        const matrixOption = data.option.matrixOption
+        if (target.className.includes('art-board-wrapper')) {
+          const targetRect = target.getBoundingClientRect()
+          const childRect = (
+            target.querySelector('.art-board-box') as HTMLDivElement
+          ).getBoundingClientRect()
+          const scale = editorStore.artBoardConfig.artBoardScale
+
+          offsetX =
+            -((targetRect.width - childRect.width) / 2 - offsetX) / scale
+          offsetY =
+            -((targetRect.height - childRect.height) / 2 - offsetY) / scale
+        }
+        matrixOption.left = offsetX - matrixOption.width / 2
+        matrixOption.top = offsetY - matrixOption.height / 2
+      }
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const node: LayerTree2dNode = {
+        name: data.name+String(id++),
+        id,
+        type: data.type,
+        option: reactive(clone(data.option)),
+        select: true,
+        show: true
+      }
+
+      mutations['ADD_2D_TREE_NODE']({ node })
+      mutations['CLEAR_SELECT_2D_NODES']()
+      mutations['SELECT_2D_TREE_NODE']({ node })
+    })
+  }
 }

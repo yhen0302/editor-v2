@@ -4,20 +4,22 @@
       ref="artBoard"
       tabindex="0"
       :class="{ 'cursor-grab': keySpace, 'cursor-grabbing': isMoving }"
-      @wheel.capture.prevent="onWheel"
-      @keydown.space.prevent.capture="spaceDown"
+      @wheel.prevent="onWheel"
+      @keydown.space.prevent.stop="spaceDown"
       @mouseenter.prevent="enterBoard"
       @mouseleave.prevent="leaveBoard"
       @mousemove="boardMoveEvent"
       @mousedown="boardDownEvent"
       @mouseup="boardUpEvent"
       @keyup.space.prevent.capture="spaceUp"
+      @click="artBoardClick()"
       v-dropable
   >
     <section class="art-board-wrapper grid place-content-center"
-             :style="{ width: wrapperWidthPx, height: wrapperHeightPx }">
+             :style="{ width: wrapperWidthPx, height: wrapperHeightPx }" >
+
       <section class="art-board-box relative"
-               :style="{ width: widthPx, height: heightPx, transform: `scale(${editorStore.artBoardScale})` }">
+               :style="{ width: widthPx, height: heightPx, transform: `scale(${editorStore.artBoardConfig.artBoardScale})` }">
 
         <slot name="3dContent" :rect="{width,height}"></slot>
         <slot name="2dContent"></slot>
@@ -49,7 +51,7 @@ export default {
     const app: ComponentInternalInstance = getCurrentInstance() as ComponentInternalInstance
     // store
     const editorStore: EditorStore = useState(useStore(), 'editor')
-    const editorMutation = useMutation(useStore(), 'editor', [EditorMutation.CHANGE_ART_BOARD_SCALE])
+    const editorMutation = useMutation(useStore(), 'editor', [EditorMutation.CHANGE_ART_BOARD_SCALE,EditorMutation.CLEAR_SELECT_2D_NODES])
 
     const artBoard: Ref<HTMLDivElement | null> = ref<HTMLDivElement | null>(null)
 
@@ -59,11 +61,11 @@ export default {
     function onWheel(ev: WheelEvent) {
       if (ev.ctrlKey || keySpace.value) {
         ev.deltaY > 0
-            ? editorStore.artBoardScale > 0.3
-            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardScale - 0.05})
+            ? editorStore.artBoardConfig.artBoardScale > 0.3
+            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardConfig.artBoardScale - 0.05})
             : null
-            : editorStore.artBoardScale < 3
-            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardScale + 0.05})
+            : editorStore.artBoardConfig.artBoardScale < 3
+            ? editorMutation.CHANGE_ART_BOARD_SCALE({artBoardScale: editorStore.artBoardConfig.artBoardScale + 0.05})
             : null
       }
     }
@@ -75,11 +77,11 @@ export default {
     const artBoardRect = ref<DOMRect>()
     const wrapperWidthPx = computed(() => {
       let offset: number = Number(artBoardRect.value?.width) * 2
-      return props.width * editorStore.artBoardScale + offset + 'px'
+      return props.width * editorStore.artBoardConfig.artBoardScale + offset + 'px'
     })
     const wrapperHeightPx = computed(() => {
       let offset: number = Number(artBoardRect.value?.height) * 2
-      return props.height * editorStore.artBoardScale + offset + 'px'
+      return props.height * editorStore.artBoardConfig.artBoardScale + offset + 'px'
     })
 
     onMounted(() => {
@@ -97,7 +99,6 @@ export default {
 
     const artBoardToCenterDebounce = debounce(function () {
       artBoardRect.value = artBoard.value?.getBoundingClientRect()
-      console.log('update', artBoardRect.value)
       artBoardToCenter()
     }, 300)
     // resize
@@ -160,8 +161,11 @@ export default {
       keySpace.value ? (keySpace.value = false) : null
     }
 
+    function artBoardClick(){
+      console.log('click')
+      editorMutation["CLEAR_SELECT_2D_NODES"]()
+    }
     // mounted
-
     return {
       // size
       widthPx,
@@ -182,6 +186,7 @@ export default {
       spaceUp,
       spaceDown,
       isMoving,
+      artBoardClick
     }
   }
 }
@@ -190,6 +195,7 @@ export default {
 <style scoped>
 .art-board {
   overflow: scroll;
+  overscroll-behavior: contain;
   outline: none;
 }
 
