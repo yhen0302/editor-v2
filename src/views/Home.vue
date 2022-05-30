@@ -21,6 +21,7 @@ import { defineComponent, ref } from 'vue'
 import Header from '@/components/Header.vue'
 import Main from '@/components/Main.vue'
 import { useStore } from 'vuex'
+import { EventsBus } from '@/core/EventsBus'
 
 export default defineComponent({
   name: 'Home',
@@ -35,6 +36,8 @@ export default defineComponent({
       if (store.state.dimensionType == type) return
       store.state.selectBarToolType = ''
       store.state.dimensionType = type
+      // 重置右下角表单
+      EventsBus.emit('formsReset', {})
     }
 
     return {

@@ -14,7 +14,12 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       ambientLight: {
         color: 0xffffff,
         intensity: 1.0
-      }
+      },
+      directionLights: [{}],
+      hemisphereLight: {},
+      spotLights: [{}],
+      pointLights: [{}],
+      rectAreaLights: [{}]
     },
     cameras: {
       orbitCamera: {
@@ -39,7 +44,181 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     onLoad: (evt: any) => {
       callback && callback(evt)
 
-      // 环境光节点
+      // 面光源节点(多个)
+      const rectAreaLights = evt.rectAreaLights
+      const rectAreaLightNodes: any = {
+        uuid: -1,
+        name: 'RectAreaLights',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'RectAreaLights',
+        children: [],
+        show: false,
+        options: {}
+      }
+      rectAreaLights.forEach((rectAreaLight: any) => {
+        const rectAreaLightOptions = {
+          color: [rectAreaLight.color.r * 255, rectAreaLight.color.g * 255, rectAreaLight.color.b * 255],
+          intensity: rectAreaLight.intensity,
+          width: rectAreaLight.width,
+          height: rectAreaLight.height,
+          position: [parseFloat(rectAreaLight.position.x.toFixed(4)), parseFloat(rectAreaLight.position.y.toFixed(4)), parseFloat(rectAreaLight.position.z.toFixed(4))]
+        }
+
+        const rectAreaLightNode = {
+          uuid: rectAreaLight.uuid,
+          name: 'RectAreaLight',
+          selected: false,
+          index: 1,
+          spread: false,
+          type: 'RectAreaLight',
+          children: [],
+          show: false,
+          options: rectAreaLightOptions
+        }
+
+        rectAreaLightNodes.children.push(rectAreaLightNode)
+      })
+      ;(store as any).state.template.threeDimension.unshift(rectAreaLightNodes)
+
+      // 点光源节点(多个)
+      const pointLights = evt.pointLights
+      const pointLightNodes: any = {
+        uuid: -1,
+        name: 'PointLights',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'PointLights',
+        children: [],
+        show: false,
+        options: {}
+      }
+      pointLights.forEach((pointLight: any) => {
+        const pointLightOptions = {
+          color: [pointLight.color.r * 255, pointLight.color.g * 255, pointLight.color.b * 255],
+          intensity: pointLight.intensity,
+          decay: pointLight.decay,
+          distance: pointLight.distance,
+          position: [parseFloat(pointLight.position.x.toFixed(4)), parseFloat(pointLight.position.y.toFixed(4)), parseFloat(pointLight.position.z.toFixed(4))]
+        }
+
+        const pointLightNode = {
+          uuid: pointLight.uuid,
+          name: 'PointLight',
+          selected: false,
+          index: 1,
+          spread: false,
+          type: 'PointLight',
+          children: [],
+          show: false,
+          options: pointLightOptions
+        }
+
+        pointLightNodes.children.push(pointLightNode)
+      })
+      ;(store as any).state.template.threeDimension.unshift(pointLightNodes)
+
+      // 聚光灯节点(多个)
+      const spotLights = evt.spotLights
+      const spotLightNodes: any = {
+        uuid: -1,
+        name: 'SpotLights',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'SpotLights',
+        children: [],
+        show: false,
+        options: {}
+      }
+      spotLights.forEach((spotLight: any) => {
+        const spotLightOptions = {
+          color: [spotLight.color.r * 255, spotLight.color.g * 255, spotLight.color.b * 255],
+          intensity: spotLight.intensity,
+          decay: spotLight.decay,
+          distance: spotLight.distance,
+          penumbra: spotLight.penumbra,
+          position: [parseFloat(spotLight.position.x.toFixed(4)), parseFloat(spotLight.position.y.toFixed(4)), parseFloat(spotLight.position.z.toFixed(4))]
+        }
+
+        const spotLightNode = {
+          uuid: spotLight.uuid,
+          name: 'SpotLight',
+          selected: false,
+          index: 1,
+          spread: false,
+          type: 'SpotLight',
+          children: [],
+          show: false,
+          options: spotLightOptions
+        }
+
+        spotLightNodes.children.push(spotLightNode)
+      })
+      ;(store as any).state.template.threeDimension.unshift(spotLightNodes)
+
+      // 平行光节点(多个)
+      const directionLights = evt.directionLights
+      const directionLightNodes: any = {
+        uuid: -1,
+        name: 'DirectionLights',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'DirectionLights',
+        children: [],
+        show: false,
+        options: {}
+      }
+      directionLights.forEach((directionLight: any) => {
+        const directionLightOptions = {
+          color: [directionLight.color.r * 255, directionLight.color.g * 255, directionLight.color.b * 255],
+          intensity: directionLight.intensity,
+          position: [parseFloat(directionLight.position.x.toFixed(4)), parseFloat(directionLight.position.y.toFixed(4)), parseFloat(directionLight.position.z.toFixed(4))]
+        }
+
+        const directionLightNode = {
+          uuid: directionLight.uuid,
+          name: 'DirectionLight',
+          selected: false,
+          index: 1,
+          spread: false,
+          type: 'DirectionLight',
+          children: [],
+          show: false,
+          options: directionLightOptions
+        }
+
+        directionLightNodes.children.push(directionLightNode)
+      })
+      ;(store as any).state.template.threeDimension.unshift(directionLightNodes)
+
+      // 半球光节点(单个)
+      const hemisphereLight = evt.hemiLight
+      const hemisphereLightOptions = {
+        color: [hemisphereLight.color.r * 255, hemisphereLight.color.g * 255, hemisphereLight.color.b * 255],
+        groundColor: [hemisphereLight.groundColor.r * 255, hemisphereLight.groundColor.g * 255, hemisphereLight.groundColor.b * 255],
+        intensity: hemisphereLight.intensity,
+        position: [parseFloat(hemisphereLight.position.x.toFixed(4)), parseFloat(hemisphereLight.position.y.toFixed(4)), parseFloat(hemisphereLight.position.z.toFixed(4))]
+      }
+
+      const hemisphereLightNode = {
+        uuid: hemisphereLight.uuid,
+        name: 'HemisphereLight',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: hemisphereLight.type,
+        children: [],
+        show: false,
+        options: hemisphereLightOptions
+      }
+
+      ;(store as any).state.template.threeDimension.unshift(hemisphereLightNode)
+
+      // 环境光节点(单个)
       const ambientLight = evt.ambientLight
       const ambientLightOptions = {
         color: [ambientLight.color.r * 255, ambientLight.color.g * 255, ambientLight.color.b * 255],
@@ -60,7 +239,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
 
       ;(store as any).state.template.threeDimension.unshift(ambientLightNode)
 
-      // 相机节点
+      // 相机节点(单个)
       let camera: any
       let controls: any
       let cameraOptions: any = {}

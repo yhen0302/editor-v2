@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, ref } from 'vue'
+import { defineComponent, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useStore } from 'vuex'
 import { EventsBus } from '@/core/EventsBus'
 
@@ -21,27 +21,27 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const detailsList: any = ref({
-      ambientLight: {
+      AmbientLight: {
         name: '环境光',
         selected: false
       },
-      directionLight: {
-        name: '平行光',
-        selected: false
-      },
-      spotLight: {
-        name: '聚光灯',
-        selected: false
-      },
-      pointLight: {
-        name: '点光源',
-        selected: false
-      },
-      hemisphereLight: {
+      HemisphereLight: {
         name: '半球光',
         selected: false
       },
-      rectAreaLight: {
+      DirectionLights: {
+        name: '平行光',
+        selected: false
+      },
+      SpotLights: {
+        name: '聚光灯',
+        selected: false
+      },
+      PointLights: {
+        name: '点光源',
+        selected: false
+      },
+      RectAreaLights: {
         name: '矩形面光',
         selected: false
       }
@@ -57,18 +57,56 @@ export default defineComponent({
       }
       target.selected = !flag
 
-      console.log('store.state.selectedSceneTreeNode', store.state.selectedSceneTreeNode)
-      if (key === 'ambientLight') {
-        // find ambientLightNode
-        store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
-          if (node.type === 'AmbientLight') {
-            node.selected = target.selected
-            store.state.selectedPageTreeNode = node.selected ? node : null
-            EventsBus.emit('toolBarSelected', { node })
-          }
-        })
-      }
+      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
+        if (node.type === key) {
+          EventsBus.emit('treeSelected', { node })
+          EventsBus.emit('toolBarSelected', { node })
+        }
+      })
     }
+
+    const reloadEditForms = () => {
+      let selectedItem: any
+      let key = ''
+      for (const k in detailsList.value) {
+        const detail = detailsList.value[k]
+        if (detail.selected) {
+          selectedItem = detail
+          key = k
+          break
+        }
+      }
+
+      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
+        if (node.type === key) {
+          node.selected = selectedItem.selected
+          store.state.selectedPageTreeNode = node.selected ? node : null
+          EventsBus.emit('toolBarSelected', { node })
+        }
+      })
+    }
+
+    const validateDetails = () => {
+      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
+        for (const k in detailsList.value) {
+          if (node.type === k) {
+            const detail = detailsList.value[k]
+            detail.selected = node.selected
+          }
+        }
+      })
+    }
+
+    onMounted(() => {
+      EventsBus.on('formsReload', reloadEditForms)
+      EventsBus.on('navDetailsValidate', validateDetails)
+      validateDetails()
+    })
+
+    onUnmounted(() => {
+      EventsBus.off('formsReload', reloadEditForms)
+      EventsBus.off('navDetailsValidate', validateDetails)
+    })
 
     return {
       store,

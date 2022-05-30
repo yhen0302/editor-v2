@@ -22,3 +22,35 @@ export function formatterDate(formatter = 'yyyy-MM-dd hh:mm:ss', date = new Date
 
   return res
 }
+
+export function hexColorToRgba(hexColor: string, opacity: number) {
+  const hexColorReg = /^#([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})$/g
+  const matchRes = hexColorReg.exec(hexColor) as RegExpExecArray
+  if (!matchRes) return 'transparent'
+  return `rgba(${Number('0x' + matchRes[1])},${Number('0x' + matchRes[2])},${Number('0x' + matchRes[3])},${(opacity / 100).toFixed(2)})`
+}
+
+export function colorRGBtoHex(colors: Array<number>) {
+  const r = colors[0]
+  const g = colors[1]
+  const b = colors[2]
+  const hex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+  return hex
+}
+
+export function hex2rgb(hex: string): Array<number> {
+  if (hex == '') {
+    return [0, 0, 0]
+  }
+  hex = hex.substring(1)
+  hex = hex.toLowerCase()
+  const b: any = []
+  for (let x = 0; x < 3; x++) {
+    b[0] = hex.substr(x * 2, 2)
+    b[3] = '0123456789abcdef'
+    b[1] = b[0].substr(0, 1)
+    b[2] = b[0].substr(1, 1)
+    b[20 + x] = b[3].indexOf(b[1]) * 16 + b[3].indexOf(b[2])
+  }
+  return [b[20], b[21], b[22]]
+}

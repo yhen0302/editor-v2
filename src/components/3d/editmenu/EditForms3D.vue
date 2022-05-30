@@ -13,6 +13,11 @@ import MeshForms3D from './editForms/MeshForms3D.vue'
 import ObjectForms3D from './editForms/ObjectForms3D.vue'
 
 import AmbientLightForms3D from './editForms/AmbientLightForms3D.vue'
+import DirectionLightsForms3D from './editForms/DirectionLightsForms3D.vue'
+import HemisphereLightForms3D from './editForms/HemisphereLightForms3D.vue'
+import SpotLightsForms3D from './editForms/SpotLightsForms3D.vue'
+import PointLightsForms3D from './editForms/PointLightsForms3D.vue'
+import RectAreaLightsForms3D from './editForms/RectAreaLightsForms3D.vue'
 import { EventsBus } from '@/core/EventsBus'
 
 export default defineComponent({
@@ -22,7 +27,12 @@ export default defineComponent({
     GroupForms3D,
     MeshForms3D,
     ObjectForms3D,
-    AmbientLightForms3D
+    AmbientLightForms3D,
+    DirectionLightsForms3D,
+    HemisphereLightForms3D,
+    SpotLightsForms3D,
+    PointLightsForms3D,
+    RectAreaLightsForms3D
   },
   setup() {
     const store = useStore()
@@ -74,6 +84,26 @@ export default defineComponent({
           type.value = 'AmbientLightForms3D'
           node.value = e.node
           break
+        case 'HemisphereLight':
+          type.value = 'HemisphereLightForms3D'
+          node.value = e.node
+          break
+        case 'DirectionLights':
+          type.value = 'DirectionLightsForms3D'
+          node.value = e.node
+          break
+        case 'SpotLights':
+          type.value = 'SpotLightsForms3D'
+          node.value = e.node
+          break
+        case 'PointLights':
+          type.value = 'PointLightsForms3D'
+          node.value = e.node
+          break
+        case 'RectAreaLights':
+          type.value = 'RectAreaLightsForms3D'
+          node.value = e.node
+          break
       }
     })
 
@@ -81,6 +111,9 @@ export default defineComponent({
     EventsBus.on('formsReset', () => {
       type.value = ''
       node.value = null
+
+      // 左侧toolbar update（有可能为选中状态，此时恢复表单）
+      EventsBus.emit('formsReload', {})
     })
 
     return {

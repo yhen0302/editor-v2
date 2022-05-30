@@ -34,7 +34,7 @@ export default defineComponent({
     // 选中元素:单选
     EventsBus.on('treeSelected', (e: any) => {
       const flag = e.node.selected
-      traverseResetSelectedOfNodes(nodes.value)
+      traverseResetSelectedOfNodes(store.state.selectedSceneTreeNode.trees.threeDimension)
       e.node.selected = !flag
       store.state.selectedPageTreeNode = e.node.selected ? e.node : null
     })

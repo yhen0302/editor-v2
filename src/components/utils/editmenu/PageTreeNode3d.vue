@@ -63,6 +63,7 @@ export default defineComponent({
       if (e.button != 0) return
 
       EventsBus.emit('treeSelected', { node })
+      EventsBus.emit('navDetailsValidate', {})
     }
 
     return {

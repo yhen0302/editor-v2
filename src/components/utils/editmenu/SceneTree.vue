@@ -111,6 +111,8 @@ export default defineComponent({
 
       // reload 3d scene
       reloadThreeDimensionScene(node)
+      // reload edit forms
+      EventsBus.emit('formsReload', {})
     })
 
     onMounted(() => {
