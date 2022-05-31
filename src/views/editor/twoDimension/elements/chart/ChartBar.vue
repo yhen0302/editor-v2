@@ -23,14 +23,13 @@
 import matrixMixin from '@/views/editor/twoDimension/elements/matrixMixin'
 import * as echarts from 'echarts'
 import { debounce } from '@/util/base'
-import {getCurrentInstance, watch} from 'vue'
+import { getCurrentInstance, watch } from 'vue'
 
 export default {
   name: 'ChartBar',
   mixins: [matrixMixin],
   props: ['node'],
   mounted() {
-    console.log(this.node.option.echartsOption.title)
     this.myChart = echarts.init(this.$refs.chartWrap)
     this.myChart.setOption(this.node.option.echartsOption)
   },
@@ -40,18 +39,60 @@ export default {
       this.myChart.resize()
     },
     updateEchartsOption() {
-      console.log(this.node.option.echartsOption)
       this.myChart.setOption(this.node.option.echartsOption)
     },
     debounceSetOption: debounce(function () {
       this.updateEchartsOption()
     }, 300)
   },
-  setup(props){
+  setup(props) {
     const instance = getCurrentInstance()
-    watch(()=>props.node.option.echartsOption.title,(newVal,oldVal)=>{
+    // title watcher
+    watch(
+      () => props.node.option.echartsOption.title,
+      (newVal, oldVal) => {
+        instance.ctx.debounceSetOption()
+      },
+      { deep: true }
+    )
+
+    watch(
+      () => props.node.option.echartsOption.unit,
+      (newVal, oldVal) => {
+        if (newVal.show) {
+          const unit = props.node.option.echartsOption.unit
+          // eslint-disable-next-line vue/no-mutating-props
+          props.node.option.echartsOption.graphic = {
+            elements: [
+              {
+                type: 'text',
+                left: unit.left,
+                right: unit.right,
+                top: 20,
+                style: {
+                  text: unit.text,
+                  fill: unit.textStyle.color,
+                  font: `${unit.textStyle.fontStyle} ${unit.textStyle.fontWeight} ${unit.textStyle.fontSize}px ${unit.textStyle.fontFamily}`
+                }
+              }
+            ]
+          }
+          instance.ctx.debounceSetOption()
+        }
+      },
+      { deep: true }
+    )
+
+    watch(()=>props.node.option.echartsOption.series,(newVal)=>{
       instance.ctx.debounceSetOption()
     },{deep:true})
+    watch(()=>props.node.option.echartsOption.yAxis,(newVal)=>{
+      instance.ctx.debounceSetOption()
+    },{deep:true})
+    watch(()=>props.node.option.echartsOption.legend,(newVal)=>{
+      instance.ctx.debounceSetOption()
+    },{deep:true})
+
   },
   watch: {
     'node.option.echartsOption.color': {
@@ -59,7 +100,7 @@ export default {
         this.debounceSetOption()
       },
       deep: true
-    },
+    }
   }
 }
 </script>

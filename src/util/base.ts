@@ -98,8 +98,7 @@ export function getChartUrl<Opt extends ECBasicOption>(option: Opt) {
 export function debounce(fn: Function, delay: number, ctx: any = null) {
   let timer: number
 
-  return function (...args: any) {
-    // @ts-ignore
+  return function (this:any,...args: any) {
     const that = this
     if (timer) clearTimeout(timer)
     timer = <number>(<unknown>setTimeout(function () {

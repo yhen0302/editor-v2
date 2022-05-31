@@ -20,15 +20,16 @@ export const lineChartList = [
         ],
         title: {
           text: '标题123456',
-          show:false,
+          show: false,
+          left: 10,
+          top: 10,
+          right: 'auto',
           textStyle: {
-
             fontFamily: 'microsoft YaHei',
             color: '#FFFFFF',
             fontSize: 18,
             fontWeight: 'normal',
-            fontStyle: 'normal',
-            textAlign: 'auto'
+            fontStyle: 'normal'
           }
         },
         xAxis: {
@@ -36,19 +37,50 @@ export const lineChartList = [
           data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         },
         grid: {
-          top: '10%',
-          bottom: '10%'
+          top: '20%',
+          bottom: '20%'
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
+          splitLine: {
+            show: true,
+            lineStyle: {
+              color: ['#FFFFFF'],
+              opacity:1
+            }
+          }
         },
         series: [
           {
             data: [10, 40, 50, 80, 100, 25, 40],
             type: 'line',
-            smooth: true
+            smooth: true,
+            name:'图表一',
+            label: {
+              show: true,
+              color: '#FFFFFF',
+              fontFamily: 'microsoft YaHei',
+              fontStyle: 'normal',
+              fontWeight: 'normal',
+              fontSize: 18
+            }
           }
-        ]
+        ],
+        unit: {
+          text: '单位',
+          show: false,
+          left: 10,
+          top: 20,
+          right: 'auto',
+          textStyle: {
+            fontFamily: 'microsoft YaHei',
+            color: '#FFFFFF',
+            fontSize: 18,
+            fontWeight: 'normal',
+            fontStyle: 'normal'
+          }
+        },
+        legend:{show:true}
       }
     },
     icon: ''

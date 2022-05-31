@@ -4,9 +4,11 @@
       <template #default>
         <fold-el :line-show="false">
           <template #header>
-            <div class="sub-fold-header title-cnf flex justify-between items-center">
+            <div
+              class="sub-fold-header title-cnf flex justify-between items-center"
+            >
               <span class="text-12">图例显示</span>
-              <switch-el></switch-el>
+              <switch-el v-model:value="legendShow"></switch-el>
             </div>
           </template>
           <template #default>
@@ -20,19 +22,40 @@
 </template>
 
 <script>
-import FoldEl from "@/component/common/FoldEl";
-import SwitchEl from "@/component/common/SwitchEl";
-import LineEl from "@/component/common/LineEl";
+import FoldEl from '@/component/common/FoldEl'
+import SwitchEl from '@/component/common/SwitchEl'
+import LineEl from '@/component/common/LineEl'
+import { useGetter, useState } from '@/store/helper'
+import { useStore } from 'vuex'
+import { computed } from 'vue'
 
 export default {
-  name: "ChartLegendConfigurator",
-  components: {LineEl, SwitchEl, FoldEl},
+  name: 'ChartLegendConfigurator',
+  components: { LineEl, SwitchEl, FoldEl },
   data() {
-    return {mic: "mic", t: "cc"}
+    return { mic: 'mic', t: 'cc' }
   },
+  setup() {
+    const store = useStore()
+    const editorStore = useState(store, 'editor')
+    const editorGetter = useGetter(store, 'editor', ['GET_SELECT_NODE'])
+
+    const legendShow = computed({
+      get() {
+        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.legend
+          .show
+      },
+      set(newVal) {
+        editorGetter['GET_SELECT_NODE'].value.option.echartsOption.legend.show =
+          newVal
+      }
+    })
+
+    return { legendShow }
+  }
 }
 </script>
 
 <style scoped>
-@import "common.css";
+@import 'common.css';
 </style>

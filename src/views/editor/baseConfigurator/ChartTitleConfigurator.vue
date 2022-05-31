@@ -52,7 +52,11 @@
               </div>
               <div class="sub-fold-item-wrap flex items-center mt-16">
                 <div class="config-item-pre pl-16 text-12">位置</div>
-                <check-box-el :value="t" :list="POSITION_ALIGN" :radio="true">
+                <check-box-el
+                  v-model="titleAlign"
+                  :list="POSITION_ALIGN"
+                  :radio="true"
+                >
                   <template v-slot:default="data">
                     <div class="h-full w-full grid place-content-center">
                       <img :src="data.item.label" />
@@ -65,13 +69,13 @@
           </template>
         </fold-el>
         <!--单位-->
-        <fold-el :line-show="false" class="mt-16">
+        <fold-el :line-show="false" class="mt-16" :model="true" v-model:show="unitShow">
           <template #header>
             <div
               class="sub-fold-header title-cnf flex justify-between items-center"
             >
               <span class="text-12">单位显示</span>
-              <switch-el></switch-el>
+              <switch-el v-model:value="unitShow"></switch-el>
             </div>
           </template>
           <template #default>
@@ -80,15 +84,19 @@
                 <div class="config-item-pre pl-16 text-12">字体</div>
                 <select-el
                   class="select"
-                  v-model:value="titleFontFamily"
+                  v-model:value="unitFontFamily"
                   :list="FONT_FAMILY"
                 ></select-el>
               </div>
               <div class="sub-fold-item-wrap flex items-center mt-16">
                 <div class="config-item-pre pl-16 text-12"></div>
                 <div class="config-item-suf flex">
-                  <color-picker-el style="flex-shrink: 0"></color-picker-el>
-                  <input-el style="height: 32px" type="number">
+                  <color-picker-el style="flex-shrink: 0" v-model:value="unitColor"></color-picker-el>
+                  <input-el
+                    style="height: 32px"
+                    v-model:value="unitFontSize"
+                    type="number"
+                  >
                     <template #prefix
                       ><span class="inp-prefix text-12">px</span></template
                     >
@@ -97,7 +105,7 @@
               </div>
               <div class="sub-fold-item-wrap flex items-center mt-16">
                 <div class="config-item-pre pl-16 text-12"></div>
-                <check-box-el :value="t" :list="FONT_STYLE">
+                <check-box-el v-model="unitFontStyle" :list="FONT_STYLE">
                   <template v-slot:default="data">
                     <div class="h-full w-full grid place-content-center">
                       <img :src="data.item.label" />
@@ -107,7 +115,11 @@
               </div>
               <div class="sub-fold-item-wrap flex items-center mt-16">
                 <div class="config-item-pre pl-16 text-12">位置</div>
-                <check-box-el :value="t" :list="POSITION_ALIGN" :radio="true">
+                <check-box-el
+                  v-model="unitAlign"
+                  :list="POSITION_ALIGN"
+                  :radio="true"
+                >
                   <template v-slot:default="data">
                     <div class="h-full w-full grid place-content-center">
                       <img :src="data.item.label" />
@@ -131,7 +143,7 @@ import SwitchEl from '@/component/common/SwitchEl'
 import SelectEl from '@/component/common/SelectEl'
 import InputEl from '@/component/common/InputEl'
 import CheckBoxEl from '@/component/common/CheckBoxEl'
-import {computed, markRaw, ref, SetupContext} from 'vue'
+import { computed, markRaw, ref, SetupContext } from 'vue'
 import LineEl from '@/component/common/LineEl.vue'
 import ColorPickerEl from '@/component/common/ColorPickerEl.vue'
 import {
@@ -218,6 +230,12 @@ export default {
         return weight ? (italic ? ['weight', 'italic'] : ['weight']) : []
       },
       set(newVal) {
+        editorGetter[
+          'GET_SELECT_NODE'
+        ].value.option.echartsOption.title.textStyle.fontWeight = 'normal'
+        editorGetter[
+          'GET_SELECT_NODE'
+        ].value.option.echartsOption.title.textStyle.fontStyle = 'normal'
         newVal.forEach((item) => {
           switch (item) {
             case 'weight':
@@ -233,9 +251,146 @@ export default {
         })
       }
     })
+    const titleAlign = computed({
+      get() {
+        const l =
+            editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title
+              .left,
+          r =
+            editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title
+              .right
+        return l === 10 ? 'left' : r === 10 ? 'right' : 'center'
+      },
+      set(newVal) {
+        const t =
+          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title
+        switch (newVal[0]) {
+          case 'left':
+            t.left = 10
+            t.right = 'auto'
+            break
+          case 'center':
+            t.left = 'center'
+            t.right = 'auto'
+            break
+          case 'right':
+            t.left = 'auto'
+            t.right = 10
+            break
+        }
+      }
+    })
+
+    // unit
+    const unitShow = computed({
+      get() {
+        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
+          .show
+      },
+      set(newVal) {
+        editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit.show =
+          newVal
+        updateHeight.value = true
+      }
+    })
+    const unitFontFamily = computed({
+      get() {
+        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
+          .textStyle.fontFamily
+      },
+      set(newVal) {
+        editorGetter[
+          'GET_SELECT_NODE'
+        ].value.option.echartsOption.unit.textStyle.fontFamily = newVal
+      }
+    })
+    const unitColor = computed({
+      get() {
+        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
+          .textStyle.color
+      },
+      set(newVal) {
+        editorGetter[
+          'GET_SELECT_NODE'
+        ].value.option.echartsOption.unit.textStyle.color = newVal
+      }
+    })
+    const unitFontSize = computed({
+      get() {
+        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
+          .textStyle.fontSize
+      },
+      set(newVal) {
+        editorGetter[
+          'GET_SELECT_NODE'
+        ].value.option.echartsOption.unit.textStyle.fontSize = newVal
+      }
+    })
+    const unitFontStyle = computed<Array<any>>({
+      get() {
+        const weight =
+          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
+            .textStyle.fontWeight === 'bold'
+        const italic =
+          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
+            .textStyle.fontStyle === 'italic'
+        return weight ? (italic ? ['weight', 'italic'] : ['weight']) : []
+      },
+      set(newVal) {
+        editorGetter[
+          'GET_SELECT_NODE'
+        ].value.option.echartsOption.unit.textStyle.fontWeight = 'normal'
+        editorGetter[
+          'GET_SELECT_NODE'
+        ].value.option.echartsOption.unit.textStyle.fontStyle = 'normal'
+        newVal.forEach((item) => {
+          switch (item) {
+            case 'weight':
+              editorGetter[
+                'GET_SELECT_NODE'
+              ].value.option.echartsOption.unit.textStyle.fontWeight = 'bold'
+              break
+            case 'italic':
+              editorGetter[
+                'GET_SELECT_NODE'
+              ].value.option.echartsOption.unit.textStyle.fontStyle = 'italic'
+          }
+        })
+      }
+    })
+    const unitAlign = computed({
+      get() {
+        const l =
+            editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
+              .left,
+          r =
+            editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
+              .right
+        return l === 10 ? 'left' : r === 10 ? 'right' : 'center'
+      },
+      set(newVal) {
+        const t =
+          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
+        switch (newVal[0]) {
+          case 'left':
+            t.left = 10
+            t.right = 'auto'
+            break
+          case 'center':
+            t.left = 'center'
+            t.right = 'auto'
+            break
+          case 'right':
+            t.left = 'auto'
+            t.right = 10
+            break
+        }
+      }
+    })
     // const
     const FONT_STYLE_COPY = markRaw(clone(FONT_STYLE))
     FONT_STYLE_COPY[2].disable = true
+
     return {
       FONT_STYLE: markRaw(FONT_STYLE_COPY),
       FONT_FAMILY: markRaw(FONT_FAMILY),
@@ -246,7 +401,15 @@ export default {
       titleColor,
       titleFontSize,
       titleFontStyle,
-      updateHeight
+      updateHeight,
+      titleAlign,
+      // unit
+      unitShow,
+      unitFontFamily,
+      unitColor,
+      unitFontSize,
+      unitFontStyle,
+      unitAlign
     }
   }
 }

@@ -72,13 +72,6 @@
                     </div>
                   </template>
                   <template v-slot:suffix="node">
-                    <div class="suffix-icon-wrap cursor-pointer" :class="{ 'opacity-50': findHasFalseShowParentNode(node) }" @click.stop="hiddenControl(node)">
-                      <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
-                      <img src="~@/assets/images/editor_seen_btn_dark.png" v-else />
-                    </div>
-                  </template>
-                  <template v-slot:folderPrefix>
-                    <img src="~@/assets/images/editor_elementgroup_icn_dark.png" style="margin-right: 8px" />
                     <div
                       class="suffix-icon-wrap cursor-pointer"
                       :class="{
@@ -116,9 +109,6 @@
                     <div></div>
                   </template>
                   <template v-slot:suffix="node">
-                    <div class="suffix-icon-wrap cursor-pointer" :class="{ 'opacity-50': findHasFalseShowParentNode(node) }" @click.stop="hiddenControl(node)">
-                      <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
-                      <img src="~@/assets/images/editor_seen_btn_dark.png" v-else />
                     <div
                       class="suffix-icon-wrap cursor-pointer"
                       :class="{
