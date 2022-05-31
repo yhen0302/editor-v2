@@ -73,7 +73,7 @@ export default defineComponent({
     ])
 
     // content settings
-    const formSettings: any = ref([])
+    const formSettings: any = ref({})
 
     const pageTreeNodeUpdate = (event: any) => {
       const { position } = event.options

@@ -1,6 +1,7 @@
 import { parseModelNode } from './util'
 import store from '../../store'
 import { EventsBus } from '../EventsBus'
+import { throttled } from '../utils/base'
 
 declare const Bol3D: any
 
@@ -10,16 +11,19 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     container: domElement,
     viewState: 'orbit',
     modelUrls,
+    enableShadow: true,
     lights: {
       ambientLight: {
         color: 0xffffff,
-        intensity: 1.0
+        intensity: 0.2
       },
       directionLights: [{}],
-      hemisphereLight: {},
-      spotLights: [{}],
-      pointLights: [{}],
-      rectAreaLights: [{}]
+      hemisphereLight: {
+        intensity: 0
+      }
+      // spotLights: [{}],
+      // pointLights: [{}],
+      // rectAreaLights: [{}]
     },
     cameras: {
       orbitCamera: {
@@ -31,9 +35,10 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     },
     controls: {
       orbitControls: {
-        enableDamping: false
+        // enableDamping: false
       }
     },
+    stats: true,
     onProgress: (model: any) => {
       const node: any = {}
       const index = 0
@@ -43,6 +48,27 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     },
     onLoad: (evt: any) => {
       callback && callback(evt)
+
+      console.log('loaded', evt)
+
+      // 阴影节点(单个)
+      const shadowOptions = {
+        enabled: evt.renderer.shadowMap.enabled,
+        type: evt.renderer.shadowMap.type
+      }
+      const shadowNode: any = {
+        uuid: -1,
+        name: 'Shadow',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'Shadow',
+        children: [],
+        show: false,
+        options: shadowOptions
+      }
+
+      ;(store as any).state.template.threeDimension.unshift(shadowNode)
 
       // 面光源节点(多个)
       const rectAreaLights = evt.rectAreaLights
@@ -176,7 +202,13 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         const directionLightOptions = {
           color: [directionLight.color.r * 255, directionLight.color.g * 255, directionLight.color.b * 255],
           intensity: directionLight.intensity,
-          position: [parseFloat(directionLight.position.x.toFixed(4)), parseFloat(directionLight.position.y.toFixed(4)), parseFloat(directionLight.position.z.toFixed(4))]
+          position: [parseFloat(directionLight.position.x.toFixed(4)), parseFloat(directionLight.position.y.toFixed(4)), parseFloat(directionLight.position.z.toFixed(4))],
+          // shadow options
+          near: directionLight.shadow.camera.near,
+          far: directionLight.shadow.camera.far,
+          bias: directionLight.shadow.bias,
+          distance: directionLight.shadow.camera.top,
+          size: directionLight.shadow.mapSize.width
         }
 
         const directionLightNode = {
@@ -270,7 +302,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         selected: false,
         index: 0,
         spread: false,
-        type: camera.type,
+        type: 'Camera',
         children: [],
         show: false,
         options: cameraOptions
@@ -291,10 +323,11 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       controls.addEventListener('end', () => {
         controlsFlag = false
       })
-      controls.addEventListener('change', (event: any) => {
-        if (controlsFlag) {
+
+      const updateFnCamera = (event: any) => {
+        if (controlsFlag && event && event.target) {
           const t = event.target
-          const { target, object } = t
+          const { object } = t
           const { position, uuid } = object
 
           // update editForms
@@ -318,6 +351,12 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
             })
           }
         }
+      }
+
+      // 节流 change频率太高
+      const updateFnCameraTd = throttled(updateFnCamera, 60)
+      controls.addEventListener('change', (event: any) => {
+        updateFnCameraTd(event)
       })
     }
     // bgColor: 0x333333,

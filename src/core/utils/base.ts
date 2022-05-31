@@ -54,3 +54,48 @@ export function hex2rgb(hex: string): Array<number> {
   }
   return [b[20], b[21], b[22]]
 }
+
+// 节流
+export function throttled(fn: any, delay: number): (args?: any) => void {
+  let timer: any = null
+  let starttime = Date.now()
+  return function (this: any) {
+    const curTime = Date.now() // 当前时间
+    const remaining = delay - (curTime - starttime) // 从上一次到现在，还剩下多少多余时间
+    clearTimeout(timer)
+    if (remaining <= 0) {
+      // eslint-disable-next-line prefer-rest-params
+      fn.apply(this, arguments)
+      starttime = Date.now()
+    } else {
+      // eslint-disable-next-line prefer-rest-params
+      timer = setTimeout(fn, remaining)
+    }
+  }
+}
+
+// 防抖
+export function debounce(func: any, wait: number, immediate: boolean) {
+  let timeout: any
+  const exec = () => {
+    // eslint-disable-next-line prefer-rest-params
+    const args = arguments
+
+    if (timeout) clearTimeout(timeout) // timeout 不为null
+    if (immediate) {
+      const callNow = !timeout // 第一次会立即执行，以后只有事件执行后才会再次触发
+      timeout = setTimeout(function () {
+        timeout = null
+      }, wait)
+      if (callNow) {
+        func.apply(exec, args)
+      }
+    } else {
+      timeout = setTimeout(function () {
+        func.apply(exec, args)
+      }, wait)
+    }
+  }
+
+  exec()
+}

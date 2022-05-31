@@ -160,6 +160,36 @@ export default defineComponent({
               value: options.position[2],
               type: 'input'
             }
+          ],
+          near: [
+            {
+              value: options.near,
+              type: 'input'
+            }
+          ],
+          far: [
+            {
+              value: options.far,
+              type: 'input'
+            }
+          ],
+          bias: [
+            {
+              value: options.bias,
+              type: 'input'
+            }
+          ],
+          distance: [
+            {
+              value: options.distance,
+              type: 'input'
+            }
+          ],
+          size: [
+            {
+              value: options.size,
+              type: 'input'
+            }
           ]
         }
 
@@ -205,6 +235,32 @@ export default defineComponent({
           currentObj.position.z = parseFloat(val)
         }
         setting.value = parseFloat(val)
+      } else if (key === 'distance') {
+        if (isNaN(val)) return
+        setting.value = parseFloat(val)
+        currentObj.shadow.camera.left = -parseFloat(val)
+        currentObj.shadow.camera.right = parseFloat(val)
+        currentObj.shadow.camera.top = parseFloat(val)
+        currentObj.shadow.camera.bottom = -parseFloat(val)
+        currentObj.shadow.camera.updateProjectionMatrix()
+        currentObj.shadow.needsUpdate = true
+      } else if (key === 'near' || key === 'far') {
+        if (isNaN(val)) return
+        setting.value = parseFloat(val)
+        currentObj.shadow.camera[key] = parseFloat(val)
+        currentObj.shadow.camera.updateProjectionMatrix()
+        currentObj.shadow.needsUpdate = true
+      } else if (key === 'bias') {
+        if (isNaN(val)) return
+        setting.value = parseFloat(val)
+        currentObj.shadow.bias = parseFloat(val)
+        currentObj.shadow.needsUpdate = true
+      } else if (key === 'size') {
+        if (isNaN(val)) return
+        setting.value = parseFloat(val)
+        currentObj.shadow.mapSize.width = parseFloat(val)
+        currentObj.shadow.mapSize.height = parseFloat(val)
+        currentObj.shadow.needsUpdate = true
       }
 
       // update pageTreeNode
@@ -215,6 +271,11 @@ export default defineComponent({
           options['color'] = [formSetting['color'][0].value[0], formSetting['color'][0].value[1], formSetting['color'][0].value[2]]
           options['intensity'] = formSetting['intensity'][0].value
           options['position'] = [formSetting['position'][0].value, formSetting['position'][1].value, formSetting['position'][2].value]
+          options['distance'] = formSetting['distance'][0].value
+          options['near'] = formSetting['near'][0].value
+          options['far'] = formSetting['far'][0].value
+          options['bias'] = formSetting['bias'][0].value
+          options['size'] = formSetting['size'][0].value
         }
       })
 

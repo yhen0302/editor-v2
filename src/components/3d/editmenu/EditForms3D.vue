@@ -7,23 +7,28 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useStore } from 'vuex'
-import CameraForms3D from './editForms/CameraForms3D.vue'
+
+// 1.page tree
 import GroupForms3D from './editForms/GroupForms3D.vue'
 import MeshForms3D from './editForms/MeshForms3D.vue'
 import ObjectForms3D from './editForms/ObjectForms3D.vue'
-
+// 2.lights
 import AmbientLightForms3D from './editForms/AmbientLightForms3D.vue'
 import DirectionLightsForms3D from './editForms/DirectionLightsForms3D.vue'
 import HemisphereLightForms3D from './editForms/HemisphereLightForms3D.vue'
 import SpotLightsForms3D from './editForms/SpotLightsForms3D.vue'
 import PointLightsForms3D from './editForms/PointLightsForms3D.vue'
 import RectAreaLightsForms3D from './editForms/RectAreaLightsForms3D.vue'
+// 3.camera
+import CameraForms3D from './editForms/CameraForms3D.vue'
+// 4.shadow
+import ShadowForms3D from './editForms/ShadowForms3D.vue'
+
 import { EventsBus } from '@/core/EventsBus'
 
 export default defineComponent({
   name: 'EditForms3D',
   components: {
-    CameraForms3D,
     GroupForms3D,
     MeshForms3D,
     ObjectForms3D,
@@ -32,7 +37,9 @@ export default defineComponent({
     HemisphereLightForms3D,
     SpotLightsForms3D,
     PointLightsForms3D,
-    RectAreaLightsForms3D
+    RectAreaLightsForms3D,
+    CameraForms3D,
+    ShadowForms3D
   },
   setup() {
     const store = useStore()
@@ -50,10 +57,6 @@ export default defineComponent({
 
       // 展示编辑表单
       switch (e.node.type) {
-        case 'PerspectiveCamera': // todo 正交相机 墨卡托相机
-          type.value = 'CameraForms3D'
-          node.value = e.node
-          break
         case 'Group':
           type.value = 'GroupForms3D'
           node.value = e.node
@@ -102,6 +105,14 @@ export default defineComponent({
           break
         case 'RectAreaLights':
           type.value = 'RectAreaLightsForms3D'
+          node.value = e.node
+          break
+        case 'Camera':
+          type.value = 'CameraForms3D'
+          node.value = e.node
+          break
+        case 'Shadow':
+          type.value = 'ShadowForms3D'
           node.value = e.node
           break
       }

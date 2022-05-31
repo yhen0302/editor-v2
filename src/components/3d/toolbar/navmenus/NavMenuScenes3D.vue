@@ -14,12 +14,16 @@ import ToolBarItem from '@/components/utils/toolbar/ToolBarItem.vue'
 import { EventsBus } from '@/core/EventsBus'
 
 import NavDetailsLight3D from '@/components/3d/toolbar/navdetails/NavDetailsLight3D.vue'
+import NavDetailsCamera3D from '@/components/3d/toolbar/navdetails/NavDetailsCamera3D.vue'
+import NavDetailsShadow3D from '@/components/3d/toolbar/navdetails/NavDetailsShadow3D.vue'
 
 export default defineComponent({
   name: 'NavMenuScenes3D',
   components: {
     ToolBarItem,
-    NavDetailsLight3D
+    NavDetailsLight3D,
+    NavDetailsCamera3D,
+    NavDetailsShadow3D
   },
   setup() {
     const pageIndex = ref(0)
@@ -48,10 +52,10 @@ export default defineComponent({
           detailsType.value = 'NavDetailsLight3D'
           break
         case 'camera':
-          detailsType.value = 'NavDetailsLight3D'
+          detailsType.value = 'NavDetailsCamera3D'
           break
         case 'shadow':
-          detailsType.value = 'NavDetailsLight3D'
+          detailsType.value = 'NavDetailsShadow3D'
           break
         case 'background':
           detailsType.value = 'NavDetailsLight3D'

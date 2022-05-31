@@ -15,7 +15,7 @@
     <div class="content mesh" v-show="headerItems[0].active">
       <div v-for="(item, key) in formSettings" :key="key" class="content-item">
         <div class="setting-item">
-          <BaseTitle :value="key" :height="56" :width="72" :marginRight="8" />
+          <BaseTitle :value="key" :height="56" :width="108" :marginRight="8" />
         </div>
 
         <div class="setting-item">
@@ -32,6 +32,8 @@
               :marginTop="12"
               :marginBottom="0"
             />
+
+            <BaseSwitch v-if="setting.type === 'switch'" :height="56" :width="144" :value="setting.value" :marginRight="4" :change="switchChange" :target="{ key, setting }" />
           </div>
         </div>
 
@@ -76,6 +78,7 @@ import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
+import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
 
 export default defineComponent({
   name: 'MeshForms3D',
@@ -83,7 +86,8 @@ export default defineComponent({
     LineEl,
     EditFormsNavItem,
     BaseTitle,
-    BaseInput
+    BaseInput,
+    BaseSwitch
   },
   props: ['node'],
   setup(props: any) {
@@ -186,8 +190,22 @@ export default defineComponent({
             value: options.scale[2],
             type: 'input'
           }
+        ],
+        castShadow: [
+          {
+            value: options.castShadow,
+            type: 'switch'
+          }
+        ],
+        receiveShadow: [
+          {
+            value: options.receiveShadow,
+            type: 'switch'
+          }
         ]
       }
+
+      console.log(formSettings.value)
 
       EventsBus.on('meshChanged', meshChanged)
     })
@@ -263,6 +281,17 @@ export default defineComponent({
       item.active = true
     }
 
+    const switchChange = (e: any) => {
+      const { target, value } = e
+      const { setting, key } = target
+
+      setting.value = value
+
+      currentObj[key] = value
+      // update pageTreeNode
+      store.state.selectedPageTreeNode.options[key] = value
+    }
+
     return {
       store,
       headerItems,
@@ -270,7 +299,8 @@ export default defineComponent({
       formSettings2,
       inputChange,
       chooseNav,
-      title
+      title,
+      switchChange
     }
   }
 })
@@ -298,7 +328,9 @@ export default defineComponent({
 .content-item {
   @apply w-full h-auto flex items-start relative;
 }
-
+.details {
+  height: 57px;
+}
 .setting-item {
   @apply flex flex-col h-auto;
 }

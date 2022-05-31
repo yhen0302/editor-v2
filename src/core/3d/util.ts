@@ -22,7 +22,9 @@ export function parseModelNode(node: any, index: number, result: any) {
     result.options = {
       position: [parseFloat(node.position.x.toFixed(4)), parseFloat(node.position.y.toFixed(4)), parseFloat(node.position.z.toFixed(4))],
       rotation: [parseFloat(((node.rotation.x * 180) / Math.PI).toFixed(4)), parseFloat(((node.rotation.y * 180) / Math.PI).toFixed(4)), parseFloat(((node.rotation.z * 180) / Math.PI).toFixed(4))],
-      scale: [parseFloat(node.scale.x.toFixed(4)), parseFloat(node.scale.y.toFixed(4)), parseFloat(node.scale.z.toFixed(4))]
+      scale: [parseFloat(node.scale.x.toFixed(4)), parseFloat(node.scale.y.toFixed(4)), parseFloat(node.scale.z.toFixed(4))],
+      castShadow: node.castShadow,
+      receiveShadow: node.receiveShadow
     }
   } else if (node.type === 'Object3D') {
     result.options = {
@@ -119,6 +121,17 @@ export function reloadThreeDimensionScene(pageNode: any) {
             dirLight.color.g = dirLightOpts.options.color[1] / 255
             dirLight.color.b = dirLightOpts.options.color[2] / 255
             dirLight.position.set(dirLightOpts.options.position[0], dirLightOpts.options.position[1], dirLightOpts.options.position[2])
+            // shadow
+            dirLight.shadow.camera.left = -dirLightOpts.options.distance
+            dirLight.shadow.camera.right = dirLightOpts.options.distance
+            dirLight.shadow.camera.top = dirLightOpts.options.distance
+            dirLight.shadow.camera.bottom = -dirLightOpts.options.distance
+            dirLight.shadow.camera.near = dirLightOpts.options.near
+            dirLight.shadow.camera.far = dirLightOpts.options.far
+            dirLight.shadow.mapSize.width = dirLightOpts.options.size
+            dirLight.shadow.mapSize.height = dirLightOpts.options.size
+            dirLight.shadow.camera.updateProjectionMatrix()
+            dirLight.shadow.needsUpdate = true
           }
         })
       })
@@ -181,6 +194,9 @@ export function reloadThreeDimensionScene(pageNode: any) {
       node.position.set(n.options.position[0], n.options.position[1], n.options.position[2])
       node.rotation.set((n.options.rotation[0] * Math.PI) / 180, (n.options.rotation[1] * Math.PI) / 180, (n.options.rotation[2] * Math.PI) / 180)
       node.scale.set(n.options.scale[0], n.options.scale[1], n.options.scale[2])
+      // 3.shadow
+      node.castShadow = n.options.castShadow
+      node.receiveShadow = n.options.receiveShadow
     } else if (n.type === 'Object3D') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
