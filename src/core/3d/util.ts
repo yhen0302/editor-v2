@@ -69,7 +69,10 @@ export function reloadThreeDimensionScene(pageNode: any) {
 
   for (const k in flatSceneNodes) {
     const n = flatSceneNodes[k]
-    if (n.type === 'RectAreaLights') {
+    
+    if(n.type === 'Shadow'){
+      container.renderer.shadow.enabled = n.options.enabled
+    } else if (n.type === 'RectAreaLights') {
       container.rectAreaLights.forEach((rectAreaLight: any) => {
         n.children.forEach((rectAreaLightOpts: any) => {
           if (rectAreaLight.uuid === rectAreaLightOpts.uuid) {

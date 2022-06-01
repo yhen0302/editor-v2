@@ -92257,8 +92257,9 @@ void main() {
 	    hdrLoader;
 	    pmremGenerator;
 	    attrs;
-	    // attr scenes settings
 	    bgColor;
+	    _background;
+	    _bgType;
 	    layers;
 	    // gpu pick start
 	    pickingScene;
@@ -92302,6 +92303,52 @@ void main() {
 	        this.depthTexture = new WebGLRenderTarget(this.renderer.domElement.width, this.renderer.domElement.height);
 	        this.depthBuffer = new Uint8Array(4);
 	        // gpu pick end
+	    }
+	    get background() {
+	        return this._background;
+	    }
+	    set background(val) {
+	        if (this.bgType === 'color') {
+	            // clear texture/panorama
+	            if (this.scene)
+	                this.scene.background = null;
+	            if (this.sky)
+	                this.sky.visible = false;
+	            // update bg Color
+	            const hexVal = '#' + new Color(val).getHexString();
+	            this._background = hexVal;
+	            this.bgColor = hexVal;
+	            this.renderer.setClearColor(hexVal, 1);
+	            // update passes bg Color
+	            if (this.ssaaPass)
+	                this.ssaaPass.clearColor = hexVal;
+	        }
+	        else if (this.bgType === 'texture') {
+	            // clear panorama
+	            if (this.sky)
+	                this.sky.visible = false;
+	            this._background = val;
+	            this.scene.background = val;
+	        }
+	        else if (this.bgType === 'panorama') {
+	            this._background = this.sky;
+	            this.setSkyBox(val);
+	        }
+	    }
+	    get bgType() {
+	        return this._bgType;
+	    }
+	    set bgType(type) {
+	        this._bgType = type;
+	        if (type === 'color') {
+	            this._background = this.bgColor;
+	        }
+	        else if (type === 'texture') {
+	            this._background = this.scene.background;
+	        }
+	        else if (type === 'panorama') {
+	            this._background = this.sky;
+	        }
 	    }
 	    get viewState() {
 	        return this._viewState;
@@ -92584,7 +92631,6 @@ void main() {
 	    }
 	    initRender(attrs) {
 	        const enableShadow = attrs && attrs.enableShadow != undefined ? attrs.enableShadow : false;
-	        const bgColor = attrs && attrs.bgColor != undefined ? attrs.bgColor : 0x000000;
 	        const sortObjects = attrs && attrs.sortObjects != undefined ? attrs.sortObjects : true;
 	        // 3d renderer
 	        if (attrs && attrs.container != undefined) {
@@ -92598,10 +92644,14 @@ void main() {
 	            this.renderer = new WebGLRenderer({ antialias: true, precision: 'highp' });
 	            document.body.appendChild(this.renderer.domElement);
 	        }
+	        this.bgColor = 0x000000;
+	        if (attrs && attrs.background && attrs.background.type === 'color') {
+	            this.bgColor = attrs.background.value;
+	            this.bgType = 'color';
+	            this.background = this.bgColor;
+	        }
 	        this.renderer.autoClear = false;
 	        this.renderer.sortObjects = sortObjects;
-	        this.renderer.setClearColor(bgColor, 1);
-	        this.bgColor = bgColor;
 	        this.renderer.outputEncoding = sRGBEncoding;
 	        this.renderer.setPixelRatio(window.devicePixelRatio);
 	        this.renderer.setSize(this.containerWidth, this.containerHeight);
@@ -92647,14 +92697,28 @@ void main() {
 	        this.scene = new Scene();
 	        const SKY_RADIUS = 50000;
 	        this.skyRadius = SKY_RADIUS;
-	        // sky box
-	        if (attrs && attrs.skyBox && attrs.skyBox.urls != undefined) {
-	            const scale = attrs && attrs.skyBox && attrs.skyBox.scale ? attrs.skyBox.scale : 1;
-	            const rotation = attrs && attrs.skyBox && attrs.skyBox.rotation ? attrs.skyBox.rotation : [0, 0, 0];
-	            if (attrs.skyBox.urls.length == 6) {
+	        // background texture
+	        if (attrs && attrs.background && attrs.background.type === 'texture') {
+	            this.texLoader.load(this.publicPath + attrs.background.value, (texture) => {
+	                this.bgType = 'texture';
+	                this.background = texture;
+	                if (attrs.background.options) {
+	                    for (const i in attrs.background.options) {
+	                        const opt = attrs.background.options[i];
+	                        this.background[i] = opt;
+	                    }
+	                }
+	            });
+	        }
+	        // background panorama
+	        if (attrs && attrs.background && attrs.background.type === 'panorama') {
+	            this.bgType = 'panorama';
+	            const scale = attrs && attrs.background && attrs.background.scale ? attrs.background.scale : 1;
+	            const rotation = attrs && attrs.background && attrs.background.rotation ? attrs.background.rotation : [0, 0, 0];
+	            if (attrs.background.value.length == 6) {
 	                const arr = [];
 	                const materials = [];
-	                attrs.skyBox.urls.forEach((u) => {
+	                attrs.background.value.forEach((u) => {
 	                    arr.push(loadTex(this.texLoader, this.publicPath + u));
 	                });
 	                Promise.all(arr).then((list) => {
@@ -92677,10 +92741,11 @@ void main() {
 	                    sky.type = 'SkyBox';
 	                    this.scene.add(sky);
 	                    this.sky = sky;
+	                    this.background = this.sky;
 	                });
 	            }
-	            else if (attrs.skyBox.urls.length == 1) {
-	                this.texLoader.load(this.publicPath + attrs.skyBox.urls[0], (texture) => {
+	            else if (attrs.background.value.length == 1) {
+	                this.texLoader.load(this.publicPath + attrs.background.value[0], (texture) => {
 	                    const geo = new SphereGeometry(SKY_RADIUS, 60, 60);
 	                    const mat = new MeshBasicMaterial({
 	                        map: texture,
@@ -92697,6 +92762,7 @@ void main() {
 	                    sky.type = 'SkyBox';
 	                    this.scene.add(sky);
 	                    this.sky = sky;
+	                    this.background = this.sky;
 	                });
 	            }
 	        }
@@ -93194,7 +93260,7 @@ void main() {
 	        const smokeScene = new Scene();
 	        const smokeRenderPass = new RenderPass(smokeScene, currentCamera);
 	        this.smokeComposer.addPass(smokeRenderPass);
-	        const bgColor = attrs && attrs.bgColor != undefined ? new Color(attrs.bgColor) : new Color();
+	        const bgColor = attrs && attrs.background != undefined && attrs.background.type === 'color' ? new Color(attrs.background.value) : new Color();
 	        // *** TAA PASS start ***
 	        // const taaRenderPass = new TAARenderPass(this.scene, currentCamera, bgColor, 1)
 	        // taaRenderPass.unbiased = false
@@ -93210,14 +93276,14 @@ void main() {
 	            this.sceneComposer.addPass(this.ssaaPass);
 	        // *** SSAA PASS end ***
 	        // *** GAMMA PASS start ***
-	        new ShaderPass(new ShaderMaterial({
+	        const gammaPass = new ShaderPass(new ShaderMaterial({
 	            uniforms: {
 	                tDiffuse: { value: null }
 	            },
 	            vertexShader: gammaVertexShader,
 	            fragmentShader: gammaFragmentShader
 	        }));
-	        // this.sceneComposer.addPass(gammaPass)
+	        this.sceneComposer.addPass(gammaPass);
 	        // *** GAMMA PASS end ***
 	        // *** Smoke PASS start ***
 	        this.smokePass = new SmokePass({
@@ -93326,8 +93392,8 @@ void main() {
 	        if (!(urls instanceof Array))
 	            return;
 	        const attrs = this.attrs;
-	        const scale = attrs && attrs.skyBox && attrs.skyBox.scale ? attrs.skyBox.scale : 1;
-	        const rotation = attrs && attrs.skyBox && attrs.skyBox.rotation ? attrs.skyBox.rotation : [0, 0, 0];
+	        const scale = attrs && attrs.background && attrs.background.scale ? attrs.background.scale : 1;
+	        const rotation = attrs && attrs.background && attrs.background.rotation ? attrs.background.rotation : [0, 0, 0];
 	        const SKY_RADIUS = 50000;
 	        this.skyRadius = SKY_RADIUS;
 	        if (urls.length == 6) {
@@ -93347,18 +93413,18 @@ void main() {
 	                    });
 	                    materials.push(mat);
 	                });
+	                const geo = new BoxGeometry(SKY_RADIUS, SKY_RADIUS, SKY_RADIUS);
+	                // texture.encoding = sRGBEncoding
+	                const sky = new Mesh(geo, materials);
+	                sky.scale.set(scale, scale, scale);
+	                sky.rotation.set(rotation[0], rotation[1], rotation[2]);
+	                sky.renderOrder = SKY_RENDER_ORDER;
+	                sky.type = 'SkyBox';
 	                if (this.sky) {
-	                    this.sky.material.needsUpdate = true;
+	                    this.sky.geometry = geo;
 	                    this.sky.material = materials;
 	                }
 	                else {
-	                    const geo = new BoxGeometry(SKY_RADIUS, SKY_RADIUS, SKY_RADIUS);
-	                    // texture.encoding = sRGBEncoding
-	                    const sky = new Mesh(geo, materials);
-	                    sky.scale.set(scale, scale, scale);
-	                    sky.rotation.set(rotation[0], rotation[1], rotation[2]);
-	                    sky.renderOrder = SKY_RENDER_ORDER;
-	                    sky.type = 'SkyBox';
 	                    this.scene.add(sky);
 	                    this.sky = sky;
 	                }
@@ -93366,25 +93432,25 @@ void main() {
 	        }
 	        else if (urls.length == 1) {
 	            this.texLoader.load(this.publicPath + urls[0], (texture) => {
+	                const mat = new MeshBasicMaterial({
+	                    map: texture,
+	                    side: BackSide,
+	                    transparent: true,
+	                    opacity: 1.0,
+	                    fog: false
+	                });
+	                const geo = new SphereGeometry(SKY_RADIUS, 60, 60);
+	                // texture.encoding = sRGBEncoding
+	                const sky = new Mesh(geo, mat);
+	                sky.scale.set(scale, scale, scale);
+	                sky.rotation.set(rotation[0], rotation[1], rotation[2]);
+	                sky.renderOrder = SKY_RENDER_ORDER;
+	                sky.type = 'SkyBox';
 	                if (this.sky) {
-	                    this.sky.material.needsUpdate = true;
-	                    this.sky.material.map = texture;
+	                    this.sky.geometry = geo;
+	                    this.sky.material = mat;
 	                }
 	                else {
-	                    const geo = new SphereGeometry(SKY_RADIUS, 60, 60);
-	                    const mat = new MeshBasicMaterial({
-	                        map: texture,
-	                        side: BackSide,
-	                        transparent: true,
-	                        opacity: 1.0,
-	                        fog: false
-	                    });
-	                    // texture.encoding = sRGBEncoding
-	                    const sky = new Mesh(geo, mat);
-	                    sky.scale.set(scale, scale, scale);
-	                    sky.rotation.set(rotation[0], rotation[1], rotation[2]);
-	                    sky.renderOrder = SKY_RENDER_ORDER;
-	                    sky.type = 'SkyBox';
 	                    this.scene.add(sky);
 	                    this.sky = sky;
 	                }
@@ -93604,8 +93670,8 @@ void main() {
 	        if (len == 0)
 	            return;
 	        const attrs = this.attrs;
-	        const scale = attrs && attrs.skyBox && attrs.skyBox.scale ? attrs.skyBox.scale : 1;
-	        const rotation = attrs && attrs.skyBox && attrs.skyBox.rotation ? attrs.skyBox.rotation : [0, 0, 0];
+	        const scale = attrs && attrs.background && attrs.background.scale ? attrs.background.scale : 1;
+	        const rotation = attrs && attrs.background && attrs.background.rotation ? attrs.background.rotation : [0, 0, 0];
 	        const SKY_RADIUS = this.skyRadius;
 	        if (len == 6) {
 	            const arr = [];

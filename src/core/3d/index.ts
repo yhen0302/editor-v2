@@ -39,6 +39,28 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       }
     },
     stats: true,
+    // background: {
+    //   type: 'color',
+    //   value: 0xff0000
+    // },
+
+    background: {
+      type: 'panorama',
+      value: ['/panorama/sky_px.jpg', '/panorama/sky_nx.jpg', '/panorama/sky_py.jpg', '/panorama/sky_ny.jpg', '/panorama/sky_pz.jpg', '/panorama/sky_nz.jpg'],
+      scale: 1
+    },
+
+    // background: {
+    //   type: 'texture',
+    //   value: ['/textures/bg.png'],
+    //   options: {
+    //     encoding: Bol3D.sRGBEncoding,
+    //     repeat: new Bol3D.Vector2(2, 2),
+    //     wrapS: Bol3D.RepeatWrapping,
+    //     wrapT: Bol3D.RepeatWrapping
+    //   }
+    // },
+
     onProgress: (model: any) => {
       const node: any = {}
       const index = 0
@@ -50,6 +72,22 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       callback && callback(evt)
 
       console.log('loaded', evt)
+      // 背景节点(单个)
+      const backgroundOptions = {
+        type: evt.bgType
+      }
+      const backgroundNode: any = {
+        uuid: -1,
+        name: 'Background',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'Background',
+        children: [],
+        show: false,
+        options: backgroundOptions
+      }
+      ;(store as any).state.template.threeDimension.unshift(backgroundNode)
 
       // 阴影节点(单个)
       const shadowOptions = {
@@ -359,7 +397,6 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         updateFnCameraTd(event)
       })
     }
-    // bgColor: 0x333333,
     // controls: {
     //   orbitControls: {
     //     autoRotate: false,

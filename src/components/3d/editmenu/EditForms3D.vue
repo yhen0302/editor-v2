@@ -23,6 +23,8 @@ import RectAreaLightsForms3D from './editForms/RectAreaLightsForms3D.vue'
 import CameraForms3D from './editForms/CameraForms3D.vue'
 // 4.shadow
 import ShadowForms3D from './editForms/ShadowForms3D.vue'
+// 5.background
+import BackgroundForms3D from './editForms/BackgroundForms3D.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 
@@ -39,7 +41,8 @@ export default defineComponent({
     PointLightsForms3D,
     RectAreaLightsForms3D,
     CameraForms3D,
-    ShadowForms3D
+    ShadowForms3D,
+    BackgroundForms3D
   },
   setup() {
     const store = useStore()
@@ -113,6 +116,10 @@ export default defineComponent({
           break
         case 'Shadow':
           type.value = 'ShadowForms3D'
+          node.value = e.node
+          break
+        case 'Background':
+          type.value = 'BackgroundForms3D'
           node.value = e.node
           break
       }
