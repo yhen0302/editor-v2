@@ -46,7 +46,7 @@ export default {
         case '':
           return value.toString()
         case 'number':
-          return Number(value).toFixed(0)
+          return Number(Number(value).toFixed(0))
         case 'angle':
           return Number(value) + '°'
       }

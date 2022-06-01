@@ -9,7 +9,7 @@ import SmallTitle from './text/SmallTitle.vue'
 import BaseTitle from './text/BaseTitle.vue'
 import TextContent from './text/TextContent.vue'
 import ChartBar from './chart/ChartBar.vue'
-
+import ChartLine from './chart/CharLine.vue'
 
 import { App } from 'vue'
 
@@ -26,8 +26,7 @@ export default {
     app.component('BaseTitle', BaseTitle)
     app.component('TextContent', TextContent)
     app.component('ChartBar', ChartBar)
-
-
+    app.component('ChartLine', ChartLine)
   }
 }
 

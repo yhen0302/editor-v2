@@ -15,6 +15,7 @@ import {baseTitle, bigTitle, smallTitle, textContent} from "@/views/editor/local
 import {baseShapeList} from "@/views/editor/localData/shape";
 import {imageOption, videoOption} from "@/views/editor/localData/media";
 import {lineChartList} from "@/views/editor/localData/chart/line";
+import {barChartList} from "@/views/editor/localData/chart/bar";
 
 export const selectBarList2d: Array<SelectBarItem> = [
   {
@@ -157,7 +158,21 @@ export const selectData: Record<
       {
         icon: require('../../../assets/images/editor_chart_histogram_btn_dark.png'),
         name: '柱状图',
-        type: 'bar'
+        type: 'bar',
+        children:{
+          viewType:'list',
+          list:barChartList.map((item: SelectItem): SelectItem => {
+            const option = clone(item.option.echartsOption, true)
+            option.grid.bottom = '15%'
+            option.grid.top = '15%'
+            option.legend.show = false
+            option.series[0].label.show = false
+
+            item.icon = getChartUrl(option)
+            item.type = 'ChartBar'
+            return item
+          })
+        }
       },
       {
         icon: require('../../../assets/images/editor_chart_linechart_btn_dark.png'),
@@ -169,9 +184,11 @@ export const selectData: Record<
             const option = clone(item.option.echartsOption, true)
             option.grid.bottom = '15%'
             option.grid.top = '15%'
+            option.legend.show = false
+            option.series[0].label.show = false
 
             item.icon = getChartUrl(option)
-            item.type = 'ChartBar'
+            item.type = 'ChartLine'
             return item
           })
         }

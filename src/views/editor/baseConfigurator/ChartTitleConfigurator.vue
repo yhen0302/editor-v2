@@ -69,7 +69,12 @@
           </template>
         </fold-el>
         <!--单位-->
-        <fold-el :line-show="false" class="mt-16" :model="true" v-model:show="unitShow">
+        <fold-el
+          :line-show="false"
+          class="mt-16"
+          :model="true"
+          v-model:show="unitShow"
+        >
           <template #header>
             <div
               class="sub-fold-header title-cnf flex justify-between items-center"
@@ -91,7 +96,10 @@
               <div class="sub-fold-item-wrap flex items-center mt-16">
                 <div class="config-item-pre pl-16 text-12"></div>
                 <div class="config-item-suf flex">
-                  <color-picker-el style="flex-shrink: 0" v-model:value="unitColor"></color-picker-el>
+                  <color-picker-el
+                    style="flex-shrink: 0"
+                    v-model:value="unitColor"
+                  ></color-picker-el>
                   <input-el
                     style="height: 32px"
                     v-model:value="unitFontSize"
@@ -221,32 +229,24 @@ export default {
     })
     const titleFontStyle = computed<Array<any>>({
       get() {
-        const weight =
+        const t =
           editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title
-            .textStyle.fontWeight === 'bold'
-        const italic =
-          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title
-            .textStyle.fontStyle === 'italic'
+        const weight = t.textStyle.fontWeight === 'bold'
+        const italic = t.textStyle.fontStyle === 'italic'
         return weight ? (italic ? ['weight', 'italic'] : ['weight']) : []
       },
       set(newVal) {
-        editorGetter[
-          'GET_SELECT_NODE'
-        ].value.option.echartsOption.title.textStyle.fontWeight = 'normal'
-        editorGetter[
-          'GET_SELECT_NODE'
-        ].value.option.echartsOption.title.textStyle.fontStyle = 'normal'
+        const t =
+          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title
+        t.textStyle.fontWeight = 'normal'
+        t.textStyle.fontStyle = 'normal'
         newVal.forEach((item) => {
           switch (item) {
             case 'weight':
-              editorGetter[
-                'GET_SELECT_NODE'
-              ].value.option.echartsOption.title.textStyle.fontWeight = 'bold'
+              t.textStyle.fontWeight = 'bold'
               break
             case 'italic':
-              editorGetter[
-                'GET_SELECT_NODE'
-              ].value.option.echartsOption.title.textStyle.fontStyle = 'italic'
+              t.textStyle.fontStyle = 'italic'
           }
         })
       }
@@ -259,14 +259,14 @@ export default {
           r =
             editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title
               .right
-        return l === 10 ? 'left' : r === 10 ? 'right' : 'center'
+        return l === '10%' ? 'left' : r === '10%' ? 'right' : 'center'
       },
       set(newVal) {
         const t =
           editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title
         switch (newVal[0]) {
           case 'left':
-            t.left = 10
+            t.left = '10%'
             t.right = 'auto'
             break
           case 'center':
@@ -275,7 +275,7 @@ export default {
             break
           case 'right':
             t.left = 'auto'
-            t.right = 10
+            t.right = '10%'
             break
         }
       }
@@ -328,32 +328,25 @@ export default {
     })
     const unitFontStyle = computed<Array<any>>({
       get() {
-        const weight =
+        const u =
           editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
-            .textStyle.fontWeight === 'bold'
-        const italic =
-          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
-            .textStyle.fontStyle === 'italic'
+        const weight = u.textStyle.fontWeight === 'bold'
+        const italic = u.textStyle.fontStyle === 'italic'
         return weight ? (italic ? ['weight', 'italic'] : ['weight']) : []
       },
       set(newVal) {
-        editorGetter[
-          'GET_SELECT_NODE'
-        ].value.option.echartsOption.unit.textStyle.fontWeight = 'normal'
-        editorGetter[
-          'GET_SELECT_NODE'
-        ].value.option.echartsOption.unit.textStyle.fontStyle = 'normal'
+        const u =
+          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
+
+        u.textStyle.fontWeight = 'normal'
+        u.textStyle.fontStyle = 'normal'
         newVal.forEach((item) => {
           switch (item) {
             case 'weight':
-              editorGetter[
-                'GET_SELECT_NODE'
-              ].value.option.echartsOption.unit.textStyle.fontWeight = 'bold'
+              u.unit.textStyle.fontWeight = 'bold'
               break
             case 'italic':
-              editorGetter[
-                'GET_SELECT_NODE'
-              ].value.option.echartsOption.unit.textStyle.fontStyle = 'italic'
+              u.textStyle.fontStyle = 'italic'
           }
         })
       }
@@ -366,14 +359,14 @@ export default {
           r =
             editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
               .right
-        return l === 10 ? 'left' : r === 10 ? 'right' : 'center'
+        return l === '10%' ? 'left' : r === '10%' ? 'right' : 'center'
       },
       set(newVal) {
         const t =
           editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
         switch (newVal[0]) {
           case 'left':
-            t.left = 10
+            t.left = '10%'
             t.right = 'auto'
             break
           case 'center':
@@ -382,7 +375,7 @@ export default {
             break
           case 'right':
             t.left = 'auto'
-            t.right = 10
+            t.right = '10%'
             break
         }
       }

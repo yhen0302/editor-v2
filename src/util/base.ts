@@ -102,7 +102,7 @@ export function debounce(fn: Function, delay: number, ctx: any = null) {
     const that = this
     if (timer) clearTimeout(timer)
     timer = <number>(<unknown>setTimeout(function () {
-      fn.call(ctx || that, args)
+      fn.call(ctx || that, ...args)
     }, delay))
   }
 }

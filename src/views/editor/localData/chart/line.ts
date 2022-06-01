@@ -21,8 +21,8 @@ export const lineChartList = [
         title: {
           text: '标题123456',
           show: false,
-          left: 10,
-          top: 10,
+          left: '10%',
+          top: 20,
           right: 'auto',
           textStyle: {
             fontFamily: 'microsoft YaHei',
@@ -38,7 +38,7 @@ export const lineChartList = [
         },
         grid: {
           top: '20%',
-          bottom: '20%'
+          bottom: '15%'
         },
         yAxis: {
           type: 'value',
@@ -46,7 +46,7 @@ export const lineChartList = [
             show: true,
             lineStyle: {
               color: ['#FFFFFF'],
-              opacity:1
+              opacity: 1
             }
           }
         },
@@ -55,7 +55,7 @@ export const lineChartList = [
             data: [10, 40, 50, 80, 100, 25, 40],
             type: 'line',
             smooth: true,
-            name:'图表一',
+            name: '图表一',
             label: {
               show: true,
               color: '#FFFFFF',
@@ -69,8 +69,8 @@ export const lineChartList = [
         unit: {
           text: '单位',
           show: false,
-          left: 10,
-          top: 20,
+          left: '10%',
+          top: 50,
           right: 'auto',
           textStyle: {
             fontFamily: 'microsoft YaHei',
@@ -80,7 +80,7 @@ export const lineChartList = [
             fontStyle: 'normal'
           }
         },
-        legend:{show:true}
+        legend: { show: true }
       }
     },
     icon: ''
