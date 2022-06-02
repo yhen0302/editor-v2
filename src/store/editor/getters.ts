@@ -36,7 +36,11 @@ export default {
         case 'TextContent':
           return 'TextConfigurator'
         case 'ChartBar':
+        case 'ChartLine':
           return 'AxisLineChartConfigurator'
+        case 'ChartPie':
+        case 'ChartGauge':
+          return 'PieChartConfigurator'
       }
     }
     return ''

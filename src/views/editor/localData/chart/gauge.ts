@@ -1,12 +1,12 @@
 let i = 1
-class Bar {
+class Gauge {
   name: string
   option: any
   icon = ''
-  type='ChartBar'
+  type = 'ChartGauge'
 
   constructor(option: any, notMerge = false) {
-    this.name = '柱状图' + i++
+    this.name = '仪表盘' + i++
     const defaultMatrixOpt = {
       left: 0,
       top: 0,
@@ -30,23 +30,9 @@ class Bar {
           fontStyle: 'normal'
         }
       },
-      xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-      },
       grid: {
         top: '20%',
         bottom: '15%'
-      },
-      yAxis: {
-        type: 'value',
-        splitLine: {
-          show: true,
-          lineStyle: {
-            color: ['#FFFFFF'],
-            opacity: 1
-          }
-        }
       },
       unit: {
         text: '单位',
@@ -81,24 +67,22 @@ class Bar {
   }
 }
 
-
-export const barChartList = [
-  new Bar({
+export const gaugeChartList = [
+  new Gauge({
     echartsOption: {
       series: [
         {
-          data: [10, 40, 50, 80, 100, 25, 40],
-          type: 'bar',
-          smooth: true,
-          name: '图表一',
-          label: {
-            show: true,
-            color: '#FFFFFF',
-            fontFamily: 'microsoft YaHei',
-            fontStyle: 'normal',
-            fontWeight: 'normal',
-            fontSize: 18
-          }
+          name: 'Pressure',
+          type: 'gauge',
+          detail: {
+            formatter: '{value}'
+          },
+          data: [
+            {
+              value: 50,
+              name: 'SCORE'
+            }
+          ]
         }
       ]
     }

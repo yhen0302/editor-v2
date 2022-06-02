@@ -1,7 +1,7 @@
-export const lineChartList = [
+export const curveChartList = [
   {
     name: '图表样式x001',
-    type:'ChartLine',
+    type:'ChartCurve',
     option: {
       matrixOption: {
         left: 0,
@@ -56,6 +56,7 @@ export const lineChartList = [
             data: [10, 40, 50, 80, 100, 25, 40],
             type: 'line',
             name: '图表一',
+            smooth:true,
             label: {
               show: true,
               color: '#FFFFFF',

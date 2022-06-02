@@ -161,6 +161,7 @@ const dragPlugin: Plugin = {
           // 如果是选中状态
 
           if (select) {
+            console.log('mounted',select)
             activeEl.value.push(el)
             watchStopSet = watchRect(el, rect, change, input)
             watcherTotalSet.add(watchStopSet)
@@ -189,12 +190,13 @@ const dragPlugin: Plugin = {
 
             el.watchStopSet = watchStopSet
           } else {
+            debugger
             if (el.watchStopSet) {
               stopWatchers(el.watchStopSet)
             }
             const deleteIndex = activeEl.value.indexOf(el)
             // 取消选中
-            activeEl.value.splice(deleteIndex, 1)
+              if(deleteIndex!==-1)activeEl.value.splice(deleteIndex, 1)
           }
         }
       })

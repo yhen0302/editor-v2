@@ -371,6 +371,8 @@ export default defineComponent({
     watch(
       () => activeEl.value,
       (els: HTMLElement[], oldEl) => {
+        debugger
+        console.log(els.length)
         if (els.length) {
           isCalculating.value = true
           isActive.value = true

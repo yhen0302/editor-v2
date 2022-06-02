@@ -1,12 +1,12 @@
 let i = 1
-class Bar {
+class Pie {
   name: string
   option: any
   icon = ''
-  type='ChartBar'
+  type = 'ChartPie'
 
   constructor(option: any, notMerge = false) {
-    this.name = '柱状图' + i++
+    this.name = '饼图' + i++
     const defaultMatrixOpt = {
       left: 0,
       top: 0,
@@ -30,23 +30,9 @@ class Bar {
           fontStyle: 'normal'
         }
       },
-      xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-      },
       grid: {
         top: '20%',
         bottom: '15%'
-      },
-      yAxis: {
-        type: 'value',
-        splitLine: {
-          show: true,
-          lineStyle: {
-            color: ['#FFFFFF'],
-            opacity: 1
-          }
-        }
       },
       unit: {
         text: '单位',
@@ -81,23 +67,39 @@ class Bar {
   }
 }
 
-
-export const barChartList = [
-  new Bar({
+export const pieChartList = [
+  new Pie({
     echartsOption: {
       series: [
         {
-          data: [10, 40, 50, 80, 100, 25, 40],
-          type: 'bar',
-          smooth: true,
-          name: '图表一',
+          name: 'Access From',
+          type: 'pie',
+          radius: '55%',
+          center: ['50%', '50%'],
+          data: [
+            { value: 335, name: 'Direct' },
+            { value: 310, name: 'Email' },
+            { value: 274, name: 'Union Ads' },
+            { value: 235, name: 'Video Ads' },
+            { value: 400, name: 'Search Engine' }
+          ].sort(function (a, b) {
+            return a.value - b.value
+          }),
+          roseType: 'radius',
           label: {
-            show: true,
-            color: '#FFFFFF',
-            fontFamily: 'microsoft YaHei',
-            fontStyle: 'normal',
-            fontWeight: 'normal',
-            fontSize: 18
+            color: 'rgba(255, 255, 255, 0.3)'
+          },
+          labelLine: {
+            lineStyle: {
+              color: 'rgba(255, 255, 255, 0.3)'
+            },
+            smooth: 0.2,
+            length: 10,
+            length2: 20
+          },
+          itemStyle: {
+            shadowBlur: 200,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
           }
         }
       ]

@@ -42,14 +42,13 @@
 <script lang="ts">
 import { computed, ref, toRaw, watch } from 'vue'
 import { hexColorToRgba, toPx } from '@/util/base'
-import { useStore } from 'vuex'
-import { useMutation, useState } from '@/store/helper'
-import { EditorMutation } from '@/store/editor/mutations'
+import matrixMixin from "@/views/editor/twoDimension/elements/matrixMixin";
 
 export default {
   name: 'SmallTitle',
   props: ['node'],
   emits: ['select', 'append'],
+  mixins:[matrixMixin],
   setup(props: any) {
     const h1 = ref<HTMLElement>()
     // exterior

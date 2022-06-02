@@ -1,5 +1,5 @@
 <template>
-  <div class="editor" >
+  <div class="editor">
     <!--  上方导航工具  -->
     <nav-bar></nav-bar>
     <!--  2d, 3d 切换  -->
@@ -190,21 +190,22 @@ import TextConfigurator from '@/views/editor/configurator/TextConfigurator.vue'
 import ShapeConfigurator from '@/views/editor/configurator/ShapeConfigurator.vue'
 import MediaConfigurator from '@/views/editor/configurator/MediaConfigurator.vue'
 import ModelConfigurator from '@/views/editor/configurator/ModelConfigurator.vue'
+import PieChartConfigurator from '@/views/editor/configurator/PieChartConfigurator.vue'
 import DimensionNavBar from '@/views/editor/child/DimensionNavBar.vue'
 import SelectArea from '@/views/editor/child/SelectArea.vue'
 import ScreenPageTree from '@/views/editor/child/ScreenPageTree.vue'
 import { useStore } from 'vuex'
-import {useGetter, useState} from '@/store/helper'
+import { useGetter, useState } from '@/store/helper'
 import ArtBoard3DContent from '@/views/editor/threeDimension/ArtBoard3DContent.vue'
 import ArtBoard2DContent from '@/views/editor/twoDimension/ArtBoard2DContent.vue'
 import { EditorStore } from '@/store/editor/type'
-import {EditorGetter} from "@/store/editor/getters";
+import { EditorGetter } from '@/store/editor/getters'
 
 /* 编辑器 */
 export default defineComponent({
   name: 'Editor',
   data() {
-    return { testData: false}
+    return { testData: false }
   },
   components: {
     ArtBoard2DContent,
@@ -216,6 +217,7 @@ export default defineComponent({
     MediaConfigurator,
     ShapeConfigurator,
     TextConfigurator,
+    PieChartConfigurator,
     AxisLineChartConfigurator,
     Event,
     LayerList,
@@ -230,7 +232,9 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const editorStore = useState(store, 'editor') as EditorStore
-    const editorGetter = useGetter(store,'editor',[EditorGetter.GET_CONFIGURATOR])
+    const editorGetter = useGetter(store, 'editor', [
+      EditorGetter.GET_CONFIGURATOR
+    ])
     // layer tree
     const layerTreeIndex: Ref<number> = ref<number>(0)
 
@@ -253,7 +257,6 @@ export default defineComponent({
 
     //property edit
     const propertyEditIndex: Ref<number> = ref<number>(0)
-
 
     return {
       layerTreeIndex,

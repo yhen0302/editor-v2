@@ -26,7 +26,7 @@ import { debounce } from '@/util/base'
 import { getCurrentInstance, watch } from 'vue'
 
 export default {
-  name: 'ChartBar',
+  name: 'ChartLine',
   mixins: [matrixMixin],
   props: ['node'],
   mounted() {
