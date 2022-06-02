@@ -2,6 +2,7 @@ import { parseModelNode } from './util'
 import store from '../../store'
 import { EventsBus } from '../EventsBus'
 import { throttled } from '../utils/base'
+import { TEXTURE_CONSTANTS } from './constants'
 
 declare const Bol3D: any
 
@@ -47,12 +48,12 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     background: {
       type: 'panorama',
       value: ['/panorama/sky_px.jpg', '/panorama/sky_nx.jpg', '/panorama/sky_py.jpg', '/panorama/sky_ny.jpg', '/panorama/sky_pz.jpg', '/panorama/sky_nz.jpg'],
-      scale: 1
+      options: { scale: 1 }
     },
 
     // background: {
     //   type: 'texture',
-    //   value: ['/textures/bg.png'],
+    //   value: '/textures/bg.png',
     //   options: {
     //     encoding: Bol3D.sRGBEncoding,
     //     repeat: new Bol3D.Vector2(2, 2),
@@ -73,8 +74,30 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
 
       console.log('loaded', evt)
       // 背景节点(单个)
+      let bgGroundVal: any
+      let bgGroundOpts = {}
+      if (evt.bgType === 'color') {
+        bgGroundVal = evt.background
+      } else if (evt.bgType === 'texture') {
+        const valArr = evt.background.image.src.split('//')
+        bgGroundVal = '/' + valArr[valArr.length - 1]
+        bgGroundOpts = {
+          encoding: evt.background.encoding,
+          wrapping: evt.background.wrapS,
+          repeat: [evt.background.repeat.x, evt.background.repeat.y]
+        }
+      } else if (evt.bgType === 'panorama') {
+        console.log('panorama', evt.background)
+        bgGroundVal = evt.background.userData.value
+        bgGroundOpts = {
+          scale: evt.background.scale.x,
+          rotation: parseFloat(evt.background.rotation.x.toFixed(4))
+        }
+      }
       const backgroundOptions = {
-        type: evt.bgType
+        type: evt.bgType,
+        value: bgGroundVal,
+        opts: bgGroundOpts
       }
       const backgroundNode: any = {
         uuid: -1,

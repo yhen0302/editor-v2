@@ -26,13 +26,13 @@
       <LineEl :color="'#363741'" />
 
       <div v-for="(item, key) in formSettings" :key="key" class="content-details">
-        <div v-if="(key === 'repeat' && formSettings.wrapping[0].selected.value !== 1001) || key !== 'repeat'" class="content-item">
+        <div class="content-item" v-if="item.show">
           <div class="setting-item">
             <BaseTitle :value="key" :height="48" :width="108" />
           </div>
 
           <div class="setting-item">
-            <div v-for="setting in item" :key="setting" class="setting">
+            <div v-for="setting in item.data" :key="setting" class="setting">
               <BaseInput
                 v-if="setting.type === 'input'"
                 :target="{ key, setting }"
@@ -79,7 +79,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref, toRaw } from 'vue'
+import { computed, defineComponent, onMounted, onUnmounted, ref, toRaw } from 'vue'
 import { useStore } from 'vuex'
 import { EventsBus } from '@/core/EventsBus'
 import LineEl from '@/components/utils/common/LineEl.vue'
@@ -89,6 +89,8 @@ import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseDropdown from '@/components/utils/baseComponents/BaseDropdown.vue'
 import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
 import { hex2rgb } from '@/core/utils/base'
+
+import * as UnderScore from 'underscore'
 
 export default defineComponent({
   name: 'BackgroundForms3D',
@@ -137,10 +139,10 @@ export default defineComponent({
 
     onMounted(() => {
       const { options } = props.node
-      const { type } = options
+      const { type, value } = options
       const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
 
-      console.log(threeDimensionContainer.background)
+      console.log(value)
 
       selectType.value = {
         name: type,
@@ -149,145 +151,225 @@ export default defineComponent({
 
       if (type === 'color') {
         formSettings.value = {
-          color: [
-            {
-              value: hex2rgb(threeDimensionContainer.background),
-              type: 'color'
-            }
-          ]
+          color: {
+            show: true,
+            data: [
+              {
+                value: hex2rgb(threeDimensionContainer.background),
+                type: 'color'
+              }
+            ]
+          }
         }
       } else if (type === 'texture') {
         formSettings.value = {
-          sources: [
-            {
-              options: [
-                {
-                  name: 'default',
-                  value: '/textures/bg.png'
+          sources: {
+            show: true,
+            data: [
+              {
+                options: [
+                  {
+                    name: '无',
+                    value: ''
+                  },
+                  {
+                    name: 'default',
+                    value: '/textures/bg.png'
+                  },
+                  {
+                    name: 'default2',
+                    value: '/textures/bg2.jpg'
+                  }
+                ],
+                selected: {
+                  name: '无',
+                  value: ''
                 },
-                {
-                  name: 'default2',
-                  value: '/textures/bg2.jpg'
-                }
-              ],
-              selected: {
-                name: 'default',
-                value: '/textures/bg.png'
-              },
-              type: 'dropdown'
-            }
-          ],
-          encoding: [
-            {
-              options: [
-                {
-                  name: 'LinearEncoding',
-                  value: 3000
-                },
-                {
+                type: 'dropdown'
+              }
+            ]
+          },
+          encoding: {
+            show: true,
+            data: [
+              {
+                options: [
+                  {
+                    name: 'LinearEncoding',
+                    value: 3000
+                  },
+                  {
+                    name: 'sRGBEncoding',
+                    value: 3001
+                  }
+                ],
+                selected: {
                   name: 'sRGBEncoding',
                   value: 3001
-                }
-              ],
-              selected: {
-                name: 'sRGBEncoding',
-                value: 3001
-              },
-              type: 'dropdown'
-            }
-          ],
-          wrapping: [
-            {
-              options: [
-                {
+                },
+                type: 'dropdown'
+              }
+            ]
+          },
+          wrapping: {
+            show: true,
+            data: [
+              {
+                options: [
+                  {
+                    name: 'RepeatWrapping',
+                    value: 1000
+                  },
+                  {
+                    name: 'ClampToEdgeWrapping',
+                    value: 1001
+                  },
+                  {
+                    name: 'MirroredRepeatWrapping',
+                    value: 1002
+                  }
+                ],
+                selected: {
                   name: 'RepeatWrapping',
                   value: 1000
                 },
-                {
-                  name: 'ClampToEdgeWrapping',
-                  value: 1001
-                },
-                {
-                  name: 'MirroredRepeatWrapping',
-                  value: 1002
-                }
-              ],
-              selected: {
-                name: 'RepeatWrapping',
-                value: 1000
+                type: 'dropdown'
+              }
+            ]
+          },
+          repeat: {
+            show: true,
+            data: [
+              {
+                name: 'X',
+                value: options.opts.repeat[0],
+                type: 'input'
               },
-              type: 'dropdown'
-            }
-          ],
-          repeat: [
-            {
-              name: 'X',
-              value: 2,
-              type: 'input'
-            },
-            {
-              name: 'Y',
-              value: 2,
-              type: 'input'
-            }
-          ]
+              {
+                name: 'Y',
+                value: options.opts.repeat[1],
+                type: 'input'
+              }
+            ]
+          }
         }
+
+        // show computed
+        formSettings.value.encoding.show = computed(() => {
+          return formSettings.value.sources.data[0].selected.value !== ''
+        })
+
+        formSettings.value.wrapping.show = computed(() => {
+          return formSettings.value.sources.data[0].selected.value !== ''
+        })
+
+        formSettings.value.repeat.show = computed(() => {
+          return formSettings.value.sources.data[0].selected.value !== '' && formSettings.value.wrapping.data[0].selected.value !== 1001
+        })
+
+        // sources selected
+        formSettings.value.sources.data[0].options.forEach((op: any) => {
+          if (UnderScore.isEqual(op.value, value)) {
+            formSettings.value.sources.data[0].selected = op
+          }
+        })
+        // encoding
+        formSettings.value.encoding.data[0].options.forEach((op: any) => {
+          if (UnderScore.isEqual(op.value, options.opts.encoding)) {
+            formSettings.value.encoding.data[0].selected = op
+          }
+        })
+        // wrapping
+        formSettings.value.wrapping.data[0].options.forEach((op: any) => {
+          if (UnderScore.isEqual(op.value, options.opts.wrapping)) {
+            formSettings.value.wrapping.data[0].selected = op
+          }
+        })
       } else if (type === 'panorama') {
         formSettings.value = {
-          sources: [
-            {
-              options: [
-                {
-                  name: 'default',
-                  value: ['/panorama/gongchang.png']
+          sources: {
+            show: true,
+            data: [
+              {
+                options: [
+                  {
+                    name: '无',
+                    value: []
+                  },
+                  {
+                    name: 'default',
+                    value: ['/panorama/gongchang.jpg']
+                  },
+                  {
+                    name: 'default2',
+                    value: ['/panorama/sky_px.jpg', '/panorama/sky_nx.jpg', '/panorama/sky_py.jpg', '/panorama/sky_ny.jpg', '/panorama/sky_pz.jpg', '/panorama/sky_nz.jpg']
+                  }
+                ],
+                selected: {
+                  name: '无',
+                  value: []
                 },
-                {
-                  name: 'default2',
-                  value: ['/panorama/sky_px.jpg', '/panorama/sky_nx.jpg', '/panorama/sky_py.jpg', '/panorama/sky_ny.jpg', '/panorama/sky_pz.jpg', '/panorama/sky_nz.jpg']
-                }
-              ],
-              selected: {
-                name: 'default2',
-                value: ['/panorama/sky_px.jpg', '/panorama/sky_nx.jpg', '/panorama/sky_py.jpg', '/panorama/sky_ny.jpg', '/panorama/sky_pz.jpg', '/panorama/sky_nz.jpg']
+                type: 'dropdown'
+              }
+            ]
+          },
+          scale: {
+            show: true,
+            data: [
+              {
+                name: 'X',
+                value: 1,
+                type: 'input'
               },
-              type: 'dropdown'
-            }
-          ],
-          scale: [
-            {
-              name: 'X',
-              value: 1,
-              type: 'input'
-            },
-            {
-              name: 'Y',
-              value: 1,
-              type: 'input'
-            },
-            {
-              name: 'Z',
-              value: 1,
-              type: 'input'
-            }
-          ],
-          rotation: [
-            {
-              name: 'X',
-              value: 0,
-              type: 'input'
-            },
-            {
-              name: 'Y',
-              value: 0,
-              type: 'input'
-            },
-            {
-              name: 'Z',
-              value: 0,
-              type: 'input'
-            }
-          ]
+              {
+                name: 'Y',
+                value: 1,
+                type: 'input'
+              },
+              {
+                name: 'Z',
+                value: 1,
+                type: 'input'
+              }
+            ]
+          },
+          rotation: {
+            show: true,
+            data: [
+              {
+                name: 'X',
+                value: 0,
+                type: 'input'
+              },
+              {
+                name: 'Y',
+                value: 0,
+                type: 'input'
+              },
+              {
+                name: 'Z',
+                value: 0,
+                type: 'input'
+              }
+            ]
+          }
         }
+
+        // show computed
+        formSettings.value.scale.show = computed(() => {
+          return !UnderScore.isEqual(formSettings.value.sources.data[0].selected.value, [])
+        })
+
+        formSettings.value.rotation.show = computed(() => {
+          return !UnderScore.isEqual(formSettings.value.sources.data[0].selected.value, [])
+        })
+
+        // sources selected
+        formSettings.value.sources.data[0].options.forEach((op: any) => {
+          if (UnderScore.isEqual(op.value, value)) {
+            formSettings.value.sources.data[0].selected = op
+          }
+        })
       }
     })
 
@@ -295,18 +377,23 @@ export default defineComponent({
       //
     })
 
-    const inputChange = (target: any) => {
+    const inputChange = (target: any, type?: string) => {
       const e = event as any
-
-      const val = e.target.value
-      if (isNaN(val)) return
-
-      const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
+      const threeDimensionContainer = store.state.threeDimensionContainer
       const { key, setting } = target
-      const { name } = setting
-      setting.value = parseFloat(val)
+      const val = e.target.value
 
-      if (selectType.value.value === 'texture') {
+      if (selectType.value.value === 'color') {
+        if (key === 'color') {
+          if (type === 'hex') {
+            threeDimensionContainer.background = val
+            setting.value = val
+          }
+        }
+      } else if (selectType.value.value === 'texture') {
+        if (isNaN(val)) return
+        setting.value = parseFloat(val)
+        const { name } = setting
         if (key === 'repeat') {
           if (name === 'X') {
             threeDimensionContainer.background.repeat.x = parseFloat(val)
@@ -315,6 +402,9 @@ export default defineComponent({
           }
         }
       } else if (selectType.value.value === 'panorama') {
+        if (isNaN(val)) return
+        setting.value = parseFloat(val)
+        const { name } = setting
         if (key === 'scale') {
           if (name === 'X') {
             threeDimensionContainer.background.scale.x = parseFloat(val)
@@ -330,6 +420,18 @@ export default defineComponent({
     const typeChange = (e: any) => {
       const { value } = e
       selectType.value = value
+      const threeDimensionContainer = store.state.threeDimensionContainer
+
+      console.log('selectType.value.value', selectType.value.value)
+      threeDimensionContainer.bgType = selectType.value.value
+
+      if (selectType.value.value === 'color') {
+        //
+      } else if (selectType.value.value === 'texture') {
+        //
+      } else if (selectType.value.value === 'panorama') {
+        //
+      }
     }
 
     const sourceChange = (e: any) => {
@@ -341,9 +443,13 @@ export default defineComponent({
 
       if (selectType.value.value === 'texture') {
         if (key === 'sources') {
-          threeDimensionContainer.texLoader.load(threeDimensionContainer.publicPath + value.value, (texture: any) => {
-            threeDimensionContainer.background = texture
-          })
+          if (value.value === '') {
+            threeDimensionContainer.background = null
+          } else {
+            threeDimensionContainer.texLoader.load(threeDimensionContainer.publicPath + value.value, (texture: any) => {
+              threeDimensionContainer.background = texture
+            })
+          }
         } else if (key === 'encoding') {
           threeDimensionContainer.background.encoding = value.value
           threeDimensionContainer.background.needsUpdate = true
@@ -352,10 +458,13 @@ export default defineComponent({
           threeDimensionContainer.background.needsUpdate = true
         }
       } else if (selectType.value.value === 'panorama') {
-        console.log('value.value', value, threeDimensionContainer, threeDimensionContainer.bgType)
         if (key === 'sources') {
-          threeDimensionContainer.setSkyBox(value.value)
-          //   threeDimensionContainer.background = toRaw(value.value)
+          if (value.value.length === 0) {
+            threeDimensionContainer.background.visible = false
+          } else {
+            threeDimensionContainer.background.visible = true
+            threeDimensionContainer.background = value.value
+          }
         }
       }
     }

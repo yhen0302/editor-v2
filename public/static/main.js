@@ -81972,7 +81972,6 @@ void main() {
 	    opts;
 	    domElement;
 	    viewport;
-	    viewportOffset;
 	    latitude;
 	    longitude;
 	    bearing;
@@ -81995,10 +81994,9 @@ void main() {
 	        super();
 	        this.opts = opts;
 	        this.enabled = true;
-	        const { domElement, viewport, minZoom, maxZoom, minPitch, maxPitch, viewportOffset } = opts;
+	        const { domElement, viewport, minZoom, maxZoom, minPitch, maxPitch } = opts;
 	        this.domElement = domElement;
 	        this.viewport = viewport;
-	        this.viewportOffset = viewportOffset;
 	        const { latitude, longitude, zoom, bearing, pitch } = this.viewport;
 	        this.longitude = longitude;
 	        this.latitude = latitude;
@@ -82052,12 +82050,10 @@ void main() {
 	        this.longitude = longitude;
 	        this.latitude = latitude;
 	        this.viewport = this.viewport.update(Object.assign(this.viewport.options, { zoom, latitude, longitude }));
-	        this.viewportOffset = this.viewportOffset.update(Object.assign(this.viewportOffset.options, { zoom, latitude: latitude + this.offsetCenter[1], longitude: longitude + this.offsetCenter[0] }));
 	        const self = this;
 	        self.dispatchEvent({
 	            type: 'change',
-	            viewport: self.viewport,
-	            viewportOffset: self.viewportOffset
+	            viewport: self.viewport
 	        });
 	    }
 	    mousedown(e) {
@@ -82125,15 +82121,10 @@ void main() {
 	            longitude: this.longitude,
 	            latitude: this.latitude
 	        }));
-	        this.viewportOffset = this.viewportOffset.update(Object.assign(this.viewportOffset.options, {
-	            longitude: this.longitude + this.offsetCenter[0],
-	            latitude: this.latitude + this.offsetCenter[1]
-	        }));
 	        const self = this;
 	        self.dispatchEvent({
 	            type: 'change',
-	            viewport: self.viewport,
-	            viewportOffset: self.viewportOffset
+	            viewport: self.viewport
 	        });
 	    }
 	    doRotate(newRotation) {
@@ -82142,15 +82133,10 @@ void main() {
 	            bearing,
 	            pitch
 	        }));
-	        this.viewportOffset = this.viewportOffset.update(Object.assign(this.viewportOffset.options, {
-	            bearing: this.viewport.bearing,
-	            pitch
-	        }));
 	        const self = this;
 	        self.dispatchEvent({
 	            type: 'change',
-	            viewport: self.viewport,
-	            viewportOffset: self.viewportOffset
+	            viewport: self.viewport
 	        });
 	    }
 	    _getRotationParams(pos, startPos) {
@@ -82180,7 +82166,7 @@ void main() {
 	    _calculateNewPitchAndBearing({ deltaScaleX, deltaScaleY, startBearing, startPitch }) {
 	        deltaScaleY = clamp$1(deltaScaleY, -1, 1);
 	        let { minPitch, maxPitch } = this;
-	        const bearing = startBearing + 180 * deltaScaleX;
+	        const bearing = (startBearing + 180 * deltaScaleX) % 360;
 	        let pitch = startPitch;
 	        if (deltaScaleY > 0) {
 	            pitch = startPitch + deltaScaleY * (maxPitch - startPitch);
@@ -92057,7 +92043,7 @@ void main() {
             void main(){
               vec4 mapTexel = texture2D( map, vUv );
               if(mapTexel.a == 0.0){
-                gl_FragColor = vec4(1.0);
+                discard;
               }else{
                 gl_FragColor = vColor;
               }
@@ -92122,6 +92108,8 @@ void main() {
 	            pickMesh.userData.isMSprite = true;
 	            this.container.depthScene.add(depthMesh);
 	            this.container.pickingData[meshId] = this;
+	            this.container.depthCache[meshId] = depthMesh;
+	            this.container.pickCache[meshId] = pickMesh;
 	        }
 	    }
 	}
@@ -92208,7 +92196,6 @@ void main() {
 	    firstPersonControls;
 	    firstPersonCamera;
 	    mapCamera;
-	    mapCameraOffset;
 	    mapControls;
 	    transformControl;
 	    hemiLight;
@@ -92267,6 +92254,8 @@ void main() {
 	    depthScene;
 	    depthTexture;
 	    pickingData;
+	    depthCache;
+	    pickCache;
 	    pickBuffer;
 	    depthBuffer;
 	    // gpu pick end
@@ -92295,6 +92284,8 @@ void main() {
 	        this.layers = {};
 	        // gpu pick start
 	        this.pickingData = {};
+	        this.pickCache = {};
+	        this.depthCache = {};
 	        this.pickingScene = new Scene();
 	        this.pickingTexture = new WebGLRenderTarget(this.renderer.domElement.width, this.renderer.domElement.height);
 	        this.pickBuffer = new Uint8Array(4);
@@ -92341,12 +92332,30 @@ void main() {
 	    set bgType(type) {
 	        this._bgType = type;
 	        if (type === 'color') {
+	            // clear texture/panorama
+	            if (this.scene)
+	                this.scene.background = null;
+	            if (this.sky)
+	                this.sky.visible = false;
+	            // update bg Color
+	            const hexVal = '#' + new Color(this.bgColor).getHexString();
+	            this._background = hexVal;
+	            this.bgColor = hexVal;
 	            this._background = this.bgColor;
+	            this.renderer.setClearColor(hexVal, 1);
+	            // update passes bg Color
+	            if (this.ssaaPass)
+	                this.ssaaPass.clearColor = hexVal;
 	        }
 	        else if (type === 'texture') {
+	            // clear panorama
+	            if (this.sky)
+	                this.sky.visible = false;
 	            this._background = this.scene.background;
 	        }
 	        else if (type === 'panorama') {
+	            if (this.sky)
+	                this.sky.visible = true;
 	            this._background = this.sky;
 	        }
 	    }
@@ -92611,10 +92620,6 @@ void main() {
 	                    width: this.containerWidth,
 	                    height: this.containerHeight
 	                });
-	                // this.mapCameraOffset.update({
-	                //   width: this.containerWidth,
-	                //   height: this.containerHeight
-	                // })
 	            }
 	            this.renderer.setSize(this.containerWidth, this.containerHeight);
 	            this.css2dRenderer.setSize(this.containerWidth, this.containerHeight);
@@ -92713,8 +92718,8 @@ void main() {
 	        // background panorama
 	        if (attrs && attrs.background && attrs.background.type === 'panorama') {
 	            this.bgType = 'panorama';
-	            const scale = attrs && attrs.background && attrs.background.scale ? attrs.background.scale : 1;
-	            const rotation = attrs && attrs.background && attrs.background.rotation ? attrs.background.rotation : [0, 0, 0];
+	            const scale = attrs && attrs.background && attrs.background.options && attrs.background.options.scale ? attrs.background.options.scale : 1;
+	            const rotation = attrs && attrs.background && attrs.background.options && attrs.background.options.rotation ? attrs.background.options.rotation : [0, 0, 0];
 	            if (attrs.background.value.length == 6) {
 	                const arr = [];
 	                const materials = [];
@@ -92741,6 +92746,7 @@ void main() {
 	                    sky.type = 'SkyBox';
 	                    this.scene.add(sky);
 	                    this.sky = sky;
+	                    this.sky.userData.value = attrs.background.value;
 	                    this.background = this.sky;
 	                });
 	            }
@@ -92762,6 +92768,7 @@ void main() {
 	                    sky.type = 'SkyBox';
 	                    this.scene.add(sky);
 	                    this.sky = sky;
+	                    this.sky.userData.value = attrs.background.value;
 	                    this.background = this.sky;
 	                });
 	            }
@@ -92838,20 +92845,6 @@ void main() {
 	            width: mapCamera.width,
 	            height: mapCamera.height
 	        });
-	        this.mapCameraOffset = new MapCamera({
-	            aspect: this.containerWidth / this.containerHeight,
-	            near: mapCamera.near,
-	            far: mapCamera.far,
-	            longitude: mapCamera.longitude,
-	            latitude: mapCamera.latitude,
-	            zoom: mapCamera.zoom,
-	            bearing: mapCamera.bearing,
-	            pitch: mapCamera.pitch,
-	            altitude: mapCamera.altitude,
-	            width: mapCamera.width,
-	            height: mapCamera.height
-	        });
-	        this.scene.mapCameraOffset = this.mapCameraOffset;
 	    }
 	    // init controls
 	    initControls(attrs) {
@@ -92931,7 +92924,6 @@ void main() {
 	        }
 	        this.mapControls = new MapController({
 	            viewport: this.mapCamera,
-	            viewportOffset: this.mapCameraOffset,
 	            domElement: this.renderer.domElement,
 	            minZoom: mapControls.minZoom,
 	            maxZoom: mapControls.maxZoom,
@@ -92946,7 +92938,6 @@ void main() {
 	                if (i == 'TileLayer') {
 	                    const tileLayer = self.layers[i];
 	                    tileLayer.update(Object.assign({}, tileLayer.opts, {
-	                        // viewport: e.viewportOffset
 	                        viewport: e.viewport
 	                    }));
 	                }
@@ -93392,8 +93383,8 @@ void main() {
 	        if (!(urls instanceof Array))
 	            return;
 	        const attrs = this.attrs;
-	        const scale = attrs && attrs.background && attrs.background.scale ? attrs.background.scale : 1;
-	        const rotation = attrs && attrs.background && attrs.background.rotation ? attrs.background.rotation : [0, 0, 0];
+	        const scale = attrs && attrs.background && attrs.background.options && attrs.background.options.scale ? attrs.background.options.scale : 1;
+	        const rotation = attrs && attrs.background && attrs.background.options && attrs.background.options.rotation ? attrs.background.options.rotation : [0, 0, 0];
 	        const SKY_RADIUS = 50000;
 	        this.skyRadius = SKY_RADIUS;
 	        if (urls.length == 6) {
@@ -93428,6 +93419,7 @@ void main() {
 	                    this.scene.add(sky);
 	                    this.sky = sky;
 	                }
+	                this.sky.userData.value = urls;
 	            });
 	        }
 	        else if (urls.length == 1) {
@@ -93454,6 +93446,7 @@ void main() {
 	                    this.scene.add(sky);
 	                    this.sky = sky;
 	                }
+	                this.sky.userData.value = urls;
 	            });
 	        }
 	    }
@@ -93670,8 +93663,8 @@ void main() {
 	        if (len == 0)
 	            return;
 	        const attrs = this.attrs;
-	        const scale = attrs && attrs.background && attrs.background.scale ? attrs.background.scale : 1;
-	        const rotation = attrs && attrs.background && attrs.background.rotation ? attrs.background.rotation : [0, 0, 0];
+	        const scale = attrs && attrs.background && attrs.background.options && attrs.background.options.scale ? attrs.background.options.scale : 1;
+	        const rotation = attrs && attrs.background && attrs.background.options && attrs.background.options.rotation ? attrs.background.options.rotation : [0, 0, 0];
 	        const SKY_RADIUS = this.skyRadius;
 	        if (len == 6) {
 	            const arr = [];
@@ -93871,6 +93864,15 @@ void main() {
 	            object: null,
 	            coordinates: []
 	        };
+	        // filter mesh which visible is false
+	        this.pickingScene.children = [];
+	        this.depthScene.children = [];
+	        for (const i in this.pickingData) {
+	            if (this.pickingData[i].visible) {
+	                this.pickingScene.add(this.pickCache[i]);
+	                this.depthScene.add(this.depthCache[i]);
+	            }
+	        }
 	        // render the color scene
 	        this.renderer.setRenderTarget(this.pickingTexture);
 	        this.renderer.setClearColor(new Color(1, 1, 1), 1);
@@ -93928,6 +93930,7 @@ void main() {
 	            world.set(nearPosition.x + (farPosition.x - nearPosition.x) * t, nearPosition.y + (farPosition.y - nearPosition.y) * t, cameraDepth);
 	            world.applyMatrix4(this.mapCamera.matrixWorld);
 	            const result = this.mapCamera.unprojectFlat([world.x, world.y, world.z]);
+	            // console.log('result', result)
 	            if (id != 16777215) {
 	                pickResult.coordinates = result;
 	            }
@@ -115531,15 +115534,8 @@ void main() {
 	    container;
 	    opts;
 	    tileset;
-	    pickingIDs;
-	    pickingScene;
-	    pickingTexture;
 	    pickingMaterial;
-	    depthScene;
-	    depthTexture;
 	    depthMaterial;
-	    pickingData;
-	    pointer;
 	    LOD;
 	    pickable;
 	    constructor(opts) {
@@ -115548,9 +115544,6 @@ void main() {
 	        this.LOD = opts && opts.LOD !== undefined ? opts.LOD : true;
 	        this.pickable = opts && opts.pickable !== undefined ? opts.pickable : true;
 	        // pick color
-	        this.pickingIDs = {};
-	        this.pickingScene = new Scene();
-	        this.pickingTexture = new WebGLRenderTarget(this.opts.container.renderer.domElement.width, this.opts.container.renderer.domElement.height);
 	        this.pickingMaterial = new ShaderMaterial({
 	            transparent: true,
 	            vertexColors: true,
@@ -115575,8 +115568,6 @@ void main() {
       `
 	        });
 	        // pick depth
-	        this.depthScene = new Scene();
-	        this.depthTexture = new WebGLRenderTarget(this.opts.container.renderer.domElement.width, this.opts.container.renderer.domElement.height);
 	        this.depthMaterial = new ShaderMaterial({
 	            transparent: true,
 	            uniforms: {
@@ -115613,8 +115604,6 @@ void main() {
         }
       `
 	        });
-	        this.pickingData = {};
-	        this.pointer = new Vector2$1();
 	        this.update(opts);
 	    }
 	    update(opts) {
@@ -115742,6 +115731,8 @@ void main() {
 	                        depthMesh.userData.id = tileHeader.id;
 	                        this.container.depthScene.add(depthMesh);
 	                        this.container.pickingData[meshId] = meshResult;
+	                        this.container.depthCache[meshId] = depthMesh;
+	                        this.container.pickCache[meshId] = pickMesh;
 	                    }
 	                });
 	                this.container.scene.add(group);
@@ -115836,6 +115827,8 @@ void main() {
 	        }
 	        if (findId != -1) {
 	            delete this.container.pickingData[findId];
+	            delete this.container.pickCache[findId];
+	            delete this.container.depthCache[findId];
 	        }
 	    }
 	    updateTileset(viewport) {
@@ -116084,6 +116077,8 @@ void main() {
 	                    }));
 	                    this.container.depthScene.add(depthMesh);
 	                    this.container.pickingData[meshId] = this;
+	                    this.container.depthCache[meshId] = depthMesh;
+	                    this.container.pickCache[meshId] = pickMesh;
 	                }
 	            });
 	        }

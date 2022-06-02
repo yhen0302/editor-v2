@@ -11,7 +11,7 @@
     </div>
 
     <div class="options" v-show="dropped">
-      <div class="options-item" v-for="item in options" :key="item" :style="{ height: heightPx }" :class="item.value === value.value ? 'selected' : ''" @mouseup="choosed(item)">
+      <div class="options-item" v-for="item in options" :key="item" :style="{ height: heightPx }" :class="equal(item.value, value.value) ? 'selected' : ''" @mouseup="choosed(item)">
         <p>{{ item.name }}</p>
       </div>
     </div>
@@ -20,13 +20,14 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue'
+import * as UnderScore from 'underscore'
 
 export default defineComponent({
   name: 'BaseDropdown',
   props: ['options', 'value', 'width', 'height', 'marginRight', 'marginLeft', 'marginTop', 'marginBottom', 'change', 'target'],
   components: {},
   setup(props: any) {
-    console.log('value', props.value)
+    // console.log('value', props.value)
     const widthPx = computed(() => props.width + 'px')
     const heightPx = computed(() => props.height + 'px')
 
@@ -43,6 +44,10 @@ export default defineComponent({
       props.change && props.change({ target: props.target, value: item })
     }
 
+    const equal = (a: any, b: any) => {
+      return UnderScore.isEqual(a, b)
+    }
+
     return {
       dropped,
       widthPx,
@@ -51,7 +56,8 @@ export default defineComponent({
       marginLeftPx,
       marginTopPx,
       marginBottomPx,
-      choosed
+      choosed,
+      equal
     }
   }
 })
