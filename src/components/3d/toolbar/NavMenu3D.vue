@@ -73,6 +73,9 @@ export default defineComponent({
         dimension: '3d',
         pageIndex: pageIndex.value
       })
+
+      // reset nodes status and editforms
+      EventsBus.emit('navMenuGoBackReset', {})
     }
 
     return {

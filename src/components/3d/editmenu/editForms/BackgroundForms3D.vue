@@ -135,14 +135,12 @@ export default defineComponent({
     // content settings
     const formSettings: any = ref([])
 
-    let currentObj: any
-
     onMounted(() => {
       const { options } = props.node
       const { type, value } = options
       const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
 
-      console.log(value)
+      // console.log(value)
 
       selectType.value = {
         name: type,
@@ -155,7 +153,7 @@ export default defineComponent({
             show: true,
             data: [
               {
-                value: hex2rgb(threeDimensionContainer.background),
+                value: hex2rgb(value),
                 type: 'color'
               }
             ]
@@ -204,8 +202,8 @@ export default defineComponent({
                   }
                 ],
                 selected: {
-                  name: 'sRGBEncoding',
-                  value: 3001
+                  name: 'LinearEncoding',
+                  value: 3000
                 },
                 type: 'dropdown'
               }
@@ -242,12 +240,12 @@ export default defineComponent({
             data: [
               {
                 name: 'X',
-                value: options.opts.repeat[0],
+                value: options.opts.repeat ? options.opts.repeat[0] : 1,
                 type: 'input'
               },
               {
                 name: 'Y',
-                value: options.opts.repeat[1],
+                value: options.opts.repeat ? options.opts.repeat[1] : 1,
                 type: 'input'
               }
             ]
@@ -317,6 +315,253 @@ export default defineComponent({
             show: true,
             data: [
               {
+                value: options.opts.scale ? options.opts.scale : 1,
+                type: 'input'
+              }
+            ]
+          },
+          rotation: {
+            show: true,
+            data: [
+              {
+                name: 'X',
+                value: options.opts.rotation ? options.opts.rotation[0] : 0,
+                type: 'input'
+              },
+              {
+                name: 'Y',
+                value: options.opts.rotation ? options.opts.rotation[1] : 0,
+                type: 'input'
+              },
+              {
+                name: 'Z',
+                value: options.opts.rotation ? options.opts.rotation[2] : 0,
+                type: 'input'
+              }
+            ]
+          }
+        }
+
+        // show computed
+        formSettings.value.scale.show = computed(() => {
+          return !UnderScore.isEqual(formSettings.value.sources.data[0].selected.value, [])
+        })
+
+        formSettings.value.rotation.show = computed(() => {
+          return !UnderScore.isEqual(formSettings.value.sources.data[0].selected.value, [])
+        })
+
+        // sources selected
+        formSettings.value.sources.data[0].options.forEach((op: any) => {
+          if (UnderScore.isEqual(op.value, value)) {
+            formSettings.value.sources.data[0].selected = op
+          }
+        })
+      }
+    })
+
+    onUnmounted(() => {
+      //
+    })
+
+    const inputChange = (target: any, type?: string) => {
+      const e = event as any
+      const threeDimensionContainer = store.state.threeDimensionContainer
+      const { key, setting } = target
+      const val = e.target.value
+      // 更新过后的options
+      let changedOptions = {}
+
+      if (selectType.value.value === 'color') {
+        if (key === 'color') {
+          if (type === 'hex') {
+            threeDimensionContainer.bgColor = val
+            threeDimensionContainer.renderer.setClearColor(val)
+            if (threeDimensionContainer.ssaaPass) threeDimensionContainer.ssaaPass.clearColor = val
+            setting.value = val
+          }
+        }
+        changedOptions = {
+          opts: {},
+          type: 'color',
+          value: val
+        }
+      } else if (selectType.value.value === 'texture') {
+        if (isNaN(val)) return
+        setting.value = parseFloat(val)
+        const { name } = setting
+        if (key === 'repeat') {
+          if (name === 'X') {
+            threeDimensionContainer.scene.background.repeat.x = parseFloat(val)
+          } else if (name === 'Y') {
+            threeDimensionContainer.scene.background.repeat.y = parseFloat(val)
+          }
+        }
+        const valArr = threeDimensionContainer.scene.background.image.src.split('//')
+        const bgGroundVal = '/' + valArr[valArr.length - 1]
+        const bgGroundOpts = {
+          encoding: threeDimensionContainer.scene.background.encoding,
+          wrapping: threeDimensionContainer.scene.background.wrapS,
+          repeat: [threeDimensionContainer.scene.background.repeat.x, threeDimensionContainer.scene.background.repeat.y]
+        }
+        changedOptions = {
+          type: 'texture',
+          value: bgGroundVal,
+          opts: bgGroundOpts
+        }
+      } else if (selectType.value.value === 'panorama') {
+        if (isNaN(val)) return
+        setting.value = parseFloat(val)
+        const { name } = setting
+        if (key === 'scale') {
+          const s = parseFloat(val)
+          threeDimensionContainer.sky.scale.set(s, s, s)
+          threeDimensionContainer.attrs.background.scale = s
+        } else if (key === 'rotation') {
+          if (!threeDimensionContainer.attrs.background.rotation) threeDimensionContainer.attrs.background.rotation = []
+          if (name === 'X') {
+            threeDimensionContainer.sky.rotation.x = (parseFloat(val) * Math.PI) / 180
+            threeDimensionContainer.attrs.background.rotation[0] = (parseFloat(val) * Math.PI) / 180
+          } else if (name === 'Y') {
+            threeDimensionContainer.sky.rotation.y = (parseFloat(val) * Math.PI) / 180
+            threeDimensionContainer.attrs.background.rotation[1] = (parseFloat(val) * Math.PI) / 180
+          } else if (name === 'Z') {
+            threeDimensionContainer.sky.rotation.z = (parseFloat(val) * Math.PI) / 180
+            threeDimensionContainer.attrs.background.rotation[2] = (parseFloat(val) * Math.PI) / 180
+          }
+        }
+        const bgGroundVal = threeDimensionContainer.sky.userData.value
+        const bgGroundOpts = {
+          scale: threeDimensionContainer.sky.scale.x,
+          rotation: [
+            parseFloat(((threeDimensionContainer.sky.rotation.x * 180) / Math.PI).toFixed(4)),
+            parseFloat(((threeDimensionContainer.sky.rotation.y * 180) / Math.PI).toFixed(4)),
+            parseFloat(((threeDimensionContainer.sky.rotation.z * 180) / Math.PI).toFixed(4))
+          ]
+        }
+        changedOptions = {
+          type: 'panorama',
+          value: bgGroundVal,
+          opts: bgGroundOpts
+        }
+      }
+
+      // update selected pageTreeNode
+      Object.assign(store.state.selectedPageTreeNode.options, changedOptions)
+    }
+
+    const typeChange = (e: any) => {
+      const { value } = e
+      selectType.value = value
+      const threeDimensionContainer = store.state.threeDimensionContainer
+
+      // console.log('selectType.value.value', selectType.value.value)
+      threeDimensionContainer.bgType = selectType.value.value
+
+      let bgGroundVal: any
+      if (selectType.value.value === 'color') {
+        if (threeDimensionContainer.sky) threeDimensionContainer.sky.visible = false
+        if (threeDimensionContainer.scene.background) threeDimensionContainer.scene.background = null
+        formSettings.value = {
+          color: {
+            show: true,
+            data: [
+              {
+                value: hex2rgb(threeDimensionContainer.bgColor),
+                type: 'color'
+              }
+            ]
+          }
+        }
+        bgGroundVal = threeDimensionContainer.bgColor
+        const backgroundOptions = {
+          type: threeDimensionContainer.bgType,
+          value: bgGroundVal,
+          opts: {}
+        }
+        // update selected pageTreeNode
+        Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+      } else if (selectType.value.value === 'texture') {
+        if (threeDimensionContainer.sky) threeDimensionContainer.sky.visible = false
+        formSettings.value = {
+          sources: {
+            show: true,
+            data: [
+              {
+                options: [
+                  {
+                    name: '无',
+                    value: ''
+                  },
+                  {
+                    name: 'default',
+                    value: '/textures/bg.png'
+                  },
+                  {
+                    name: 'default2',
+                    value: '/textures/bg2.jpg'
+                  }
+                ],
+                selected: {
+                  name: '无',
+                  value: ''
+                },
+                type: 'dropdown'
+              }
+            ]
+          },
+          encoding: {
+            show: true,
+            data: [
+              {
+                options: [
+                  {
+                    name: 'LinearEncoding',
+                    value: 3000
+                  },
+                  {
+                    name: 'sRGBEncoding',
+                    value: 3001
+                  }
+                ],
+                selected: {
+                  name: 'sRGBEncoding',
+                  value: 3001
+                },
+                type: 'dropdown'
+              }
+            ]
+          },
+          wrapping: {
+            show: true,
+            data: [
+              {
+                options: [
+                  {
+                    name: 'RepeatWrapping',
+                    value: 1000
+                  },
+                  {
+                    name: 'ClampToEdgeWrapping',
+                    value: 1001
+                  },
+                  {
+                    name: 'MirroredRepeatWrapping',
+                    value: 1002
+                  }
+                ],
+                selected: {
+                  name: 'ClampToEdgeWrapping',
+                  value: 1001
+                },
+                type: 'dropdown'
+              }
+            ]
+          },
+          repeat: {
+            show: true,
+            data: [
+              {
                 name: 'X',
                 value: 1,
                 type: 'input'
@@ -325,9 +570,66 @@ export default defineComponent({
                 name: 'Y',
                 value: 1,
                 type: 'input'
-              },
+              }
+            ]
+          }
+        }
+
+        // show computed
+        formSettings.value.encoding.show = computed(() => {
+          return formSettings.value.sources.data[0].selected.value !== ''
+        })
+
+        formSettings.value.wrapping.show = computed(() => {
+          return formSettings.value.sources.data[0].selected.value !== ''
+        })
+
+        formSettings.value.repeat.show = computed(() => {
+          return formSettings.value.sources.data[0].selected.value !== '' && formSettings.value.wrapping.data[0].selected.value !== 1001
+        })
+        // reset
+        threeDimensionContainer.scene.background = null
+        bgGroundVal = ''
+        const backgroundOptions = {
+          type: threeDimensionContainer.bgType,
+          value: bgGroundVal,
+          opts: {}
+        }
+        // update selected pageTreeNode
+        Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+      } else if (selectType.value.value === 'panorama') {
+        if (threeDimensionContainer.scene.background) threeDimensionContainer.scene.background = null
+        formSettings.value = {
+          sources: {
+            show: true,
+            data: [
               {
-                name: 'Z',
+                options: [
+                  {
+                    name: '无',
+                    value: []
+                  },
+                  {
+                    name: 'default',
+                    value: ['/panorama/gongchang.jpg']
+                  },
+                  {
+                    name: 'default2',
+                    value: ['/panorama/sky_px.jpg', '/panorama/sky_nx.jpg', '/panorama/sky_py.jpg', '/panorama/sky_ny.jpg', '/panorama/sky_pz.jpg', '/panorama/sky_nz.jpg']
+                  }
+                ],
+                selected: {
+                  name: '无',
+                  value: []
+                },
+                type: 'dropdown'
+              }
+            ]
+          },
+          scale: {
+            show: true,
+            data: [
+              {
                 value: 1,
                 type: 'input'
               }
@@ -364,73 +666,14 @@ export default defineComponent({
           return !UnderScore.isEqual(formSettings.value.sources.data[0].selected.value, [])
         })
 
-        // sources selected
-        formSettings.value.sources.data[0].options.forEach((op: any) => {
-          if (UnderScore.isEqual(op.value, value)) {
-            formSettings.value.sources.data[0].selected = op
-          }
-        })
-      }
-    })
-
-    onUnmounted(() => {
-      //
-    })
-
-    const inputChange = (target: any, type?: string) => {
-      const e = event as any
-      const threeDimensionContainer = store.state.threeDimensionContainer
-      const { key, setting } = target
-      const val = e.target.value
-
-      if (selectType.value.value === 'color') {
-        if (key === 'color') {
-          if (type === 'hex') {
-            threeDimensionContainer.background = val
-            setting.value = val
-          }
+        bgGroundVal = []
+        const backgroundOptions = {
+          type: threeDimensionContainer.bgType,
+          value: bgGroundVal,
+          opts: {}
         }
-      } else if (selectType.value.value === 'texture') {
-        if (isNaN(val)) return
-        setting.value = parseFloat(val)
-        const { name } = setting
-        if (key === 'repeat') {
-          if (name === 'X') {
-            threeDimensionContainer.background.repeat.x = parseFloat(val)
-          } else if (name === 'Y') {
-            threeDimensionContainer.background.repeat.y = parseFloat(val)
-          }
-        }
-      } else if (selectType.value.value === 'panorama') {
-        if (isNaN(val)) return
-        setting.value = parseFloat(val)
-        const { name } = setting
-        if (key === 'scale') {
-          if (name === 'X') {
-            threeDimensionContainer.background.scale.x = parseFloat(val)
-          } else if (name === 'Y') {
-            threeDimensionContainer.background.scale.y = parseFloat(val)
-          } else if (name === 'Z') {
-            threeDimensionContainer.background.scale.z = parseFloat(val)
-          }
-        }
-      }
-    }
-
-    const typeChange = (e: any) => {
-      const { value } = e
-      selectType.value = value
-      const threeDimensionContainer = store.state.threeDimensionContainer
-
-      console.log('selectType.value.value', selectType.value.value)
-      threeDimensionContainer.bgType = selectType.value.value
-
-      if (selectType.value.value === 'color') {
-        //
-      } else if (selectType.value.value === 'texture') {
-        //
-      } else if (selectType.value.value === 'panorama') {
-        //
+        // update selected pageTreeNode
+        Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
       }
     }
 
@@ -441,29 +684,107 @@ export default defineComponent({
 
       setting.selected = value
 
+      let bgGroundVal: any
+      let bgGroundOpts = {}
+
       if (selectType.value.value === 'texture') {
         if (key === 'sources') {
           if (value.value === '') {
-            threeDimensionContainer.background = null
+            threeDimensionContainer.scene.background = null
+            bgGroundVal = ''
+            const backgroundOptions = {
+              type: threeDimensionContainer.bgType,
+              value: bgGroundVal,
+              opts: bgGroundOpts
+            }
+            // update selected pageTreeNode
+            Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
           } else {
             threeDimensionContainer.texLoader.load(threeDimensionContainer.publicPath + value.value, (texture: any) => {
-              threeDimensionContainer.background = texture
+              threeDimensionContainer.scene.background = texture
+              const valArr = threeDimensionContainer.scene.background.image.src.split('//')
+              bgGroundVal = '/' + valArr[valArr.length - 1]
+              bgGroundOpts = {
+                encoding: threeDimensionContainer.scene.background.encoding,
+                wrapping: threeDimensionContainer.scene.background.wrapS,
+                repeat: [threeDimensionContainer.scene.background.repeat.x, threeDimensionContainer.scene.background.repeat.y]
+              }
+              const backgroundOptions = {
+                type: threeDimensionContainer.bgType,
+                value: bgGroundVal,
+                opts: bgGroundOpts
+              }
+              // update selected pageTreeNode
+              Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
             })
           }
         } else if (key === 'encoding') {
-          threeDimensionContainer.background.encoding = value.value
-          threeDimensionContainer.background.needsUpdate = true
+          threeDimensionContainer.scene.background.encoding = value.value
+          threeDimensionContainer.scene.background.needsUpdate = true
+          const valArr = threeDimensionContainer.scene.background.image.src.split('//')
+          bgGroundVal = '/' + valArr[valArr.length - 1]
+          bgGroundOpts = {
+            encoding: threeDimensionContainer.scene.background.encoding,
+            wrapping: threeDimensionContainer.scene.background.wrapS,
+            repeat: [threeDimensionContainer.scene.background.repeat.x, threeDimensionContainer.scene.background.repeat.y]
+          }
+          const backgroundOptions = {
+            type: threeDimensionContainer.bgType,
+            value: bgGroundVal,
+            opts: bgGroundOpts
+          }
+          // update selected pageTreeNode
+          Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
         } else if (key === 'wrapping') {
-          threeDimensionContainer.background.wrapS = threeDimensionContainer.background.wrapT = value.value
-          threeDimensionContainer.background.needsUpdate = true
+          threeDimensionContainer.scene.background.wrapS = threeDimensionContainer.scene.background.wrapT = value.value
+          threeDimensionContainer.scene.background.needsUpdate = true
+          const valArr = threeDimensionContainer.scene.background.image.src.split('//')
+          bgGroundVal = '/' + valArr[valArr.length - 1]
+          bgGroundOpts = {
+            encoding: threeDimensionContainer.scene.background.encoding,
+            wrapping: threeDimensionContainer.scene.background.wrapS,
+            repeat: [threeDimensionContainer.scene.background.repeat.x, threeDimensionContainer.scene.background.repeat.y]
+          }
+          const backgroundOptions = {
+            type: threeDimensionContainer.bgType,
+            value: bgGroundVal,
+            opts: bgGroundOpts
+          }
+          // update selected pageTreeNode
+          Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
         }
       } else if (selectType.value.value === 'panorama') {
+        bgGroundVal = []
         if (key === 'sources') {
           if (value.value.length === 0) {
-            threeDimensionContainer.background.visible = false
+            threeDimensionContainer.sky.visible = false
+            const backgroundOptions = {
+              type: threeDimensionContainer.bgType,
+              value: bgGroundVal,
+              opts: bgGroundOpts
+            }
+            // update selected pageTreeNode
+            Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
           } else {
-            threeDimensionContainer.background.visible = true
-            threeDimensionContainer.background = value.value
+            threeDimensionContainer.setSkyBox(value.value, (sbox: any) => {
+              sbox.visible = true
+              bgGroundVal = sbox.userData.value
+              bgGroundOpts = {
+                scale: sbox.scale.x,
+                rotation: [
+                  parseFloat(((sbox.rotation.x * 180) / Math.PI).toFixed(4)),
+                  parseFloat(((sbox.rotation.y * 180) / Math.PI).toFixed(4)),
+                  parseFloat(((sbox.rotation.z * 180) / Math.PI).toFixed(4))
+                ]
+              }
+              const backgroundOptions = {
+                type: threeDimensionContainer.bgType,
+                value: bgGroundVal,
+                opts: bgGroundOpts
+              }
+              // update selected pageTreeNode
+              Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+            })
           }
         }
       }

@@ -1,5 +1,6 @@
 import { toRaw } from 'vue'
 import store from '../../store'
+import * as UnderScore from 'underscore'
 
 export function parseModelNode(node: any, index: number, result: any) {
   result.uuid = node.uuid
@@ -69,9 +70,57 @@ export function reloadThreeDimensionScene(pageNode: any) {
 
   for (const k in flatSceneNodes) {
     const n = flatSceneNodes[k]
-    
-    if(n.type === 'Shadow'){
-      container.renderer.shadow.enabled = n.options.enabled
+
+    if (n.type === 'Background') {
+      const { options } = n
+      const { type, value, opts } = options
+      container.bgType = type
+
+      if (type === 'color') {
+        if (container.sky) container.sky.visible = false
+        if (container.scene.background) container.scene.background = null
+        container.bgColor = value
+        container.renderer.setClearColor(value)
+        if (container.ssaaPass) container.ssaaPass.clearColor = value
+      } else if (type === 'texture') {
+        if (container.sky) container.sky.visible = false
+        if (value === '') {
+          container.scene.background = null
+        } else {
+          container.texLoader.load(container.publicPath + value, (tex: any) => {
+            container.scene.background = tex
+            for (const i in opts) {
+              if (i === 'encoding') {
+                tex.encoding = opts[i]
+              } else if (i === 'wrapping') {
+                tex.wrapS = tex.wrapT = opts[i]
+              } else if (i === 'repeat') {
+                tex.repeat.set(opts[i][0], opts[i][1])
+              }
+            }
+            container.scene.background.needsUpdate = true
+          })
+        }
+      } else if (type === 'panorama') {
+        console.log('value', value)
+        if (UnderScore.isEqual(value, [])) {
+          container.sky.visible = false
+        } else {
+          container.setSkyBox(value, (sbox: any) => {
+            sbox.visible = true
+            for (const i in opts) {
+              if (i === 'scale') {
+                const s = opts[i]
+                sbox.scale.set(s, s, s)
+              } else if (i === 'rotation') {
+                sbox.rotation.set((opts[i][0] * Math.PI) / 180, (opts[i][1] * Math.PI) / 180, (opts[i][2] * Math.PI) / 180)
+              }
+            }
+          })
+        }
+      }
+    } else if (n.type === 'Shadow') {
+      container.renderer.shadowMap.enabled = n.options.enabled
     } else if (n.type === 'RectAreaLights') {
       container.rectAreaLights.forEach((rectAreaLight: any) => {
         n.children.forEach((rectAreaLightOpts: any) => {
@@ -152,7 +201,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
       container.ambientLight.color.r = n.options.color[0] / 255
       container.ambientLight.color.g = n.options.color[1] / 255
       container.ambientLight.color.b = n.options.color[2] / 255
-    } else if (n.type === 'PerspectiveCamera') {
+    } else if (n.type === 'Camera') {
       // todo 正交相机,墨卡托相机 , 相机重置（动画）
       // 1. update camera
       container.orbitControls.object.position.set(n.options.position[0], n.options.position[1], n.options.position[2])

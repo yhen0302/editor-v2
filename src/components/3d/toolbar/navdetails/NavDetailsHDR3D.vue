@@ -1,5 +1,5 @@
 <template>
-  <div class="nav-details-shadow-3d-main">
+  <div class="nav-details-hdr-3d-main">
     <div v-for="(item, key) in detailsList" :key="key">
       <NavDetailsSelectItem :name="item.name" :type="key" :selected="item.selected" @click="selectItem({ key, target: item })" />
     </div>
@@ -14,15 +14,15 @@ import { EventsBus } from '@/core/EventsBus'
 import NavDetailsSelectItem from '@/components/utils/navdetails/NavDetailsSelectItem.vue'
 
 export default defineComponent({
-  name: 'NavDetailsShadow3D',
+  name: 'NavDetailsHDR3D',
   components: {
     NavDetailsSelectItem
   },
   setup() {
     const store = useStore()
     const detailsList: any = ref({
-      Shadow: {
-        name: '阴影',
+      HDR: {
+        name: '高动态范围成像',
         selected: false
       }
     })
@@ -120,7 +120,7 @@ export default defineComponent({
 </script>
 
 <style lang="postcss" scoped>
-.nav-details-shadow-3d-main {
+.nav-details-hdr-3d-main {
   @apply w-full h-full flex-row;
 }
 </style>

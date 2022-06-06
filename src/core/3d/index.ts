@@ -2,7 +2,6 @@ import { parseModelNode } from './util'
 import store from '../../store'
 import { EventsBus } from '../EventsBus'
 import { throttled } from '../utils/base'
-import { TEXTURE_CONSTANTS } from './constants'
 
 declare const Bol3D: any
 
@@ -36,10 +35,11 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     },
     controls: {
       orbitControls: {
-        // enableDamping: false
+        enableDamping: false
       }
     },
     stats: true,
+
     // background: {
     //   type: 'color',
     //   value: 0xff0000
@@ -48,7 +48,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     background: {
       type: 'panorama',
       value: ['/panorama/sky_px.jpg', '/panorama/sky_nx.jpg', '/panorama/sky_py.jpg', '/panorama/sky_ny.jpg', '/panorama/sky_pz.jpg', '/panorama/sky_nz.jpg'],
-      options: { scale: 1 }
+      options: { scale: 1, rotation: [0, 0, (360 * Math.PI) / 180] }
     },
 
     // background: {
@@ -72,26 +72,32 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     onLoad: (evt: any) => {
       callback && callback(evt)
 
-      console.log('loaded', evt)
+      // todo bug： 此处可能要分左侧toolbarNodes 和 右侧pageTreeNodes，不然返回toolbar和pageTree返回上级功能可能会有冲突（刷新右下角表单的问题）
+
+      // console.log('loaded', evt)
       // 背景节点(单个)
       let bgGroundVal: any
       let bgGroundOpts = {}
       if (evt.bgType === 'color') {
-        bgGroundVal = evt.background
+        const bgColor = '#' + new Bol3D.Color(evt.bgColor).getHexString()
+        bgGroundVal = bgColor
       } else if (evt.bgType === 'texture') {
-        const valArr = evt.background.image.src.split('//')
+        const valArr = evt.scene.background.image.src.split('//')
         bgGroundVal = '/' + valArr[valArr.length - 1]
         bgGroundOpts = {
-          encoding: evt.background.encoding,
-          wrapping: evt.background.wrapS,
-          repeat: [evt.background.repeat.x, evt.background.repeat.y]
+          encoding: evt.scene.background.encoding,
+          wrapping: evt.scene.background.wrapS,
+          repeat: [evt.scene.background.repeat.x, evt.scene.background.repeat.y]
         }
       } else if (evt.bgType === 'panorama') {
-        console.log('panorama', evt.background)
-        bgGroundVal = evt.background.userData.value
+        bgGroundVal = evt.sky.userData.value
         bgGroundOpts = {
-          scale: evt.background.scale.x,
-          rotation: parseFloat(evt.background.rotation.x.toFixed(4))
+          scale: evt.sky.scale.x,
+          rotation: [
+            parseFloat(((evt.sky.rotation.x * 180) / Math.PI).toFixed(4)),
+            parseFloat(((evt.sky.rotation.y * 180) / Math.PI).toFixed(4)),
+            parseFloat(((evt.sky.rotation.z * 180) / Math.PI).toFixed(4))
+          ]
         }
       }
       const backgroundOptions = {
@@ -415,7 +421,8 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       }
 
       // 节流 change频率太高
-      const updateFnCameraTd = throttled(updateFnCamera, 60)
+      // const updateFnCameraTd = throttled(updateFnCamera, 60)
+      const updateFnCameraTd = throttled(updateFnCamera, 0)
       controls.addEventListener('change', (event: any) => {
         updateFnCameraTd(event)
       })

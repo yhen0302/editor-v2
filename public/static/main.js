@@ -92245,8 +92245,7 @@ void main() {
 	    pmremGenerator;
 	    attrs;
 	    bgColor;
-	    _background;
-	    _bgType;
+	    bgType;
 	    layers;
 	    // gpu pick start
 	    pickingScene;
@@ -92294,70 +92293,6 @@ void main() {
 	        this.depthTexture = new WebGLRenderTarget(this.renderer.domElement.width, this.renderer.domElement.height);
 	        this.depthBuffer = new Uint8Array(4);
 	        // gpu pick end
-	    }
-	    get background() {
-	        return this._background;
-	    }
-	    set background(val) {
-	        if (this.bgType === 'color') {
-	            // clear texture/panorama
-	            if (this.scene)
-	                this.scene.background = null;
-	            if (this.sky)
-	                this.sky.visible = false;
-	            // update bg Color
-	            const hexVal = '#' + new Color(val).getHexString();
-	            this._background = hexVal;
-	            this.bgColor = hexVal;
-	            this.renderer.setClearColor(hexVal, 1);
-	            // update passes bg Color
-	            if (this.ssaaPass)
-	                this.ssaaPass.clearColor = hexVal;
-	        }
-	        else if (this.bgType === 'texture') {
-	            // clear panorama
-	            if (this.sky)
-	                this.sky.visible = false;
-	            this._background = val;
-	            this.scene.background = val;
-	        }
-	        else if (this.bgType === 'panorama') {
-	            this._background = this.sky;
-	            this.setSkyBox(val);
-	        }
-	    }
-	    get bgType() {
-	        return this._bgType;
-	    }
-	    set bgType(type) {
-	        this._bgType = type;
-	        if (type === 'color') {
-	            // clear texture/panorama
-	            if (this.scene)
-	                this.scene.background = null;
-	            if (this.sky)
-	                this.sky.visible = false;
-	            // update bg Color
-	            const hexVal = '#' + new Color(this.bgColor).getHexString();
-	            this._background = hexVal;
-	            this.bgColor = hexVal;
-	            this._background = this.bgColor;
-	            this.renderer.setClearColor(hexVal, 1);
-	            // update passes bg Color
-	            if (this.ssaaPass)
-	                this.ssaaPass.clearColor = hexVal;
-	        }
-	        else if (type === 'texture') {
-	            // clear panorama
-	            if (this.sky)
-	                this.sky.visible = false;
-	            this._background = this.scene.background;
-	        }
-	        else if (type === 'panorama') {
-	            if (this.sky)
-	                this.sky.visible = true;
-	            this._background = this.sky;
-	        }
 	    }
 	    get viewState() {
 	        return this._viewState;
@@ -92649,12 +92584,12 @@ void main() {
 	            this.renderer = new WebGLRenderer({ antialias: true, precision: 'highp' });
 	            document.body.appendChild(this.renderer.domElement);
 	        }
-	        this.bgColor = 0x000000;
+	        this.bgColor = '#000000';
 	        if (attrs && attrs.background && attrs.background.type === 'color') {
-	            this.bgColor = attrs.background.value;
+	            this.bgColor = '#' + new Color(attrs.background.value).getHexString();
 	            this.bgType = 'color';
-	            this.background = this.bgColor;
 	        }
+	        this.renderer.setClearColor(this.bgColor, 1);
 	        this.renderer.autoClear = false;
 	        this.renderer.sortObjects = sortObjects;
 	        this.renderer.outputEncoding = sRGBEncoding;
@@ -92706,11 +92641,11 @@ void main() {
 	        if (attrs && attrs.background && attrs.background.type === 'texture') {
 	            this.texLoader.load(this.publicPath + attrs.background.value, (texture) => {
 	                this.bgType = 'texture';
-	                this.background = texture;
+	                this.scene.background = texture;
 	                if (attrs.background.options) {
 	                    for (const i in attrs.background.options) {
 	                        const opt = attrs.background.options[i];
-	                        this.background[i] = opt;
+	                        this.scene.background[i] = opt;
 	                    }
 	                }
 	            });
@@ -92747,7 +92682,6 @@ void main() {
 	                    this.scene.add(sky);
 	                    this.sky = sky;
 	                    this.sky.userData.value = attrs.background.value;
-	                    this.background = this.sky;
 	                });
 	            }
 	            else if (attrs.background.value.length == 1) {
@@ -92769,7 +92703,6 @@ void main() {
 	                    this.scene.add(sky);
 	                    this.sky = sky;
 	                    this.sky.userData.value = attrs.background.value;
-	                    this.background = this.sky;
 	                });
 	            }
 	        }
@@ -93379,7 +93312,7 @@ void main() {
 	        // **** TEST PASS end ******
 	    }
 	    // 切换天空盒
-	    setSkyBox(urls) {
+	    setSkyBox(urls, callback) {
 	        if (!(urls instanceof Array))
 	            return;
 	        const attrs = this.attrs;
@@ -93420,6 +93353,7 @@ void main() {
 	                    this.sky = sky;
 	                }
 	                this.sky.userData.value = urls;
+	                callback && callback(this.sky);
 	            });
 	        }
 	        else if (urls.length == 1) {
@@ -93447,6 +93381,7 @@ void main() {
 	                    this.sky = sky;
 	                }
 	                this.sky.userData.value = urls;
+	                callback && callback(this.sky);
 	            });
 	        }
 	    }

@@ -97,15 +97,37 @@ export default defineComponent({
       })
     }
 
+    const navMenuGoBackReset = () => {
+      let key = ''
+      // 找出选中的元素
+      for (const k in detailsList.value) {
+        const detail = detailsList.value[k]
+        if (detail.selected) {
+          key = k
+          break
+        }
+      }
+
+      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
+        if (node.type === key) {
+          node.selected = false
+          store.state.selectedPageTreeNode = null
+          EventsBus.emit('toolBarSelected', { node })
+        }
+      })
+    }
+
     onMounted(() => {
       EventsBus.on('formsReload', reloadEditForms)
       EventsBus.on('navDetailsValidate', validateDetails)
+      EventsBus.on('navMenuGoBackReset', navMenuGoBackReset)
       validateDetails()
     })
 
     onUnmounted(() => {
       EventsBus.off('formsReload', reloadEditForms)
       EventsBus.off('navDetailsValidate', validateDetails)
+      EventsBus.off('navMenuGoBackReset', navMenuGoBackReset)
     })
 
     return {
