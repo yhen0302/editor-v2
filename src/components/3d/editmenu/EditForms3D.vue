@@ -25,6 +25,10 @@ import CameraForms3D from './editForms/CameraForms3D.vue'
 import ShadowForms3D from './editForms/ShadowForms3D.vue'
 // 5.background
 import BackgroundForms3D from './editForms/BackgroundForms3D.vue'
+// 6.HDR
+import HDRForms3D from './editForms/HDRForms3D.vue'
+// 7.FOG
+import FogForms3D from './editForms/FogForms3D.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 
@@ -42,7 +46,9 @@ export default defineComponent({
     RectAreaLightsForms3D,
     CameraForms3D,
     ShadowForms3D,
-    BackgroundForms3D
+    BackgroundForms3D,
+    HDRForms3D,
+    FogForms3D
   },
   setup() {
     const store = useStore()
@@ -120,6 +126,14 @@ export default defineComponent({
           break
         case 'Background':
           type.value = 'BackgroundForms3D'
+          node.value = e.node
+          break
+        case 'HDR':
+          type.value = 'HDRForms3D'
+          node.value = e.node
+          break
+        case 'Fog':
+          type.value = 'FogForms3D'
           node.value = e.node
           break
       }

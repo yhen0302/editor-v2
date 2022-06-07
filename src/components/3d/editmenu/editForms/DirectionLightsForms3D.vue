@@ -29,18 +29,18 @@
 
         <div v-if="formSetting.spread">
           <div v-for="(item, key) in formSetting" :key="item">
-            <div v-if="key !== 'spread'" class="content-item">
+            <div v-if="key !== 'spread' && item.show" class="content-item">
               <div class="setting-item">
-                <BaseTitle :value="key" :height="56" :width="72" :marginRight="8" />
+                <BaseTitle :value="key" :height="56" :width="108" :marginRight="8" />
               </div>
 
               <div class="setting-item">
-                <div v-for="setting in item" :key="setting" class="setting">
+                <div v-for="setting in item.data" :key="setting" class="setting">
                   <BaseText v-if="setting.type === 'text'" :value="setting.value" :width="160" :height="32" :marginRight="4" :marginTop="12" :marginBottom="0" />
 
                   <BaseInput
                     v-else-if="setting.type === 'input'"
-                    :target="{ key, setting, uuid: formSetting.uuid[0].value }"
+                    :target="{ key, setting, uuid: formSetting.uuid.data[0].value }"
                     :change="inputChange"
                     :name="setting.name"
                     :value="setting.value"
@@ -53,7 +53,7 @@
 
                   <BaseColor
                     v-else-if="setting.type === 'color'"
-                    :target="{ key, setting, uuid: formSetting.uuid[0].value }"
+                    :target="{ key, setting, uuid: formSetting.uuid.data[0].value }"
                     :change="inputChange"
                     :value="setting.value"
                     :type="'rgb'"
@@ -61,6 +61,18 @@
                     :marginRight="4"
                     :marginTop="12"
                     :marginBottom="0"
+                  />
+
+                  <BaseSwitch
+                    v-else-if="setting.type === 'switch'"
+                    :height="32"
+                    :width="144"
+                    :value="setting.value"
+                    :marginRight="4"
+                    :marginTop="12"
+                    :marginBottom="0"
+                    :change="switchChange"
+                    :target="{ key, setting, uuid: formSetting.uuid.data[0].value }"
                   />
                 </div>
               </div>
@@ -83,7 +95,11 @@ import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseText from '@/components/utils/baseComponents/BaseText.vue'
 import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
+import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
+
 import { hex2rgb } from '@/core/utils/base'
+
+declare const Bol3D: any
 
 export default defineComponent({
   name: 'DirectionLightsForms3D',
@@ -93,7 +109,8 @@ export default defineComponent({
     BaseTitle,
     BaseInput,
     BaseText,
-    BaseColor
+    BaseColor,
+    BaseSwitch
   },
   props: ['node'],
   setup(props: any) {
@@ -124,73 +141,129 @@ export default defineComponent({
         })
 
         // 展示编辑表单
-        const formSetting = {
+        const formSetting: any = {
           spread: false,
-          uuid: [
-            {
-              value: uuid,
-              type: 'text'
-            }
-          ],
-          color: [
-            {
-              value: options.color,
-              type: 'color'
-            }
-          ],
-          intensity: [
-            {
-              value: options.intensity,
-              type: 'input'
-            }
-          ],
-          position: [
-            {
-              name: 'X',
-              value: options.position[0],
-              type: 'input'
-            },
-            {
-              name: 'Y',
-              value: options.position[1],
-              type: 'input'
-            },
-            {
-              name: 'Z',
-              value: options.position[2],
-              type: 'input'
-            }
-          ],
-          near: [
-            {
-              value: options.near,
-              type: 'input'
-            }
-          ],
-          far: [
-            {
-              value: options.far,
-              type: 'input'
-            }
-          ],
-          bias: [
-            {
-              value: options.bias,
-              type: 'input'
-            }
-          ],
-          distance: [
-            {
-              value: options.distance,
-              type: 'input'
-            }
-          ],
-          size: [
-            {
-              value: options.size,
-              type: 'input'
-            }
-          ]
+          uuid: {
+            show: true,
+            data: [
+              {
+                value: uuid,
+                type: 'text'
+              }
+            ]
+          },
+          color: {
+            show: true,
+            data: [
+              {
+                value: options.color,
+                type: 'color'
+              }
+            ]
+          },
+          intensity: {
+            show: true,
+            data: [
+              {
+                value: options.intensity,
+                type: 'input'
+              }
+            ]
+          },
+          position: {
+            show: true,
+            data: [
+              {
+                name: 'X',
+                value: options.position[0],
+                type: 'input'
+              },
+              {
+                name: 'Y',
+                value: options.position[1],
+                type: 'input'
+              },
+              {
+                name: 'Z',
+                value: options.position[2],
+                type: 'input'
+              }
+            ]
+          },
+          target: {
+            show: true,
+            data: [
+              {
+                name: 'X',
+                value: options.target[0],
+                type: 'input'
+              },
+              {
+                name: 'Y',
+                value: options.target[1],
+                type: 'input'
+              },
+              {
+                name: 'Z',
+                value: options.target[2],
+                type: 'input'
+              }
+            ]
+          },
+          castShadow: {
+            show: true,
+            data: [
+              {
+                value: options.castShadow,
+                type: 'switch'
+              }
+            ]
+          },
+          near: {
+            show: true,
+            data: [
+              {
+                value: options.near,
+                type: 'input'
+              }
+            ]
+          },
+          far: {
+            show: true,
+            data: [
+              {
+                value: options.far,
+                type: 'input'
+              }
+            ]
+          },
+          bias: {
+            show: true,
+            data: [
+              {
+                value: options.bias,
+                type: 'input'
+              }
+            ]
+          },
+          distance: {
+            show: true,
+            data: [
+              {
+                value: options.distance,
+                type: 'input'
+              }
+            ]
+          },
+          size: {
+            show: true,
+            data: [
+              {
+                value: options.size,
+                type: 'input'
+              }
+            ]
+          }
         }
 
         formSettings.value.push(formSetting)
@@ -207,6 +280,7 @@ export default defineComponent({
       const { setting, key, uuid } = target
       const { name } = setting
       const val = e.target.value
+      console.log('target', target, type, val)
       let currentObj: any
 
       selectedObjs.forEach((obj: any) => {
@@ -261,21 +335,33 @@ export default defineComponent({
         currentObj.shadow.mapSize.width = parseFloat(val)
         currentObj.shadow.mapSize.height = parseFloat(val)
         currentObj.shadow.needsUpdate = true
+      } else if (key === 'target') {
+        if (isNaN(val)) return
+        const v = parseFloat(val)
+        setting.value = v
+        if (name === 'X') {
+          currentObj.target.position.x = v
+        } else if (name === 'Y') {
+          currentObj.target.position.y = v
+        } else if (name === 'Z') {
+          currentObj.target.position.z = v
+        }
       }
 
       // update pageTreeNode
       const options: any = {}
 
       formSettings.value.forEach((formSetting: any) => {
-        if (formSetting.uuid[0].value === uuid) {
-          options['color'] = [formSetting['color'][0].value[0], formSetting['color'][0].value[1], formSetting['color'][0].value[2]]
-          options['intensity'] = formSetting['intensity'][0].value
-          options['position'] = [formSetting['position'][0].value, formSetting['position'][1].value, formSetting['position'][2].value]
-          options['distance'] = formSetting['distance'][0].value
-          options['near'] = formSetting['near'][0].value
-          options['far'] = formSetting['far'][0].value
-          options['bias'] = formSetting['bias'][0].value
-          options['size'] = formSetting['size'][0].value
+        if (formSetting.uuid.data[0].value === uuid) {
+          options['color'] = [formSetting['color'].data[0].value[0], formSetting['color'].data[0].value[1], formSetting['color'].data[0].value[2]]
+          options['intensity'] = formSetting['intensity'].data[0].value
+          options['position'] = [formSetting['position'].data[0].value, formSetting['position'].data[1].value, formSetting['position'].data[2].value]
+          options['distance'] = formSetting['distance'].data[0].value
+          options['near'] = formSetting['near'].data[0].value
+          options['far'] = formSetting['far'].data[0].value
+          options['bias'] = formSetting['bias'].data[0].value
+          options['size'] = formSetting['size'].data[0].value
+          options['target'] = [formSetting['target'].data[0].value, formSetting['target'].data[1].value, formSetting['target'].data[2].value]
         }
       })
 
@@ -288,11 +374,236 @@ export default defineComponent({
       const e = event as any
       if (e.button != 0) return
 
-      console.log('add light')
+      const threeDimensionContainer = store.state.threeDimensionContainer
+      // addTo 3d scene
+      let directionLightOpts = {
+        color: 0xffffff,
+        intensity: 1,
+        position: [0, 0, 0],
+        mapSize: [2048, 2048],
+        near: 0.01,
+        far: 10000,
+        bias: -0.0004,
+        distance: 1000
+      }
+      const dirLight = new Bol3D.DirectionalLight(directionLightOpts.color, directionLightOpts.intensity)
+      dirLight.position.set(directionLightOpts.position[0], directionLightOpts.position[1], directionLightOpts.position[2])
+      dirLight.castShadow = threeDimensionContainer.renderer.shadowMap.enabled
+      dirLight.shadow.mapSize.width = directionLightOpts.mapSize[0]
+      dirLight.shadow.mapSize.height = directionLightOpts.mapSize[1]
+      dirLight.shadow.camera.near = directionLightOpts.near
+      dirLight.shadow.camera.far = directionLightOpts.far
+      dirLight.shadow.bias = directionLightOpts.bias
+      dirLight.shadow.camera.left = -directionLightOpts.distance
+      dirLight.shadow.camera.right = directionLightOpts.distance
+      dirLight.shadow.camera.top = directionLightOpts.distance
+      dirLight.shadow.camera.bottom = -directionLightOpts.distance
+      threeDimensionContainer.scene.add(dirLight.target)
+      threeDimensionContainer.scene.add(dirLight)
+      threeDimensionContainer.directionLights.push(dirLight)
+      // addTo PageTreeNodes
+      const directionLightOptions = {
+        color: [dirLight.color.r * 255, dirLight.color.g * 255, dirLight.color.b * 255],
+        intensity: dirLight.intensity,
+        position: [parseFloat(dirLight.position.x.toFixed(4)), parseFloat(dirLight.position.y.toFixed(4)), parseFloat(dirLight.position.z.toFixed(4))],
+        // shadow options
+        near: dirLight.shadow.camera.near,
+        far: dirLight.shadow.camera.far,
+        bias: dirLight.shadow.bias,
+        distance: dirLight.shadow.camera.top,
+        size: dirLight.shadow.mapSize.width,
+        castShadow: dirLight.castShadow,
+        // target options
+        target: [parseFloat(dirLight.target.position.x.toFixed(4)), parseFloat(dirLight.target.position.y.toFixed(4)), parseFloat(dirLight.target.position.z.toFixed(4))]
+      }
+
+      const directionLightNode = {
+        uuid: dirLight.uuid,
+        name: 'DirectionLight',
+        selected: false,
+        index: 1,
+        spread: false,
+        type: 'DirectionLight',
+        children: [],
+        show: false,
+        options: directionLightOptions
+      }
+
+      store.state.selectedPageTreeNode.children.push(directionLightNode)
+
+      // addTo formSettings
+      const dirLightSetting: any = {
+        spread: false,
+        uuid: {
+          show: true,
+          data: [
+            {
+              value: dirLight.uuid,
+              type: 'text'
+            }
+          ]
+        },
+        color: {
+          show: true,
+          data: [
+            {
+              value: directionLightOptions.color,
+              type: 'color'
+            }
+          ]
+        },
+        intensity: {
+          show: true,
+          data: [
+            {
+              value: directionLightOptions.intensity,
+              type: 'input'
+            }
+          ]
+        },
+        position: {
+          show: true,
+          data: [
+            {
+              name: 'X',
+              value: directionLightOptions.position[0],
+              type: 'input'
+            },
+            {
+              name: 'Y',
+              value: directionLightOptions.position[1],
+              type: 'input'
+            },
+            {
+              name: 'Z',
+              value: directionLightOptions.position[2],
+              type: 'input'
+            }
+          ]
+        },
+        target: {
+          show: true,
+          data: [
+            {
+              name: 'X',
+              value: directionLightOptions.target[0],
+              type: 'input'
+            },
+            {
+              name: 'Y',
+              value: directionLightOptions.target[1],
+              type: 'input'
+            },
+            {
+              name: 'Z',
+              value: directionLightOptions.target[2],
+              type: 'input'
+            }
+          ]
+        },
+        castShadow: {
+          show: true,
+          data: [
+            {
+              value: directionLightOptions.castShadow,
+              type: 'switch'
+            }
+          ]
+        },
+        near: {
+          show: true,
+          data: [
+            {
+              value: directionLightOptions.near,
+              type: 'input'
+            }
+          ]
+        },
+        far: {
+          show: true,
+          data: [
+            {
+              value: directionLightOptions.far,
+              type: 'input'
+            }
+          ]
+        },
+        bias: {
+          show: true,
+          data: [
+            {
+              value: directionLightOptions.bias,
+              type: 'input'
+            }
+          ]
+        },
+        distance: {
+          show: true,
+          data: [
+            {
+              value: directionLightOptions.distance,
+              type: 'input'
+            }
+          ]
+        },
+        size: {
+          show: true,
+          data: [
+            {
+              value: directionLightOptions.size,
+              type: 'input'
+            }
+          ]
+        }
+      }
+      formSettings.value.push(dirLightSetting)
+
+      // addTo selectedObjs
+      selectedObjs.push(dirLight)
     }
 
     const spreadOpts = (item: any) => {
       item.spread = !item.spread
+    }
+
+    const switchChange = (e: any) => {
+      const { target, value } = e
+      const { setting, key, uuid } = target
+
+      let currentObj: any
+
+      selectedObjs.forEach((obj: any) => {
+        if (obj.uuid === uuid) currentObj = obj
+      })
+
+      if (key === 'castShadow') {
+        setting.value = value
+        currentObj.castShadow = value
+
+        // show/hide shadow opts
+        formSettings.value.forEach((formSetting: any) => {
+          if (formSetting.uuid.data[0].value === uuid) {
+            formSetting.near.show = value
+            formSetting.far.show = value
+            formSetting.bias.show = value
+            formSetting.distance.show = value
+            formSetting.size.show = value
+          }
+        })
+      }
+
+      // update pageTreeNode
+      const options: any = {}
+
+      formSettings.value.forEach((formSetting: any) => {
+        if (formSetting.uuid.data[0].value === uuid) {
+          options['castShadow'] = formSetting['castShadow'].data[0].value
+        }
+      })
+
+      store.state.selectedPageTreeNode.children.forEach((pageTreeNode: any) => {
+        if (pageTreeNode.uuid === uuid) Object.assign(pageTreeNode.options, options)
+      })
     }
 
     return {
@@ -301,7 +612,8 @@ export default defineComponent({
       formSettings,
       inputChange,
       addDirLight,
-      spreadOpts
+      spreadOpts,
+      switchChange
     }
   }
 })

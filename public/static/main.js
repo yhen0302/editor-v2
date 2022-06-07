@@ -92906,11 +92906,14 @@ void main() {
 	                    intensity: 0,
 	                    width: 10,
 	                    height: 10,
-	                    position: [0, 0, 0]
+	                    position: [0, 0, 0],
+	                    target: [0, 0, 0]
 	                };
 	                rectAreaLightOpts = Object.assign(rectAreaLightOpts, raLightOpts);
 	                const rectAreaLight = new RectAreaLight(rectAreaLightOpts.color, rectAreaLightOpts.intensity, rectAreaLightOpts.width, rectAreaLightOpts.height);
 	                rectAreaLight.position.set(rectAreaLightOpts.position[0], rectAreaLightOpts.position[1], rectAreaLightOpts.position[2]);
+	                rectAreaLight.lookAt(0, 0, 0);
+	                rectAreaLight.userData.target = rectAreaLightOpts.target;
 	                this.scene.add(rectAreaLight);
 	                this.rectAreaLights.push(rectAreaLight);
 	            });
@@ -92924,11 +92927,24 @@ void main() {
 	                    intensity: 0,
 	                    distance: 0,
 	                    decay: 1,
-	                    position: [0, 0, 0]
+	                    position: [0, 0, 0],
+	                    near: 1,
+	                    far: 10000,
+	                    bias: 0,
+	                    size: 2048
 	                };
 	                pointLightOpts = Object.assign(pointLightOpts, ptOpts);
 	                const pointLight = new PointLight(pointLightOpts.color, pointLightOpts.intensity, pointLightOpts.distance, pointLightOpts.decay);
 	                pointLight.position.set(pointLightOpts.position[0], pointLightOpts.position[1], pointLightOpts.position[2]);
+	                // shadow
+	                pointLight.castShadow = enableShadow;
+	                pointLight.shadow.bias = pointLightOpts.bias;
+	                pointLight.shadow.camera.near = pointLightOpts.near;
+	                pointLight.shadow.camera.far = pointLightOpts.far;
+	                pointLight.shadow.mapSize.width = pointLightOpts.size;
+	                pointLight.shadow.mapSize.height = pointLightOpts.size;
+	                pointLight.shadow.camera.updateProjectionMatrix();
+	                pointLight.shadow.needsUpdate = true;
 	                this.scene.add(pointLight);
 	                this.pointLights.push(pointLight);
 	            });
@@ -92960,8 +92976,9 @@ void main() {
 	                dirLight.shadow.camera.right = directionLightOpts.distance;
 	                dirLight.shadow.camera.top = directionLightOpts.distance;
 	                dirLight.shadow.camera.bottom = -directionLightOpts.distance;
-	                // target --- todo
-	                // this.scene.add(dirLight.target)
+	                dirLight.shadow.camera.updateProjectionMatrix();
+	                dirLight.shadow.needsUpdate = true;
+	                this.scene.add(dirLight.target);
 	                this.scene.add(dirLight);
 	                this.directionLights.push(dirLight);
 	            });
@@ -92976,11 +92993,13 @@ void main() {
 	                    position: [-1000, 1000, -1000],
 	                    mapSize: [2048, 2048],
 	                    decay: 2,
-	                    near: 0.01,
+	                    near: 1,
 	                    far: 10000,
-	                    fov: 45,
+	                    angle: (45 * Math.PI) / 180,
 	                    distance: 0,
-	                    penumbra: 0.398
+	                    penumbra: 0.398,
+	                    bias: -0.0004,
+	                    focus: 1
 	                };
 	                sptLightOpts = Object.assign(sptLightOpts, spotLightOpts);
 	                const spotLight = new SpotLight(sptLightOpts.color, sptLightOpts.intensity);
@@ -92988,14 +93007,18 @@ void main() {
 	                spotLight.decay = sptLightOpts.decay;
 	                spotLight.distance = sptLightOpts.distance;
 	                spotLight.penumbra = sptLightOpts.penumbra;
+	                // shadow
 	                spotLight.castShadow = enableShadow;
 	                spotLight.shadow.mapSize.width = sptLightOpts.mapSize[0];
 	                spotLight.shadow.mapSize.height = sptLightOpts.mapSize[1];
 	                spotLight.shadow.camera.near = sptLightOpts.near;
 	                spotLight.shadow.camera.far = sptLightOpts.far;
-	                spotLight.shadow.camera.fov = sptLightOpts.fov;
-	                // target --- todo
-	                // this.scene.add(spotLight.target)
+	                spotLight.angle = sptLightOpts.angle;
+	                spotLight.shadow.focus = sptLightOpts.focus;
+	                spotLight.shadow.bias = sptLightOpts.bias;
+	                spotLight.shadow.camera.updateProjectionMatrix();
+	                spotLight.shadow.needsUpdate = true;
+	                this.scene.add(spotLight.target);
 	                this.scene.add(spotLight);
 	                this.spotLights.push(spotLight);
 	            });
@@ -93386,7 +93409,7 @@ void main() {
 	        }
 	    }
 	    // 切换HDR
-	    setHDR(urls) {
+	    setHDR(urls, callback) {
 	        if (!(urls instanceof Array))
 	            return;
 	        if (urls.length == 1) {
@@ -93395,9 +93418,12 @@ void main() {
 	                const envMap = this.pmremGenerator.fromEquirectangular(texture).texture;
 	                this.pmremGenerator.dispose();
 	                this.envMap = envMap;
-	                this.children.forEach((c) => {
-	                    c.material.envMap = envMap;
+	                this.scene.traverse((c) => {
+	                    if (c.isMesh) {
+	                        c.material.envMap = envMap;
+	                    }
 	                });
+	                callback && callback(this.envMap);
 	            });
 	        }
 	        else if (urls.length == 6) {
@@ -93410,9 +93436,12 @@ void main() {
 	                const envMap = this.pmremGenerator.fromCubemap(texture).texture;
 	                this.pmremGenerator.dispose();
 	                this.envMap = envMap;
-	                this.children.forEach((c) => {
-	                    c.material.envMap = envMap;
+	                this.scene.traverse((c) => {
+	                    if (c.isMesh) {
+	                        c.material.envMap = envMap;
+	                    }
 	                });
+	                callback && callback(this.envMap);
 	            });
 	        }
 	    }

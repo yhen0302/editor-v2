@@ -71,7 +71,25 @@ export function reloadThreeDimensionScene(pageNode: any) {
   for (const k in flatSceneNodes) {
     const n = flatSceneNodes[k]
 
-    if (n.type === 'Background') {
+    if (n.type === 'Fog') {
+      const { options } = n
+      const { color, intensity } = options
+      container.scene.fog.color.set(color)
+      container.scene.fog.density = intensity
+    } else if (n.type === 'HDR') {
+      const { options } = n
+      const { value } = options
+      if (UnderScore.isEqual(value, [])) {
+        container.envMap = null
+        container.scene.traverse((c: any) => {
+          if (c.isMesh) {
+            c.material.envMap = null
+          }
+        })
+      } else {
+        container.setHDR(value)
+      }
+    } else if (n.type === 'Background') {
       const { options } = n
       const { type, value, opts } = options
       container.bgType = type
@@ -102,29 +120,56 @@ export function reloadThreeDimensionScene(pageNode: any) {
           })
         }
       } else if (type === 'panorama') {
-        console.log('value', value)
         if (UnderScore.isEqual(value, [])) {
           container.sky.visible = false
         } else {
-          container.setSkyBox(value, (sbox: any) => {
-            sbox.visible = true
-            for (const i in opts) {
-              if (i === 'scale') {
-                const s = opts[i]
-                sbox.scale.set(s, s, s)
-              } else if (i === 'rotation') {
-                sbox.rotation.set((opts[i][0] * Math.PI) / 180, (opts[i][1] * Math.PI) / 180, (opts[i][2] * Math.PI) / 180)
+          if (container.sky) {
+            if (UnderScore.isEqual(container.sky.userData.value, value)) {
+              container.sky.visible = true
+              for (const i in opts) {
+                if (i === 'scale') {
+                  const s = opts[i]
+                  container.sky.scale.set(s, s, s)
+                } else if (i === 'rotation') {
+                  container.sky.rotation.set((opts[i][0] * Math.PI) / 180, (opts[i][1] * Math.PI) / 180, (opts[i][2] * Math.PI) / 180)
+                }
               }
+            } else {
+              container.setSkyBox(value, (sbox: any) => {
+                sbox.visible = true
+                for (const i in opts) {
+                  if (i === 'scale') {
+                    const s = opts[i]
+                    sbox.scale.set(s, s, s)
+                  } else if (i === 'rotation') {
+                    sbox.rotation.set((opts[i][0] * Math.PI) / 180, (opts[i][1] * Math.PI) / 180, (opts[i][2] * Math.PI) / 180)
+                  }
+                }
+              })
             }
-          })
+          } else {
+            container.setSkyBox(value, (sbox: any) => {
+              sbox.visible = true
+              for (const i in opts) {
+                if (i === 'scale') {
+                  const s = opts[i]
+                  sbox.scale.set(s, s, s)
+                } else if (i === 'rotation') {
+                  sbox.rotation.set((opts[i][0] * Math.PI) / 180, (opts[i][1] * Math.PI) / 180, (opts[i][2] * Math.PI) / 180)
+                }
+              }
+            })
+          }
         }
       }
     } else if (n.type === 'Shadow') {
       container.renderer.shadowMap.enabled = n.options.enabled
     } else if (n.type === 'RectAreaLights') {
       container.rectAreaLights.forEach((rectAreaLight: any) => {
+        rectAreaLight.visible = false
         n.children.forEach((rectAreaLightOpts: any) => {
           if (rectAreaLight.uuid === rectAreaLightOpts.uuid) {
+            rectAreaLight.visible = true
             rectAreaLight.height = rectAreaLightOpts.options.height
             rectAreaLight.width = rectAreaLightOpts.options.width
             rectAreaLight.intensity = rectAreaLightOpts.options.intensity
@@ -132,13 +177,17 @@ export function reloadThreeDimensionScene(pageNode: any) {
             rectAreaLight.color.g = rectAreaLightOpts.options.color[1] / 255
             rectAreaLight.color.b = rectAreaLightOpts.options.color[2] / 255
             rectAreaLight.position.set(rectAreaLightOpts.options.position[0], rectAreaLightOpts.options.position[1], rectAreaLightOpts.options.position[2])
+            rectAreaLight.lookAt(rectAreaLightOpts.options.target[0], rectAreaLightOpts.options.target[1], rectAreaLightOpts.options.target[2])
+            rectAreaLight.userData.target = rectAreaLightOpts.options.target
           }
         })
       })
     } else if (n.type === 'PointLights') {
       container.pointLights.forEach((pointLight: any) => {
+        pointLight.visible = false
         n.children.forEach((pointLightOpts: any) => {
           if (pointLight.uuid === pointLightOpts.uuid) {
+            pointLight.visible = true
             pointLight.distance = pointLightOpts.options.distance
             pointLight.decay = pointLightOpts.options.decay
             pointLight.intensity = pointLightOpts.options.intensity
@@ -146,13 +195,24 @@ export function reloadThreeDimensionScene(pageNode: any) {
             pointLight.color.g = pointLightOpts.options.color[1] / 255
             pointLight.color.b = pointLightOpts.options.color[2] / 255
             pointLight.position.set(pointLightOpts.options.position[0], pointLightOpts.options.position[1], pointLightOpts.options.position[2])
+            // shadow
+            pointLight.castShadow = pointLightOpts.options.castShadow
+            pointLight.shadow.bias = pointLightOpts.options.bias
+            pointLight.shadow.camera.near = pointLightOpts.options.near
+            pointLight.shadow.camera.far = pointLightOpts.options.far
+            pointLight.shadow.mapSize.width = pointLightOpts.options.size
+            pointLight.shadow.mapSize.height = pointLightOpts.options.size
+            pointLight.shadow.camera.updateProjectionMatrix()
+            pointLight.shadow.needsUpdate = true
           }
         })
       })
     } else if (n.type === 'SpotLights') {
       container.spotLights.forEach((spotLight: any) => {
+        spotLight.visible = false
         n.children.forEach((spotLightOpts: any) => {
           if (spotLight.uuid === spotLightOpts.uuid) {
+            spotLight.visible = true
             spotLight.distance = spotLightOpts.options.distance
             spotLight.decay = spotLightOpts.options.decay
             spotLight.penumbra = spotLightOpts.options.penumbra
@@ -161,19 +221,35 @@ export function reloadThreeDimensionScene(pageNode: any) {
             spotLight.color.g = spotLightOpts.options.color[1] / 255
             spotLight.color.b = spotLightOpts.options.color[2] / 255
             spotLight.position.set(spotLightOpts.options.position[0], spotLightOpts.options.position[1], spotLightOpts.options.position[2])
+            spotLight.target.position.set(spotLightOpts.options.target[0], spotLightOpts.options.target[1], spotLightOpts.options.target[2])
+            // shadow
+            spotLight.castShadow = spotLightOpts.options.castShadow
+            spotLight.shadow.mapSize.width = spotLightOpts.options.size
+            spotLight.shadow.mapSize.height = spotLightOpts.options.size
+            spotLight.shadow.camera.near = spotLightOpts.options.near
+            spotLight.shadow.camera.far = spotLightOpts.options.far
+            spotLight.angle = spotLightOpts.options.angle
+            spotLight.shadow.focus = spotLightOpts.options.focus
+            spotLight.shadow.bias = spotLightOpts.options.bias
+            spotLight.shadow.camera.updateProjectionMatrix()
+            spotLight.shadow.needsUpdate = true
           }
         })
       })
     } else if (n.type === 'DirectionLights') {
       container.directionLights.forEach((dirLight: any) => {
+        dirLight.visible = false
         n.children.forEach((dirLightOpts: any) => {
           if (dirLight.uuid === dirLightOpts.uuid) {
+            dirLight.visible = true
             dirLight.intensity = dirLightOpts.options.intensity
             dirLight.color.r = dirLightOpts.options.color[0] / 255
             dirLight.color.g = dirLightOpts.options.color[1] / 255
             dirLight.color.b = dirLightOpts.options.color[2] / 255
             dirLight.position.set(dirLightOpts.options.position[0], dirLightOpts.options.position[1], dirLightOpts.options.position[2])
+            dirLight.target.position.set(dirLightOpts.options.target[0], dirLightOpts.options.target[1], dirLightOpts.options.target[2])
             // shadow
+            dirLight.castShadow = dirLightOpts.options.castShadow
             dirLight.shadow.camera.left = -dirLightOpts.options.distance
             dirLight.shadow.camera.right = dirLightOpts.options.distance
             dirLight.shadow.camera.top = dirLightOpts.options.distance

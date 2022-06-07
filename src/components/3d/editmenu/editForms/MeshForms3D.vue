@@ -111,7 +111,7 @@ export default defineComponent({
       let val = ''
 
       if (headerItems.value[0].active) {
-        val = 'Geometry'
+        val = 'Mesh'
       } else if (headerItems.value[1].active) {
         val = 'Material'
       }

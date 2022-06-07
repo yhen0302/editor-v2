@@ -18,6 +18,7 @@ import NavDetailsCamera3D from '@/components/3d/toolbar/navdetails/NavDetailsCam
 import NavDetailsShadow3D from '@/components/3d/toolbar/navdetails/NavDetailsShadow3D.vue'
 import NavDetailsBackground3D from '@/components/3d/toolbar/navdetails/NavDetailsBackground3D.vue'
 import NavDetailsHDR3D from '@/components/3d/toolbar/navdetails/NavDetailsHDR3D.vue'
+import NavDetailsFog3D from '@/components/3d/toolbar/navdetails/NavDetailsFog3D.vue'
 
 export default defineComponent({
   name: 'NavMenuScenes3D',
@@ -27,7 +28,8 @@ export default defineComponent({
     NavDetailsCamera3D,
     NavDetailsShadow3D,
     NavDetailsBackground3D,
-    NavDetailsHDR3D
+    NavDetailsHDR3D,
+    NavDetailsFog3D
   },
   setup() {
     const pageIndex = ref(0)
@@ -68,7 +70,7 @@ export default defineComponent({
           detailsType.value = 'NavDetailsHDR3D'
           break
         case 'fog':
-          detailsType.value = 'NavDetailsLight3D'
+          detailsType.value = 'NavDetailsFog3D'
           break
       }
     }

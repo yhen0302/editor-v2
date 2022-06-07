@@ -1,5 +1,5 @@
 <template>
-  <div class="hdr-forms-3d-main">
+  <div class="fog-forms-3d-main">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
         <EditFormsNavItem :active="item.active" :name="item.name" :type="item.type" />
@@ -9,12 +9,12 @@
     <LineEl :color="'#363741'" />
 
     <div class="title-nav">
-      <BaseTitle :value="'HDR'" :height="48" :width="144" />
+      <BaseTitle :value="'FOG'" :height="48" :width="144" />
     </div>
 
     <LineEl :color="'#363741'" />
 
-    <div class="content hdr">
+    <div class="content fog">
       <div v-for="(item, key) in formSettings" :key="key" class="details">
         <div class="content-item" v-if="item.show">
           <div class="setting-item">
@@ -23,16 +23,28 @@
 
           <div class="setting-item">
             <div v-for="setting in item.data" :key="setting" class="setting">
-              <BaseDropdown
-                v-if="setting.type === 'dropdown'"
+              <BaseInput
+                v-if="setting.type === 'input'"
                 :target="{ key, setting }"
-                :options="setting.options"
-                :value="setting.selected"
+                :change="inputChange"
+                :name="setting.name"
+                :value="setting.value"
+                :width="108"
                 :height="32"
-                :width="144"
+                :marginBottom="8"
+                :marginTop="8"
+              />
+
+              <BaseColor
+                v-else-if="setting.type === 'color'"
+                :target="{ key, setting }"
+                :change="inputChange"
+                :value="setting.value"
+                :type="'rgb'"
+                :width="108"
+                :height="32"
                 :marginTop="8"
                 :marginBottom="8"
-                :change="sourceChange"
               />
             </div>
           </div>
@@ -49,17 +61,19 @@ import { useStore } from 'vuex'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
-import BaseDropdown from '@/components/utils/baseComponents/BaseDropdown.vue'
+import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
+import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 
-import * as UnderScore from 'underscore'
+import { hex2rgb } from '@/core/utils/base'
 
 export default defineComponent({
-  name: 'HDRForms3D',
+  name: 'FogForms3D',
   components: {
     LineEl,
     EditFormsNavItem,
     BaseTitle,
-    BaseDropdown
+    BaseColor,
+    BaseInput
   },
   props: ['node'],
   setup(props: any) {
@@ -80,71 +94,57 @@ export default defineComponent({
     onMounted(() => {
       //
       const { options } = props.node
-      const { value } = options
+      const { intensity, color } = options
 
       formSettings.value = {
-        sources: {
+        color: {
           show: true,
           data: [
             {
-              options: [
-                {
-                  name: '无',
-                  value: []
-                },
-                {
-                  name: 'default',
-                  value: ['/hdr/dikhololo_night_1k.hdr']
-                }
-              ],
-              selected: {
-                name: '无',
-                value: []
-              },
-              type: 'dropdown'
+              type: 'color',
+              value: hex2rgb(color)
+            }
+          ]
+        },
+        intensity: {
+          show: true,
+          data: [
+            {
+              type: 'input',
+              value: intensity
             }
           ]
         }
       }
-
-      // sources selected
-      formSettings.value.sources.data[0].options.forEach((op: any) => {
-        if (UnderScore.isEqual(op.value, value)) {
-          formSettings.value.sources.data[0].selected = op
-        }
-      })
     })
 
     onUnmounted(() => {
       //
     })
 
-    const sourceChange = (e: any) => {
-      const { value, target } = e
-      const { setting, key } = target
+    const inputChange = (target: any, type?: string) => {
+      const e = event as any
       const threeDimensionContainer = store.state.threeDimensionContainer
+      const { key, setting } = target
+      const val = e.target.value
 
-      setting.selected = value
-
-      if (key === 'sources') {
-        if (UnderScore.isEqual(value.value, [])) {
-          threeDimensionContainer.envMap = null
-          threeDimensionContainer.scene.traverse((c: any) => {
-            if (c.isMesh) {
-              c.material.envMap = null
-            }
-          })
+      if (key === 'color') {
+        if (type === 'hex') {
+          threeDimensionContainer.scene.fog.color.set(val)
+          setting.value = val
           // update selected pageTreeNode
           Object.assign(store.state.selectedPageTreeNode.options, {
-            value: []
-          })
-        } else {
-          threeDimensionContainer.setHDR(value.value, () => {
-            Object.assign(store.state.selectedPageTreeNode.options, {
-              value: value.value
-            })
+            color: val
           })
         }
+      } else if (key === 'intensity') {
+        if (isNaN(val)) return
+        const v = parseFloat(val)
+        setting.value = v
+        threeDimensionContainer.scene.fog.density = v
+        Object.assign(store.state.selectedPageTreeNode.options, {
+          intensity: v
+        })
       }
     }
 
@@ -152,7 +152,7 @@ export default defineComponent({
       store,
       headerItems,
       formSettings,
-      sourceChange
+      inputChange
     }
   }
 })

@@ -15,14 +15,14 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     lights: {
       ambientLight: {
         color: 0xffffff,
-        intensity: 0.2
+        intensity: 1
       },
-      directionLights: [{}],
       hemisphereLight: {
         intensity: 0
       }
-      // spotLights: [{}],
-      // pointLights: [{}],
+      // directionLights: [{}],
+      // spotLights: [{}]
+      // pointLights: [{}]
       // rectAreaLights: [{}]
     },
     cameras: {
@@ -39,6 +39,8 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       }
     },
     stats: true,
+
+    hdrUrls: ['/hdr/dikhololo_night_1k.hdr'],
 
     // background: {
     //   type: 'color',
@@ -62,6 +64,11 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     //   }
     // },
 
+    fog: {
+      intensity: 0,
+      color: 0xffffff
+    },
+
     onProgress: (model: any) => {
       const node: any = {}
       const index = 0
@@ -72,9 +79,43 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     onLoad: (evt: any) => {
       callback && callback(evt)
 
-      // todo bug： 此处可能要分左侧toolbarNodes 和 右侧pageTreeNodes，不然返回toolbar和pageTree返回上级功能可能会有冲突（刷新右下角表单的问题）
-
       // console.log('loaded', evt)
+
+      // 雾节点(单个)
+      const fogOptions = {
+        intensity: evt.fog.density,
+        color: '#' + evt.fog.color.getHexString()
+      }
+      const fogNode: any = {
+        uuid: -1,
+        name: 'Fog',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'Fog',
+        children: [],
+        show: false,
+        options: fogOptions
+      }
+      ;(store as any).state.template.threeDimension.unshift(fogNode)
+
+      // HDR节点(单个)
+      const hdrOptions = {
+        value: evt.attrs.hdrUrls ? evt.attrs.hdrUrls : []
+      }
+      const hdrNode: any = {
+        uuid: -1,
+        name: 'HDR',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'HDR',
+        children: [],
+        show: false,
+        options: hdrOptions
+      }
+      ;(store as any).state.template.threeDimension.unshift(hdrNode)
+
       // 背景节点(单个)
       let bgGroundVal: any
       let bgGroundOpts = {}
@@ -156,7 +197,8 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
           intensity: rectAreaLight.intensity,
           width: rectAreaLight.width,
           height: rectAreaLight.height,
-          position: [parseFloat(rectAreaLight.position.x.toFixed(4)), parseFloat(rectAreaLight.position.y.toFixed(4)), parseFloat(rectAreaLight.position.z.toFixed(4))]
+          position: [parseFloat(rectAreaLight.position.x.toFixed(4)), parseFloat(rectAreaLight.position.y.toFixed(4)), parseFloat(rectAreaLight.position.z.toFixed(4))],
+          target: [parseFloat(rectAreaLight.userData.target[0].toFixed(4)), parseFloat(rectAreaLight.userData.target[1].toFixed(4)), parseFloat(rectAreaLight.userData.target[2].toFixed(4))]
         }
 
         const rectAreaLightNode = {
@@ -194,7 +236,12 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
           intensity: pointLight.intensity,
           decay: pointLight.decay,
           distance: pointLight.distance,
-          position: [parseFloat(pointLight.position.x.toFixed(4)), parseFloat(pointLight.position.y.toFixed(4)), parseFloat(pointLight.position.z.toFixed(4))]
+          position: [parseFloat(pointLight.position.x.toFixed(4)), parseFloat(pointLight.position.y.toFixed(4)), parseFloat(pointLight.position.z.toFixed(4))],
+          castShadow: pointLight.castShadow,
+          near: pointLight.shadow.camera.near,
+          far: pointLight.shadow.camera.far,
+          bias: pointLight.shadow.bias,
+          size: pointLight.shadow.mapSize.x
         }
 
         const pointLightNode = {
@@ -233,7 +280,15 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
           decay: spotLight.decay,
           distance: spotLight.distance,
           penumbra: spotLight.penumbra,
-          position: [parseFloat(spotLight.position.x.toFixed(4)), parseFloat(spotLight.position.y.toFixed(4)), parseFloat(spotLight.position.z.toFixed(4))]
+          position: [parseFloat(spotLight.position.x.toFixed(4)), parseFloat(spotLight.position.y.toFixed(4)), parseFloat(spotLight.position.z.toFixed(4))],
+          target: [parseFloat(spotLight.target.position.x.toFixed(4)), parseFloat(spotLight.target.position.y.toFixed(4)), parseFloat(spotLight.target.position.z.toFixed(4))],
+          castShadow: spotLight.castShadow,
+          angle: spotLight.angle,
+          near: spotLight.shadow.camera.near,
+          far: spotLight.shadow.camera.far,
+          focus: spotLight.shadow.focus,
+          bias: spotLight.shadow.bias,
+          size: spotLight.shadow.mapSize.x
         }
 
         const spotLightNode = {
@@ -275,7 +330,10 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
           far: directionLight.shadow.camera.far,
           bias: directionLight.shadow.bias,
           distance: directionLight.shadow.camera.top,
-          size: directionLight.shadow.mapSize.width
+          size: directionLight.shadow.mapSize.width,
+          castShadow: directionLight.castShadow,
+          // target options
+          target: [parseFloat(directionLight.target.position.x.toFixed(4)), parseFloat(directionLight.target.position.y.toFixed(4)), parseFloat(directionLight.target.position.z.toFixed(4))]
         }
 
         const directionLightNode = {

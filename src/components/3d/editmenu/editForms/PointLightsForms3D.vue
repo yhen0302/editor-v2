@@ -11,7 +11,7 @@
     <div class="title-nav">
       <BaseTitle :value="'PointLights'" :height="48" :width="144" />
 
-      <div class="add-btn" @mouseup="addDirLight">
+      <div class="add-btn" @mouseup="addPointLight">
         <img src="@/assets/images/main/right/editor_newscene_btn_dark.png" />
       </div>
     </div>
@@ -29,18 +29,18 @@
 
         <div v-if="formSetting.spread">
           <div v-for="(item, key) in formSetting" :key="item">
-            <div v-if="key !== 'spread'" class="content-item">
+            <div v-if="key !== 'spread' && item.show" class="content-item">
               <div class="setting-item">
-                <BaseTitle :value="key" :height="56" :width="80" :marginRight="8" />
+                <BaseTitle :value="key" :height="56" :width="108" :marginRight="8" />
               </div>
 
               <div class="setting-item">
-                <div v-for="setting in item" :key="setting" class="setting">
+                <div v-for="setting in item.data" :key="setting" class="setting">
                   <BaseText v-if="setting.type === 'text'" :value="setting.value" :width="160" :height="32" :marginRight="4" :marginTop="12" :marginBottom="0" />
 
                   <BaseInput
                     v-else-if="setting.type === 'input'"
-                    :target="{ key, setting, uuid: formSetting.uuid[0].value }"
+                    :target="{ key, setting, uuid: formSetting.uuid.data[0].value }"
                     :change="inputChange"
                     :name="setting.name"
                     :value="setting.value"
@@ -53,7 +53,7 @@
 
                   <BaseColor
                     v-else-if="setting.type === 'color'"
-                    :target="{ key, setting, uuid: formSetting.uuid[0].value }"
+                    :target="{ key, setting, uuid: formSetting.uuid.data[0].value }"
                     :change="inputChange"
                     :value="setting.value"
                     :type="'rgb'"
@@ -61,6 +61,18 @@
                     :marginRight="4"
                     :marginTop="12"
                     :marginBottom="0"
+                  />
+
+                  <BaseSwitch
+                    v-else-if="setting.type === 'switch'"
+                    :height="32"
+                    :width="144"
+                    :value="setting.value"
+                    :marginRight="4"
+                    :marginTop="12"
+                    :marginBottom="0"
+                    :change="switchChange"
+                    :target="{ key, setting, uuid: formSetting.uuid.data[0].value }"
                   />
                 </div>
               </div>
@@ -75,7 +87,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
+import { defineComponent, onMounted, onUnmounted, ref, toRaw } from 'vue'
 import { useStore } from 'vuex'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
@@ -83,7 +95,10 @@ import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseText from '@/components/utils/baseComponents/BaseText.vue'
 import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
+import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
 import { hex2rgb } from '@/core/utils/base'
+
+declare const Bol3D: any
 
 export default defineComponent({
   name: 'PointLightsForms3D',
@@ -93,7 +108,8 @@ export default defineComponent({
     BaseTitle,
     BaseInput,
     BaseText,
-    BaseColor
+    BaseColor,
+    BaseSwitch
   },
   props: ['node'],
   setup(props: any) {
@@ -117,7 +133,7 @@ export default defineComponent({
       props.node.children.forEach((node: any) => {
         const { options, uuid } = node
 
-        const threeDimensionContainer = store.state.threeDimensionContainer
+        const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
 
         threeDimensionContainer.scene.traverse((c: any) => {
           if (c.uuid == uuid) selectedObjs.push(c)
@@ -126,53 +142,116 @@ export default defineComponent({
         // 展示编辑表单
         const formSetting = {
           spread: false,
-          uuid: [
-            {
-              value: uuid,
-              type: 'text'
-            }
-          ],
-          color: [
-            {
-              value: options.color,
-              type: 'color'
-            }
-          ],
-          intensity: [
-            {
-              value: options.intensity,
-              type: 'input'
-            }
-          ],
-          decay: [
-            {
-              value: options.decay,
-              type: 'input'
-            }
-          ],
-          distance: [
-            {
-              value: options.distance,
-              type: 'input'
-            }
-          ],
-          position: [
-            {
-              name: 'X',
-              value: options.position[0],
-              type: 'input'
-            },
-            {
-              name: 'Y',
-              value: options.position[1],
-              type: 'input'
-            },
-            {
-              name: 'Z',
-              value: options.position[2],
-              type: 'input'
-            }
-          ]
+          uuid: {
+            show: true,
+            data: [
+              {
+                value: uuid,
+                type: 'text'
+              }
+            ]
+          },
+          color: {
+            show: true,
+            data: [
+              {
+                value: options.color,
+                type: 'color'
+              }
+            ]
+          },
+          intensity: {
+            show: true,
+            data: [
+              {
+                value: options.intensity,
+                type: 'input'
+              }
+            ]
+          },
+          decay: {
+            show: true,
+            data: [
+              {
+                value: options.decay,
+                type: 'input'
+              }
+            ]
+          },
+          distance: {
+            show: true,
+            data: [
+              {
+                value: options.distance,
+                type: 'input'
+              }
+            ]
+          },
+          position: {
+            show: true,
+            data: [
+              {
+                name: 'X',
+                value: options.position[0],
+                type: 'input'
+              },
+              {
+                name: 'Y',
+                value: options.position[1],
+                type: 'input'
+              },
+              {
+                name: 'Z',
+                value: options.position[2],
+                type: 'input'
+              }
+            ]
+          },
+          castShadow: {
+            show: true,
+            data: [
+              {
+                value: options.castShadow,
+                type: 'switch'
+              }
+            ]
+          },
+          near: {
+            show: true,
+            data: [
+              {
+                value: options.near,
+                type: 'input'
+              }
+            ]
+          },
+          far: {
+            show: true,
+            data: [
+              {
+                value: options.far,
+                type: 'input'
+              }
+            ]
+          },
+          bias: {
+            show: true,
+            data: [
+              {
+                value: options.bias,
+                type: 'input'
+              }
+            ]
+          },
+          size: {
+            show: true,
+            data: [
+              {
+                value: options.size,
+                type: 'input'
+              }
+            ]
+          }
         }
 
         formSettings.value.push(formSetting)
@@ -225,18 +304,46 @@ export default defineComponent({
         if (isNaN(val)) return
         currentObj.distance = parseFloat(val)
         setting.value = parseFloat(val)
+      } else if (key === 'near') {
+        if (isNaN(val)) return
+        currentObj.shadow.camera.near = parseFloat(val)
+        currentObj.shadow.camera.updateProjectionMatrix()
+        currentObj.shadow.needsUpdate = true
+        setting.value = parseFloat(val)
+      } else if (key === 'far') {
+        if (isNaN(val)) return
+        currentObj.shadow.camera.far = parseFloat(val)
+        currentObj.shadow.camera.updateProjectionMatrix()
+        currentObj.shadow.needsUpdate = true
+        setting.value = parseFloat(val)
+      } else if (key === 'bias') {
+        if (isNaN(val)) return
+        currentObj.shadow.bias = parseFloat(val)
+        currentObj.shadow.needsUpdate = true
+        setting.value = parseFloat(val)
+      } else if (key === 'size') {
+        if (isNaN(val)) return
+        currentObj.shadow.mapSize.width = parseFloat(val)
+        currentObj.shadow.mapSize.height = parseFloat(val)
+        currentObj.shadow.camera.updateProjectionMatrix()
+        currentObj.shadow.needsUpdate = true
+        setting.value = parseFloat(val)
       }
 
       // update pageTreeNode
       const options: any = {}
 
       formSettings.value.forEach((formSetting: any) => {
-        if (formSetting.uuid[0].value === uuid) {
-          options['color'] = [formSetting['color'][0].value[0], formSetting['color'][0].value[1], formSetting['color'][0].value[2]]
-          options['intensity'] = formSetting['intensity'][0].value
-          options['position'] = [formSetting['position'][0].value, formSetting['position'][1].value, formSetting['position'][2].value]
-          options['decay'] = formSetting['decay'][0].value
-          options['distance'] = formSetting['distance'][0].value
+        if (formSetting.uuid.data[0].value === uuid) {
+          options['intensity'] = formSetting['intensity'].data[0].value
+          options['color'] = [formSetting['color'].data[0].value[0], formSetting['color'].data[0].value[1], formSetting['color'].data[0].value[2]]
+          options['position'] = [formSetting['position'].data[0].value, formSetting['position'].data[1].value, formSetting['position'].data[2].value]
+          options['decay'] = formSetting['decay'].data[0].value
+          options['distance'] = formSetting['distance'].data[0].value
+          options['near'] = formSetting['near'].data[0].value
+          options['far'] = formSetting['far'].data[0].value
+          options['bias'] = formSetting['bias'].data[0].value
+          options['size'] = formSetting['size'].data[0].value
         }
       })
 
@@ -245,15 +352,227 @@ export default defineComponent({
       })
     }
 
-    const addDirLight = () => {
+    const addPointLight = () => {
       const e = event as any
       if (e.button != 0) return
 
-      console.log('add light')
+      const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
+      // addTo 3d scene
+      const pointLightOpts = {
+        color: 0xffffff,
+        intensity: 1,
+        distance: 0,
+        decay: 1,
+        position: [0, 0, 0],
+        near: 1,
+        far: 10000,
+        bias: 0,
+        size: 2048
+      }
+      const pointLight = new Bol3D.PointLight(pointLightOpts.color, pointLightOpts.intensity, pointLightOpts.distance, pointLightOpts.decay)
+      pointLight.position.set(pointLightOpts.position[0], pointLightOpts.position[1], pointLightOpts.position[2])
+      // shadow
+      pointLight.castShadow = threeDimensionContainer.renderer.shadowMap.enabled
+      pointLight.shadow.bias = pointLightOpts.bias
+      pointLight.shadow.camera.near = pointLightOpts.near
+      pointLight.shadow.camera.far = pointLightOpts.far
+      pointLight.shadow.mapSize.width = pointLightOpts.size
+      pointLight.shadow.mapSize.height = pointLightOpts.size
+      pointLight.shadow.camera.updateProjectionMatrix()
+      pointLight.shadow.needsUpdate = true
+      threeDimensionContainer.scene.add(pointLight)
+      threeDimensionContainer.pointLights.push(pointLight)
+
+      // addTo pageTreeNodes
+      const pointLightOptions = {
+        color: [pointLight.color.r * 255, pointLight.color.g * 255, pointLight.color.b * 255],
+        intensity: pointLight.intensity,
+        decay: pointLight.decay,
+        distance: pointLight.distance,
+        position: [parseFloat(pointLight.position.x.toFixed(4)), parseFloat(pointLight.position.y.toFixed(4)), parseFloat(pointLight.position.z.toFixed(4))],
+        castShadow: pointLight.castShadow,
+        near: pointLight.shadow.camera.near,
+        far: pointLight.shadow.camera.far,
+        bias: pointLight.shadow.bias,
+        size: pointLight.shadow.mapSize.x
+      }
+
+      const pointLightNode = {
+        uuid: pointLight.uuid,
+        name: 'PointLight',
+        selected: false,
+        index: 1,
+        spread: false,
+        type: 'PointLight',
+        children: [],
+        show: false,
+        options: pointLightOptions
+      }
+
+      store.state.selectedPageTreeNode.children.push(pointLightNode)
+
+      // addTo formSettings
+      const pointLightSettings = {
+        spread: false,
+        uuid: {
+          show: true,
+          data: [
+            {
+              value: pointLight.uuid,
+              type: 'text'
+            }
+          ]
+        },
+        color: {
+          show: true,
+          data: [
+            {
+              value: pointLightOptions.color,
+              type: 'color'
+            }
+          ]
+        },
+        intensity: {
+          show: true,
+          data: [
+            {
+              value: pointLightOptions.intensity,
+              type: 'input'
+            }
+          ]
+        },
+        decay: {
+          show: true,
+          data: [
+            {
+              value: pointLightOptions.decay,
+              type: 'input'
+            }
+          ]
+        },
+        distance: {
+          show: true,
+          data: [
+            {
+              value: pointLightOptions.distance,
+              type: 'input'
+            }
+          ]
+        },
+        position: {
+          show: true,
+          data: [
+            {
+              name: 'X',
+              value: pointLightOptions.position[0],
+              type: 'input'
+            },
+            {
+              name: 'Y',
+              value: pointLightOptions.position[1],
+              type: 'input'
+            },
+            {
+              name: 'Z',
+              value: pointLightOptions.position[2],
+              type: 'input'
+            }
+          ]
+        },
+        castShadow: {
+          show: true,
+          data: [
+            {
+              value: pointLightOptions.castShadow,
+              type: 'switch'
+            }
+          ]
+        },
+        near: {
+          show: true,
+          data: [
+            {
+              value: pointLightOptions.near,
+              type: 'input'
+            }
+          ]
+        },
+        far: {
+          show: true,
+          data: [
+            {
+              value: pointLightOptions.far,
+              type: 'input'
+            }
+          ]
+        },
+        bias: {
+          show: true,
+          data: [
+            {
+              value: pointLightOptions.bias,
+              type: 'input'
+            }
+          ]
+        },
+        size: {
+          show: true,
+          data: [
+            {
+              value: pointLightOptions.size,
+              type: 'input'
+            }
+          ]
+        }
+      }
+
+      formSettings.value.push(pointLightSettings)
+
+      // addTo selectedObjs
+      selectedObjs.push(pointLight)
     }
 
     const spreadOpts = (item: any) => {
       item.spread = !item.spread
+    }
+
+    const switchChange = (e: any) => {
+      const { target, value } = e
+      const { setting, key, uuid } = target
+
+      let currentObj: any
+
+      selectedObjs.forEach((obj: any) => {
+        if (obj.uuid === uuid) currentObj = obj
+      })
+
+      if (key === 'castShadow') {
+        setting.value = value
+        currentObj.castShadow = value
+
+        // show/hide shadow opts
+        formSettings.value.forEach((formSetting: any) => {
+          if (formSetting.uuid.data[0].value === uuid) {
+            formSetting.near.show = value
+            formSetting.far.show = value
+            formSetting.bias.show = value
+            formSetting.size.show = value
+          }
+        })
+      }
+
+      // update pageTreeNode
+      const options: any = {}
+
+      formSettings.value.forEach((formSetting: any) => {
+        if (formSetting.uuid.data[0].value === uuid) {
+          options['castShadow'] = formSetting['castShadow'].data[0].value
+        }
+      })
+
+      store.state.selectedPageTreeNode.children.forEach((pageTreeNode: any) => {
+        if (pageTreeNode.uuid === uuid) Object.assign(pageTreeNode.options, options)
+      })
     }
 
     return {
@@ -261,8 +580,9 @@ export default defineComponent({
       headerItems,
       formSettings,
       inputChange,
-      addDirLight,
-      spreadOpts
+      addPointLight,
+      spreadOpts,
+      switchChange
     }
   }
 })

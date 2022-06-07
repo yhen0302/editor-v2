@@ -11,7 +11,7 @@
     <div class="title-nav">
       <BaseTitle :value="'RectAreaLights'" :height="48" :width="144" />
 
-      <div class="add-btn" @mouseup="addDirLight">
+      <div class="add-btn" @mouseup="addAreaLight">
         <img src="@/assets/images/main/right/editor_newscene_btn_dark.png" />
       </div>
     </div>
@@ -84,6 +84,8 @@ import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseText from '@/components/utils/baseComponents/BaseText.vue'
 import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
 import { hex2rgb } from '@/core/utils/base'
+
+declare const Bol3D: any
 
 export default defineComponent({
   name: 'RectAreaLightsForms3D',
@@ -172,6 +174,23 @@ export default defineComponent({
               value: options.position[2],
               type: 'input'
             }
+          ],
+          target: [
+            {
+              name: 'X',
+              value: options.target[0],
+              type: 'input'
+            },
+            {
+              name: 'Y',
+              value: options.target[1],
+              type: 'input'
+            },
+            {
+              name: 'Z',
+              value: options.target[2],
+              type: 'input'
+            }
           ]
         }
 
@@ -217,6 +236,20 @@ export default defineComponent({
           currentObj.position.z = parseFloat(val)
         }
         setting.value = parseFloat(val)
+      } else if (key === 'target') {
+        if (isNaN(val)) return
+        const v = parseFloat(val)
+        if (name === 'X') {
+          currentObj.lookAt(v, currentObj.userData.target[1], currentObj.userData.target[2])
+          currentObj.userData.target[0] = v
+        } else if (name === 'Y') {
+          currentObj.lookAt(currentObj.userData.target[0], v, currentObj.userData.target[2])
+          currentObj.userData.target[1] = v
+        } else if (name === 'Z') {
+          currentObj.lookAt(currentObj.userData.target[0], currentObj.userData.target[1], v)
+          currentObj.userData.target[2] = v
+        }
+        setting.value = parseFloat(val)
       } else if (key === 'width') {
         if (isNaN(val)) return
         currentObj.width = parseFloat(val)
@@ -237,6 +270,7 @@ export default defineComponent({
           options['position'] = [formSetting['position'][0].value, formSetting['position'][1].value, formSetting['position'][2].value]
           options['width'] = formSetting['width'][0].value
           options['height'] = formSetting['height'][0].value
+          options['target'] = [formSetting['target'][0].value, formSetting['target'][1].value, formSetting['target'][2].value]
         }
       })
 
@@ -245,11 +279,124 @@ export default defineComponent({
       })
     }
 
-    const addDirLight = () => {
+    const addAreaLight = () => {
       const e = event as any
       if (e.button != 0) return
 
-      console.log('add light')
+      const threeDimensionContainer = store.state.threeDimensionContainer
+      // addTo 3d scene
+      let rectAreaLightOpts = {
+        color: 0xffffff,
+        intensity: 1,
+        width: 10,
+        height: 10,
+        position: [0, 0, 0],
+        target: [0, 0, 0]
+      }
+      const rectAreaLight = new Bol3D.RectAreaLight(rectAreaLightOpts.color, rectAreaLightOpts.intensity, rectAreaLightOpts.width, rectAreaLightOpts.height)
+      rectAreaLight.position.set(rectAreaLightOpts.position[0], rectAreaLightOpts.position[1], rectAreaLightOpts.position[2])
+      rectAreaLight.lookAt(0, 0, 0)
+      rectAreaLight.userData.target = rectAreaLightOpts.target
+      threeDimensionContainer.scene.add(rectAreaLight)
+      threeDimensionContainer.rectAreaLights.push(rectAreaLight)
+
+      // addTo pageTreeNodes
+      const rectAreaLightOptions = {
+        color: [rectAreaLight.color.r * 255, rectAreaLight.color.g * 255, rectAreaLight.color.b * 255],
+        intensity: rectAreaLight.intensity,
+        width: rectAreaLight.width,
+        height: rectAreaLight.height,
+        position: [parseFloat(rectAreaLight.position.x.toFixed(4)), parseFloat(rectAreaLight.position.y.toFixed(4)), parseFloat(rectAreaLight.position.z.toFixed(4))],
+        target: [parseFloat(rectAreaLight.userData.target[0].toFixed(4)), parseFloat(rectAreaLight.userData.target[1].toFixed(4)), parseFloat(rectAreaLight.userData.target[2].toFixed(4))]
+      }
+
+      const rectAreaLightNode = {
+        uuid: rectAreaLight.uuid,
+        name: 'RectAreaLight',
+        selected: false,
+        index: 1,
+        spread: false,
+        type: 'RectAreaLight',
+        children: [],
+        show: false,
+        options: rectAreaLightOptions
+      }
+
+      store.state.selectedPageTreeNode.children.push(rectAreaLightNode)
+
+      // addTo formSettings
+      const areaLightSettings = {
+        spread: false,
+        uuid: [
+          {
+            value: rectAreaLight.uuid,
+            type: 'text'
+          }
+        ],
+        color: [
+          {
+            value: rectAreaLightOptions.color,
+            type: 'color'
+          }
+        ],
+        intensity: [
+          {
+            value: rectAreaLightOptions.intensity,
+            type: 'input'
+          }
+        ],
+        width: [
+          {
+            value: rectAreaLightOptions.width,
+            type: 'input'
+          }
+        ],
+        height: [
+          {
+            value: rectAreaLightOptions.height,
+            type: 'input'
+          }
+        ],
+        position: [
+          {
+            name: 'X',
+            value: rectAreaLightOptions.position[0],
+            type: 'input'
+          },
+          {
+            name: 'Y',
+            value: rectAreaLightOptions.position[1],
+            type: 'input'
+          },
+          {
+            name: 'Z',
+            value: rectAreaLightOptions.position[2],
+            type: 'input'
+          }
+        ],
+        target: [
+          {
+            name: 'X',
+            value: rectAreaLightOptions.target[0],
+            type: 'input'
+          },
+          {
+            name: 'Y',
+            value: rectAreaLightOptions.target[1],
+            type: 'input'
+          },
+          {
+            name: 'Z',
+            value: rectAreaLightOptions.target[2],
+            type: 'input'
+          }
+        ]
+      }
+
+      formSettings.value.push(areaLightSettings)
+
+      // addTo selectedObjs
+      selectedObjs.push(rectAreaLight)
     }
 
     const spreadOpts = (item: any) => {
@@ -261,7 +408,7 @@ export default defineComponent({
       headerItems,
       formSettings,
       inputChange,
-      addDirLight,
+      addAreaLight,
       spreadOpts
     }
   }

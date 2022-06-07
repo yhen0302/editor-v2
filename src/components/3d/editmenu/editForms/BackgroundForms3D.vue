@@ -138,7 +138,6 @@ export default defineComponent({
     onMounted(() => {
       const { options } = props.node
       const { type, value } = options
-      const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
 
       // console.log(value)
 
@@ -525,8 +524,8 @@ export default defineComponent({
                   }
                 ],
                 selected: {
-                  name: 'sRGBEncoding',
-                  value: 3001
+                  name: 'LinearEncoding',
+                  value: 3000
                 },
                 type: 'dropdown'
               }
