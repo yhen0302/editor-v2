@@ -28,6 +28,7 @@ export default (node, prefix, suffix, placeholder) => (
     onDragendCapture={(ev) => dragEndEventFn(ev, node)}
     treenode={true}
     onClick={() => {
+      if (!node.show) return
       node.select
         ? editorMutation['CANCEL_SELECT_2D_NODE']({ node })
         : editorMutation['SELECT_2D_TREE_NODE']({ node })

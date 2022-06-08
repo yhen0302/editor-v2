@@ -59,43 +59,8 @@
                   />
                 </div>
                 <!--二维图层树-->
-                <layer-list
-                  :node="editorStore.layerTree2d"
-                  v-show="editorStore.dimensionType === '2d'"
-                >
-                  <template v-slot:prefix>
-                    <div></div>
-                  </template>
-                  <template v-slot:placeholder="node" v-once>
-                    <div style="padding-right: 8px">
-                      <img :src="layerIcon[node.type]" />
-                    </div>
-                  </template>
-                  <template v-slot:suffix="node">
-                    <div
-                      class="suffix-icon-wrap cursor-pointer"
-                      :class="{
-                        'opacity-50': findHasFalseShowParentNode(node)
-                      }"
-                      @click.stop="hiddenControl(node)"
-                    >
-                      <img
-                        src="~@/assets/images/editor_unseen_btn_dark.png"
-                        v-if="node.show"
-                      />
-                      <img
-                        src="~@/assets/images/editor_seen_btn_dark.png"
-                        v-else
-                      />
-                    </div>
-                  </template>
-                  <template v-slot:folderPrefix>
-                    <img
-                      src="~@/assets/images/editor_elementgroup_icn_dark.png"
-                      style="margin-right: 8px"
-                    />
-                  </template>
-                </layer-list>
+                <layer-list2d v-show="editorStore.dimensionType === '2d'"
+                ></layer-list2d>
                 <!--三维图层树-->
                 <layer-list
                   :node="editorStore.layerTree3d"
@@ -200,6 +165,7 @@ import ArtBoard3DContent from '@/views/editor/threeDimension/ArtBoard3DContent.v
 import ArtBoard2DContent from '@/views/editor/twoDimension/ArtBoard2DContent.vue'
 import { EditorStore } from '@/store/editor/type'
 import { EditorGetter } from '@/store/editor/getters'
+import LayerList2d from "@/views/editor/twoDimension/LayerList2d.vue";
 
 /* 编辑器 */
 export default defineComponent({
@@ -208,6 +174,7 @@ export default defineComponent({
     return { testData: false }
   },
   components: {
+    LayerList2d,
     ArtBoard2DContent,
     ArtBoard3DContent,
     ScreenPageTree,

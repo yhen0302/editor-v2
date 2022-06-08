@@ -9,6 +9,7 @@
       :key="item.name"
       :node="item"
       @select="selectNode(item)"
+      v-show="item.show"
       @append="appendSelectNode(item)"
     ></component>
   </div>

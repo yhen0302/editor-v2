@@ -1,4 +1,4 @@
-import { Plugin, App, watch, ref, WatchStopHandle, toRaw, computed } from 'vue'
+import {Plugin, App, watch, ref, WatchStopHandle, toRaw, computed} from 'vue'
 import {
   computedElementsRect,
   debounce,
@@ -6,8 +6,8 @@ import {
   getCss,
   toPx
 } from './util/util'
-import { Ref } from '@vue/reactivity'
-import { rectProperties, RectProperty } from './convert'
+import {Ref} from '@vue/reactivity'
+import {rectProperties, RectProperty} from './convert'
 import DragWrapper from './DragWrapper.vue'
 
 let activeEl: Ref<HTMLElement[]> = ref<HTMLElement[]>([])
@@ -67,11 +67,11 @@ function watchRect(
         // 如果当前变化是正在计算选择区域就不做计算。
         if (isCalculating.value) return
         input &&
-          input({
-            el,
-            rect: toRaw<RectProperty>(rectProperties)
-          })
-        change && change({ el, rect: toRaw<RectProperty>(rectProperties) })
+        input({
+          el,
+          rect: toRaw<RectProperty>(rectProperties)
+        })
+        change && change({el, rect: toRaw<RectProperty>(rectProperties)})
 
         let rect = el.rect
         if (activeEl.value.length < 2 || ['left', 'top'].includes(key)) {
@@ -93,7 +93,7 @@ function watchRect(
           ) as string
         }
       },
-      { flush: 'sync' }
+      {flush: 'sync'}
     )
 
     watchStopSet.add(watchStop)
@@ -107,6 +107,7 @@ function stopWatchers(watchStopSet: Set<WatchStopHandle>) {
   }
   watchStopSet.clear()
 }
+
 function clearWatcher(): void {
   for (let watchStopSet of watcherTotalSet.values()) {
     stopWatchers(watchStopSet)
@@ -124,8 +125,8 @@ const dragPlugin: Plugin = {
     const keys = Object.keys(rectProperties)
     keys.forEach((key) => {
       app.config.globalProperties[
-        '$setDragPluginRect' + key[0].toUpperCase() + key.substring(1)
-      ] = function (val: number) {
+      '$setDragPluginRect' + key[0].toUpperCase() + key.substring(1)
+        ] = function (val: number) {
         rectProperties[key] = val
       }
     })
@@ -150,10 +151,11 @@ const dragPlugin: Plugin = {
         active: dragOpt.active
       }
     }
+
     function registryDragDirective() {
       app.directive('drag', {
         mounted(el: CustomElement, binding) {
-          const { select, input, change, active } = parseBinding(binding)
+          const {select, input, change, active} = parseBinding(binding)
           let watchStopSet: Set<WatchStopHandle>
 
           const rect = binding.value.rect || computedElementsRect([el], 'css')
@@ -161,7 +163,7 @@ const dragPlugin: Plugin = {
           // 如果是选中状态
 
           if (select) {
-            console.log('mounted',select)
+            console.log('mounted', select)
             activeEl.value.push(el)
             watchStopSet = watchRect(el, rect, change, input)
             watcherTotalSet.add(watchStopSet)
@@ -180,7 +182,7 @@ const dragPlugin: Plugin = {
         },
 
         updated(el: CustomElement, binding) {
-          const { change, input, select } = parseBinding(binding)
+          const {change, input, select} = parseBinding(binding)
           if (select) {
             // 当前元素已经被选中了
             if (activeEl.value.includes(el)) return
@@ -190,13 +192,12 @@ const dragPlugin: Plugin = {
 
             el.watchStopSet = watchStopSet
           } else {
-            debugger
             if (el.watchStopSet) {
               stopWatchers(el.watchStopSet)
             }
             const deleteIndex = activeEl.value.indexOf(el)
             // 取消选中
-              if(deleteIndex!==-1)activeEl.value.splice(deleteIndex, 1)
+            if (deleteIndex !== -1) activeEl.value.splice(deleteIndex, 1)
           }
         }
       })
@@ -204,6 +205,6 @@ const dragPlugin: Plugin = {
   }
 }
 
-export { activeEl, isCalculating }
+export {activeEl, isCalculating}
 
 export default dragPlugin
