@@ -87027,26 +87027,18 @@ void main() {
 	var gammaFragmentShader = `
 uniform sampler2D tDiffuse;
 varying vec2 vUv;
-
-vec4 encodeSRGB(vec4 linearRGB)
-{
-    vec3 rgb = linearRGB.rgb;
-    vec3 a = 12.92 * rgb;
-    vec3 b = 1.055 * pow(rgb, vec3(1.0 / 2.4)) - 0.055;
-    vec3 c = step(vec3(0.0031308), rgb);
-    return vec4(mix(a, b, c) , 1.0);
-}
+uniform float factor;
 
 vec4 gamma(vec4 color, float g)
 {
     vec3 rgb = color.rgb;
     vec3 opColor = pow(rgb, vec3(g));
-    return vec4(opColor, 1.0);
+    return vec4(opColor, color.a);
 }
 
 void main() {
     vec4 tex = texture2D( tDiffuse, vUv );
-    gl_FragColor = gamma(tex , 1.0 / 2.2);
+    gl_FragColor = gamma(tex , 1.0 / factor);
 }
 `;
 
@@ -92187,6 +92179,8 @@ void main() {
 	class Container {
 	    renderer;
 	    css2dRenderer;
+	    msaaTarget;
+	    supersampling;
 	    sceneComposer;
 	    bloomComposer;
 	    smokeComposer;
@@ -92215,7 +92209,7 @@ void main() {
 	    bloomPass;
 	    finalbloomPass;
 	    ssaaPass;
-	    ssaaLevel;
+	    gammaPass;
 	    smokePass;
 	    finalsmokePass;
 	    envMap;
@@ -92230,7 +92224,6 @@ void main() {
 	    sceneAnimations;
 	    bounds;
 	    fog;
-	    antiShake;
 	    lines;
 	    walls;
 	    publicPath;
@@ -92239,6 +92232,7 @@ void main() {
 	    containerWidth;
 	    containerHeight;
 	    gltfLoader;
+	    objectLoader;
 	    fbxLoader;
 	    dracoLoader;
 	    hdrLoader;
@@ -92275,6 +92269,7 @@ void main() {
 	        this.fbxLoader = new FBXLoader();
 	        this.gltfLoader = new GLTFLoader$1();
 	        this.dracoLoader = new DRACOLoader();
+	        this.objectLoader = new ObjectLoader();
 	        this.dracoLoader.setDecoderPath(this.publicPath + '/js/gltfDraco/');
 	        this.dracoLoader.preload();
 	        this.gltfLoader.setDRACOLoader(this.dracoLoader);
@@ -92364,13 +92359,6 @@ void main() {
 	        const materials = {};
 	        const darkMaterial = new MeshBasicMaterial({ side: 2, transparent: true, opacity: 1, fog: false, color: 'black' });
 	        const darkSpriteMateral = new SpriteMaterial({ color: 'black', transparent: true, opacity: 0 });
-	        const darkSkyMaterial = new MeshBasicMaterial({
-	            side: BackSide,
-	            transparent: true,
-	            opacity: 1.0,
-	            fog: false,
-	            color: 'black'
-	        });
 	        const darkLineMaterial = new KLineMaterial({
 	            color: 'black',
 	            transparent: true,
@@ -92386,30 +92374,36 @@ void main() {
 	        const darkShaderMaterial = new ShaderMaterial({
 	            transparent: true
 	        });
-	        const bloomEnabled = attrs && attrs.bloomEnabled != undefined ? attrs.bloomEnabled : false;
 	        const smokeEnabled = attrs && attrs.smoke != undefined ? true : false;
 	        const animation = () => {
 	            this.stats.begin();
 	            // self.renderer.setScissorTest(true)
 	            if (self.viewState == 'orbit') {
 	                self.orbitControls.update();
-	                if (bloomEnabled) {
+	                if (self.bloomPass.enabled) {
 	                    self.scene.fog = null;
 	                    self.scene.traverse((obj) => {
 	                        if (bloomLayer.test(obj.layers) === false) {
 	                            if (!materials[obj.uuid])
 	                                materials[obj.uuid] = obj.material;
-	                            if (obj.type == 'Mesh') {
+	                            if (Array.isArray(obj.material)) {
+	                                // eg. sky cube: MeshBasicMaterial[]
+	                                obj.material = [darkMaterial, darkMaterial, darkMaterial, darkMaterial, darkMaterial, darkMaterial];
+	                            }
+	                            else if (obj.material instanceof MeshBasicMaterial) {
 	                                obj.material = darkMaterial;
 	                            }
-	                            else if (obj.type == 'Icon' || obj.type == 'Text') {
+	                            else if (obj.material instanceof SpriteMaterial) {
 	                                obj.material = darkSpriteMateral;
 	                            }
-	                            else if (obj.type == 'SkyBox') {
-	                                obj.material = darkSkyMaterial;
-	                            }
-	                            else if (obj.type == 'KLine') {
+	                            else if (obj.material instanceof KLineMaterial) {
 	                                obj.material = darkLineMaterial;
+	                            }
+	                            else if (obj.material instanceof MeshStandardMaterial) {
+	                                obj.material = darkStandardMaterial;
+	                            }
+	                            else if (obj.material instanceof ShaderMaterial) {
+	                                obj.material = darkShaderMaterial;
 	                            }
 	                            else {
 	                                if (obj.material && obj.material.clone) {
@@ -92456,13 +92450,17 @@ void main() {
 	                self.css2dRenderer.render(self.scene, self.firstPersonCamera);
 	            }
 	            else if (self.viewState == 'map') {
-	                if (bloomEnabled) {
+	                if (self.bloomPass.enabled) {
 	                    self.scene.fog = null;
 	                    self.scene.traverse((obj) => {
 	                        if (bloomLayer.test(obj.layers) === false) {
 	                            if (!materials[obj.uuid])
 	                                materials[obj.uuid] = obj.material;
-	                            if (obj.material instanceof MeshBasicMaterial) {
+	                            if (Array.isArray(obj.material)) {
+	                                // eg. sky cube: MeshBasicMaterial[]
+	                                obj.material = [darkMaterial, darkMaterial, darkMaterial, darkMaterial, darkMaterial, darkMaterial];
+	                            }
+	                            else if (obj.material instanceof MeshBasicMaterial) {
 	                                obj.material = darkMaterial;
 	                            }
 	                            else if (obj.material instanceof SpriteMaterial) {
@@ -92807,18 +92805,6 @@ void main() {
 	        this.orbitControls.enableDamping = orbit.enableDamping;
 	        this.orbitControls.dampingFactor = orbit.dampingFactor;
 	        this.orbitControls.enabled = this.viewState === 'orbit';
-	        this.antiShake = attrs && attrs.antiShake != undefined ? attrs.antiShake : true;
-	        this.orbitControls.addEventListener('start', () => {
-	            if (this.antiShake)
-	                this.ssaaPass.sampleLevel = 0;
-	        });
-	        this.orbitControls.addEventListener('end', () => {
-	            if (this.antiShake)
-	                this.ssaaPass.sampleLevel = this.ssaaLevel;
-	        });
-	        this.orbitControls.addEventListener('change', () => {
-	            // if (this.sunLight) this.sunLight.position.copy(this.orbitCamera.position)
-	        });
 	        // first person controls
 	        let firstPerson = {
 	            movementSpeed: 20,
@@ -93195,14 +93181,21 @@ void main() {
 	        new ShaderPass(CopyShader);
 	        this.renderPass = new RenderPass(this.scene, currentCamera);
 	        const size = this.renderer.getDrawingBufferSize(new Vector2$1());
+	        let msaa = {
+	            supersampling: false
+	        };
+	        Object.assign(msaa, attrs && attrs.msaa);
 	        // const renderTarget = new WebGLMultisampleRenderTarget(size.width * 2, size.height * 2, parameters)  // 超采样 todo
-	        const renderTarget = new WebGLMultisampleRenderTarget(size.width, size.height, parameters);
-	        this.sceneComposer = new EffectComposer(this.renderer, renderTarget);
+	        const w = msaa.supersampling ? size.width * 2 : size.width;
+	        const h = msaa.supersampling ? size.height * 2 : size.height;
+	        this.supersampling = msaa.supersampling;
+	        this.msaaTarget = new WebGLMultisampleRenderTarget(w, h, parameters);
+	        this.sceneComposer = new EffectComposer(this.renderer, this.msaaTarget);
 	        this.sceneComposer.addPass(this.renderPass);
-	        this.bloomComposer = new EffectComposer(this.renderer, renderTarget);
+	        this.bloomComposer = new EffectComposer(this.renderer, this.msaaTarget);
 	        this.bloomComposer.renderToScreen = false;
 	        this.bloomComposer.addPass(this.renderPass);
-	        this.smokeComposer = new EffectComposer(this.renderer, renderTarget);
+	        this.smokeComposer = new EffectComposer(this.renderer, this.msaaTarget);
 	        this.smokeComposer.renderToScreen = false;
 	        const smokeScene = new Scene();
 	        const smokeRenderPass = new RenderPass(smokeScene, currentCamera);
@@ -93215,22 +93208,34 @@ void main() {
 	        // this.sceneComposer.addPass(taaRenderPass)
 	        // *** TAA PASS end ***
 	        // *** SSAA PASS start ***
-	        this.ssaaLevel = attrs && attrs.ssaaLevel != undefined ? attrs.ssaaLevel : 2;
+	        let ssaa = {
+	            level: 1,
+	            unbiased: true
+	        };
+	        Object.assign(ssaa, attrs && attrs.ssaa);
 	        this.ssaaPass = new SSAARenderPass(this.scene, currentCamera, bgColor, 1);
-	        this.ssaaPass.sampleLevel = this.ssaaLevel;
-	        this.ssaaPass.unbiased = false;
-	        if (attrs && attrs.ssaaEnabled)
-	            this.sceneComposer.addPass(this.ssaaPass);
+	        this.ssaaPass.sampleLevel = ssaa.level;
+	        this.ssaaPass.unbiased = ssaa.unbiased;
+	        this.sceneComposer.addPass(this.ssaaPass);
+	        const ssaaEnabled = attrs && attrs.ssaaEnabled != undefined ? attrs.ssaaEnabled : false;
+	        this.ssaaPass.enabled = ssaaEnabled;
 	        // *** SSAA PASS end ***
 	        // *** GAMMA PASS start ***
-	        const gammaPass = new ShaderPass(new ShaderMaterial({
+	        let gamma = {
+	            factor: 2.2
+	        };
+	        gamma = Object.assign(gamma, attrs && attrs.gamma);
+	        this.gammaPass = new ShaderPass(new ShaderMaterial({
 	            uniforms: {
-	                tDiffuse: { value: null }
+	                tDiffuse: { value: null },
+	                factor: { value: gamma.factor }
 	            },
 	            vertexShader: gammaVertexShader,
 	            fragmentShader: gammaFragmentShader
 	        }));
-	        this.sceneComposer.addPass(gammaPass);
+	        const gammaEnabled = attrs && attrs.gammaEnabled != undefined ? attrs.gammaEnabled : true;
+	        this.sceneComposer.addPass(this.gammaPass);
+	        this.gammaPass.enabled = gammaEnabled;
 	        // *** GAMMA PASS end ***
 	        // *** Smoke PASS start ***
 	        this.smokePass = new SmokePass({
@@ -93273,6 +93278,8 @@ void main() {
 	        };
 	        bloom = Object.assign(bloom, attrs && attrs.bloom);
 	        this.bloomPass = new UnrealBloomPass(new Vector2$1(this.containerWidth, this.containerHeight), bloom.bloomStrength, bloom.bloomRadius, bloom.threshold);
+	        const bloomEnabled = attrs && attrs.bloomEnabled != undefined ? attrs.bloomEnabled : false;
+	        this.bloomPass.enabled = bloomEnabled;
 	        this.bloomComposer.addPass(this.bloomPass);
 	        // *** BLOOM PASS end ***
 	        // *** BLOOM FINAL PASS start ***
@@ -93290,15 +93297,16 @@ void main() {
 	        // *** DOF PASS start***
 	        let dof = {
 	            focus: 100.0,
-	            aperture: 0.025,
+	            aperture: 0.00001,
 	            maxblur: 0.01,
 	            width: this.containerWidth,
 	            height: this.containerHeight
 	        };
 	        dof = Object.assign(dof, attrs && attrs.dof);
 	        this.bokehPass = new BokehPass(this.scene, currentCamera, dof);
-	        if (attrs && attrs.dof)
-	            this.sceneComposer.addPass(this.bokehPass);
+	        this.sceneComposer.addPass(this.bokehPass);
+	        const dofEnabled = attrs && attrs.dofEnabled != undefined ? attrs.dofEnabled : false;
+	        this.bokehPass.enabled = dofEnabled;
 	        // *** DOF PASS end***
 	        // *** OUTLINE PASS start ***
 	        let outlineParams = {
@@ -93317,8 +93325,9 @@ void main() {
 	        this.outlinePass.pulsePeriod = outlineParams.pulsePeriod;
 	        this.outlinePass.visibleEdgeColor.set(outlineParams.visibleEdgeColor);
 	        this.outlinePass.hiddenEdgeColor.set(outlineParams.hiddenEdgeColor);
-	        if (attrs && attrs.outline)
-	            this.sceneComposer.addPass(this.outlinePass);
+	        this.sceneComposer.addPass(this.outlinePass);
+	        const outlineEnabled = attrs && attrs.outlineEnabled != undefined ? attrs.outlineEnabled : false;
+	        this.outlinePass.enabled = outlineEnabled;
 	        // *** OUTLINE PASS end ***
 	        // this.sceneComposer.addPass(outputPass)
 	        // **** TEST PASS start ******

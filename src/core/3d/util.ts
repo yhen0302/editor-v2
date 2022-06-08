@@ -20,12 +20,48 @@ export function parseModelNode(node: any, index: number, result: any) {
       scale: [parseFloat(node.scale.x.toFixed(4)), parseFloat(node.scale.y.toFixed(4)), parseFloat(node.scale.z.toFixed(4))]
     }
   } else if (node.type === 'Mesh') {
+    // console.log(node.material.type, node.material.map)
+
     result.options = {
       position: [parseFloat(node.position.x.toFixed(4)), parseFloat(node.position.y.toFixed(4)), parseFloat(node.position.z.toFixed(4))],
       rotation: [parseFloat(((node.rotation.x * 180) / Math.PI).toFixed(4)), parseFloat(((node.rotation.y * 180) / Math.PI).toFixed(4)), parseFloat(((node.rotation.z * 180) / Math.PI).toFixed(4))],
       scale: [parseFloat(node.scale.x.toFixed(4)), parseFloat(node.scale.y.toFixed(4)), parseFloat(node.scale.z.toFixed(4))],
       castShadow: node.castShadow,
       receiveShadow: node.receiveShadow
+    }
+
+    // material 基础属性
+    result.matOptions = {
+      type: node.material.type,
+      name: node.material.name,
+      color: '#' + node.material.color.getHexString(),
+      transparent: node.material.transparent,
+      opacity: node.material.opacity,
+      map: node.material.map,
+      depthTest: node.material.depthTest,
+      depthWrite: node.material.depthWrite,
+      wireframe: node.material.wireframe,
+      extends: {}
+    }
+    if (node.material.type === 'MeshStandardMaterial') {
+      const extendOptions = {
+        roughness: node.material.roughness,
+        metalness: node.material.metalness,
+        // 环境贴图
+        // envMap: node.material.envMap,
+        envMapIntensity: node.material.envMapIntensity,
+        // 光照贴图
+        // lightMap: node.material.lightMap,
+        lightMapIntensity: node.material.lightMapIntensity,
+        // 自发光
+        emissive: '#' + node.material.color.getHexString(),
+        emissiveIntensity: node.material.emissiveIntensity
+        // emissiveMap: node.material.emissiveMap
+      }
+
+      result.matOptions.extends = extendOptions
+
+      // Object.assign(result.matOptions, extendOptions)
     }
   } else if (node.type === 'Object3D') {
     result.options = {
@@ -70,8 +106,39 @@ export function reloadThreeDimensionScene(pageNode: any) {
 
   for (const k in flatSceneNodes) {
     const n = flatSceneNodes[k]
-
-    if (n.type === 'Fog') {
+    if (n.type === 'GammaPass') {
+      const { options } = n
+      const { enabled, factor } = options
+      container.gammaPass.enabled = enabled
+      container.gammaPass.uniforms.factor.value = factor
+    } else if (n.type === 'DOFPass') {
+      const { options } = n
+      const { enabled, focus, aperture, maxblur } = options
+      container.bokehPass.enabled = enabled
+      container.bokehPass.uniforms.focus.value = focus
+      container.bokehPass.uniforms.aperture.value = aperture
+      container.bokehPass.uniforms.maxblur.value = maxblur
+    } else if (n.type === 'OutlinePass') {
+      const { options } = n
+      const { enabled, edgeStrength, edgeGlow, edgeThickness, pulsePeriod, visibleEdgeColor, hiddenEdgeColor } = options
+      container.outlinePass.enabled = enabled
+      container.outlinePass.edgeStrength = edgeStrength
+      container.outlinePass.edgeGlow = edgeGlow
+      container.outlinePass.edgeThickness = edgeThickness
+      container.outlinePass.pulsePeriod = pulsePeriod
+      container.outlinePass.visibleEdgeColor.set(visibleEdgeColor)
+      container.outlinePass.hiddenEdgeColor.set(hiddenEdgeColor)
+    } else if (n.type === 'BloomPass') {
+      const { options } = n
+      const { enabled, radius, strength, threshold } = options
+      container.bloomPass.enabled = enabled
+      container.bloomPass.radius = radius
+      container.bloomPass.compositeMaterial.uniforms['bloomRadius'].value = radius
+      container.bloomPass.strength = strength
+      container.bloomPass.compositeMaterial.uniforms['bloomStrength'].value = strength
+      container.bloomPass.threshold = threshold
+      container.bloomPass.highPassUniforms['luminosityThreshold'].value = threshold
+    } else if (n.type === 'Fog') {
       const { options } = n
       const { color, intensity } = options
       container.scene.fog.color.set(color)

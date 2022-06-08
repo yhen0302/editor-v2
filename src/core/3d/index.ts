@@ -11,7 +11,13 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     container: domElement,
     viewState: 'orbit',
     modelUrls,
-    enableShadow: true,
+    enableShadow: false,
+    bloomEnabled: false,
+    outlineEnabled: false,
+    dofEnabled: false,
+    msaa: {
+      supersampling: false
+    },
     lights: {
       ambientLight: {
         color: 0xffffff,
@@ -79,7 +85,105 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     onLoad: (evt: any) => {
       callback && callback(evt)
 
-      // console.log('loaded', evt)
+      console.log('loaded')
+
+      // msaaPass(单个)
+      const msaaPassOptions = {
+        supersampling: evt.supersampling
+      }
+      const msaaPassNode: any = {
+        uuid: -1,
+        name: 'MSAAPass',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'MSAAPass',
+        children: [],
+        show: false,
+        options: msaaPassOptions
+      }
+      ;(store as any).state.template.threeDimension.unshift(msaaPassNode)
+
+      // gammaPass(单个)
+      const gammaPassOptions = {
+        enabled: evt.gammaPass.enabled,
+        factor: evt.gammaPass.uniforms.factor.value
+      }
+      const gammaPassNode: any = {
+        uuid: -1,
+        name: 'GammaPass',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'GammaPass',
+        children: [],
+        show: false,
+        options: gammaPassOptions
+      }
+      ;(store as any).state.template.threeDimension.unshift(gammaPassNode)
+
+      // dofPass(单个)
+      const dofPassOptions = {
+        enabled: evt.bokehPass.enabled,
+        focus: evt.bokehPass.uniforms.focus.value,
+        aperture: evt.bokehPass.uniforms.aperture.value,
+        maxblur: evt.bokehPass.uniforms.maxblur.value
+      }
+      const dofPassNode: any = {
+        uuid: -1,
+        name: 'DOFPass',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'DOFPass',
+        children: [],
+        show: false,
+        options: dofPassOptions
+      }
+      ;(store as any).state.template.threeDimension.unshift(dofPassNode)
+
+      // outlinePass(单个)
+      const outlinePassOptions = {
+        enabled: evt.outlinePass.enabled,
+        edgeStrength: evt.outlinePass.edgeStrength,
+        edgeGlow: evt.outlinePass.edgeGlow,
+        edgeThickness: evt.outlinePass.edgeThickness,
+        pulsePeriod: evt.outlinePass.pulsePeriod,
+        visibleEdgeColor: '#' + evt.outlinePass.visibleEdgeColor.getHexString(),
+        hiddenEdgeColor: '#' + evt.outlinePass.hiddenEdgeColor.getHexString()
+      }
+      const outlinePassNode: any = {
+        uuid: -1,
+        name: 'OutlinePass',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'OutlinePass',
+        children: [],
+        show: false,
+        options: outlinePassOptions
+      }
+      ;(store as any).state.template.threeDimension.unshift(outlinePassNode)
+
+      // bloomPass(单个)
+      const bloomPassOptions = {
+        enabled: evt.bloomPass.enabled,
+        strength: evt.bloomPass.strength,
+        radius: evt.bloomPass.radius,
+        threshold: evt.bloomPass.threshold
+      }
+      const bloomPassNode: any = {
+        uuid: -1,
+        name: 'BloomPass',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'BloomPass',
+        children: [],
+        show: false,
+        options: bloomPassOptions
+      }
+      ;(store as any).state.template.threeDimension.unshift(bloomPassNode)
 
       // 雾节点(单个)
       const fogOptions = {

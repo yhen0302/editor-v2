@@ -29,15 +29,28 @@ import BackgroundForms3D from './editForms/BackgroundForms3D.vue'
 import HDRForms3D from './editForms/HDRForms3D.vue'
 // 7.FOG
 import FogForms3D from './editForms/FogForms3D.vue'
+// passes
+// 1.bloom pass
+import BloomPassForms3D from './editForms/BloomPassForms3D.vue'
+// 2.outline pass
+import OutlinePassForms3D from './editForms/OutlinePassForms3D.vue'
+// 3.dof pass
+import DofPassForms3D from './editForms/DofPassForms3D.vue'
+// 4.gamma pass
+import GammaPassForms3D from './editForms/GammaPassForms3D.vue'
+// 5.msaa pass
+import MSAAPassForms3D from './editForms/MSAAPassForms3D.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 
 export default defineComponent({
   name: 'EditForms3D',
   components: {
+    // objects
     GroupForms3D,
     MeshForms3D,
     ObjectForms3D,
+    // scenes
     AmbientLightForms3D,
     DirectionLightsForms3D,
     HemisphereLightForms3D,
@@ -48,7 +61,13 @@ export default defineComponent({
     ShadowForms3D,
     BackgroundForms3D,
     HDRForms3D,
-    FogForms3D
+    FogForms3D,
+    // passes
+    BloomPassForms3D,
+    OutlinePassForms3D,
+    DofPassForms3D,
+    GammaPassForms3D,
+    MSAAPassForms3D
   },
   setup() {
     const store = useStore()
@@ -134,6 +153,26 @@ export default defineComponent({
           break
         case 'Fog':
           type.value = 'FogForms3D'
+          node.value = e.node
+          break
+        case 'BloomPass':
+          type.value = 'BloomPassForms3D'
+          node.value = e.node
+          break
+        case 'OutlinePass':
+          type.value = 'OutlinePassForms3D'
+          node.value = e.node
+          break
+        case 'DOFPass':
+          type.value = 'DofPassForms3D'
+          node.value = e.node
+          break
+        case 'GammaPass':
+          type.value = 'GammaPassForms3D'
+          node.value = e.node
+          break
+        case 'MSAAPass':
+          type.value = 'MSAAPassForms3D'
           node.value = e.node
           break
       }

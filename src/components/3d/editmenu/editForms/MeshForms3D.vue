@@ -80,6 +80,8 @@ import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
 
+declare const Bol3D: any
+
 export default defineComponent({
   name: 'MeshForms3D',
   components: {
@@ -123,14 +125,10 @@ export default defineComponent({
     const formSettings: any = ref([]) // mesh settings
     const formSettings2: any = ref([]) // mat settings
 
-    const meshChanged = (event: any) => {
-      //
-    }
-
     let currentObj: any
 
     onMounted(() => {
-      const { type, options, uuid } = props.node
+      const { type, options, uuid, matOptions } = props.node
 
       const threeDimensionContainer = store.state.threeDimensionContainer
 
@@ -138,7 +136,7 @@ export default defineComponent({
         if (c.uuid == uuid) currentObj = c
       })
 
-      // 展示编辑表单
+      // 编辑表单 Mesh
       formSettings.value = {
         position: [
           {
@@ -205,14 +203,16 @@ export default defineComponent({
         ]
       }
 
-      console.log(formSettings.value)
+      // 编辑表单 Material
 
-      EventsBus.on('meshChanged', meshChanged)
+      console.log('node', props.node, currentObj)
+
+      const mapOpts = props.node.matOptions
+
+      console.log('mapOpts', mapOpts)
     })
 
-    onUnmounted(() => {
-      EventsBus.off('meshChanged', meshChanged)
-    })
+    onUnmounted(() => {})
 
     const inputChange = (target: any) => {
       const e = event as any
