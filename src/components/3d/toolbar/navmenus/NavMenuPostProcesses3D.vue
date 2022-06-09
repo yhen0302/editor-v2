@@ -47,16 +47,16 @@ export default defineComponent({
       //   selected: false,
       //   icon: require('@/assets/images/main/left/editor_postprocessing_btn_dark.png')
       // },
-      SSRPass: {
-        name: '屏幕空间反射',
-        selected: false,
-        icon: require('@/assets/images/main/left/editor_postprocessing_btn_dark.png')
-      },
-      SSAOPass: {
-        name: '屏幕空间环境光遮蔽',
-        selected: false,
-        icon: require('@/assets/images/main/left/editor_postprocessing_btn_dark.png')
-      }
+      // SSRPass: {
+      //   name: '屏幕空间反射',
+      //   selected: false,
+      //   icon: require('@/assets/images/main/left/editor_postprocessing_btn_dark.png')
+      // },
+      // SSAOPass: {
+      //   name: '屏幕空间环境光遮蔽',
+      //   selected: false,
+      //   icon: require('@/assets/images/main/left/editor_postprocessing_btn_dark.png')
+      // }
     })
 
     const selectItem = (options: any) => {

@@ -13,58 +13,62 @@
     <LineEl :color="'#363741'" />
 
     <div class="content mesh" v-show="headerItems[0].active">
-      <div v-for="(item, key) in formSettings" :key="key" class="content-item">
-        <div class="setting-item">
-          <BaseTitle :value="key" :height="56" :width="108" :marginRight="8" />
-        </div>
-
-        <div class="setting-item">
-          <div v-for="setting in item" :key="setting" class="setting">
-            <BaseInput
-              v-if="setting.type === 'input'"
-              :target="{ key, setting }"
-              :change="inputChange"
-              :name="setting.name"
-              :value="setting.value"
-              :width="100"
-              :height="32"
-              :marginRight="4"
-              :marginTop="12"
-              :marginBottom="0"
-            />
-
-            <BaseSwitch v-if="setting.type === 'switch'" :height="56" :width="144" :value="setting.value" :marginRight="4" :change="switchChange" :target="{ key, setting }" />
+      <div v-for="(item, key) in formSettings" :key="key" class="content-details">
+        <div class="content-item" v-if="item.show">
+          <div class="setting-item">
+            <BaseTitle :value="key" :height="32" :width="108" :marginTop="12" :marginRight="8" />
           </div>
-        </div>
 
-        <LineEl class="division" :color="'#363741'" />
+          <div class="setting-item">
+            <div v-for="setting in item.data" :key="setting" class="setting">
+              <BaseInput
+                v-if="setting.type === 'input'"
+                :target="{ key, setting }"
+                :change="inputChange"
+                :name="setting.name"
+                :value="setting.value"
+                :width="108"
+                :height="32"
+                :marginRight="4"
+                :marginTop="12"
+              />
+
+              <BaseSwitch v-else-if="setting.type === 'switch'" :height="32" :width="108" :value="setting.value" :marginRight="4" :marginTop="12" :change="switchChange" :target="{ key, setting }" />
+            </div>
+          </div>
+
+          <LineEl class="division" :color="'#363741'" />
+        </div>
       </div>
     </div>
 
     <div class="content mat" v-show="headerItems[1].active">
-      <div v-for="(item, key) in formSettings2" :key="key" class="content-item">
-        <div class="setting-item">
-          <BaseTitle :value="key" :height="56" :width="72" :marginRight="8" />
-        </div>
-
-        <div class="setting-item">
-          <div v-for="setting in item" :key="setting" class="setting">
-            <BaseInput
-              v-if="setting.type === 'input'"
-              :target="{ key, setting }"
-              :change="inputChange"
-              :name="setting.name"
-              :value="setting.value"
-              :width="100"
-              :height="32"
-              :marginRight="4"
-              :marginTop="12"
-              :marginBottom="0"
-            />
+      <div v-for="(item, key) in formSettings2" :key="key" class="content-details">
+        <div class="content-item" v-if="item.show">
+          <div class="setting-item">
+            <BaseTitle :value="key" :height="32" :width="144" :marginTop="12" :marginRight="8" />
           </div>
-        </div>
 
-        <LineEl class="division" :color="'#363741'" />
+          <div class="setting-item">
+            <div v-for="setting in item.data" :key="setting" class="setting">
+              <BaseInput
+                v-if="setting.type === 'input'"
+                :target="{ key, setting }"
+                :change="inputChange"
+                :name="setting.name"
+                :value="setting.value"
+                :width="108"
+                :height="32"
+                :marginRight="4"
+                :marginTop="12"
+              />
+
+              <BaseSwitch v-else-if="setting.type === 'switch'" :height="32" :width="108" :value="setting.value" :marginRight="4" :marginTop="12" :change="switchChange" :target="{ key, setting }" />
+              <BaseColor v-else-if="setting.type === 'color'" :target="{ key, setting }" :change="inputChange" :value="setting.value" :type="'rgb'" :height="32" :marginRight="4" :marginTop="12" />
+            </div>
+          </div>
+          <LineEl class="division" :color="'#363741'" />
+        </div>
       </div>
     </div>
   </div>
@@ -79,6 +83,9 @@ import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
+import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
+
+import { hex2rgb } from '@/core/utils/base'
 
 declare const Bol3D: any
 
@@ -89,7 +96,8 @@ export default defineComponent({
     EditFormsNavItem,
     BaseTitle,
     BaseInput,
-    BaseSwitch
+    BaseSwitch,
+    BaseColor
   },
   props: ['node'],
   setup(props: any) {
@@ -113,7 +121,7 @@ export default defineComponent({
       let val = ''
 
       if (headerItems.value[0].active) {
-        val = 'Mesh'
+        val = 'Object'
       } else if (headerItems.value[1].active) {
         val = 'Material'
       }
@@ -138,76 +146,213 @@ export default defineComponent({
 
       // 编辑表单 Mesh
       formSettings.value = {
-        position: [
-          {
-            name: 'X',
-            value: options.position[0],
-            type: 'input'
-          },
-          {
-            name: 'Y',
-            value: options.position[1],
-            type: 'input'
-          },
-          {
-            name: 'Z',
-            value: options.position[2],
-            type: 'input'
-          }
-        ],
-        rotation: [
-          {
-            name: 'X',
-            value: options.rotation[0],
-            type: 'input'
-          },
-          {
-            name: 'Y',
-            value: options.rotation[1],
-            type: 'input'
-          },
-          {
-            name: 'Z',
-            value: options.rotation[2],
-            type: 'input'
-          }
-        ],
-        scale: [
-          {
-            name: 'X',
-            value: options.scale[0],
-            type: 'input'
-          },
-          {
-            name: 'Y',
-            value: options.scale[1],
-            type: 'input'
-          },
-          {
-            name: 'Z',
-            value: options.scale[2],
-            type: 'input'
-          }
-        ],
-        castShadow: [
-          {
-            value: options.castShadow,
-            type: 'switch'
-          }
-        ],
-        receiveShadow: [
-          {
-            value: options.receiveShadow,
-            type: 'switch'
-          }
-        ]
+        position: {
+          show: true,
+          data: [
+            {
+              name: 'X',
+              value: options.position[0],
+              type: 'input'
+            },
+            {
+              name: 'Y',
+              value: options.position[1],
+              type: 'input'
+            },
+            {
+              name: 'Z',
+              value: options.position[2],
+              type: 'input'
+            }
+          ]
+        },
+        rotation: {
+          show: true,
+          data: [
+            {
+              name: 'X',
+              value: options.rotation[0],
+              type: 'input'
+            },
+            {
+              name: 'Y',
+              value: options.rotation[1],
+              type: 'input'
+            },
+            {
+              name: 'Z',
+              value: options.rotation[2],
+              type: 'input'
+            }
+          ]
+        },
+        scale: {
+          show: true,
+          data: [
+            {
+              name: 'X',
+              value: options.scale[0],
+              type: 'input'
+            },
+            {
+              name: 'Y',
+              value: options.scale[1],
+              type: 'input'
+            },
+            {
+              name: 'Z',
+              value: options.scale[2],
+              type: 'input'
+            }
+          ]
+        },
+        castShadow: {
+          show: true,
+          data: [
+            {
+              value: options.castShadow,
+              type: 'switch'
+            }
+          ]
+        },
+        receiveShadow: {
+          show: true,
+          data: [
+            {
+              value: options.receiveShadow,
+              type: 'switch'
+            }
+          ]
+        }
       }
 
       // 编辑表单 Material
-
       console.log('node', props.node, currentObj)
 
       const mapOpts = props.node.matOptions
+
+      formSettings2.value = {
+        transparent: {
+          show: true,
+          data: [
+            {
+              value: mapOpts.transparent,
+              type: 'switch'
+            }
+          ]
+        },
+        opacity: {
+          show: true,
+          data: [
+            {
+              value: mapOpts.opacity,
+              type: 'input'
+            }
+          ]
+        },
+        color: {
+          show: true,
+          data: [
+            {
+              value: hex2rgb(mapOpts.color),
+              type: 'color'
+            }
+          ]
+        },
+        depthWrite: {
+          show: true,
+          data: [
+            {
+              value: mapOpts.depthWrite,
+              type: 'switch'
+            }
+          ]
+        },
+        depthTest: {
+          show: true,
+          data: [
+            {
+              value: mapOpts.depthTest,
+              type: 'switch'
+            }
+          ]
+        },
+        wireframe: {
+          show: true,
+          data: [
+            {
+              value: mapOpts.wireframe,
+              type: 'switch'
+            }
+          ]
+        }
+      }
+
+      formSettings2.value.opacity.show = computed(() => {
+        return formSettings2.value.transparent.data[0].value
+      })
+
+      // material extends
+      if (mapOpts.type === 'MeshStandardMaterial') {
+        const extendOptions = {
+          emissive: {
+            show: true,
+            data: [
+              {
+                value: hex2rgb(mapOpts.extends.emissive),
+                type: 'color'
+              }
+            ]
+          },
+          emissiveIntensity: {
+            show: true,
+            data: [
+              {
+                value: mapOpts.extends.emissiveIntensity,
+                type: 'input'
+              }
+            ]
+          },
+          envMapIntensity: {
+            show: true,
+            data: [
+              {
+                value: mapOpts.extends.envMapIntensity,
+                type: 'input'
+              }
+            ]
+          },
+          lightMapIntensity: {
+            show: true,
+            data: [
+              {
+                value: mapOpts.extends.lightMapIntensity,
+                type: 'input'
+              }
+            ]
+          },
+          metalness: {
+            show: true,
+            data: [
+              {
+                value: mapOpts.extends.metalness,
+                type: 'input'
+              }
+            ]
+          },
+          roughness: {
+            show: true,
+            data: [
+              {
+                value: mapOpts.extends.roughness,
+                type: 'input'
+              }
+            ]
+          }
+        }
+
+        Object.assign(formSettings2.value, extendOptions)
+      }
 
       console.log('mapOpts', mapOpts)
     })
@@ -252,9 +397,9 @@ export default defineComponent({
         }
 
         // update pageTreeNode
-        const position = [formSettings.value['position'][0].value, formSettings.value['position'][1].value, formSettings.value['position'][2].value]
-        const rotation = [formSettings.value['rotation'][0].value, formSettings.value['rotation'][1].value, formSettings.value['rotation'][2].value]
-        const scale = [formSettings.value['scale'][0].value, formSettings.value['scale'][1].value, formSettings.value['scale'][2].value]
+        const position = [formSettings.value['position'].data[0].value, formSettings.value['position'].data[1].value, formSettings.value['position'].data[2].value]
+        const rotation = [formSettings.value['rotation'].data[0].value, formSettings.value['rotation'].data[1].value, formSettings.value['rotation'].data[2].value]
+        const scale = [formSettings.value['scale'].data[0].value, formSettings.value['scale'].data[1].value, formSettings.value['scale'].data[2].value]
 
         Object.assign(store.state.selectedPageTreeNode.options, {
           position,
@@ -263,10 +408,43 @@ export default defineComponent({
         })
       } else if (title.value === 'Material') {
         const { key, setting } = target
-        const { name } = setting
-        setting.value = parseFloat(val)
 
-        // update pageTreeNode --- todo
+        if (key === 'color' || key === 'emissive') {
+          setting.value = hex2rgb(val)
+          currentObj.material[key].set(val)
+        } else if (key === 'opacity' || key === 'emissiveIntensity' || key === 'envMapIntensity' || key === 'lightMapIntensity' || key === 'metalness' || key === 'roughness') {
+          const v = parseFloat(val)
+          setting.value = v
+          currentObj.material[key] = v
+        }
+
+        // update pageTreeNode
+        const opacity = formSettings2.value['opacity'].data[0].value
+        const color = formSettings2.value['color'].data[0].value
+
+        Object.assign(store.state.selectedPageTreeNode.matOptions, {
+          opacity,
+          color
+        })
+
+        // update pageTreeNode extends
+        if (store.state.selectedPageTreeNode.matOptions.type === 'MeshStandardMaterial') {
+          const emissive = formSettings2.value['emissive'].data[0].value
+          const emissiveIntensity = formSettings2.value['emissiveIntensity'].data[0].value
+          const envMapIntensity = formSettings2.value['envMapIntensity'].data[0].value
+          const lightMapIntensity = formSettings2.value['lightMapIntensity'].data[0].value
+          const metalness = formSettings2.value['metalness'].data[0].value
+          const roughness = formSettings2.value['roughness'].data[0].value
+
+          Object.assign(store.state.selectedPageTreeNode.matOptions.extends, {
+            emissive,
+            emissiveIntensity,
+            envMapIntensity,
+            lightMapIntensity,
+            metalness,
+            roughness
+          })
+        }
       }
     }
 
@@ -286,10 +464,9 @@ export default defineComponent({
       const { setting, key } = target
 
       setting.value = value
-
-      currentObj[key] = value
+      currentObj.material[key] = value
       // update pageTreeNode
-      store.state.selectedPageTreeNode.options[key] = value
+      if (key === 'transparent' || key === 'depthWrite' || key === 'depthTest' || key === 'wireframe') store.state.selectedPageTreeNode.matOptions[key] = value
     }
 
     return {

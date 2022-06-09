@@ -37,7 +37,7 @@ export function parseModelNode(node: any, index: number, result: any) {
       color: '#' + node.material.color.getHexString(),
       transparent: node.material.transparent,
       opacity: node.material.opacity,
-      map: node.material.map,
+      // map: node.material.map,
       depthTest: node.material.depthTest,
       depthWrite: node.material.depthWrite,
       wireframe: node.material.wireframe,
@@ -54,7 +54,7 @@ export function parseModelNode(node: any, index: number, result: any) {
         // lightMap: node.material.lightMap,
         lightMapIntensity: node.material.lightMapIntensity,
         // 自发光
-        emissive: '#' + node.material.color.getHexString(),
+        emissive: '#' + node.material.emissive.getHexString(),
         emissiveIntensity: node.material.emissiveIntensity
         // emissiveMap: node.material.emissiveMap
       }
@@ -392,6 +392,22 @@ export function reloadThreeDimensionScene(pageNode: any) {
       // 3.shadow
       node.castShadow = n.options.castShadow
       node.receiveShadow = n.options.receiveShadow
+      // 4.material
+      node.material.color.set(n.matOptions.color)
+      node.material.transparent = n.matOptions.transparent
+      node.material.opacity = n.matOptions.opacity
+      node.material.depthTest = n.matOptions.depthTest
+      node.material.depthWrite = n.matOptions.depthWrite
+      node.material.wireframe = n.matOptions.wireframe
+      if (node.material.type === 'MeshStandardMaterial') {
+        for (const i in n.matOptions.extends) {
+          if (i === 'emissive') {
+            node.material[i].set(n.matOptions.extends[i])
+          } else {
+            node.material[i] = n.matOptions.extends[i]
+          }
+        }
+      }
     } else if (n.type === 'Object3D') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)

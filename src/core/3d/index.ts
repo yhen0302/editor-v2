@@ -11,7 +11,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     container: domElement,
     viewState: 'orbit',
     modelUrls,
-    enableShadow: false,
+    enableShadow: true,
     bloomEnabled: false,
     outlineEnabled: false,
     dofEnabled: false,
