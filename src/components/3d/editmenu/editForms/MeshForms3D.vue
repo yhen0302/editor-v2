@@ -75,7 +75,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, onUnmounted, ref } from 'vue'
+import { computed, defineComponent, onMounted, onUnmounted, ref, toRaw } from 'vue'
 import { useStore } from 'vuex'
 import { EventsBus } from '@/core/EventsBus'
 import LineEl from '@/components/utils/common/LineEl.vue'
@@ -85,7 +85,7 @@ import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
 import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
 
-import { hex2rgb } from '@/core/utils/base'
+import { colorRGBtoHex, hex2rgb } from '@/core/utils/base'
 
 declare const Bol3D: any
 
@@ -138,7 +138,7 @@ export default defineComponent({
     onMounted(() => {
       const { type, options, uuid, matOptions } = props.node
 
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
 
       threeDimensionContainer.scene.traverse((c: any) => {
         if (c.uuid == uuid) currentObj = c
@@ -230,6 +230,7 @@ export default defineComponent({
       console.log('node', props.node, currentObj)
 
       const mapOpts = props.node.matOptions
+      const colorVal = Array.isArray(mapOpts.color) ? mapOpts.color : hex2rgb(mapOpts.color)
 
       formSettings2.value = {
         transparent: {
@@ -254,7 +255,7 @@ export default defineComponent({
           show: true,
           data: [
             {
-              value: hex2rgb(mapOpts.color),
+              value: colorVal,
               type: 'color'
             }
           ]
@@ -294,12 +295,13 @@ export default defineComponent({
 
       // material extends
       if (mapOpts.type === 'MeshStandardMaterial') {
+        const emissiveVal = Array.isArray(mapOpts.extends.emissive) ? mapOpts.extends.emissive : hex2rgb(mapOpts.extends.emissive)
         const extendOptions = {
           emissive: {
             show: true,
             data: [
               {
-                value: hex2rgb(mapOpts.extends.emissive),
+                value: emissiveVal,
                 type: 'color'
               }
             ]
@@ -410,8 +412,8 @@ export default defineComponent({
         const { key, setting } = target
 
         if (key === 'color' || key === 'emissive') {
-          setting.value = hex2rgb(val)
           currentObj.material[key].set(val)
+          setting.value = val
         } else if (key === 'opacity' || key === 'emissiveIntensity' || key === 'envMapIntensity' || key === 'lightMapIntensity' || key === 'metalness' || key === 'roughness') {
           const v = parseFloat(val)
           setting.value = v
