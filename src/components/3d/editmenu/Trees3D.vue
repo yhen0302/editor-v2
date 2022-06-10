@@ -21,14 +21,12 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const nodes = ref([])
-    let sceneTreeNodeId = ''
 
     // 查看详情页
     EventsBus.on('pageEnter', (e: any) => {
       // console.log('trees3d', e.node.trees)
 
       nodes.value = e.node.trees.threeDimension
-      sceneTreeNodeId = e.node.uuid
     })
 
     // 选中元素:单选
@@ -45,6 +43,11 @@ export default defineComponent({
       traverseResetSelectedOfNodes(nodes.value)
       // spread attribute
       traverseResetSpreadOfNodes(nodes.value)
+    })
+
+    // 重置模板
+    EventsBus.on('resetTemplate', () => {
+      nodes.value = []
     })
 
     return {

@@ -92213,7 +92213,9 @@ void main() {
 	    smokePass;
 	    finalsmokePass;
 	    envMap;
+	    hdrUrls;
 	    sceneModels;
+	    loadedFileResults;
 	    sky;
 	    skyRadius;
 	    stats;
@@ -92256,6 +92258,7 @@ void main() {
 	        this.clickObjects = []; // 点击事件对象
 	        this.children = [];
 	        this.sceneModels = [];
+	        this.loadedFileResults = [];
 	        this.outlineObjects = [];
 	        this.mixers = [];
 	        this.mixerActions = [];
@@ -92263,6 +92266,7 @@ void main() {
 	        this.lines = [];
 	        this.walls = [];
 	        this.gifTextures = [];
+	        this.hdrUrls = [];
 	        this.publicPath = attrs && attrs.publicPath != undefined ? attrs.publicPath : '';
 	        this.containerWidth = window.innerWidth;
 	        this.containerHeight = window.innerHeight;
@@ -92574,8 +92578,8 @@ void main() {
 	        if (attrs && attrs.container != undefined) {
 	            // logarithmicDepthBuffer: true
 	            this.renderer = new WebGLRenderer({ antialias: true, canvas: attrs.container, precision: 'highp' });
-	            this.containerWidth = attrs.container.clientWidth;
-	            this.containerHeight = attrs.container.clientHeight;
+	            this.containerWidth = attrs.containerWidth !== undefined ? attrs.containerWidth : attrs.container.clientWidth;
+	            this.containerHeight = attrs.containerHeight !== undefined ? attrs.containerHeight : attrs.container.clientHeight;
 	        }
 	        else {
 	            // logarithmicDepthBuffer: true
@@ -92836,7 +92840,8 @@ void main() {
 	            minZoom: 0,
 	            maxZoom: 20,
 	            minPitch: 0,
-	            maxPitch: 89
+	            maxPitch: 89,
+	            enabled: true
 	        };
 	        if (attrs && attrs.controls && attrs.controls.mapControls) {
 	            mapControls = Object.assign(mapControls, attrs.controls.mapControls);
@@ -92849,7 +92854,7 @@ void main() {
 	            minPitch: mapControls.minPitch,
 	            maxPitch: mapControls.maxPitch
 	        });
-	        this.mapControls.enabled = this.viewState === 'map';
+	        this.mapControls.enabled = mapControls.enabled;
 	        this.mapControls.addEventListener('change', (e) => {
 	            if (this.viewState != 'map')
 	                return;
@@ -93021,6 +93026,7 @@ void main() {
 	    }
 	    initHDR(attrs, callback) {
 	        const hdrUrls = attrs && attrs.hdrUrls != undefined ? attrs.hdrUrls : [];
+	        this.hdrUrls = hdrUrls;
 	        if (hdrUrls.length == 1) {
 	            this.pmremGenerator.compileEquirectangularShader();
 	            this.hdrLoader.setDataType(UnsignedByteType).load(this.publicPath + hdrUrls[0], (texture) => {
@@ -93720,6 +93726,7 @@ void main() {
 	        let count = 0;
 	        let max = new Vector3$3();
 	        let min = new Vector3$3();
+	        const enableShadow = this.attrs && this.attrs.enableShadow != undefined ? this.attrs.enableShadow : false;
 	        for (const key in fileList) {
 	            const f = fileList[key];
 	            if (f instanceof File) {
@@ -93729,33 +93736,40 @@ void main() {
 	                    const result = e.target?.result;
 	                    if (result) {
 	                        this.gltfLoader.parse(result, '', (gltf) => {
+	                            // todo loadedFileResults  animations
+	                            this.loadedFileResults.push(gltf);
 	                            const nameStr = f.name.split('.');
 	                            const name = nameStr[0];
 	                            const scenes = gltf.scene;
 	                            // const skeleton = new SkeletonHelper(scenes)
 	                            // skeleton.visible = false
 	                            // this.scene.add(skeleton)
-	                            if (gltf.animations.length != 0) {
-	                                for (var i = 0; i < gltf.animations.length; i++) {
-	                                    const mixer = new AnimationMixer(scenes);
-	                                    mixer.name = gltf.animations[i].name;
-	                                    this.mixers.push(mixer);
-	                                    const m = mixer.clipAction(gltf.animations[i]).play();
-	                                    m.paused = true;
-	                                    mixer.actions = m;
-	                                    this.mixerActions.push(m);
-	                                }
-	                            }
+	                            // if (gltf.animations.length != 0) {
+	                            //   for (var i = 0; i < gltf.animations.length; i++) {
+	                            //     const mixer = new AnimationMixer(scenes)
+	                            //     ;(mixer as any).name = gltf.animations[i].name
+	                            //     this.mixers.push(mixer)
+	                            //     const m = mixer.clipAction(gltf.animations[i]).play()
+	                            //     m.paused = true
+	                            //     ;(mixer as any).actions = m
+	                            //     this.mixerActions.push(m)
+	                            //   }
+	                            // }
 	                            scenes.name = name;
 	                            // file name cache
 	                            scenes.userData.fileName = f.name;
 	                            scenes.traverse((child) => {
 	                                if (child.isMesh) {
+	                                    // child.material.side = DoubleSide
+	                                    // child.material.transparent = true
+	                                    child.castShadow = enableShadow;
+	                                    child.receiveShadow = enableShadow;
+	                                    child.material.envMap = this.envMap;
 	                                    child.material = child.material.clone();
 	                                    child.renderOrder = MODEL_RENDER_ORDER;
 	                                    child.material.envMap = this.envMap;
-	                                    this.clickObjects.push(child); // to do raycast
-	                                    this.children.push(child); // children management
+	                                    // this.clickObjects.push(child) // to do raycast
+	                                    // this.children.push(child) // children management
 	                                    // find max bounding box point
 	                                    const v = new Vector3$3();
 	                                    child.geometry.boundingBox.getCenter(v);
@@ -93775,7 +93789,7 @@ void main() {
 	                            });
 	                            this.scene.add(scenes);
 	                            this.sceneModels.push(scenes);
-	                            this.sceneAnimations[name] = gltf.animations;
+	                            // this.sceneAnimations[name] = gltf.animations
 	                            count++;
 	                            onProgress && onProgress(scenes);
 	                            if (count == len) {

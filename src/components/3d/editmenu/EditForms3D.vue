@@ -102,7 +102,7 @@ export default defineComponent({
 
     // 左方toolBar选中元素
     EventsBus.on('toolBarSelected', (e: any) => {
-      console.log('e.node.type', e.node)
+      // console.log('e.node.type', e.node)
 
       if (!e.node.selected) {
         type.value = ''
@@ -185,6 +185,12 @@ export default defineComponent({
 
       // 左侧toolbar update（有可能为选中状态，此时恢复表单）
       EventsBus.emit('formsReload', {})
+    })
+
+    // 重置模板
+    EventsBus.on('resetTemplate', () => {
+      type.value = ''
+      node.value = null
     })
 
     return {

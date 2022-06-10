@@ -92,12 +92,12 @@ export default defineComponent({
     let currentObj: any
 
     onMounted(() => {
-      const { type, options, uuid } = props.node
+      const { type, options } = props.node
 
       const threeDimensionContainer = store.state.threeDimensionContainer
 
       threeDimensionContainer.scene.traverse((c: any) => {
-        if (c.uuid == uuid) currentObj = c
+        if (c.type == 'AmbientLight') currentObj = c
       })
 
       // 展示编辑表单

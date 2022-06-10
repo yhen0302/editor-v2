@@ -227,7 +227,7 @@ export default defineComponent({
       }
 
       // 编辑表单 Material
-      console.log('node', props.node, currentObj)
+      // console.log('node', props.node, currentObj)
 
       const mapOpts = props.node.matOptions
       const colorVal = Array.isArray(mapOpts.color) ? mapOpts.color : hex2rgb(mapOpts.color)
@@ -356,7 +356,7 @@ export default defineComponent({
         Object.assign(formSettings2.value, extendOptions)
       }
 
-      console.log('mapOpts', mapOpts)
+      // console.log('mapOpts', mapOpts)
     })
 
     onUnmounted(() => {})

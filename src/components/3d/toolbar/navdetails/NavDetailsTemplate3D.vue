@@ -14,10 +14,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { defineComponent, nextTick, onMounted, onUnmounted, ref, toRaw } from 'vue'
 import { useStore } from 'vuex'
 import { EventsBus } from '@/core/EventsBus'
 import ToolBarItem from '@/components/utils/toolbar/ToolBarItem.vue'
+import { parseModelNode, reloadThreeDimensionPassesByTemplate } from '@/core/3d/util'
 
 export default defineComponent({
   name: 'NavDetailsTemplate3D',
@@ -27,7 +28,9 @@ export default defineComponent({
 
     const uploadFileInput: any = ref(null)
 
-    const detailsList: any = ref([{ icon: require('@/assets/images/main/left/editor_element_model_btn_dark.png'), name: '航天航空', type: 'hthk' }])
+    const detailsList: any = ref([
+      // { icon: require('@/assets/images/main/left/editor_element_model_btn_dark.png'), name: '航天航空', type: 'hthk' }
+    ])
 
     const chooseItem = () => {
       //
@@ -41,24 +44,126 @@ export default defineComponent({
     }
 
     const loadFiles = (e: any) => {
-      console.log('e', e.target.files)
+      // console.log('e', e.target.files)
 
-      const container = store.state.threeDimensionContainer
+      const container = toRaw(store.state.threeDimensionContainer)
       const fileList = e.target.files
+
+      // validate filesList
+      let validateFlag = true
+      let validateTypes = ['glb', 'gltf']
+      for (const i in fileList) {
+        const file = fileList[i]
+        if (file instanceof File) {
+          const nameArr = file.name.split('.')
+          const type = nameArr[nameArr.length - 1]
+          if (!validateTypes.includes(type.toLowerCase())) {
+            validateFlag = false
+            break
+          }
+        }
+      }
+
+      if (!validateFlag) return
 
       container.loadModels({
         fileList,
-        onProgress: () => {
-          //
-        },
         onLoad: () => {
-          console.log('finish models', container)
+          // console.log('finish models', container)
 
-          // reset trees
-          // reset editforms
-          // reset store cache
-          // reset 3d container
-          // update store template
+          // 1.remove old node
+          const removedStoreNodeUUIDs: any = []
+          // 1).store:template
+          for (let i = store.state.template.threeDimension.length; i--; i >= 0) {
+            if (store.state.template.threeDimension[i].uuid !== -1) {
+              removedStoreNodeUUIDs.push(store.state.template.threeDimension[i].uuid)
+              store.state.template.threeDimension.splice(i, 1)
+            }
+          }
+          // 2).container:sceneModel,children,clickObjects,mixers,mixerActions,sceneAnimations,lights,outlineObjects,passes
+          // sceneModel
+          for (let i = container.sceneModels.length; i--; i >= 0) {
+            if (removedStoreNodeUUIDs.includes(container.sceneModels[i].uuid)) {
+              container.sceneModels[i].traverse((c: any) => {
+                container.scene.remove(c)
+
+                const childMesh = c
+                if (childMesh.material) {
+                  if (childMesh.material.map) {
+                    childMesh.material.map.dispose()
+                    childMesh.material.map = null
+                  }
+                  childMesh.material.dispose()
+                  childMesh.material = null
+                }
+                if (childMesh.geometry) {
+                  childMesh.geometry.dispose()
+                  childMesh.geometry = null
+                }
+                c = null
+              })
+              container.sceneModels.splice(i, 1)
+            }
+          }
+          // children
+          container.children.splice(0, container.children.length)
+          // clickObjects
+          container.clickObjects.splice(0, container.clickObjects.length)
+          // mixers
+          container.mixers.splice(0, container.mixers.length)
+          // mixerActions
+          container.mixerActions.splice(0, container.mixerActions.length)
+          // sceneAnimations
+          container.sceneAnimations = {}
+          // lights:directionLights,pointLights,spotLights,rectAreaLights
+          for (let i = container.directionLights.length; i--; i >= 0) {
+            container.scene.remove(i)
+            container.directionLights.splice(i, 1)
+          }
+          for (let i = container.pointLights.length; i--; i >= 0) {
+            container.scene.remove(i)
+            container.pointLights.splice(i, 1)
+          }
+          for (let i = container.spotLights.length; i--; i >= 0) {
+            container.scene.remove(i)
+            container.spotLights.splice(i, 1)
+          }
+          for (let i = container.rectAreaLights.length; i--; i >= 0) {
+            container.scene.remove(i)
+            container.rectAreaLights.splice(i, 1)
+          }
+          // outlineObjects
+          container.outlineObjects.splice(0, container.outlineObjects.length)
+          // passes
+          reloadThreeDimensionPassesByTemplate()
+
+          // 2.update store template
+          // 1).store:template: modelNode, cameraNode
+          container.sceneModels.forEach((model: any) => {
+            const node: any = {}
+            const index = 0
+            // 3d模板 存入缓存
+            parseModelNode(model, index, node)
+            store.state.template.threeDimension.push(node)
+          })
+          store.state.template.threeDimension.forEach((c: any) => {
+            if (c.type === 'Camera') {
+              const camera = container.orbitControls.object
+              c.options.position = [parseFloat(camera.position.x.toFixed(4)), parseFloat(camera.position.y.toFixed(4)), parseFloat(camera.position.z.toFixed(4))]
+            }
+          })
+          // 2).container:children,clickObjects,  (mixers,mixerActions,sceneAnimations ---- todo animations)
+          container.sceneModels.forEach((model: any) => {
+            model.traverse((c: any) => {
+              if (c.isMesh) {
+                container.children.push(c)
+                container.clickObjects.push(c)
+              }
+            })
+          })
+
+          // 3.reset sceneTree/pageTree/editform
+          EventsBus.emit('resetTemplate', {})
         }
       })
     }

@@ -280,7 +280,6 @@ export default defineComponent({
       const { setting, key, uuid } = target
       const { name } = setting
       const val = e.target.value
-      console.log('target', target, type, val)
       let currentObj: any
 
       selectedObjs.forEach((obj: any) => {

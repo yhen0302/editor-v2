@@ -90,6 +90,11 @@ export default defineComponent({
       pageTitle.value = parent.name + '-' + node.name
     })
 
+    // 重置模板
+    EventsBus.on('resetTemplate', () => {
+      pageIndex.value = 0
+    })
+
     return {
       store,
       pageIndex,

@@ -96,6 +96,53 @@ export function traverseResetSpreadOfNodes(nodes: any) {
   })
 }
 
+// 根据template重载3d scene passes
+export function reloadThreeDimensionPassesByTemplate() {
+  const sceneNodes = store.state.template.threeDimension
+  const flatSceneNodes: any = []
+  flatTreeNodes(sceneNodes, flatSceneNodes)
+
+  const container: any = toRaw(store.state.threeDimensionContainer)
+
+  for (const k in flatSceneNodes) {
+    const n = flatSceneNodes[k]
+    if (n.type === 'GammaPass') {
+      const { options } = n
+      const { enabled, factor } = options
+      container.gammaPass.enabled = enabled
+      container.gammaPass.uniforms.factor.value = factor
+    } else if (n.type === 'DOFPass') {
+      const { options } = n
+      const { enabled, focus, aperture, maxblur } = options
+      container.bokehPass.enabled = enabled
+      container.bokehPass.uniforms.focus.value = focus
+      container.bokehPass.uniforms.aperture.value = aperture
+      container.bokehPass.uniforms.maxblur.value = maxblur
+    } else if (n.type === 'OutlinePass') {
+      const { options } = n
+      const { enabled, edgeStrength, edgeGlow, edgeThickness, pulsePeriod, visibleEdgeColor, hiddenEdgeColor } = options
+      container.outlinePass.enabled = enabled
+      container.outlinePass.edgeStrength = edgeStrength
+      container.outlinePass.edgeGlow = edgeGlow
+      container.outlinePass.edgeThickness = edgeThickness
+      container.outlinePass.pulsePeriod = pulsePeriod
+      container.outlinePass.visibleEdgeColor.set(visibleEdgeColor)
+      container.outlinePass.hiddenEdgeColor.set(hiddenEdgeColor)
+    } else if (n.type === 'BloomPass') {
+      const { options } = n
+      const { enabled, radius, strength, threshold } = options
+      container.bloomPass.enabled = enabled
+      container.finalbloomPass.material.uniforms.bloomTexture.value = enabled ? container.bloomComposer.renderTarget2.texture : null
+      container.bloomPass.radius = radius
+      container.bloomPass.compositeMaterial.uniforms['bloomRadius'].value = radius
+      container.bloomPass.strength = strength
+      container.bloomPass.compositeMaterial.uniforms['bloomStrength'].value = strength
+      container.bloomPass.threshold = threshold
+      container.bloomPass.highPassUniforms['luminosityThreshold'].value = threshold
+    }
+  }
+}
+
 // 根据pageNode重载3d scene
 export function reloadThreeDimensionScene(pageNode: any) {
   const sceneNodes = pageNode.trees.threeDimension
@@ -132,6 +179,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
       const { options } = n
       const { enabled, radius, strength, threshold } = options
       container.bloomPass.enabled = enabled
+      container.finalbloomPass.material.uniforms.bloomTexture.value = enabled ? container.bloomComposer.renderTarget2.texture : null
       container.bloomPass.radius = radius
       container.bloomPass.compositeMaterial.uniforms['bloomRadius'].value = radius
       container.bloomPass.strength = strength

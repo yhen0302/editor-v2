@@ -119,6 +119,35 @@ export default defineComponent({
       store.state.selectedSceneTreeNode = nodes.value[0].children[0]
     })
 
+    // 重置模板
+    EventsBus.on('resetTemplate', () => {
+      // reset sceneTree
+      nodes.value = [
+        {
+          name: '场景1',
+          type: 'scene',
+          selected: true,
+          spread: true,
+          uuid: '0',
+          children: [
+            {
+              name: '页1',
+              type: 'page',
+              selected: true,
+              parent: '0',
+              uuid: '0-0',
+              trees: {}
+            }
+          ]
+        }
+      ]
+
+      nodes.value[0].children[0].trees = JSON.parse(JSON.stringify(toRaw(store.state.template)))
+      // reset store pageNode/SceneNode
+      store.state.selectedSceneTreeNode = nodes.value[0].children[0]
+      store.state.selectedPageTreeNode = null
+    })
+
     return {
       nodes
     }

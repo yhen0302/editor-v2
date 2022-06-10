@@ -85,7 +85,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     onLoad: (evt: any) => {
       callback && callback(evt)
 
-      console.log('loaded')
+      // console.log('loaded')
 
       // msaaPass(单个)
       const msaaPassOptions = {
@@ -205,7 +205,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
 
       // HDR节点(单个)
       const hdrOptions = {
-        value: evt.attrs.hdrUrls ? evt.attrs.hdrUrls : []
+        value: evt.hdrUrls
       }
       const hdrNode: any = {
         uuid: -1,
@@ -466,7 +466,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       }
 
       const hemisphereLightNode = {
-        uuid: hemisphereLight.uuid,
+        uuid: -1,
         name: 'HemisphereLight',
         selected: false,
         index: 0,
@@ -487,7 +487,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       }
 
       const ambientLightNode = {
-        uuid: ambientLight.uuid,
+        uuid: -1,
         name: 'AmbientLight',
         selected: false,
         index: 0,
@@ -526,7 +526,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       }
 
       const cameraNode = {
-        uuid: camera.uuid,
+        uuid: -1,
         name: 'Camera',
         selected: false,
         index: 0,
@@ -569,14 +569,14 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
           })
 
           // update pageTreeNode
-          if ((store as any).state.selectedPageTreeNode && (store as any).state.selectedPageTreeNode.uuid === camera.uuid) {
+          if ((store as any).state.selectedPageTreeNode && (store as any).state.selectedPageTreeNode.type === 'Camera') {
             Object.assign((store as any).state.selectedPageTreeNode.options, { position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))] })
           }
 
           // update sceneTreeNode
           if ((store as any).state.selectedSceneTreeNode) {
             ;(store as any).state.selectedSceneTreeNode.trees.threeDimension.forEach((c: any) => {
-              if (c.uuid === camera.uuid) Object.assign(c.options, { position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))] })
+              if (c.type === 'Camera') Object.assign(c.options, { position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))] })
             })
           }
         }

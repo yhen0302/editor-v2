@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
+import { defineComponent, onMounted, onUnmounted, ref, toRaw } from 'vue'
 import { useStore } from 'vuex'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
@@ -122,11 +122,12 @@ export default defineComponent({
     const sourceChange = (e: any) => {
       const { value, target } = e
       const { setting, key } = target
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
 
       setting.selected = value
 
       if (key === 'sources') {
+        threeDimensionContainer.hdrUrls = value.value
         if (UnderScore.isEqual(value.value, [])) {
           threeDimensionContainer.envMap = null
           threeDimensionContainer.scene.traverse((c: any) => {
