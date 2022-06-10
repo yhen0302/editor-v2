@@ -82,7 +82,9 @@ export const curveChartList = [
           }
         },
         legend: { show: true }
-      }
+      },
+      dataType:'table'
+
     },
     icon: ''
   }

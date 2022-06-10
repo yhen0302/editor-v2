@@ -2,10 +2,10 @@
   <div class="axis-line-chart property-box">
     <base-position-configurator></base-position-configurator>
     <chart-color-configurator></chart-color-configurator>
+    <chart-data-configurator></chart-data-configurator>
     <chart-title-configurator></chart-title-configurator>
     <chart-grid-configurator></chart-grid-configurator>
     <chart-legend-configurator></chart-legend-configurator>
-    <chart-data-configurator></chart-data-configurator>
   </div>
 </template>
 

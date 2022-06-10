@@ -81,7 +81,9 @@ export const lineChartList = [
           }
         },
         legend: { show: true }
-      }
+      },
+      dataType:'table'
+
     },
     icon: ''
   }

@@ -70,7 +70,8 @@ class Bar {
         : this.merge(defaultMatrixOpt, option.matrixOption),
       echartsOption: notMerge
         ? option.echartsOption
-        : this.merge(defaultEchartsOpt, option.echartsOption)
+        : this.merge(defaultEchartsOpt, option.echartsOption),
+      dataType:'table'
     }
   }
   merge(target: any = {}, custom: any = {}) {

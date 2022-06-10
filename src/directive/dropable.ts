@@ -1,4 +1,4 @@
-import {DirectiveBinding, h, markRaw, nextTick, reactive, ref} from 'vue'
+import { DirectiveBinding, h, markRaw, nextTick, reactive, ref } from 'vue'
 import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
 import store from '@/store'
 import { useMutation, useState } from '@/store/helper'
@@ -46,7 +46,7 @@ export default {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const node: LayerTree2dNode = {
-        name: data.name+String(id++),
+        name: data.name + String(id++),
         id,
         type: data.type,
         option: reactive(clone(data.option)),

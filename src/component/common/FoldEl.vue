@@ -18,7 +18,7 @@
     <div
       class="fold-content-wrapper box-border"
       ref="foldContent"
-      :style="{ height: realHeight }"
+      :style="{ height: realHeight,overflow:controlFold?'hidden':'visible'}"
     >
       <div class="fold-content">
         <slot></slot>
