@@ -11,7 +11,9 @@
           <input type="text" class="header-inp flex-1" placeholder="输入单位" />
         </div>
       </header>
-      <div class="static-data-content"></div>
+      <div class="static-data-content">
+
+      </div>
     </div>
   </dialog-el>
 </template>
@@ -51,5 +53,8 @@ export default {
   background: #151619;
   padding: 5px 0;
   padding-left: 10px;
+}
+.static-data-content{
+  margin-top: 20px;
 }
 </style>
