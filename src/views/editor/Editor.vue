@@ -133,6 +133,7 @@
         </section>
       </aside>
     </section>
+    <static-data-dialog></static-data-dialog>
   </div>
 </template>
 
@@ -166,6 +167,7 @@ import ArtBoard2DContent from '@/views/editor/twoDimension/ArtBoard2DContent.vue
 import { EditorStore } from '@/store/editor/type'
 import { EditorGetter } from '@/store/editor/getters'
 import LayerList2d from "@/views/editor/twoDimension/LayerList2d.vue";
+import StaticDataDialog from "@/views/editor/twoDimension/StaticDataDialog.vue";
 
 /* 编辑器 */
 export default defineComponent({
@@ -174,6 +176,7 @@ export default defineComponent({
     return { testData: false }
   },
   components: {
+    StaticDataDialog,
     LayerList2d,
     ArtBoard2DContent,
     ArtBoard3DContent,

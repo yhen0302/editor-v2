@@ -12,7 +12,7 @@
         </div>
       </header>
       <div class="static-data-content">
-
+        <excel-table></excel-table>
       </div>
     </div>
   </dialog-el>
@@ -20,25 +20,26 @@
 
 <script>
 import Dialog from '@/component/common/Dialog.vue'
+import ExcelTable from "@/component/common/ExcelTable";
 export default {
   name: 'StaticDataDialog',
-  components: { DialogEl: Dialog },
+  components: {ExcelTable, DialogEl: Dialog },
   props: { modal: Boolean }
 }
 </script>
 
 <style scoped>
-.static-data-dialog{
+.static-data-dialog {
   width: 744px;
   padding: 24px 30px;
-  background: #23262D;
+  background: #23262d;
 }
 .static-data-header {
   gap: 100px;
   font-size: 13px;
   white-space: nowrap;
 }
-.header-name{
+.header-name {
   padding-right: 15px;
   font-size: 12px;
 }
@@ -49,12 +50,13 @@ export default {
 .unit-area {
   flex: 1;
 }
-.header-inp{
+.header-inp {
   background: #151619;
   padding: 5px 0;
   padding-left: 10px;
 }
-.static-data-content{
+.static-data-content {
   margin-top: 20px;
 }
+
 </style>

@@ -1,6 +1,6 @@
 <template>
-  <section class="dialog">
-    <div class="dialog-content">
+  <section class="dialog ">
+    <div class="dialog-content absolute">
       <slot></slot>
     </div>
   </section>
@@ -38,9 +38,9 @@ export default {
   z-index: 2018;
 }
 .dialog-content{
-  margin-top: 20%;
+  top: 50%;
   margin-left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%,-50%);
 }
 
 </style>

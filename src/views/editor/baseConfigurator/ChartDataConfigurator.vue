@@ -16,7 +16,7 @@
         </div>
       </template>
     </fold-el>
-    <static-data-dialog></static-data-dialog>
+<!--    <static-data-dialog></static-data-dialog>-->
   </section>
 </template>
 
