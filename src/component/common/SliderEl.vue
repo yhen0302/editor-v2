@@ -7,7 +7,7 @@
         :class="{ active: run }"
         @mousedown.capture.prevent
       >
-        <span class="slider-tip text-12 absolute">{{ valueComputed }}</span>
+        <span class="slider-tip text-12 absolute" v-show="tip">{{ valueComputed }}</span>
         <div class="slider-button relative pointer-events-none"></div>
       </div>
     </div>
@@ -22,7 +22,9 @@ export default {
   props: {
     value: { type: Number, default: 0 },
     max: { type: Number, default: 100 },
-    min: { type: Number, default: 0 }
+    min: { type: Number, default: 0 },
+    direction: { type: String, default: 'x' },
+    tip:{type:Boolean,default:true}
   },
   emits: ['update:value'],
   setup(props, context) {
@@ -54,10 +56,12 @@ export default {
 
     function onMouseMove(ev) {
       if (!run.value) return
-      let newVal = (
-        ((ev.pageX - rect.left) / rect.width) *
-        offsetVal.value
-      ).toFixed()
+
+      let newVal =
+        props.direction === 'y'
+          ? (((ev.pageY - rect.top) / rect.height) * offsetVal.value).toFixed()
+          : (((ev.pageX - rect.left) / rect.width) * offsetVal.value).toFixed()
+
       valueComputed.value =
         newVal > props.max ? props.max : newVal < props.min ? props.min : newVal
     }

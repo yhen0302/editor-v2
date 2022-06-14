@@ -30,7 +30,7 @@ export default {
 
 <style scoped>
 .static-data-dialog {
-  width: 744px;
+  width: 764px;
   padding: 24px 30px;
   background: #23262d;
 }
