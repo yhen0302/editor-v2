@@ -43,9 +43,27 @@ export default {
     })
     let update = 'y'
     const tableData = [
-      [1, 2, 3, 4, 5, 6, 7, 8],
+      [1, 2, 3, 4, 5, 6, 7, 8,'xxx','sdasd','skkk','ddd','fff'],
       ['xxx', 234, 324, 'xxaa', 'sda'],
-      ['lkk', '', 'sda', 'aaa', 'bbb', 'ccc']
+      ['lkk', 'xx', 'sda', 'aaa', 'bbb', 'ccc'],
+      ['lkk', '', 'sda', 'aaa', 'bbb', 'ccc'],
+      ['lkk', 'bb', 'sda', 'aaa', 'bbb', 'ccc'],
+      ['lkk', '12', 'sda', 'aaa', 'bbb', 'ccc'],
+      ['lkk', '231', 'sda', 'aaa', 'bbb', 'ccc'],
+      ['lkk', '3424', 'sda', 'aaa', 'bbb', 'ccc'],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      ['222'],
+
     ]
 
     watch(
@@ -136,11 +154,31 @@ export default {
         offsetY += heights[i] + 1
       }
 
+      let dataOffsetX = 61
+          let dataOffsetY = 31
+
       // table date render
+      // 解析行
       for (let i = 0; i < tableData.length; i++) {
-        for (let j = 0; j < tableData[i].length; j++) {
-          // pass
+        if(scroll.value.y <= i){
+          // 解析列
+          for (let j = 0; j < tableData[i].length; j++) {
+            // pass
+            if ( scroll.value.x <= j) {
+              debugger
+              ctx.fillText(
+                  tableData[i][j],
+                  dataOffsetX + widths[i]/2,
+                  dataOffsetY + heights[j]/2,
+                  widths[i + scroll.value.x]
+              )
+              dataOffsetX += widths[i]+1
+            }
+          }
+
+          dataOffsetY += heights[i]+1
         }
+        dataOffsetX = 61
       }
 
       ctx.stroke()
