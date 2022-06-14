@@ -1,7 +1,7 @@
 <template>
   <div class="excel-table relative">
     <canvas
-      class="excelEl"
+      class="excel-el"
       ref="excelEl"
       :width="canvasWidth"
       :height="canvasHeight"
@@ -165,7 +165,6 @@ export default {
           for (let j = 0; j < tableData[i].length; j++) {
             // pass
             if ( scroll.value.x <= j) {
-              debugger
               ctx.fillText(
                   tableData[i][j],
                   dataOffsetX + widths[i]/2,
@@ -210,9 +209,6 @@ export default {
   height: 340px;
   /*background: #212530;*/
   background: #151619;
-}
-
-.excelEl {
 }
 
 .scrollbar-y {
