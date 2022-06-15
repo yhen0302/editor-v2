@@ -1,5 +1,5 @@
 <template>
-  <section class="dialog ">
+  <section class="dialog" v-show="visible">
     <div class="dialog-content absolute">
       <slot></slot>
     </div>

@@ -133,7 +133,6 @@
         </section>
       </aside>
     </section>
-    <static-data-dialog></static-data-dialog>
   </div>
 </template>
 

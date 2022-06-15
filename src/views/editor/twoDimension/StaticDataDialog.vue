@@ -1,6 +1,6 @@
 <template>
-  <dialog-el :modal="true" :center="true">
-    <div class="static-data-dialog">
+  <dialog-el :modal="true" :center="true" :visible="show">
+    <section class="static-data-dialog">
       <header class="static-data-header flex">
         <div class="title-area items-center flex">
           <span class="header-name">标题</span>
@@ -14,17 +14,33 @@
       <div class="static-data-content">
         <excel-table></excel-table>
       </div>
-    </div>
+      <button class="success-btn">完成</button>
+    </section>
   </dialog-el>
 </template>
 
 <script>
 import Dialog from '@/component/common/Dialog.vue'
-import ExcelTable from "@/component/common/ExcelTable";
+import ExcelTable from '@/component/common/ExcelTable'
+import { useStore } from 'vuex'
+import { useGetter, useState } from '@/store/helper'
+import { computed } from 'vue'
 export default {
   name: 'StaticDataDialog',
-  components: {ExcelTable, DialogEl: Dialog },
-  props: { modal: Boolean }
+  components: { ExcelTable, DialogEl: Dialog },
+  inject:['show'],
+  setup() {
+    const store = useStore()
+    const editorGetter = useGetter(store, 'editor', ['GET_SELECT_NODE'])
+    const title = computed(() => {
+      return editorGetter['GET_SELECT_NODE'].value.echartsOption.title.text
+    })
+    const unit = computed(() => {
+      return editorGetter['GET_SELECT_NODE'].value.echartsOption.unit.text
+    })
+
+    return { title,unit}
+  }
 }
 </script>
 
@@ -58,5 +74,11 @@ export default {
 .static-data-content {
   margin-top: 20px;
 }
-
+.success-btn {
+  @apply text-12;
+  margin-top: 20px;
+  padding: 8px 24px;
+  background: #6582fe;
+  border-radius: 3px;
+}
 </style>
