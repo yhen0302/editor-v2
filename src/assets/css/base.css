@@ -45,5 +45,5 @@ input::-webkit-inner-spin-button {
   width: 100vw;
   height: 100vh;
   z-index: 2017;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.7);
 }

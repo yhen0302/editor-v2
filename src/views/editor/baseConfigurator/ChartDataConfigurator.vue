@@ -6,27 +6,30 @@
           <div class="data-type-box flex">
             <select-el
               class="flex-1"
-              :list="[{ label: '表格数据', value: 'table' },{ label: 'api接入', value: 'api' }]"
+              :list="[
+                { label: '表格数据', value: 'table' },
+                { label: 'api接入', value: 'api' }
+              ]"
               v-model:value="dataType"
             ></select-el>
-            <button class="btn flex">
+            <button class="btn flex" @click="clickEditorBtn">
               <img src="~@/assets/images/edit.png" width="20" />
             </button>
           </div>
         </div>
       </template>
     </fold-el>
-    <static-data-dialog></static-data-dialog>
+    <static-data-dialog v-model:visible="showTableDialog"></static-data-dialog>
   </section>
 </template>
 
 <script>
 import FoldEl from '@/component/common/FoldEl.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
 import SelectEl from '@/component/common/SelectEl'
-import StaticDataDialog from "@/views/editor/twoDimension/StaticDataDialog";
+import StaticDataDialog from '@/views/editor/twoDimension/StaticDataDialog'
 
 export default {
   name: 'ChartDataConfigurator',
@@ -47,7 +50,17 @@ export default {
       }
     })
 
-    return { dataType }
+    const showTableDialog = ref(false)
+    function clickEditorBtn() {
+      switch (dataType.value) {
+        case 'table':
+          showTableDialog.value = true
+          break
+        case 'api':
+          break
+      }
+    }
+    return { dataType, showTableDialog, clickEditorBtn }
   }
 }
 </script>

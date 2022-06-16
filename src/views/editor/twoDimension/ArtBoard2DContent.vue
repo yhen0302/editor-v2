@@ -4,6 +4,7 @@
   >
     <drag-wrapper></drag-wrapper>
     <component
+        :style="{pointerEvents:editorStore.addDragging?'none':'auto'}"
       :is="item.type"
       v-for="item in editorStore.layerTree2d"
       :key="item.name"

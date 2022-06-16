@@ -1,12 +1,14 @@
 <template>
-  <section class="dialog" v-show="visible">
-    <div class="dialog-content absolute">
+  <section class="dialog" v-show="show" @click="show = false">
+    <div class="dialog-content absolute" @click.stop>
       <slot></slot>
     </div>
   </section>
 </template>
 
 <script>
+import { computed, watch } from 'vue'
+
 let modalEl
 function createModal() {
   const modalEl = document.createElement('div')
@@ -16,20 +18,39 @@ function createModal() {
 }
 export default {
   name: 'Dialog',
-  props: {modal: Boolean,visible: Boolean,center:Boolean},
+  props: { modal: Boolean, visible: Boolean, center: Boolean },
+  emits: ['update:visible'],
   setup(props, context) {
-    if (props.modal) {
-      if (!modalEl) {
-        modalEl = createModal()
+    const show = computed({
+      get() {
+        return props.visible
+      },
+      set(val) {
+        context.emit('update:visible', val)
       }
-      document.body.append(modalEl)
-    }
+    })
+    watch(
+      () => show.value,
+      () => {
+        if (show.value) {
+          if (props.modal) {
+            if (!modalEl) {
+              modalEl = createModal()
+            }
+            document.body.append(modalEl)
+          }
+        } else {
+          modalEl.remove()
+        }
+      }
+    )
+    return { show }
   }
 }
 </script>
 
 <style scoped>
-.dialog{
+.dialog {
   position: fixed;
   left: 0;
   top: 0;
@@ -37,10 +58,9 @@ export default {
   height: 100vh;
   z-index: 2018;
 }
-.dialog-content{
+.dialog-content {
   top: 50%;
   margin-left: 50%;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
 }
-
 </style>

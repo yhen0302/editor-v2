@@ -50,6 +50,7 @@ export declare interface EditorStore {
     height: number
     width: number
   }
+  addDragging:boolean
   [key: string]: any
 }
 

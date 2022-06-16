@@ -1,8 +1,12 @@
 import {DirectiveBinding} from 'vue'
 import store from '@/store/index'
 
+import {useState} from "@/store/helper";
+
+const editorStore = useState(store,'editor')
 export default {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
+
     el.draggable = true
     let imgCloneEl: HTMLImageElement
     el.addEventListener('dragstart', function (ev: DragEvent) {
@@ -15,7 +19,12 @@ export default {
       ev.dataTransfer?.setDragImage(imgCloneEl, imgCloneEl.width / 2, imgCloneEl.height / 2)
     })
 
+    el.addEventListener('dragstart',function () {
+      editorStore.addDragging = true
+    })
+
     el.addEventListener('dragend', function (ev: DragEvent) {
+      editorStore.addDragging = false
     })
 
     el.addEventListener('drag', function (ev: DragEvent) {

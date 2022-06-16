@@ -1,18 +1,30 @@
 <template>
-  <dialog-el :modal="true" :center="true" :visible="show">
+  <dialog-el :modal="true" :center="true" v-model:visible="show">
     <section class="static-data-dialog">
       <header class="static-data-header flex">
         <div class="title-area items-center flex">
           <span class="header-name">标题</span>
-          <input type="text" class="header-inp flex-1" placeholder="输入标题" />
+          <input
+            type="text"
+            class="header-inp flex-1"
+            placeholder="输入标题"
+            :value="title"
+            @input="title = $event.target.value"
+          />
         </div>
         <div class="unit-area items-center flex">
           <span class="header-name">单位</span>
-          <input type="text" class="header-inp flex-1" placeholder="输入单位" />
+          <input
+            type="text"
+            class="header-inp flex-1"
+            placeholder="输入单位"
+            :value="unit"
+            @input="unit = $event.target.value"
+          />
         </div>
       </header>
       <div class="static-data-content">
-        <excel-table></excel-table>
+        <excel-table v-model:data="data"></excel-table>
       </div>
       <button class="success-btn">完成</button>
     </section>
@@ -24,22 +36,54 @@ import Dialog from '@/component/common/Dialog.vue'
 import ExcelTable from '@/component/common/ExcelTable'
 import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 export default {
   name: 'StaticDataDialog',
   components: { ExcelTable, DialogEl: Dialog },
-  inject:['show'],
-  setup() {
+  props: ['visible'],
+  setup(props, context) {
     const store = useStore()
     const editorGetter = useGetter(store, 'editor', ['GET_SELECT_NODE'])
-    const title = computed(() => {
-      return editorGetter['GET_SELECT_NODE'].value.echartsOption.title.text
-    })
-    const unit = computed(() => {
-      return editorGetter['GET_SELECT_NODE'].value.echartsOption.unit.text
-    })
 
-    return { title,unit}
+    const title = ref(
+      editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title.text
+    )
+    const unit = ref(
+      editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit.text
+    )
+    const show = computed({
+      get() {
+        return props.visible
+      },
+      set(val) {
+        context.emit('update:visible', val)
+      }
+    })
+    function echartsDataToTableByNode(node) {
+      return [
+        ['', ...node.option.echartsOption.xAxis.data],
+        ...node.option.echartsOption.series.map((item) => [
+          item.name,
+          ...item.data
+        ])
+      ]
+    }
+    let cacheVal
+    const data = computed({
+      get() {
+        cacheVal = echartsDataToTableByNode(
+          editorGetter['GET_SELECT_NODE'].value
+        )
+        return cacheVal
+      },
+      set(payload) {
+        if (!cacheVal?.[payload[0]]) cacheVal[payload[0]] = []
+        console.log(payload)
+        cacheVal[payload[0]][payload[1]] = payload[2]
+        console.log(cacheVal)
+      }
+    })
+    return { title, unit, show, data }
   }
 }
 </script>

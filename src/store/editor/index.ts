@@ -11,9 +11,6 @@ import {
 } from '@/store/editor/type'
 import { reactive } from '@vue/reactivity'
 import { RectShapeProps } from '@/views/editor/twoDimension/elements/shape/RectShapeProps'
-import { VNode } from '@vue/runtime-core'
-import { h, markRaw } from 'vue'
-import RectShape from '@/views/editor/twoDimension/elements/shape/RectShape.vue'
 
 const props = reactive(<RectShapeProps>{
   matrixOption: { left: 10, top: 10, width: 100, height: 50, angle: 0 },
@@ -22,6 +19,7 @@ const props = reactive(<RectShapeProps>{
 })
 const state: EditorStore = {
   dimensionType: '2d',
+  addDragging:false,
   selectBarToolType: null,
   shadow: false,
   // switchItemAfterProcessType
