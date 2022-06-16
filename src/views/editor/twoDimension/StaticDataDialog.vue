@@ -26,7 +26,7 @@
       <div class="static-data-content">
         <excel-table v-model:data="data"></excel-table>
       </div>
-      <button class="success-btn">完成</button>
+      <button class="success-btn" @click="saveData">完成</button>
     </section>
   </dialog-el>
 </template>
@@ -37,6 +37,8 @@ import ExcelTable from '@/component/common/ExcelTable'
 import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
 import { computed, ref } from 'vue'
+import { clone } from '@/util/base'
+
 export default {
   name: 'StaticDataDialog',
   components: { ExcelTable, DialogEl: Dialog },
@@ -78,12 +80,48 @@ export default {
       },
       set(payload) {
         if (!cacheVal?.[payload[0]]) cacheVal[payload[0]] = []
-        console.log(payload)
         cacheVal[payload[0]][payload[1]] = payload[2]
-        console.log(cacheVal)
       }
     })
-    return { title, unit, show, data }
+
+    function tableDataAssignEcharts(tableData, node) {
+      let realIndex = 0
+      tableData.forEach((item, index) => {
+        debugger
+        if (index === 0)
+          node.option.echartsOption.xAxis.data = item.filter(
+            (item, i) => i !== 0
+          )
+        else {
+          if (!node.option.echartsOption.series[realIndex - 1])
+            node.option.echartsOption.series[realIndex - 1] = clone(
+              node.option.echartsOption.series[0],
+              true
+            )
+          node.option.echartsOption.series[realIndex - 1].name = item[0]
+          node.option.echartsOption.series[realIndex - 1].data = []
+          for (let i = 1; i < item.length; i++) {
+            if (item[i] === undefined) {
+              node.option.echartsOption.series[realIndex - 1].data[i - 1] = 0
+              continue
+            }
+            node.option.echartsOption.series[realIndex - 1].data[i - 1] =
+              item[i]
+          }
+        }
+        realIndex++
+      })
+    }
+
+    function saveData() {
+      const node = editorGetter['GET_SELECT_NODE'].value
+      tableDataAssignEcharts(cacheVal, node)
+      node.option.echartsOption.title.text = title.value
+      node.option.echartsOption.unit.text = unit.value
+
+      context.emit('update:visible', false)
+    }
+    return { title, unit, show, data, saveData }
   }
 }
 </script>

@@ -31,13 +31,14 @@
         class="editor-inp block w-full h-full"
         ref="editInp"
         v-model="inpVal"
+        @blur="showEditInp=false"
       />
     </div>
   </section>
 </template>
 
 <script>
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import {computed, nextTick, onMounted, onUpdated, ref, watch} from 'vue'
 import SliderEl from '@/component/common/SliderEl'
 import { toPx } from '@/util/base'
 
@@ -91,6 +92,9 @@ export default {
     onMounted(() => {
       const ctx = excelEl.value.getContext('2d')
       draw(ctx)
+    })
+    onUpdated(()=>{
+      draw()
     })
 
     function draw(ctx = excelEl.value.getContext('2d')) {
