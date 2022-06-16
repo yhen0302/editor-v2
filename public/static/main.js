@@ -94083,8 +94083,9 @@ void main() {
 	                clearTimeout(self.clickTimer);
 	                self.clickTimer = setTimeout(() => {
 	                    if (self.container.viewState == 'orbit') {
-	                        mouse.x = (event.layerX / domElement.clientWidth) * 2 - 1;
-	                        mouse.y = -(event.layerY / domElement.clientHeight) * 2 + 1;
+							let getBoundingClientRect = domElement.getBoundingClientRect()
+							mouse.x = ((event.clientX - getBoundingClientRect.left) / (domElement.clientWidth * 0.65)) * 2 - 1;
+							mouse.y = -((event.clientY - getBoundingClientRect.top) / (domElement.clientHeight * 0.65)) * 2 + 1;
 	                        const camera = self.container.orbitCamera;
 	                        const clickObjects = self.container.clickObjects;
 	                        raycaster.setFromCamera(mouse, camera);
@@ -94110,8 +94111,9 @@ void main() {
 	                        });
 	                    }
 	                    else {
-	                        mouse.x = (event.layerX / domElement.clientWidth) * 2 - 1;
-	                        mouse.y = -(event.layerY / domElement.clientHeight) * 2 + 1;
+							let getBoundingClientRect = domElement.getBoundingClientRect()
+							mouse.x = ((event.clientX - getBoundingClientRect.left) / (domElement.clientWidth * 0.65)) * 2 - 1;
+							mouse.y = -((event.clientY - getBoundingClientRect.top) / (domElement.clientHeight * 0.65)) * 2 + 1;
 	                        const camera = self.container.firstPersonCamera;
 	                        const clickObjects = self.container.clickObjects;
 	                        raycaster.setFromCamera(mouse, camera);
@@ -94132,8 +94134,9 @@ void main() {
 	        };
 	        domElement.ondblclick = (event) => {
 	            clearTimeout(self.clickTimer);
-	            mouse.x = (event.layerX / domElement.clientWidth) * 2 - 1;
-	            mouse.y = -(event.layerY / domElement.clientHeight) * 2 + 1;
+				let getBoundingClientRect = domElement.getBoundingClientRect()
+				mouse.x = ((event.clientX - getBoundingClientRect.left) / (domElement.clientWidth * 0.65)) * 2 - 1;
+				mouse.y = -((event.clientY - getBoundingClientRect.top) / (domElement.clientHeight * 0.65)) * 2 + 1;
 	            if (self.container.viewState == 'orbit') {
 	                const camera = self.container.orbitCamera;
 	                const clickObjects = self.container.clickObjects;
@@ -94175,10 +94178,11 @@ void main() {
 	            }
 	        };
 	        domElement.onmousemove = (event) => {
-	            if (document.body)
-	                document.body.style.cursor = 'auto';
-	            mouse.x = (event.layerX / domElement.clientWidth) * 2 - 1;
-	            mouse.y = -(event.layerY / domElement.clientHeight) * 2 + 1;
+	            // if (document.body)
+	            //     document.body.style.cursor = 'auto';
+				let getBoundingClientRect = domElement.getBoundingClientRect()
+				mouse.x = ((event.clientX - getBoundingClientRect.left) / (domElement.clientWidth * 0.65)) * 2 - 1;
+				mouse.y = -((event.clientY - getBoundingClientRect.top) / (domElement.clientHeight * 0.65)) * 2 + 1;
 	            let camera;
 	            if (self.container.viewState == 'orbit') {
 	                camera = self.container.orbitCamera;
@@ -94229,8 +94233,9 @@ void main() {
 	            }
 	        };
 	        domElement.ondragenter = (event) => {
-	            mouse.x = (event.layerX / domElement.clientWidth) * 2 - 1;
-	            mouse.y = -(event.layerY / domElement.clientHeight) * 2 + 1;
+				let getBoundingClientRect = domElement.getBoundingClientRect()
+				mouse.x = ((event.clientX - getBoundingClientRect.left) / (domElement.clientWidth * 0.65)) * 2 - 1;
+				mouse.y = -((event.clientY - getBoundingClientRect.top) / (domElement.clientHeight * 0.65)) * 2 + 1;
 	            let camera;
 	            if (self.container.viewState == 'orbit') {
 	                camera = self.container.orbitCamera;
@@ -94265,8 +94270,9 @@ void main() {
 	            }
 	        };
 	        domElement.ondragend = (event) => {
-	            mouse.x = (event.layerX / domElement.clientWidth) * 2 - 1;
-	            mouse.y = -(event.layerY / domElement.clientHeight) * 2 + 1;
+				let getBoundingClientRect = domElement.getBoundingClientRect()
+				mouse.x = ((event.clientX - getBoundingClientRect.left) / (domElement.clientWidth * 0.65)) * 2 - 1;
+				mouse.y = -((event.clientY - getBoundingClientRect.top) / (domElement.clientHeight * 0.65)) * 2 + 1;
 	            let camera;
 	            if (self.container.viewState == 'orbit') {
 	                camera = self.container.orbitCamera;

@@ -40,6 +40,8 @@ import DofPassForms3D from './editForms/DofPassForms3D.vue'
 import GammaPassForms3D from './editForms/GammaPassForms3D.vue'
 // 5.msaa pass
 import MSAAPassForms3D from './editForms/MSAAPassForms3D.vue'
+// 添加元素图标模块
+import Icon from '../rightKanBan/Icon.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 
@@ -67,7 +69,9 @@ export default defineComponent({
     OutlinePassForms3D,
     DofPassForms3D,
     GammaPassForms3D,
-    MSAAPassForms3D
+    MSAAPassForms3D,
+    // 添加元素图标板块
+    Icon
   },
   setup() {
     const store = useStore()
@@ -173,6 +177,10 @@ export default defineComponent({
           break
         case 'MSAAPass':
           type.value = 'MSAAPassForms3D'
+          node.value = e.node
+          break
+        case 'icon3D':
+          type.value = 'Icon'
           node.value = e.node
           break
       }

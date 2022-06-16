@@ -9,17 +9,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, defineAsyncComponent } from 'vue'
 import ToolBarItem from '@/components/utils/toolbar/ToolBarItem.vue'
 import { EventsBus } from '@/core/EventsBus'
 
 import NavDetailsTemplate3D from '../navdetails/NavDetailsTemplate3D.vue'
+// import NavDetailsThreeDimensionIcon3D from '../navdetails/NavDetailsThreeDimensionIcon3D.vue'
 
 export default defineComponent({
   name: 'NavMenuElement3D',
   components: {
     ToolBarItem,
-    NavDetailsTemplate3D
+    NavDetailsTemplate3D,
+    NavDetailsThreeDimensionIcon3D: defineAsyncComponent(() => import('../navdetails/NavDetailsThreeDimensionIcon3D.vue'))
   },
   setup() {
     const pageIndex = ref(0)

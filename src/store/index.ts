@@ -17,7 +17,11 @@ export default createStore({
       threeDimension: [],
       twoDimension: []
     },
-    threeDimensionContainer: null // 3d container cache
+    threeDimensionContainer: null, // 3d container cache
+
+    //  添加元素变量
+    addElementType: null,
+    elementIcon: [] // 存储图标数组
   },
   mutations: {},
   actions: {},
