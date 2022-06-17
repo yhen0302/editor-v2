@@ -3,7 +3,7 @@
 <script lang="jsx">
 export default {
   name: "ColumnEl",
-  props:['prop','label'],
+  props:['prop','label','width'],
   setup(){
     return ()=>{}
   }

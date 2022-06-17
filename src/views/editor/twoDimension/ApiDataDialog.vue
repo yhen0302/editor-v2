@@ -25,7 +25,7 @@
       </header>
       <div class="static-data-content">
         <table-el :data="tableData">
-          <column-el prop="data" label="Data"></column-el>
+          <column-el prop="date" label="Data" width="180"></column-el>
           <column-el prop="name" label="Name"></column-el>
           <column-el prop="address" label="Address"></column-el>
         </table-el>
