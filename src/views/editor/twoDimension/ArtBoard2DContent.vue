@@ -21,6 +21,7 @@ import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
 
+
 export default {
   name: 'ArtBoard2DContent',
   setup() {

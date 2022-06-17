@@ -20,6 +20,7 @@
       </template>
     </fold-el>
     <static-data-dialog v-model:visible="showTableDialog"></static-data-dialog>
+<!--    <api-data-dialog v-model:visible="showApiDialog"></api-data-dialog>-->
   </section>
 </template>
 
@@ -30,10 +31,12 @@ import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
 import SelectEl from '@/component/common/SelectEl'
 import StaticDataDialog from '@/views/editor/twoDimension/StaticDataDialog'
+import ApiDataDialog from "@/views/editor/twoDimension/ApiDataDialog";
 
 export default {
   name: 'ChartDataConfigurator',
   components: {
+    ApiDataDialog,
     StaticDataDialog,
     SelectEl,
     FoldEl
@@ -51,16 +54,18 @@ export default {
     })
 
     const showTableDialog = ref(false)
+    const showApiDialog = ref(false)
     function clickEditorBtn() {
       switch (dataType.value) {
         case 'table':
           showTableDialog.value = true
           break
         case 'api':
+          showApiDialog.value = true
           break
       }
     }
-    return { dataType, showTableDialog, clickEditorBtn }
+    return { dataType, showTableDialog, clickEditorBtn,showApiDialog}
   }
 }
 </script>
