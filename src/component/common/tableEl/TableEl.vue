@@ -4,49 +4,49 @@
       <table class="table">
         <colgroup>
           <col
-            v-for="item in columns"
+            v-for="item in columnsProps"
             span="1"
             :width="item.realWidth"
             :key="item.prop"
           />
         </colgroup>
-        <thead>
-          <th v-for="item in columns" :key="item.prop">{{ item.label }}</th>
-        </thead>
+        <component :is="tableHead"></component>
       </table>
     </div>
     <div class="table-body" :style="{ width: toPx(bodyWidth) }">
       <table class="table">
         <colgroup>
           <col
-            v-for="item in columns"
+            v-for="item in columnsProps"
             span="1"
             :width="item.realWidth"
             :key="item.prop"
           />
         </colgroup>
-        <tbody>
-          <tr v-for="item in data" :key="item">
-            <td v-for="col in columns" :key="col.prop">{{ item[col.prop] }}</td>
+        <!--        <tbody>
+               <tr v-for="item in data" :key="item">
+            <td v-for="col in columnsProps" :key="col.prop">{{ item[col.prop] }}</td>
           </tr>
-        </tbody>
+        </tbody>-->
+        <component :is="tableBody" class="tbody"></component>
       </table>
     </div>
   </section>
 </template>
 
-<script>
+<script lang="jsx">
 import { clone, toPx } from '@/util/base'
-import { getCurrentInstance, onMounted, onUpdated, reactive, ref } from 'vue'
+import { getCurrentInstance, h, onMounted, onUpdated, reactive, ref } from 'vue'
 
 export default {
   name: 'TableEl',
   props: ['data'],
-  setup(props, context) {
+  setup: function (props, context) {
     const instance = getCurrentInstance()
     let fixedWidth = 0
-    const columns = reactive(
-      context.slots.default().map((item) => {
+    const columnVnodes = context.slots.default()
+    const columnsProps = reactive(
+      columnVnodes.map((item) => {
         const res = clone(item.props)
         !isNaN(item.props.width) &&
           (fixedWidth += res.realWidth = Number(item.props.width))
@@ -54,13 +54,11 @@ export default {
       })
     )
 
-    onUpdated(() => {
-      console.log('update')
-    })
     // 记录自动适应宽度的列
-    const flexColumn = columns.filter((item) => !item.realWidth)
+    const flexColumn = columnsProps.filter((item) => !item.realWidth)
 
     const bodyWidth = ref(0)
+
     onMounted(() => {
       bodyWidth.value = instance.vnode.el.clientWidth
       const diffWidth = bodyWidth.value - fixedWidth
@@ -68,8 +66,36 @@ export default {
         item.realWidth = diffWidth / flexColumn.length
       })
     })
+    const tableBody = () => (
+      <tbody>
+        {...props.data.map((item, rowI) => {
+          return (
+            <tr>
+              {...columnVnodes.map((col) => (
+                <td>
+                  {col?.children?.default
+                    ? col.children.default(clone({ row: item, $index: rowI }))
+                    : item[col.props.prop]}
+                </td>
+              ))}
+            </tr>
+          )
+        })}
+      </tbody>
+    )
 
-    return { toPx, columns, bodyWidth }
+    const tableHead = () => (
+      <thead>
+        <tr>
+          {columnVnodes.map((col,i) => (
+            <th> {col?.children?.header
+                ? col.children.header(clone({ column: col.props.label, $index: i }))
+                : col.props.label}</th>
+          ))}
+        </tr>
+      </thead>
+    )
+    return { toPx, columnsProps, bodyWidth, tableBody, tableHead }
   }
 }
 </script>
@@ -84,11 +110,15 @@ export default {
 .table {
   border-collapse: collapse;
 }
-.table-header th {
-  border: 1px solid #eee;
+.table-header /deep/ th {
+  height: 30px;
+  border: 1px solid #313131;
   border-bottom: none;
+  vertical-align: middle;
 }
-.table-body td {
-  border: 1px solid #eee;
+.table-body /deep/ td {
+  height: 50px;
+  vertical-align: middle;
+  border: 1px solid #313131;
 }
 </style>

@@ -24,13 +24,30 @@
         </div>
       </header>
       <div class="static-data-content">
-        <table-el :data="tableData">
-          <column-el prop="date" label="Data" width="180"></column-el>
+        <table-el :data="tableData" class="dialog-table">
+          <column-el prop="date" label="Date" width="180">
+            <template v-slot:default="data">
+              <span @click="test(data)">{{ data.row.date }}</span>
+            </template>
+          </column-el>
           <column-el prop="name" label="Name"></column-el>
-          <column-el prop="address" label="Address"></column-el>
+          <column-el prop="address" label="Address">
+            <template v-slot:header="{ column }"
+              ><span>{{ column }}</span></template
+            >
+          </column-el>
         </table-el>
       </div>
-      <button class="success-btn" @click="saveData">完成</button>
+      <div class="api-uri-wrapper items-center flex mt-16">
+        <span class="api-uri-desc text-12">API地址</span>
+        <input
+          type="text"
+          class="api-uri-inp flex-1 text-12"
+          placeholder="请输入自定义api"
+        />
+        <button class="default-btn">测试</button>
+      </div>
+      <button class="default-btn mt-16" @click="saveData">完成</button>
     </section>
   </dialog-el>
 </template>
@@ -41,7 +58,6 @@ import ExcelTable from '@/component/common/ExcelTable'
 import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
 import { computed, ref } from 'vue'
-import { clone } from '@/util/base'
 import TableEl from '@/component/common/tableEl/TableEl'
 import ColumnEl from '@/component/common/tableEl/ColumnEl'
 
@@ -68,28 +84,28 @@ export default {
       }
     })
 
-    const tableData = [
+    const tableData = ref([
       {
         date: '2016-05-03',
-        name: 'Tom',
+        name: 'Tom1',
         address: 'No. 189, Grove St, Los Angeles'
       },
       {
         date: '2016-05-02',
-        name: 'Tom',
+        name: 'Tom2',
         address: 'No. 189, Grove St, Los Angeles'
       },
       {
         date: '2016-05-04',
-        name: 'Tom',
+        name: 'Tom3',
         address: 'No. 189, Grove St, Los Angeles'
       },
       {
         date: '2016-05-01',
-        name: 'Tom',
+        name: 'Tom4',
         address: 'No. 189, Grove St, Los Angeles'
       }
-    ]
+    ])
 
     function saveData() {
       const node = editorGetter['GET_SELECT_NODE'].value
@@ -98,7 +114,10 @@ export default {
 
       context.emit('update:visible', false)
     }
-    return { title, unit, show, saveData,tableData}
+    function test(payload) {
+      console.log(payload)
+    }
+    return { title, unit, show, saveData, tableData, test }
   }
 }
 </script>
@@ -107,7 +126,7 @@ export default {
 .static-data-dialog {
   width: 764px;
   padding: 24px 30px;
-  background: #23262d;
+  background: #1d1d1d;
 }
 .static-data-header {
   gap: 100px;
@@ -133,11 +152,25 @@ export default {
 .static-data-content {
   margin-top: 20px;
 }
-.success-btn {
+.default-btn {
   @apply text-12;
-  margin-top: 20px;
-  padding: 8px 24px;
+  padding: 0 24px;
   background: #6582fe;
   border-radius: 3px;
+  height: 30px;
+}
+.api-uri-wrapper {
+  gap: 10px;
+}
+.api-uri-inp {
+  height: 30px;
+  padding-left: 10px;
+  background: #292929;
+  border-radius: 2px;
+}
+.dialog-table /deep/ .table-body td {
+  border: none;
+  border-left: 1px solid #313131;
+  border-right: 1px solid #313131;
 }
 </style>
