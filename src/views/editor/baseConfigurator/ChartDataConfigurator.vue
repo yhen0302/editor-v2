@@ -20,7 +20,7 @@
       </template>
     </fold-el>
     <static-data-dialog v-model:visible="showTableDialog"></static-data-dialog>
-<!--    <api-data-dialog v-model:visible="showApiDialog"></api-data-dialog>-->
+    <api-data-dialog v-model:visible="showApiDialog"></api-data-dialog>
   </section>
 </template>
 

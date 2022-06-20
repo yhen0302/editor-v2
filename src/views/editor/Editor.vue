@@ -134,7 +134,6 @@
       </aside>
     </section>
 
-    <api-data-dialog :visible="true"></api-data-dialog>
   </div>
 </template>
 
@@ -169,7 +168,6 @@ import { EditorStore } from '@/store/editor/type'
 import { EditorGetter } from '@/store/editor/getters'
 import LayerList2d from "@/views/editor/twoDimension/LayerList2d.vue";
 import StaticDataDialog from "@/views/editor/twoDimension/StaticDataDialog.vue";
-import ApiDataDialog from "@/views/editor/twoDimension/ApiDataDialog.vue";
 
 /* 编辑器 */
 export default defineComponent({
@@ -178,7 +176,6 @@ export default defineComponent({
     return { testData: false }
   },
   components: {
-    ApiDataDialog,
     StaticDataDialog,
     LayerList2d,
     ArtBoard2DContent,

@@ -26,7 +26,7 @@
       <div class="static-data-content">
         <table-el :data="yAxisData" class="dialog-table text-12">
           <column-el prop="colName" label="列名">
-            <template v-slot:default="{column,$index}">
+            <template v-slot:default="{ column, $index }">
               <div class="inp-wrap">
                 <input-el
                   :value="column"
@@ -37,7 +37,7 @@
             </template>
           </column-el>
           <column-el prop="mapping" label="映射">
-            <template v-slot:default="{column,$index}">
+            <template v-slot:default="{ column, $index }">
               <div class="inp-wrap">
                 <input-el
                   :value="column"
@@ -60,7 +60,7 @@
         <table-el :data="xAxisData" class="dialog-table text-12 mt-16">
           <column-el prop="colName" label="列名"></column-el>
           <column-el prop="mapping" label="映射">
-            <template v-slot:default="{column,$index}">
+            <template v-slot:default="{ column, $index }">
               <div class="inp-wrap">
                 <input-el
                   :value="column"
@@ -93,7 +93,12 @@
         <button class="default-btn" @click="test">测试</button>
       </div>
       <!--success-->
-      <button class="default-btn mt-16" @click="saveData">完成</button>
+      <div class="footer-wrap">
+        <button class="cancel-btn default-btn mt-16 mr-16" @click="cancel()">
+          取消
+        </button>
+        <button class="default-btn mt-16" @click="saveData">完成</button>
+      </div>
     </section>
   </dialog-el>
 </template>
@@ -107,6 +112,7 @@ import { computed, ref } from 'vue'
 import TableEl from '@/component/common/tableEl/TableEl'
 import ColumnEl from '@/component/common/tableEl/ColumnEl'
 import InputEl from '@/component/common/InputEl'
+import { valueHandle } from '@/util/base'
 
 export default {
   name: 'ApiDataDialog',
@@ -147,16 +153,28 @@ export default {
       }
     ])
 
-    const apiUrl = ref('')
+    const apiUrl = ref('http://192.168.10.2:9999/test')
 
     function verificationUrl(url) {
       return /^http[s]?:\/\/(.+)\.(.+)/.test(url)
     }
-    function test() {
+    function mappingData(obj) {
+      ;[yAxisData, xAxisData].forEach((d) => {
+        d.value.forEach((item) => {
+          const val = valueHandle(obj, item.mapping)
+          const yName = valueHandle(obj, item.colName)
+          if (val) {
+            item.status = 1
+          }
+        })
+      })
+    }
+    async function test() {
       // 验证成功
       if (verificationUrl(apiUrl.value)) {
         // 测试
-        apiUrl.value
+        const res = await (await fetch(apiUrl.value)).json()
+        mappingData(res)
       }
     }
     function saveData() {
@@ -166,7 +184,21 @@ export default {
 
       context.emit('update:visible', false)
     }
-    return { title, unit, show, saveData, yAxisData, xAxisData, apiUrl, test }
+    function cancel() {
+      console.log('取消')
+      show.value = false
+    }
+    return {
+      title,
+      unit,
+      show,
+      saveData,
+      yAxisData,
+      xAxisData,
+      apiUrl,
+      test,
+      cancel
+    }
   }
 }
 </script>
@@ -224,5 +256,8 @@ export default {
 .inp-wrap {
   padding: 0 20px;
   height: 30px;
+}
+.cancel-btn {
+  background: #414141;
 }
 </style>

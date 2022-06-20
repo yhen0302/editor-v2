@@ -138,9 +138,6 @@ export function fileToBlobUrl(file: File) {
   return URL.createObjectURL(file)
 }
 
-const pointerExpression = /()/
-
-const partPathReg = /(.*)(\.\[)?/
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function valueHandle(obj: any, path: string): any {
   let i = 0,
@@ -148,7 +145,6 @@ export function valueHandle(obj: any, path: string): any {
     resolveRes: RegExpExecArray | null = null
   const cpPath = path
   let res = clone(obj) as any
-  // [ ] .
   while (res && i < cpPath.length) {
     const str = cpPath[i]
     if (str === '.' || str === ']') {
@@ -178,8 +174,3 @@ export function valueHandle(obj: any, path: string): any {
   return res
 }
 
-export function getPromiseAjax(url:string){
-  return new Promise((resolve,reject)=>{
-    const xhr = new XMLHttpRequest()
-  })
-}

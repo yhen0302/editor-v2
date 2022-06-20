@@ -36,7 +36,16 @@
 
 <script lang="jsx">
 import { clone, toPx } from '@/util/base'
-import { getCurrentInstance, h, onMounted, onUpdated, reactive, ref } from 'vue'
+import {
+  getCurrentInstance,
+  h,
+  nextTick,
+  onBeforeUpdate,
+  onMounted,
+  onUpdated,
+  reactive,
+  ref
+} from 'vue'
 
 export default {
   name: 'TableEl',
@@ -59,12 +68,23 @@ export default {
 
     const bodyWidth = ref(0)
 
-    onMounted(() => {
+    const observer = new IntersectionObserver((mutations) => {
+      if (mutations[0].isIntersecting) {
+        computedWidth()
+      }
+    })
+    // 计算列宽度
+    const computedWidth = () => {
       bodyWidth.value = instance.vnode.el.clientWidth
       const diffWidth = bodyWidth.value - fixedWidth
       flexColumn.forEach((item) => {
         item.realWidth = diffWidth / flexColumn.length
       })
+    }
+
+    onMounted(() => {
+      observer.observe(instance.vnode.el)
+      computedWidth()
     })
     const tableBody = () => (
       <tbody>
@@ -112,6 +132,9 @@ export default {
 </script>
 
 <style scoped>
+.table-el {
+  width: 100%;
+}
 .table-header {
   background: #1d1d1d;
 }
