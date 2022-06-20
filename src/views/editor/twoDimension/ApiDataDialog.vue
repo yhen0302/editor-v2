@@ -24,29 +24,75 @@
         </div>
       </header>
       <div class="static-data-content">
-        <table-el :data="tableData" class="dialog-table">
-          <column-el prop="date" label="Date" width="180">
-            <template v-slot:default="data">
-              <span @click="test(data)">{{ data.row.date }}</span>
+        <table-el :data="yAxisData" class="dialog-table text-12">
+          <column-el prop="colName" label="列名">
+            <template v-slot:default="{column,$index}">
+              <div class="inp-wrap">
+                <input-el
+                  :value="column"
+                  class="h-full inline-block"
+                  @update:value="yAxisData[$index].colName = $event"
+                ></input-el>
+              </div>
             </template>
           </column-el>
-          <column-el prop="name" label="Name"></column-el>
-          <column-el prop="address" label="Address">
-            <template v-slot:header="{ column }"
-              ><span>{{ column }}</span></template
-            >
+          <column-el prop="mapping" label="映射">
+            <template v-slot:default="{column,$index}">
+              <div class="inp-wrap">
+                <input-el
+                  :value="column"
+                  class="h-full inline-block"
+                  @update:value="yAxisData[$index].mapping = $event"
+                ></input-el>
+              </div>
+            </template>
+          </column-el>
+          <column-el prop="status" label="状态">
+            <template v-slot:header="{ column }">
+              <span>{{ column }}</span>
+            </template>
+            <template v-slot:default="{ column }">
+              <span v-if="column === 1">匹配成功</span>
+              <span v-else style="color: #ef4444">匹配失败</span>
+            </template>
+          </column-el>
+        </table-el>
+        <table-el :data="xAxisData" class="dialog-table text-12 mt-16">
+          <column-el prop="colName" label="列名"></column-el>
+          <column-el prop="mapping" label="映射">
+            <template v-slot:default="{column,$index}">
+              <div class="inp-wrap">
+                <input-el
+                  :value="column"
+                  class="h-full inline-block"
+                  @update:value="xAxisData[$index].mapping = $event"
+                ></input-el>
+              </div>
+            </template>
+          </column-el>
+          <column-el prop="status" label="状态">
+            <template v-slot:header="{ column }">
+              <span>{{ column }}</span>
+            </template>
+            <template v-slot:default="{ column }">
+              <span v-if="column === 1">匹配成功</span>
+              <span v-else style="color: #ef4444">匹配失败</span>
+            </template>
           </column-el>
         </table-el>
       </div>
+      <!--url inp-->
       <div class="api-uri-wrapper items-center flex mt-16">
         <span class="api-uri-desc text-12">API地址</span>
         <input
           type="text"
           class="api-uri-inp flex-1 text-12"
           placeholder="请输入自定义api"
+          v-model="apiUrl"
         />
-        <button class="default-btn">测试</button>
+        <button class="default-btn" @click="test">测试</button>
       </div>
+      <!--success-->
       <button class="default-btn mt-16" @click="saveData">完成</button>
     </section>
   </dialog-el>
@@ -60,10 +106,11 @@ import { useGetter, useState } from '@/store/helper'
 import { computed, ref } from 'vue'
 import TableEl from '@/component/common/tableEl/TableEl'
 import ColumnEl from '@/component/common/tableEl/ColumnEl'
+import InputEl from '@/component/common/InputEl'
 
 export default {
   name: 'ApiDataDialog',
-  components: { ColumnEl, TableEl, ExcelTable, DialogEl: Dialog },
+  components: { InputEl, ColumnEl, TableEl, ExcelTable, DialogEl: Dialog },
   props: ['visible'],
   setup(props, context) {
     const store = useStore()
@@ -84,29 +131,34 @@ export default {
       }
     })
 
-    const tableData = ref([
+    const yAxisData = ref([
       {
-        date: '2016-05-03',
-        name: 'Tom1',
-        address: 'No. 189, Grove St, Los Angeles'
-      },
-      {
-        date: '2016-05-02',
-        name: 'Tom2',
-        address: 'No. 189, Grove St, Los Angeles'
-      },
-      {
-        date: '2016-05-04',
-        name: 'Tom3',
-        address: 'No. 189, Grove St, Los Angeles'
-      },
-      {
-        date: '2016-05-01',
-        name: 'Tom4',
-        address: 'No. 189, Grove St, Los Angeles'
+        colName: 'data.name',
+        mapping: 'data.x',
+        status: 0
       }
     ])
 
+    const xAxisData = ref([
+      {
+        colName: 'X轴数据映射',
+        mapping: 'x',
+        status: 0
+      }
+    ])
+
+    const apiUrl = ref('')
+
+    function verificationUrl(url) {
+      return /^http[s]?:\/\/(.+)\.(.+)/.test(url)
+    }
+    function test() {
+      // 验证成功
+      if (verificationUrl(apiUrl.value)) {
+        // 测试
+        apiUrl.value
+      }
+    }
     function saveData() {
       const node = editorGetter['GET_SELECT_NODE'].value
       node.option.echartsOption.title.text = title.value
@@ -114,10 +166,7 @@ export default {
 
       context.emit('update:visible', false)
     }
-    function test(payload) {
-      console.log(payload)
-    }
-    return { title, unit, show, saveData, tableData, test }
+    return { title, unit, show, saveData, yAxisData, xAxisData, apiUrl, test }
   }
 }
 </script>
@@ -140,7 +189,6 @@ export default {
 .title-area {
   flex: 2;
 }
-
 .unit-area {
   flex: 1;
 }
@@ -172,5 +220,9 @@ export default {
   border: none;
   border-left: 1px solid #313131;
   border-right: 1px solid #313131;
+}
+.inp-wrap {
+  padding: 0 20px;
+  height: 30px;
 }
 </style>

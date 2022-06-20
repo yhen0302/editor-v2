@@ -98,7 +98,7 @@ export function getChartUrl<Opt extends ECBasicOption>(option: Opt) {
 export function debounce(fn: Function, delay: number, ctx: any = null) {
   let timer: number
 
-  return function (this:any,...args: any) {
+  return function (this: any, ...args: any) {
     const that = this
     if (timer) clearTimeout(timer)
     timer = <number>(<unknown>setTimeout(function () {
@@ -136,4 +136,50 @@ export function hexColorToRgba(hexColor: string, opacity: number) {
 
 export function fileToBlobUrl(file: File) {
   return URL.createObjectURL(file)
+}
+
+const pointerExpression = /()/
+
+const partPathReg = /(.*)(\.\[)?/
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function valueHandle(obj: any, path: string): any {
+  let i = 0,
+    subPath = '',
+    resolveRes: RegExpExecArray | null = null
+  const cpPath = path
+  let res = clone(obj) as any
+  // [ ] .
+  while (res && i < cpPath.length) {
+    const str = cpPath[i]
+    if (str === '.' || str === ']') {
+      i++
+      continue
+    } else if (str === '[') {
+      resolveRes = resolvePath(cpPath.substring(++i), ['[\\]]'])
+    } else {
+      resolveRes = resolvePath(cpPath.substring(i), ['[\\.\\[]'])
+      resolveRes = resolveRes || /(.*$)/.exec(cpPath.substring(i))
+    }
+    if (resolveRes) {
+      subPath = resolveRes[1]
+      res = res[subPath]
+      i += subPath.length
+      resolveRes = null
+    }
+  }
+
+  function resolvePath(
+    path: string,
+    terminators: string[]
+  ): RegExpExecArray | null {
+    return new RegExp(`(.*?)${terminators.join()}`).exec(path)
+  }
+
+  return res
+}
+
+export function getPromiseAjax(url:string){
+  return new Promise((resolve,reject)=>{
+    const xhr = new XMLHttpRequest()
+  })
 }

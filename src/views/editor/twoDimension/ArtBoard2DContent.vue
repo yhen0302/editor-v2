@@ -4,7 +4,7 @@
   >
     <drag-wrapper></drag-wrapper>
     <component
-        :style="{pointerEvents:editorStore.addDragging?'none':'auto'}"
+      :style="{ pointerEvents: editorStore.addDragging ? 'none' : 'auto' }"
       :is="item.type"
       v-for="item in editorStore.layerTree2d"
       :key="item.name"
@@ -20,7 +20,6 @@
 import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
-
 
 export default {
   name: 'ArtBoard2DContent',

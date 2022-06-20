@@ -74,7 +74,13 @@ export default {
               {...columnVnodes.map((col) => (
                 <td>
                   {col?.children?.default
-                    ? col.children.default(clone({ row: item, $index: rowI }))
+                    ? col.children.default(
+                        clone({
+                          row: item,
+                          $index: rowI,
+                          column: item[col.props.prop]
+                        })
+                      )
                     : item[col.props.prop]}
                 </td>
               ))}
@@ -87,10 +93,15 @@ export default {
     const tableHead = () => (
       <thead>
         <tr>
-          {columnVnodes.map((col,i) => (
-            <th> {col?.children?.header
-                ? col.children.header(clone({ column: col.props.label, $index: i }))
-                : col.props.label}</th>
+          {columnVnodes.map((col, i) => (
+            <th>
+              {' '}
+              {col?.children?.header
+                ? col.children.header(
+                    clone({ column: col.props.label, $index: i })
+                  )
+                : col.props.label}
+            </th>
           ))}
         </tr>
       </thead>
