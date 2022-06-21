@@ -87,7 +87,6 @@ export default {
     function tableDataAssignEcharts(tableData, node) {
       let realIndex = 0
       tableData.forEach((item, index) => {
-        debugger
         if (index === 0)
           node.option.echartsOption.xAxis.data = item.filter(
             (item, i) => i !== 0

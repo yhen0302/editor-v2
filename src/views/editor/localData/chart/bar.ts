@@ -1,11 +1,14 @@
+import {BaseChart} from "@/views/editor/localData/chart/base";
+
 let i = 1
-class Bar {
+class Bar extends BaseChart{
   name: string
   option: any
   icon = ''
   type='ChartBar'
 
   constructor(option: any, notMerge = false) {
+    super()
     this.name = '柱状图' + i++
     const defaultMatrixOpt = {
       left: 0,

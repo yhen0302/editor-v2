@@ -56,7 +56,7 @@ export default {
 }
 
 .select-content-box {
-  overflow-y: scroll;
+  overflow-y: auto;
   margin-top: 4px;
   width: 100%;
   background: #31333D;

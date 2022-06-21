@@ -18,7 +18,10 @@
     <div
       class="fold-content-wrapper box-border"
       ref="foldContent"
-      :style="{ height: realHeight,overflow:controlFold?'hidden':'visible'}"
+      :style="{
+        height: realHeight,
+        overflow: controlFold ? 'hidden' : 'visible'
+      }"
     >
       <div class="fold-content">
         <slot></slot>
@@ -30,7 +33,7 @@
 <script>
 import { computed, nextTick, ref, watch } from 'vue'
 import LineEl from '@/component/common/LineEl'
-import {cssUnitToNumber} from "@/util/base";
+import { cssUnitToNumber } from '@/util/base'
 
 export default {
   name: 'FoldEl',
@@ -53,6 +56,9 @@ export default {
         get() {
           if (!cacheHeight.value && props.show) updateHeight()
           return props.show
+        },
+        set(newVal) {
+          context.emit('update:fold', newVal)
         }
       })
     } else {
@@ -72,7 +78,7 @@ export default {
       (newVal) => {
         newVal && updateHeight()
       },
-        {flush:'sync'}
+      { flush: 'sync' }
     )
 
     const realHeight = computed(() => {

@@ -1,19 +1,15 @@
+import {BaseChart} from "@/views/editor/localData/chart/base";
+
 let i = 1
-class Gauge {
+class Gauge  extends BaseChart{
   name: string
   option: any
   icon = ''
   type = 'ChartGauge'
 
   constructor(option: any, notMerge = false) {
+    super()
     this.name = '仪表盘' + i++
-    const defaultMatrixOpt = {
-      left: 0,
-      top: 0,
-      height: 100,
-      width: 200,
-      angle: 0
-    }
     const defaultEchartsOpt = {
       color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272'],
       title: {
@@ -51,9 +47,11 @@ class Gauge {
       legend: { show: true }
     }
     this.option = {
+      ...this.defaultOption,
+
       matrixOption: notMerge
         ? option.matrixOption
-        : this.merge(defaultMatrixOpt, option.matrixOption),
+        : this.merge(this.defaultMatrixOpt, option.matrixOption),
       echartsOption: notMerge
         ? option.echartsOption
         : this.merge(defaultEchartsOpt, option.echartsOption),

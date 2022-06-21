@@ -24,10 +24,11 @@ import matrixMixin from '@/views/editor/twoDimension/elements/matrixMixin'
 import * as echarts from 'echarts'
 import { debounce } from '@/util/base'
 import { getCurrentInstance, watch } from 'vue'
+import chartMixin from "@/views/editor/twoDimension/elements/chart/chartMixin";
 
 export default {
   name: 'ChartLine',
-  mixins: [matrixMixin],
+  mixins: [matrixMixin,chartMixin],
   props: ['node'],
   mounted() {
     this.myChart = echarts.init(this.$refs.chartWrap)
@@ -35,27 +36,6 @@ export default {
   },
 
   methods: {
-    updateEchartsSize() {
-      this.myChart.resize()
-    },
-    updateEchartsOption(notMerge) {
-      this.computedTop(this.node.option.echartsOption)
-      this.myChart.setOption(this.node.option.echartsOption, notMerge)
-    },
-    computedTop(option) {
-      let top = 50
-      console.log(
-        option.title.textStyle.fontSize,
-        option.unit.textStyle.fontSize
-      )
-      if (option.unit.show) {
-        top += option.unit.textStyle.fontSize
-      }
-      if (option.title.show) {
-        top += option.title.textStyle.fontSize
-      }
-      option.grid.top = top
-    },
     debounceSetOption: debounce(function (...args) {
       this.updateEchartsOption(...args)
     }, 300)
@@ -122,6 +102,9 @@ export default {
       },
       { deep: true }
     )
+    watch(()=>props.node.option.apiMapping,()=>{
+      instance.ctx.debounceSetOption()
+    })
   },
   watch: {
     'node.option.echartsOption.color': {

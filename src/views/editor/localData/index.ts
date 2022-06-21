@@ -7,10 +7,6 @@ import {
   selectItemType3d
 } from '../../../store/editor/type'
 import { clone, getChartUrl } from '../../../util/base'
-import RectShape from '../twoDimension/elements/shape/RectShape.vue'
-import { RectShapeProps } from '../twoDimension/elements/shape/RectShapeProps'
-import { TextAlignOption } from '../twoDimension/elements/option'
-import { fontType } from '../type'
 import {
   baseTitle,
   bigTitle,

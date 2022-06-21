@@ -35,23 +35,6 @@ export default {
   },
 
   methods: {
-    updateEchartsSize() {
-      this.myChart.resize()
-    },
-    updateEchartsOption(notMerge) {
-      this.computedTop(this.node.option.echartsOption)
-      this.myChart.setOption(this.node.option.echartsOption, notMerge)
-    },
-    computedTop(option) {
-      let top = 50
-      if (option.unit.show) {
-        top += option.unit.textStyle.fontSize
-      }
-      if (option.title.show) {
-        top += option.title.textStyle.fontSize
-      }
-      option.grid.top = top
-    },
     debounceSetOption: debounce(function (...args) {
       this.updateEchartsOption(...args)
     }, 300)

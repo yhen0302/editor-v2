@@ -153,7 +153,7 @@ export default {
       }
     ])
 
-    const apiUrl = ref('http://192.168.10.2:9999/test')
+    const apiUrl = ref('http://192.168.0.113:9999/test')
 
     function verificationUrl(url) {
       return /^http[s]?:\/\/(.+)\.(.+)/.test(url)
@@ -181,13 +181,27 @@ export default {
       const node = editorGetter['GET_SELECT_NODE'].value
       node.option.echartsOption.title.text = title.value
       node.option.echartsOption.unit.text = unit.value
-
-      context.emit('update:visible', false)
+      node.option.apiMapping = []
+      node.option.apiUrl = ''
+      xAxisData.value.forEach((item) => {
+        item.status &&
+          node.option.apiMapping.push({ target: 'x', path: item.mapping }) &&
+          (node.option.apiUrl = apiUrl.value)
+      })
+      yAxisData.value.forEach((item) => {
+        item.status &&
+          node.option.apiMapping.push({
+            target: 'y',
+            path: item.mapping,
+            name: item.colName
+          }) &&
+          (node.option.apiUrl = apiUrl.value)
+      })
     }
     function cancel() {
-      console.log('取消')
-      show.value = false
+      context.emit('update:visible', false)
     }
+
     return {
       title,
       unit,
