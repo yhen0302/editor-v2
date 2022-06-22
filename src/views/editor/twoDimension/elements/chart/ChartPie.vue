@@ -24,10 +24,11 @@ import matrixMixin from '@/views/editor/twoDimension/elements/matrixMixin'
 import * as echarts from 'echarts'
 import { debounce } from '@/util/base'
 import { getCurrentInstance, watch } from 'vue'
+import chartMixin from '@/views/editor/twoDimension/elements/chart/chartMixin'
 
 export default {
   name: 'ChartPie',
-  mixins: [matrixMixin],
+  mixins: [matrixMixin, chartMixin],
   props: ['node'],
   mounted() {
     this.myChart = echarts.init(this.$refs.chartWrap)
@@ -93,6 +94,12 @@ export default {
         instance.ctx.debounceSetOption()
       },
       { deep: true }
+    )
+    watch(
+      () => props.node.option.apiMapping,
+      () => {
+        instance.ctx.debounceSetOption()
+      }
     )
   },
   watch: {

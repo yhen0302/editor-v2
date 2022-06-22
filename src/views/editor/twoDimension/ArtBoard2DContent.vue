@@ -3,16 +3,17 @@
     class="art-board-content w-full h-full absolute z-10 pointer-events-none"
   >
     <drag-wrapper></drag-wrapper>
-    <component
+    <element-node v-for="item in editorStore.layerTree2d" :key="item.id" :node="item"></element-node>
+<!--    <component
       :style="{ pointerEvents: editorStore.addDragging ? 'none' : 'auto' }"
       :is="item.type"
       v-for="item in editorStore.layerTree2d"
-      :key="item.name"
+      :key="item.id"
       :node="item"
       @select="selectNode(item)"
       v-show="item.show"
       @append="appendSelectNode(item)"
-    ></component>
+    ></component>-->
   </div>
 </template>
 
@@ -20,9 +21,11 @@
 import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
+import ElementNode from "@/views/editor/twoDimension/elements/ElementNode.vue";
 
 export default {
   name: 'ArtBoard2DContent',
+  components: {ElementNode},
   setup() {
     const store = useStore()
     const editorStore = useState(store, 'editor') as EditorStore

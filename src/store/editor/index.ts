@@ -19,7 +19,7 @@ const props = reactive(<RectShapeProps>{
 })
 const state: EditorStore = {
   dimensionType: '2d',
-  addDragging:false,
+  addDragging: false,
   selectBarToolType: null,
   shadow: false,
   // switchItemAfterProcessType
@@ -37,7 +37,17 @@ const state: EditorStore = {
     width: 1920,
     artBoardScale: 0.5
   },
-  layerTree2d: [],
+  layerTree2d: [
+    {
+      id: 1,
+      name: '组1',
+      type: 'group',
+      option: {},
+      select: false,
+      show: false,
+      children: []
+    }
+  ],
   layerTree3d: [],
   screenPageTree: [
     {

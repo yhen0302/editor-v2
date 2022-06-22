@@ -1,11 +1,4 @@
-<!--
- // 1. 每个树节点增加父节点引用 parent
 
- // 2. 在拖拽的时候禁止元素的 point-event 来解决leave 事件穿透的问题
-
- // 4. 解决高度动画卡顿
-
- -->
 <script>
 import SvgIcon from '@/plugins/SvgIcon'
 import TreeItem from '@/plugins/layerPlugin/TreeItem'
@@ -157,6 +150,7 @@ export default {
 }
 
 .item-name-wrapper {
+  user-select: none;
   display: flex;
   align-items: center;
   text-align: left;

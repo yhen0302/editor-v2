@@ -197,6 +197,7 @@ export default {
           }) &&
           (node.option.apiUrl = apiUrl.value)
       })
+      context.emit('update:visible', false)
     }
     function cancel() {
       context.emit('update:visible', false)
