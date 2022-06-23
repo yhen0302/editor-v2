@@ -18,6 +18,7 @@ const editorMutation = useMutation(store, 'editor', [
 ])
 export default (node, prefix, suffix, placeholder) => {
   function selectNode(ev) {
+    console.log('click layer')
     if (!node.show) return
     if (!ev.shiftKey) editorMutation['CLEAR_SELECT_2D_NODES']()
     node.select

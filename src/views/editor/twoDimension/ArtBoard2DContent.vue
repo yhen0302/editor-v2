@@ -3,8 +3,22 @@
     class="art-board-content w-full h-full absolute z-10 pointer-events-none"
   >
     <drag-wrapper></drag-wrapper>
-    <element-node v-for="item in editorStore.layerTree2d" :key="item.id" :node="item"></element-node>
-<!--    <component
+    <element-node
+      v-for="item in editorStore.layerTree2d"
+      :key="item.id"
+      :node="item"
+    >
+      <template #default v-if="item.type === 'group'">
+        <div class="group absolute">
+          <element-node
+            v-for="child in item.children"
+            :key="child.key"
+            :node="child"
+          ></element-node>
+        </div>
+      </template>
+    </element-node>
+    <!--    <component
       :style="{ pointerEvents: editorStore.addDragging ? 'none' : 'auto' }"
       :is="item.type"
       v-for="item in editorStore.layerTree2d"
@@ -21,11 +35,11 @@
 import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
-import ElementNode from "@/views/editor/twoDimension/elements/ElementNode.vue";
+import ElementNode from '@/views/editor/twoDimension/elements/ElementNode.vue'
 
 export default {
   name: 'ArtBoard2DContent',
-  components: {ElementNode},
+  components: { ElementNode },
   setup() {
     const store = useStore()
     const editorStore = useState(store, 'editor') as EditorStore

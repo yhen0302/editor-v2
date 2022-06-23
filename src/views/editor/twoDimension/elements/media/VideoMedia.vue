@@ -1,6 +1,6 @@
 <template>
   <div
-    class="image-media-wrap"
+    class="video-media-wrap"
     :style="{
       width,
       height,
@@ -44,7 +44,7 @@ export default {
 </script>
 
 <style scoped>
-.image-media-wrap {
+.video-media-wrap {
   position: absolute;
   pointer-events: auto;
 }

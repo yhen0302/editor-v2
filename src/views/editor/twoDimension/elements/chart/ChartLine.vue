@@ -23,7 +23,7 @@
 import matrixMixin from '@/views/editor/twoDimension/elements/matrixMixin'
 import * as echarts from 'echarts'
 import { debounce } from '@/util/base'
-import { getCurrentInstance, watch } from 'vue'
+import {getCurrentInstance, onBeforeUnmount, watch} from 'vue'
 import chartMixin from "@/views/editor/twoDimension/elements/chart/chartMixin";
 
 export default {
@@ -113,7 +113,7 @@ export default {
       },
       deep: true
     }
-  }
+  },
 }
 </script>
 
