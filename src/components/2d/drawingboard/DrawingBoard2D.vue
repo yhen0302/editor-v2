@@ -1,5 +1,7 @@
 <template>
-  <div class="drawing-board-2d-main"></div>
+  <div class="drawing-board-2d-main">
+    13
+  </div>
 </template>
 
 <script lang="ts">
