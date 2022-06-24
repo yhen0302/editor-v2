@@ -1,29 +1,30 @@
 <template>
-  <div class="nav-details-ThreeDimensionIcon-3d-main">
-    <ToolBarItem :class="{ hightButton: isVisited == item.name }" class="hightOutLine" v-for="item in dataList" :key="item.type" :icon="item.icon" :name="item.name" @click="choosePicture(item)" />
-    <div class="escButton" v-if="visible" @click="escOut">Esc退出图标模式</div>
+  <div class="nav-details-test-3d-box">
+    <div v-for="(item, key) in detailsList" :key="key">
+      <NavDetailsSelectItem :name="item.name" :type="key" :selected="item.selected" @click="selectItem({ key, target: item })" />
+      <div class="escButton" v-if="visible" @click="escOut()">Esc退出文本模式</div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onUnmounted, nextTick } from 'vue'
 import { useStore } from 'vuex'
-import ToolBarItem from '@/components/utils/toolbar/ToolBarItem.vue'
+import NavDetailsSelectItem from '@/components/utils/navdetails/NavDetailsSelectItem.vue'
 import { EventsBus } from '@/core/EventsBus'
 
 const store = useStore()
-let isVisited = ref('')
 let visible = ref(false)
-const intervalPlane = setInterval(() => {
-  store.state.addElementType && store.state.addElementType.lightMesh && store.state.addElementType.lightMesh.rotateOnAxis(store.state.addElementType.lightMesh.position.clone().set(0, 0, 1), -0.03)
-}, 10)
-
-const dataList = ref([
-  { icon: require('@/assets/images/threeDimensionIcon/Camera.png'), name: '摄像头', type: 'threeCamera' },
-  { icon: require('@/assets/images/threeDimensionIcon/IsolatingSwitch.png'), name: '火警', type: 'threeIsolatingSwitch' },
-  { icon: require('@/assets/images/threeDimensionIcon/LightningRod.png'), name: '消防', type: 'threeLightningRod' },
-  { icon: require('@/assets/images/threeDimensionIcon/WindowPos.png'), name: '风扇', type: 'threeWindowPos' }
-])
+const detailsList = ref({
+  FixedText: {
+    name: '固定式文本',
+    selected: false
+  },
+  RotateText: {
+    name: '自定义旋转文本',
+    selected: false
+  }
+})
 
 const mouseEnter = () => {
   document.querySelector('body').style.cursor = 'pointer'
@@ -31,8 +32,11 @@ const mouseEnter = () => {
 const mouseLeave = () => {
   document.querySelector('body').style.cursor = 'default'
 }
+
 const escOut = () => {
-  isVisited.value = ''
+  for (let key in detailsList.value) {
+    detailsList.value[key].selected = false
+  }
   visible.value = false
   store.state.addElementType = {
     mesh: store.state.addElementType.mesh,
@@ -46,11 +50,7 @@ const escOut = () => {
 }
 
 onUnmounted(() => {
-  if (store.state.addElementType && store.state.addElementType.lightMesh) {
-    store.state.addElementType.lightMesh.visible = false
-  }
   EventsBus.emit('toolBarSelected', { node: {} })
-  clearInterval(intervalPlane)
   document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseenter', mouseEnter)
   document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseleave', mouseLeave)
   document.onkeydown = null
@@ -59,7 +59,7 @@ onUnmounted(() => {
   })
 })
 
-const choosePicture = (item) => {
+const selectItem = (options) => {
   if (!visible.value) {
     document.getElementsByClassName('scene-3d')[0].addEventListener('mouseenter', mouseEnter)
     document.getElementsByClassName('scene-3d')[0].addEventListener('mouseleave', mouseLeave)
@@ -69,33 +69,32 @@ const choosePicture = (item) => {
       }
     }
   }
-  isVisited.value = item.name
+
+  const { key, target } = options
+  let flag = target.selected
+  for (const k in detailsList.value) {
+    const detail = detailsList.value[k]
+    detail.selected = false
+  }
+  target.selected = !flag
+
   visible.value = true
+
   store.state.addElementType = {
-    type: 'icon',
-    icon: item.icon,
-    name: item.name,
-    smallType: item.type,
+    type: 'text',
+    smallType: key,
     mesh: null,
     moving: false,
     lightMesh: null
   }
-  let node = { type: 'icon3D', selected: item.type, name: item.name }
+  let node = { type: 'text3D', selected: key, name: target.name }
   EventsBus.emit('toolBarSelected', { node })
 }
 </script>
 
 <style lang="postcss" scoped>
-.nav-details-ThreeDimensionIcon-3d-main {
-  grid-auto-rows: 136px;
-  @apply h-full w-full grid grid-cols-2;
-}
-
-.hightButton {
-  outline: 2px #6582fe solid;
-}
-.hightOutLine:hover {
-  outline: 2px #fff solid !important;
+.nav-details-test-3d-box {
+  @apply w-full h-full flex-row;
 }
 
 .escButton {

@@ -3,6 +3,7 @@ import store from '../../store'
 import { EventsBus } from '../EventsBus'
 import { throttled } from '../utils/base'
 import { any } from 'underscore'
+import * as Text from '../utils/text3D'
 
 declare const Bol3D: any
 
@@ -657,19 +658,25 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     if (intersects.length > 0 && (store as any).state.addElementType) {
       const object = intersects[0].object
       const name = intersects[0].object.name
-      if (name.includes('iconSelf')) {
+      if (name.includes('iconSelf') || name.includes('textSelf')) {
         container.clickObjects.forEach((item: any, i: number) => {
           if (item.uuid == object.uuid) {
             container.clickObjects.splice(i, 1)
           }
         })
         container.orbitControls.enableRotate = false
-        lightPlane.visible = true
-        object.add(lightPlane)
-        dragObj = object
         ;(store as any).state.addElementType.mesh = object
-        ;(store as any).state.addElementType.moving = !(store as any).state.addElementType.moving
+        dragObj = object
         document.getElementsByClassName('scene-3d')[0].addEventListener('mousemove', newMove)
+        if (name.includes('iconSelf')) {
+          lightPlane.visible = true
+          object.add(lightPlane)
+          const node = { type: 'icon3D', selected: object.name, name: object.name, clickObj: true }
+          EventsBus.emit('toolBarSelected', { node })
+        } else if (name.includes('textSelf')) {
+          const node = { type: 'text3D', selected: object.userData.selected, name: object.name, clickObj: true }
+          EventsBus.emit('toolBarSelected', { node })
+        }
       }
     }
   }
@@ -715,8 +722,12 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         ;(store as any).state.elementIcon.push(icon)
         setTimeout(() => {
           ;(store as any).state.addElementType.moving = !(store as any).state.addElementType.moving
-        }, 50)
-      } else if (!name.includes('iconSelf')) {
+        }, 100)
+      } else if (element.type == 'text' && !name.includes('textSelf')) {
+        EventsBus.emit('toolBarSelected', { node: {} })
+        Text.addCanvas(container, position, element.smallType)
+      } else if (!name.includes('iconSelf') && !name.includes('textSelf')) {
+        EventsBus.emit('toolBarSelected', { node: {} })
         lightPlane.visible = false
       }
     }

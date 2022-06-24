@@ -42,6 +42,7 @@ import GammaPassForms3D from './editForms/GammaPassForms3D.vue'
 import MSAAPassForms3D from './editForms/MSAAPassForms3D.vue'
 // 添加元素图标模块
 import Icon from '../rightKanBan/Icon.vue'
+import Text from '../rightKanBan/Text.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 
@@ -71,7 +72,8 @@ export default defineComponent({
     GammaPassForms3D,
     MSAAPassForms3D,
     // 添加元素图标板块
-    Icon
+    Icon,
+    Text
   },
   setup() {
     const store = useStore()
@@ -181,6 +183,10 @@ export default defineComponent({
           break
         case 'icon3D':
           type.value = 'Icon'
+          node.value = e.node
+          break
+        case 'text3D':
+          type.value = 'Text'
           node.value = e.node
           break
       }

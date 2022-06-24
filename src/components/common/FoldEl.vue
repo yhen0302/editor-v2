@@ -1,24 +1,19 @@
 <template>
   <section class="fold-el">
     <slot name="header" fold="fold">
-      <div
-        class="fold-header box-border flex items-center justify-between w-full"
-        @click="controlFold && (fold = !fold)"
-        :class="{ fold: fold, 'control-fold': controlFold }"
-      >
+      <div class="fold-header box-border flex items-center justify-between w-full" @click="controlFold && (fold = !fold)" :class="{ fold: fold, 'control-fold': controlFold }">
         <p class="text-12">{{ title }}</p>
-        <img
-          src="~@/assets/images/editor_unfold_icn_dark.png"
-          class="fold-icon"
-          v-show="controlFold"
-        />
+        <img src="~@/assets/images/editor_unfold_icn_dark.png" class="fold-icon" v-show="controlFold" />
       </div>
     </slot>
     <line-el color="#363741" v-if="lineShow"></line-el>
     <div
       class="fold-content-wrapper box-border"
       ref="foldContent"
-      :style="{ height: realHeight,overflow:controlFold?'hidden':'visible'}"
+      :style="{
+        height: realHeight,
+        overflow: controlFold ? 'hidden' : 'visible'
+      }"
     >
       <div class="fold-content">
         <slot></slot>
@@ -29,8 +24,8 @@
 
 <script>
 import { computed, nextTick, ref, watch } from 'vue'
-import LineEl from '@/component/common/LineEl'
-import {cssUnitToNumber} from "@/util/base";
+import LineEl from '@/components/utils/common/LineEl.vue'
+import { cssUnitToNumber } from '@/core/2d/base'
 
 export default {
   name: 'FoldEl',
@@ -53,10 +48,13 @@ export default {
         get() {
           if (!cacheHeight.value && props.show) updateHeight()
           return props.show
+        },
+        set(newVal) {
+          context.emit('update:fold', newVal)
         }
       })
     } else {
-      fold = ref(true)
+      fold = ref(props.show)
     }
 
     updateHeight()
@@ -72,15 +70,11 @@ export default {
       (newVal) => {
         newVal && updateHeight()
       },
-        {flush:'sync'}
+      { flush: 'sync' }
     )
 
     const realHeight = computed(() => {
-      return fold.value
-        ? cacheHeight.value
-          ? cacheHeight.value + 'px'
-          : 'auto'
-        : '0px'
+      return fold.value ? (cacheHeight.value ? cacheHeight.value + 'px' : 'auto') : '0px'
     })
     return { fold, foldContent, cacheHeight, realHeight }
   }
