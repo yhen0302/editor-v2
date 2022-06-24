@@ -21,7 +21,8 @@ export default createStore({
 
     //  添加元素变量
     addElementType: null,
-    elementIcon: [] // 存储图标数组
+    elementIcon: [], // 存储图标数组
+    elementText: []  // 存储文本数组
   },
   mutations: {},
   actions: {},

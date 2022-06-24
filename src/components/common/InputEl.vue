@@ -28,7 +28,8 @@ export default {
         return toType(props.type, props.value)
       },
       set(val) {
-        val <= props.max && val >= props.min && context.emit('update:value', toType(props.type, val))
+        if (props.type === 'number') if (!(val <= props.max && val >= props.min)) return
+        context.emit('update:value', toType(props.type, val))
       }
     })
 
@@ -37,7 +38,7 @@ export default {
         case '':
           return value.toString()
         case 'number':
-          return Number(Number(value).toFixed(0))
+          return Number(Number(value))
         case 'angle':
           return Number(value) + '°'
       }
