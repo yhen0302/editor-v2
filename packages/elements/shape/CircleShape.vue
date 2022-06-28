@@ -1,6 +1,6 @@
 <template>
   <div
-      class="rounded-rect-shape pointer-events-auto absolute"
+      class="circle-rect-shape pointer-events-auto absolute"
       @click.stop
       draggable="false"
       v-drag="{ rect: node.option.matrixOption, select: node.select }"
@@ -20,10 +20,11 @@
 <script lang="ts">
 import { hexColorToRgba, toPx } from '@/util/base'
 import { computed, ref, watch } from 'vue'
-import matrixMixin from "@/views/editor/twoDimension/elements/matrixMixin";
+import matrixMixin from '../matrixMixin'
+
 
 export default {
-  name: 'RoundedRectShape',
+  name: 'CircleShape',
   props: ['node'],
   emits: ['select', 'append'],
   mixins:[matrixMixin],
@@ -46,7 +47,7 @@ export default {
 </script>
 
 <style scoped>
-.rounded-rect-shape{
-  border-radius: 10%;
+.circle-rect-shape{
+  border-radius: 50%;
 }
 </style>

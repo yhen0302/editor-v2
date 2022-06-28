@@ -1,10 +1,10 @@
 <template>
   <div
-      class="rounded-rect-shape pointer-events-auto absolute"
-      @click.stop
-      draggable="false"
-      v-drag="{ rect: node.option.matrixOption, select: node.select }"
-      :style="{
+    class="triangle-shape pointer-events-auto absolute"
+    @click.stop
+    draggable="false"
+    v-drag="{ rect: node.option.matrixOption, select: node.select }"
+    :style="{
       width,
       height,
       left,
@@ -12,31 +12,32 @@
       backgroundColor: color,
       opacity
     }"
-      @mousedown="onMouseDown"
-      ref="el"
+    @mousedown="onMouseDown"
   ></div>
 </template>
 
 <script lang="ts">
 import { hexColorToRgba, toPx } from '@/util/base'
-import { computed, ref, watch } from 'vue'
+import { computed} from 'vue'
 import matrixMixin from "@/views/editor/twoDimension/elements/matrixMixin";
 
 export default {
-  name: 'RoundedRectShape',
+  name: 'TriangleShape',
   props: ['node'],
   emits: ['select', 'append'],
   mixins:[matrixMixin],
   setup(props: any) {
+    // exterior
     const color = computed(() => {
       return hexColorToRgba(
-          props.node.option.transparencyColor.color,
-          props.node.option.transparencyColor.transparency
+        props.node.option.transparencyColor.color,
+        props.node.option.transparencyColor.transparency
       )
     })
     const opacity = computed(() => {
       return (props.node.option.transparency / 100).toFixed(2)
     })
+
     return {
       color,
       opacity
@@ -46,7 +47,7 @@ export default {
 </script>
 
 <style scoped>
-.rounded-rect-shape{
-  border-radius: 10%;
+.triangle-shape {
+  clip-path: polygon(0 0, 0% 100%, 100% 100%);
 }
 </style>

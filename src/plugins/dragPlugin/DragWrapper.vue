@@ -166,6 +166,7 @@ export default defineComponent({
         function wrapperDragUp(ev: MouseEvent) {
           let target: HTMLElement = ev.target as HTMLElement
           isDrag.value = isRunning.value = false
+          dragStatus.value = DRAG_STATUS.IDLE
           modifyMouseShape('auto')
           preX = preY = offsetY = offsetX = 0
         }

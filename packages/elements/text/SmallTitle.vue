@@ -19,7 +19,7 @@
     @scroll.stop
     ref="el"
   >
-    <h3
+    <h6
       class="big-title flex-1"
       :class="fontStyle"
       :style="{
@@ -35,7 +35,7 @@
       @keypress.stop
     >
       {{ value }}
-    </h3>
+    </h6>
   </div>
 </template>
 
@@ -45,7 +45,7 @@ import { hexColorToRgba, toPx } from '@/util/base'
 import matrixMixin from "@/views/editor/twoDimension/elements/matrixMixin";
 
 export default {
-  name: 'BaseTitle',
+  name: 'SmallTitle',
   props: ['node'],
   emits: ['select', 'append'],
   mixins:[matrixMixin],

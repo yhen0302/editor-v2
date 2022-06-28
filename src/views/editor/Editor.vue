@@ -27,8 +27,8 @@
       <!--   图层选择/编辑   -->
       <aside class="layer-option-area flex flex-col">
         <!--    图层管理    -->
-        <section class="layer-tree-box flex-1">
-          <nav-tab v-model:index="layerTreeIndex">
+        <section class="layer-tree-box">
+          <nav-tab v-model:index="layerTreeIndex" class="h-full">
             <template v-slot:header>
               <ul class="nav-tab-header items-center flex text-14">
                 <li
@@ -59,12 +59,14 @@
                   />
                 </div>
                 <!--二维图层树-->
-                <layer-list2d v-show="editorStore.dimensionType === '2d'"
+                <layer-list2d
+                  class="layer-tree"
+                  v-show="editorStore.dimensionType === '2d'"
                 ></layer-list2d>
                 <!--三维图层树-->
                 <layer-list
                   :node="editorStore.layerTree3d"
-                  class="tree-3d"
+                  class="tree-3d layer-tree"
                   v-show="editorStore.dimensionType === '3d'"
                 >
                   <template v-slot:prefix>
@@ -103,37 +105,9 @@
           </nav-tab>
         </section>
         <!--    元素编辑    -->
-        <section class="property-edit-box">
-          <nav-tab v-model:index="propertyEditIndex">
-            <template v-slot:header>
-              <ul class="nav-tab-header items-center flex text-14">
-                <li
-                  class="nav-tab-h-item cursor-pointer"
-                  v-for="(item, index) in ['基础设置', '交互事件']"
-                  :class="{ active: propertyEditIndex === index }"
-                  @click="propertyEditIndex = index"
-                  :key="item"
-                >
-                  {{ item }}
-                </li>
-              </ul>
-            </template>
-            <nav-tab-item>
-              <component :is="GET_CONFIGURATOR"></component>
-              <!--<axis-line-chart-configurator></axis-line-chart-configurator>-->
-              <!--<text-configurator></text-configurator> -->
-              <!--<shape-configurator></shape-configurator>-->
-              <!--<media-configurator></media-configurator>-->
-              <!--<model-configurator></model-configurator>-->
-            </nav-tab-item>
-            <nav-tab-item>
-              <event></event>
-            </nav-tab-item>
-          </nav-tab>
-        </section>
+        <element-edit-configurator></element-edit-configurator>
       </aside>
     </section>
-
   </div>
 </template>
 
@@ -142,32 +116,22 @@ import { computed, defineComponent } from 'vue'
 import { Ref, ref } from '@vue/reactivity'
 import { layerIcon } from '@/views/editor/localData'
 
-import NavBar from './child/NavBar.vue'
-import NavTab from '@/component/common/navTab/NavTab.vue'
-import NavTabItem from '@/component/common/navTab/NavTabItem.vue'
-import TipButton from '@/component/content/TipButton.vue'
-import AfterProcess from '@/views/editor/threeDimension/AfterProcess.vue'
-import ShadowRadio from '@/views/editor/threeDimension/ShadowRadio.vue'
-import ArtBoard from '@/views/editor/child/ArtBoard.vue'
-import LayerList from '@/plugins/layerPlugin/LayerList.vue'
-import Event from '@/views/editor/twoDimension/Event.vue'
-import AxisLineChartConfigurator from '@/views/editor/configurator/AxisLineChartConfigurator.vue'
-import TextConfigurator from '@/views/editor/configurator/TextConfigurator.vue'
-import ShapeConfigurator from '@/views/editor/configurator/ShapeConfigurator.vue'
-import MediaConfigurator from '@/views/editor/configurator/MediaConfigurator.vue'
-import ModelConfigurator from '@/views/editor/configurator/ModelConfigurator.vue'
-import PieChartConfigurator from '@/views/editor/configurator/PieChartConfigurator.vue'
-import DimensionNavBar from '@/views/editor/child/DimensionNavBar.vue'
-import SelectArea from '@/views/editor/child/SelectArea.vue'
-import ScreenPageTree from '@/views/editor/child/ScreenPageTree.vue'
 import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
-import ArtBoard3DContent from '@/views/editor/threeDimension/ArtBoard3DContent.vue'
-import ArtBoard2DContent from '@/views/editor/twoDimension/ArtBoard2DContent.vue'
 import { EditorStore } from '@/store/editor/type'
 import { EditorGetter } from '@/store/editor/getters'
-import LayerList2d from "@/views/editor/twoDimension/LayerList2d.vue";
-import StaticDataDialog from "@/views/editor/twoDimension/StaticDataDialog.vue";
+import ElementEditConfigurator from '@/views/editor/child/ElementEditConfigurator.vue'
+import NavTabItem from '@/component/common/navTab/NavTabItem.vue'
+import ScreenPageTree from '@/views/editor/child/ScreenPageTree.vue'
+import LayerList from '@/plugins/layerPlugin/LayerList.vue'
+import LayerList2d from '@/views/editor/twoDimension/LayerList2d.vue'
+import ArtBoard from '@/views/editor/child/ArtBoard.vue'
+import ArtBoard2DContent from '@/views/editor/twoDimension/ArtBoard2DContent.vue'
+import ArtBoard3DContent from '@/views/editor/threeDimension/ArtBoard3DContent.vue'
+import NavBar from '@/views/editor/child/NavBar.vue'
+import DimensionNavBar from '@/views/editor/child/DimensionNavBar.vue'
+import SelectArea from '@/views/editor/child/SelectArea.vue'
+import NavTab from '@/component/common/navTab/NavTab.vue'
 
 /* 编辑器 */
 export default defineComponent({
@@ -176,28 +140,18 @@ export default defineComponent({
     return { testData: false }
   },
   components: {
-    StaticDataDialog,
-    LayerList2d,
-    ArtBoard2DContent,
-    ArtBoard3DContent,
-    ScreenPageTree,
+    NavTab,
     SelectArea,
     DimensionNavBar,
-    ModelConfigurator,
-    MediaConfigurator,
-    ShapeConfigurator,
-    TextConfigurator,
-    PieChartConfigurator,
-    AxisLineChartConfigurator,
-    Event,
-    LayerList,
+    NavBar,
+    ArtBoard3DContent,
+    ArtBoard2DContent,
     ArtBoard,
-    ShadowRadio,
-    AfterProcess,
-    TipButton,
+    LayerList2d,
+    LayerList,
+    ScreenPageTree,
     NavTabItem,
-    NavTab,
-    NavBar
+    ElementEditConfigurator
   },
   setup() {
     const store = useStore()
@@ -225,12 +179,8 @@ export default defineComponent({
       return false
     }
 
-    //property edit
-    const propertyEditIndex: Ref<number> = ref<number>(0)
-
     return {
       layerTreeIndex,
-      propertyEditIndex,
       layerIcon,
       hiddenControl,
       findHasFalseShowParentNode,
@@ -258,11 +208,11 @@ layer-option-area
 }
 
 /* edit */
-.layer-tree-box,
-.property-edit-box {
-  flex: 1;
+.layer-tree-box {
+  /*flex: 1;*/
   background: #25262d;
-  padding-bottom: 16px;
+  max-height: 35%;
+  overflow: hidden;
 }
 
 .nav-tab-header {
@@ -282,6 +232,8 @@ layer-option-area
 }
 
 .screen-tree-box {
+  overflow: hidden;
+  height: 100%;
   width: 100%;
   padding-top: 16px;
 }
@@ -312,7 +264,11 @@ layer-option-area
   padding-left: calc((var(--level) - 2) * 14px + var(--default-pl) - 10px);
 }
 .screen-tree-wrap {
-  max-height: 50vh;
-  overflow-y: scroll;
+  height: calc(100% - 65px);
+  overflow-y: hidden;
+}
+.layer-tree {
+  height: calc(100% - 42px);
+  overflow-y: auto;
 }
 </style>

@@ -1,5 +1,5 @@
 `<template>
-  <div class="text-configurator property-box">
+  <div class="text-configurator">
     <base-position-configurator></base-position-configurator>
     <base-exterior-configurator></base-exterior-configurator>
     <base-text-configurator></base-text-configurator>

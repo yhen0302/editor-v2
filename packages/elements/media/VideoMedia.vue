@@ -1,6 +1,6 @@
 <template>
   <div
-    class="image-media-wrap"
+    class="video-media-wrap"
     :style="{
       width,
       height,
@@ -13,9 +13,11 @@
     v-drag="{ rect: node.option.matrixOption, select: node.select }"
     draggable="false"
   >
-    <img
-      class="image-media pointer-events-auto absolute"
+    <video
+      class="video-media pointer-events-auto absolute"
       draggable="false"
+      autoplay
+      loop
       :src="src"
       v-if="src"
     />
@@ -25,28 +27,28 @@
 
 <script lang="ts">
 import { computed } from 'vue'
-import matrixMixin from "@/views/editor/twoDimension/elements/matrixMixin";
+import matrixMixin from '@/views/editor/twoDimension/elements/matrixMixin'
 
 export default {
-  name: 'ImageMedia',
+  name: 'VideoMedia',
   props: ['node'],
-  mixins:[matrixMixin],
   emits: ['select', 'append'],
+  mixins: [matrixMixin],
   setup(props: any) {
     const src = computed(() => props.node.option.src)
     return {
       src
     }
-  },
+  }
 }
 </script>
 
 <style scoped>
-.image-media-wrap {
+.video-media-wrap {
   position: absolute;
   pointer-events: auto;
 }
-.image-media{
+.video-media {
   width: 100%;
   height: 100%;
   object-fit: fill;

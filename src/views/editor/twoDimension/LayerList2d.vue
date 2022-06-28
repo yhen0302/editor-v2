@@ -74,4 +74,8 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.layer-tree-2d{
+
+}
+</style>

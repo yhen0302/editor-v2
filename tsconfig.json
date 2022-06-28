@@ -17,6 +17,6 @@
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
-  "include": ["src/*.ts","src/*.d.ts","./type.d.ts"],
+  "include": ["src/*.ts","src/*.d.ts","./type.d.ts","packages/*.ts"],
   "exclude": ["node_modules", "dist","src/plugins/dragPlugin/**/*.ts"]
 }

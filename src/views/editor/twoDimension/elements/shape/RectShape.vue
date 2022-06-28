@@ -20,9 +20,6 @@
 <script lang="ts">
 import { hexColorToRgba, toPx } from '@/util/base'
 import { computed, ref, watch } from 'vue'
-import { useStore } from 'vuex'
-import { useMutation, useState } from '@/store/helper'
-import { EditorMutation } from '@/store/editor/mutations'
 import matrixMixin from "@/views/editor/twoDimension/elements/matrixMixin";
 
 export default {
