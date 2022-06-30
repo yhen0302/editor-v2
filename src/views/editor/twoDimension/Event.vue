@@ -11,7 +11,7 @@
         </div>
       </nav-tab-item>
       <nav-tab-item>
-        <div class="add-event-detail property-box">
+        <div class="add-event-detail">
           <div class="add-event-item-wrapper">
             <p class="a-e-i-title">触发事件</p>
             <div class="a-e-i-edit-box">

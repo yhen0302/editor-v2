@@ -1,5 +1,5 @@
 <template>
-  <section class="media-configurator property-box">
+  <section class="media-configurator">
     <base-position-configurator></base-position-configurator>
     <base-upload-configurator></base-upload-configurator>
   </section>

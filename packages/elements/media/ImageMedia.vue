@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import { computed } from 'vue'
-import matrixMixin from "@/views/editor/twoDimension/elements/matrixMixin";
+import matrixMixin from "../matrixMixin";
 
 export default {
   name: 'ImageMedia',

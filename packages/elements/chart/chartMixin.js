@@ -1,4 +1,4 @@
-import { clone, valueHandle } from '../../../../../util/base'
+import { clone, valueHandle } from '../util/base'
 
 export default {
   methods: {
@@ -10,8 +10,6 @@ export default {
         const echartsOpt = clone(this.node.option.echartsOption)
         const tempSeries = echartsOpt.series[0]
         echartsOpt.series = []
-        console.log(this.node.option.apiMapping)
-        console.log('api')
         fetch(this.node.option.apiUrl)
           .then((res) => res.json())
           .then((data) => {

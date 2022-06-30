@@ -22,9 +22,9 @@
 <script>
 import matrixMixin from '../matrixMixin'
 import * as echarts from 'echarts'
-import { debounce } from '@/util/base'
+import { debounce } from '../util/base'
 import { getCurrentInstance, watch } from 'vue'
-import chartMixin from "@/views/editor/twoDimension/elements/chart/chartMixin";
+import chartMixin from "./chartMixin";
 
 export default {
   name: 'ChartBar',

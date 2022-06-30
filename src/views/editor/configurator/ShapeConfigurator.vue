@@ -1,5 +1,5 @@
 <template>
-  <div class="shape-configurator property-box">
+  <div class="shape-configurator">
     <base-position-configurator></base-position-configurator>
     <base-exterior-configurator></base-exterior-configurator>
   </div>

@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { hexColorToRgba, toPx } from '@/util/base'
+import { hexColorToRgba, toPx } from '../util/base'
 import { computed, ref, watch } from 'vue'
 import matrixMixin from '../matrixMixin'
 

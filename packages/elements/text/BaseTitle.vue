@@ -41,8 +41,8 @@
 
 <script lang="ts">
 import { computed, ref, toRaw, watch } from 'vue'
-import { hexColorToRgba, toPx } from '@/util/base'
-import matrixMixin from "@/views/editor/twoDimension/elements/matrixMixin";
+import { hexColorToRgba, toPx } from '../util/base'
+import matrixMixin from "../matrixMixin";
 
 export default {
   name: 'BaseTitle',

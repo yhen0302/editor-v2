@@ -20,11 +20,11 @@
 </template>
 
 <script>
-import matrixMixin from '@/views/editor/twoDimension/elements/matrixMixin'
+import matrixMixin from '../matrixMixin'
 import * as echarts from 'echarts'
-import { debounce } from '@/util/base'
-import {getCurrentInstance, onBeforeUnmount, watch} from 'vue'
-import chartMixin from "@/views/editor/twoDimension/elements/chart/chartMixin";
+import { debounce } from '../util/base'
+import {getCurrentInstance, watch} from 'vue'
+import chartMixin from "./chartMixin";
 
 export default {
   name: 'ChartLine',

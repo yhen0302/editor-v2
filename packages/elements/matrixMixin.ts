@@ -1,5 +1,5 @@
 //@ts-nocheck
-import {toPx} from "../../../../util/base";
+import {toPx} from "./util/base";
 
 export default {
   methods:{

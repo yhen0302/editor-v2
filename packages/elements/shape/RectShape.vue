@@ -18,9 +18,9 @@
 </template>
 
 <script lang="ts">
-import { hexColorToRgba, toPx } from '@/util/base'
+import { hexColorToRgba, toPx } from '../util/base'
 import { computed, ref } from 'vue'
-import matrixMixin from "@/views/editor/twoDimension/elements/matrixMixin";
+import matrixMixin from "../matrixMixin";
 
 export default {
   name: 'RectShape',
