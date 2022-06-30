@@ -25,7 +25,7 @@
 <script>
 import { computed, nextTick, ref, watch } from 'vue'
 import LineEl from '@/components/utils/common/LineEl.vue'
-import { cssUnitToNumber } from '@/core/2d/base'
+import { cssUnitToNumber } from '@/core/2d/util/base'
 
 export default {
   name: 'FoldEl',

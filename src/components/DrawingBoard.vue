@@ -1,8 +1,10 @@
 <template>
   <div class="middle-main">
     <div
-      class="drawing-board-container"
+      class="drawing-board-container art-board-wrapper"
       ref="drawingBoardContainer"
+
+      v-dropable
       :style="{ width: containerWidthPx, height: containerHeightPx, transform: `translate(${drawingBoardContainerX}px,${drawingBoardContainerY}px)` }"
     >
       <div
@@ -45,7 +47,7 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted, Ref, ref } from 'vue'
 
-import DrawingBoard2D from '@/components/2d/drawingboard/DrawingBoard2D.vue'
+import DrawingBoard2D from '@/components/2d/ArtBoard2DContent.vue'
 import DrawingBoard3D from '@/components/3d/drawingboard/DrawingBoard3D.vue'
 import { useStore } from 'vuex'
 

@@ -17,9 +17,9 @@ input::-webkit-inner-spin-button {
 }
 
 .property-box {
-  max-height: 48vh;
-  min-height: 38vh;
-  overflow-y: scroll;
+  /*max-height: 48vh;*/
+  /*min-height: 38vh;*/
+  /*overflow-y: scroll;*/
 }
 
 *::-webkit-scrollbar {

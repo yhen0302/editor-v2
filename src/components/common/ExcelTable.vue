@@ -7,6 +7,7 @@
       :height="canvasHeight"
       @wheel.stop="scrollExcel"
       @mousedown.stop="selectCell"
+      @dblclick.stop="editCell"
     ></canvas>
 
     <div class="scrollbar-y absolute">
@@ -20,14 +21,26 @@
     <div class="scrollbar-x absolute">
       <slider-el v-model:value="scroll.x" :max="18" :tip="false"></slider-el>
     </div>
-
+    <div
+      class="editor-inp-wrap absolute"
+      :style="toPx(editInpRect)"
+      v-show="showEditInp"
+    >
+      <input
+        type="text"
+        class="editor-inp block w-full h-full"
+        ref="editInp"
+        v-model="inpVal"
+        @blur="showEditInp=false"
+      />
+    </div>
   </section>
 </template>
 
 <script>
-import { onMounted, ref, watch } from 'vue'
-import SliderEl from '@/component/common/SliderEl'
-import { toPx } from '@/util/base'
+import {computed, nextTick, onMounted, onUpdated, ref, watch} from 'vue'
+import SliderEl from '@/components/common/SliderEl'
+import { toPx } from '@/core/2d/util/base'
 
 const letters = new Array(26)
   .fill()
@@ -36,10 +49,14 @@ const letters = new Array(26)
 export default {
   name: 'ExcelTable',
   components: { SliderEl },
+
+  props: {
+    canvasWidth: { type: Number, default: 704 },
+    canvasHeight: { type: Number, default: 340 },
+    data: { type: Array, default: () => [] }
+  },
   setup(props, context) {
     const excelEl = ref()
-    const canvasWidth = ref(704)
-    const canvasHeight = ref(340)
     const defaultOffsetX = 61
     const defaultOffsetY = 31
     const scroll = ref({
@@ -47,17 +64,6 @@ export default {
       y: 0
     })
     let update = 'y'
-    const tableData = [
-      [1, 2, 3, 4, 5, 6, 7, 8, 'xxx', 'sdasd', 'skkk', 'ddd', 'fff'],
-      ['xxx', 234, 324, 'xxaa', 'sda'],
-      ['lkk', 'xx', 'sda', 'aaa', 'bbb', 'ccc'],
-      ['lkk', '', 'sda', 'aaa', 'bbb', 'ccc'],
-      ['lkk', 'bb', 'sda', 'aaa', 'bbb', 'ccc'],
-      ['lkk', '12', 'sda', 'aaa', 'bbb', 'ccc'],
-      ['lkk', '231', 'sda', 'aaa', 'bbb', 'ccc'],
-      ['lkk', '3424', 'sda', 'aaa', 'bbb', 'ccc'],
-      ['222']
-    ]
 
     watch(
       () => scroll.value.x,
@@ -85,10 +91,10 @@ export default {
 
     onMounted(() => {
       const ctx = excelEl.value.getContext('2d')
-      const rect = excelEl.value.parentElement.getBoundingClientRect()
-      canvasWidth.value = rect.width
-      canvasHeight.value = rect.height
       draw(ctx)
+    })
+    onUpdated(()=>{
+      draw()
     })
 
     function draw(ctx = excelEl.value.getContext('2d')) {
@@ -152,22 +158,24 @@ export default {
 
       // table date render
       // 解析行
-      for (let i = 0; i < tableData.length; i++) {
+      for (let i = 0; i < props.data.length; i++) {
         if (scroll.value.y <= i) {
           // 解析列
-          for (let j = 0; j < tableData[i].length; j++) {
-            // pass
-            if (scroll.value.x <= j) {
-              ctx.fillText(
-                tableData[i][j],
-                dataOffsetX + widths[i] / 2,
-                dataOffsetY + heights[j] / 2,
-                widths[i + scroll.value.x]
-              )
-              dataOffsetX += widths[i] + 1
+          if (props.data[i]) {
+            for (let j = 0; j < props.data[i].length; j++) {
+              // pass
+              if (scroll.value.x <= j) {
+                if (props.data[i][j] !== undefined)
+                  ctx.fillText(
+                    props.data[i][j],
+                    dataOffsetX + widths[i] / 2,
+                    dataOffsetY + heights[j] / 2,
+                    widths[i + scroll.value.x]
+                  )
+                dataOffsetX += widths[i] + 1
+              }
             }
           }
-
           dataOffsetY += heights[i] + 1
         }
         dataOffsetX = 61
@@ -190,7 +198,9 @@ export default {
       width: 80,
       height: 30,
       top: 31,
-      left: 61
+      left: 61,
+      i: 0,
+      j: 0 // 记录选中节点的坐标位置
     })
     function findCellRectByXY(x, y) {
       let left = x - defaultOffsetX
@@ -213,32 +223,80 @@ export default {
         top,
         width: widths[i],
         height: heights[i],
-        i,j
+        i,
+        j
       }
     }
     function selectCell(ev) {
+      hiddenInp()
       const cellRect = findCellRectByXY(ev.offsetX, ev.offsetY)
+      // update = cellRect.left < 100 ? 'y' : 'x'
+      for (let key of Object.keys(cellRect)) {
+        selectorRect.value[key] = cellRect[key]
+      }
+    }
+    function selectorRectChange(newVal, oldVal) {
       const ctx = excelEl.value.getContext('2d')
-      update = 'x'
+      update = 'y'
       draw(ctx)
       ctx.strokeStyle = '#6582FE'
       ctx.lineWidth = 2
-      console.log(cellRect)
-      ctx.strokeRect(cellRect.left,cellRect.top,cellRect.width,cellRect.height)
+      ctx.strokeRect(newVal.left, newVal.top, newVal.width, newVal.height)
     }
+    watch(() => selectorRect.value, selectorRectChange, { deep: true })
 
+    // edit
+    const editInp = ref()
+    const showEditInp = ref(false)
+    const editInpRect = ref({
+      width: 0,
+      height: 0,
+      left: 0,
+      top: 0
+    })
+    const inpVal = computed({
+      get() {
+        return props.data?.[selectorRect.value.j]?.[selectorRect.value.i]
+      },
+      set(newVal) {
+        // eslint-disable-next-line vue/no-mutating-props
+        context.emit('update:data', [
+          selectorRect.value.j,
+          selectorRect.value.i,
+          isNaN(newVal) ? newVal : Number(newVal)
+        ])
+        // props.data[selectorRect.value.j][selectorRect.value.i] = newVal
+      }
+    })
+    function hiddenInp() {
+      showEditInp.value = false
+    }
+    function editCell(ev) {
+      const rect = findCellRectByXY(ev.offsetX, ev.offsetY)
+      if (rect.i === selectorRect.value.i && rect.j === selectorRect.value.j) {
+        showEditInp.value = true
+        Object.keys(editInpRect.value).forEach(
+          (key) => (editInpRect.value[key] = rect[key])
+        )
+        nextTick().then(() => editInp.value.focus())
+      }
+    }
 
     return {
       excelEl,
-      canvasWidth,
-      canvasHeight,
+      toPx,
       // scroll
       scroll,
       scrollExcel,
       //select
       selectCell,
       selectorRect,
-      toPx
+      editCell,
+      // edit
+      editInpRect,
+      editInp,
+      inpVal,
+      showEditInp
     }
   }
 }
@@ -266,4 +324,7 @@ export default {
   width: 90%;
 }
 
+.editor-inp {
+  background: #151619;
+}
 </style>

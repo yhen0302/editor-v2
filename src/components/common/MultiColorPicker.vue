@@ -11,7 +11,7 @@
 
 <script>
 import { computed, ref, watch } from 'vue'
-import ColorPickerEl from '@/component/common/ColorPickerEl'
+import ColorPickerEl from '@/components/common/ColorPickerEl'
 
 export default {
   name: 'MultiColorPicker',
