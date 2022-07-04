@@ -8,6 +8,25 @@ export default createStore({
     selectBarToolType: '', // 左边工具栏选择类型
     selectedSceneTreeNode: null, // 右边选中的scene tree node
     selectedPageTreeNode: null, // 右边选中的page tree node
+    pageTreeNodes:[ // 页面树
+      {
+        name: '场景1',
+        type: 'scene',
+        selected: true,
+        spread: true,
+        uuid: '0',
+        children: [
+          {
+            name: '页1',
+            type: 'page',
+            selected: true,
+            parent: '0',
+            uuid: '0-0',
+            trees: {} // 见上方注释
+          }
+        ]
+      }
+    ],
     layerTree2d:[],
     select2dNodes:new Set,
     drawingBoard: {

@@ -8,7 +8,7 @@
           </li>
         </ul>
       </template>
-      <nav-tab-item class="pb-16px" style='height:calc(100% - 65px);overflow:auto;'>
+      <nav-tab-item class="pb-16px" style="height: calc(100% - 65px); overflow: auto">
         <component :is="GET_CONFIGURATOR"></component>
         <!--<axis-line-chart-configurator></axis-line-chart-configurator>-->
         <!--<text-configurator></text-configurator> -->
@@ -17,7 +17,7 @@
         <!--<model-configurator></model-configurator>-->
         <line-el color="#363741"></line-el>
       </nav-tab-item>
-      <nav-tab-item>
+      <nav-tab-item class="event-wrap">
         <event></event>
       </nav-tab-item>
     </nav-tab>
@@ -86,5 +86,9 @@ export default {
 .nav-tab-h-item.active {
   color: #f2f2f2;
   border-bottom: 2px solid #6582fe;
+}
+.event-wrap {
+  height: calc(100% - 65px);
+  overflow-y: auto;
 }
 </style>

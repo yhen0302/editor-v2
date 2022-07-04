@@ -13,7 +13,6 @@
       textAlign: align,
       alignItems: verticalAlign
     }"
-    @click.stop
     @mousedown="onMouseDown"
     @wheel.stop.passive
     @scroll.stop

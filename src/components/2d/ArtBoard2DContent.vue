@@ -4,7 +4,7 @@
   >
     <drag-wrapper></drag-wrapper>
     <element-node
-      v-for="item in editorStore.layerTree2d"
+      v-for="item in nodes"
       :key="item.id"
       :node="item"
     >
@@ -36,6 +36,7 @@ import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { EditorStore, LayerTree2dNode } from '@/store/type'
 import ElementNode from '@/components/2d/elements/ElementNode.vue'
+import { computed } from 'vue'
 
 export default {
   name: 'ArtBoard2DContent',
@@ -54,10 +55,15 @@ export default {
     function appendSelectNode(node: LayerTree2dNode) {
       mutation['SELECT_2D_TREE_NODE']({ node })
     }
+
+    const nodes = computed(()=>{
+      return editorStore?.selectedSceneTreeNode?.trees?.twoDimension || []
+      })
     return {
       editorStore,
       selectNode,
-      appendSelectNode
+      appendSelectNode,
+      nodes
     }
   }
 }

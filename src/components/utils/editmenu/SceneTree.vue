@@ -24,25 +24,11 @@ export default defineComponent({
     const store = useStore()
 
     // trees: {threeDimension, twoDimension}
-    const nodes = ref([
-      {
-        name: '场景1',
-        type: 'scene',
-        selected: true,
-        spread: true,
-        uuid: '0',
-        children: [
-          {
-            name: '页1',
-            type: 'page',
-            selected: true,
-            parent: '0',
-            uuid: '0-0',
-            trees: {} // 见上方注释
-          }
-        ]
-      }
-    ])
+    const nodes = computed<any>({get(){
+      return store.state.pageTreeNodes
+      },set(val){
+        return store.state.pageTreeNodes = val
+      }})
 
     // 初始化场景/页
     EventsBus.on('sceneLoaded', (e: any) => {

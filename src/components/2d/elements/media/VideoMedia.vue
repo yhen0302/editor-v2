@@ -9,7 +9,6 @@
     }"
     ref="el"
     @mousedown="onMouseDown"
-    @click.stop
     v-drag="{ rect: node.option.matrixOption, select: node.select }"
     draggable="false"
   >

@@ -56,6 +56,7 @@ export default {
   },
   [EditorGetter.GET_SELECT_NODE](state: EditorStore) {
     if (state.select2dNodes.size > 1) {
+      return [...state.select2dNodes]
       // pass
     } else if (state.select2dNodes.size > 0) {
       const iterator = state.select2dNodes.values()

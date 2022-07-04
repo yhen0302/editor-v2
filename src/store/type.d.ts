@@ -24,8 +24,10 @@ export interface LayerTree2dNode extends TreeNode {
   type: dimensionSelectBarType2d | 'group'
   subType?: selectItemType2d
   option: any
-  contentEditable?:boolean
+  contentEditable?: boolean
   select: boolean
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  emitters: { [key in string]: {} }
   children?: LayerTree2dNode[]
 }
 

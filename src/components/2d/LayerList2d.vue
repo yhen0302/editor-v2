@@ -1,48 +1,43 @@
 <template>
-  <layer-list :node="editorStore.layerTree2d">
+  <layer-list :node="nodes">
     <template v-slot:prefix>
       <div></div>
     </template>
     <template v-slot:placeholder="node" v-once>
       <div style="padding-right: 8px">
-        <img :src="layerIcon[node.type]"/>
+        <img :src="layerIcon[node.type]" />
       </div>
     </template>
     <template v-slot:suffix="node">
       <div
-          class="suffix-icon-wrap cursor-pointer"
-          :class="{
+        class="suffix-icon-wrap cursor-pointer"
+        :class="{
           'opacity-50': findHasFalseShowParentNode(node)
         }"
-          @click.stop="hiddenControl(node)"
+        @click.stop="hiddenControl(node)"
       >
-        <img
-            src="~@/assets/images/editor_unseen_btn_dark.png"
-            v-if="node.show"
-        />
-        <img src="~@/assets/images/editor_seen_btn_dark.png" v-else/>
+        <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
+        <img src="~@/assets/images/editor_seen_btn_dark.png" v-else />
       </div>
     </template>
     <template v-slot:folderPrefix>
-      <img
-          src="~@/assets/images/editor_elementgroup_icn_dark.png"
-          style="margin-right: 8px"
-      />
+      <img src="~@/assets/images/editor_elementgroup_icn_dark.png" style="margin-right: 8px" />
     </template>
   </layer-list>
 </template>
 
 <script>
-import {layerIcon} from './localData'
-import {useStore} from 'vuex'
-import {useMutation, useState} from '@/store/helper'
+import { layerIcon } from './localData'
+import { useStore } from 'vuex'
+import { useMutation, useState } from '@/store/helper'
+import { computed } from 'vue'
 
 export default {
   name: 'LayerList2d',
   setup() {
     const store = useStore()
-    const editorStore =store.state
-    const editorMutation = useMutation(store, 'global', ["CANCEL_SELECT_2D_NODE"])
+    const editorStore = store.state
+    const editorMutation = useMutation(store, 'global', ['CANCEL_SELECT_2D_NODE'])
 
     function findHasFalseShowParentNode(node) {
       while (node.parent) {
@@ -60,15 +55,18 @@ export default {
 
       node.show = !node.show
       if (!node.show) {
-        editorMutation['CANCEL_SELECT_2D_NODE']({node})
+        editorMutation['CANCEL_SELECT_2D_NODE']({ node })
       }
     }
-
+    const nodes = computed(() => {
+      return editorStore?.selectedSceneTreeNode?.trees?.twoDimension || []
+    })
     return {
       layerIcon,
       editorStore,
       hiddenControl,
-      findHasFalseShowParentNode
+      findHasFalseShowParentNode,
+      nodes
     }
   }
 }

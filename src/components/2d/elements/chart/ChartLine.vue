@@ -1,7 +1,6 @@
 <template>
   <div
     class="chart-bar pointer-events-auto absolute"
-    @click.stop
     draggable="false"
     @mousedown="onMouseDown"
     :style="{

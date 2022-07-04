@@ -7,7 +7,7 @@
 
       <nav-tab-item>
         <div class="add-event-wrapper">
-          <button class="add-event-button text-12" @click="navIndex=1">添加事件</button>
+          <button class="add-event-button text-12" @click="navIndex = 1">添加事件</button>
         </div>
       </nav-tab-item>
       <nav-tab-item>
@@ -30,30 +30,31 @@
             <p class="a-e-i-title">触发事件</p>
             <div class="a-e-i-edit-box">
               <div class="page-tree-box">
-                <layer-list :node="editorStore.screenPageTree" class="event-page-tree">
-                  <template v-slot:prefix>
-                    <div></div>
-                  </template>
-                  <template v-slot:placeholder v-once>
-                    <div></div>
-                  </template>
-                  <template v-slot:suffix v-once>
-                    <div></div>
-                  </template>
-                  <template v-slot:folderPrefix v-once>
-                    <div></div>
-                  </template>
-                  <template v-slot:folderSuffix>
-                    <div></div>
-                  </template>
-                </layer-list>
+                <!--                <layer-list :node="editorStore.pageTreeNodes" class="event-page-tree">-->
+                <!--                  <template v-slot:prefix>-->
+                <!--                    <div></div>-->
+                <!--                  </template>-->
+                <!--                  <template v-slot:placeholder v-once>-->
+                <!--                    <div></div>-->
+                <!--                  </template>-->
+                <!--                  <template v-slot:suffix v-once>-->
+                <!--                    <div></div>-->
+                <!--                  </template>-->
+                <!--                  <template v-slot:folderPrefix v-once>-->
+                <!--                    <div></div>-->
+                <!--                  </template>-->
+                <!--                  <template v-slot:folderSuffix>-->
+                <!--                    <div></div>-->
+                <!--                  </template>-->
+                <!--                </layer-list>-->
+                <scene-tree></scene-tree>
               </div>
             </div>
           </div>
           <line-el color="#363741" style="margin-top: 72px"></line-el>
           <div class="footer-box text-12 flex justify-between">
-            <button class="footer-button cancel-button" @click="navIndex=0">取消</button>
-            <button class="footer-button save-button">保存</button>
+            <button class="footer-button cancel-button" @click="navIndex = 0">取消</button>
+            <button class="footer-button save-button" @click="saveEventBehavior">保存</button>
           </div>
         </div>
       </nav-tab-item>
@@ -62,25 +63,34 @@
 </template>
 
 <script lang="ts">
-import {ref, SetupContext} from "vue";
-import {eventAction, eventList} from "./eventConstant";
-import LineEl from "@/components/2d/common/LineEl.vue";
-import {EditorStore} from "@/store/type";
-import {useStore} from "vuex";
-import SelectEl from "@/components/2d/common/SelectEl.vue";
-import NavTab from "@/components/2d/common/navTab/NavTab.vue";
-import NavTabItem from "@/components/2d/common/navTab/NavTabItem.vue";
+import { ref, SetupContext } from 'vue'
+import { eventAction, eventList } from './eventConstant'
+import LineEl from '@/components/2d/common/LineEl.vue'
+import { EditorStore, LayerTree2dNode } from '@/store/type'
+import { useStore } from 'vuex'
+import SelectEl from '@/components/2d/common/SelectEl.vue'
+import NavTab from '@/components/2d/common/navTab/NavTab.vue'
+import NavTabItem from '@/components/2d/common/navTab/NavTabItem.vue'
+import SceneTree from '@/components/utils/editmenu/SceneTree.vue'
+import { useGetter } from '@/store/helper'
 
 export default {
-  name: "Event",
-  components: {NavTabItem, NavTab, SelectEl, LineEl, },
-  setup(props:any, context:SetupContext) {
+  name: 'Event',
+  components: { SceneTree, NavTabItem, NavTab, SelectEl, LineEl },
+  setup(props: any, context: SetupContext) {
     const navIndex = ref(0)
     const selectEvent = ref('click')
     const selectEventAction = ref('linkToPage')
-    const editorStore: EditorStore = useStore().state.editor
+    const editorStore = useStore().state
+    const editorGetter = useGetter(useStore(), 'global', ['GET_SELECT_NODE'])
 
-    return {navIndex, eventList, selectEvent, eventAction, selectEventAction,editorStore}
+    function saveEventBehavior() {
+      const eventType = selectEvent.value as string
+      const eventAction = selectEventAction.value
+      const node = editorGetter['GET_SELECT_NODE'].value as LayerTree2dNode
+      node.emitters[eventType+':'+eventAction]= {effect:editorStore.selectedSceneTreeNode.uuid}
+    }
+    return { navIndex, eventList, selectEvent, eventAction, selectEventAction, editorStore, saveEventBehavior }
   }
 }
 </script>
@@ -96,11 +106,11 @@ export default {
   width: 100%;
   height: 32px;
   border-radius: 2px;
-  background: #7AA6FF;
+  background: #7aa6ff;
 }
 
 .add-event-button:hover {
-  opacity: .9;
+  opacity: 0.9;
 }
 
 .add-event-detail {
@@ -123,26 +133,26 @@ export default {
 .page-tree-box {
   max-height: 200px;
   overflow-y: auto;
-  background: #31333D;
+  background: #31333d;
 }
 
-.event-page-tree /deep/ .layer-child-list > .layer-item{
+.event-page-tree /deep/ .layer-child-list > .layer-item {
   padding-left: calc((var(--level) - 1) * 14px + var(--default-pl));
 }
-.footer-box{
+.footer-box {
   padding: 16px 40px 0;
 }
-.footer-button{
+.footer-button {
   padding: 8px 28px;
   border-radius: 2px;
 }
-.footer-button:hover{
-  opacity: .8;
+.footer-button:hover {
+  opacity: 0.8;
 }
-.cancel-button{
-  background: #31333D;
+.cancel-button {
+  background: #31333d;
 }
-.save-button{
-  background: #7AA6FF;
+.save-button {
+  background: #7aa6ff;
 }
 </style>

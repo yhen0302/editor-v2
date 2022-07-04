@@ -1,13 +1,15 @@
 <template>
   <slot>
-    <component
-      :style="{ pointerEvents: editorStore.addDragging ? 'none' : 'auto' }"
-      :is="node.type"
-      :node="node"
-      @select="selectNode(node)"
-      v-show="node.show"
-      @append="appendSelectNode(node)"
-    ></component>
+    <div class='ele-node'
+         @select="selectNode(node)"
+         @append="appendSelectNode(node)"
+         :style="{ pointerEvents: editorStore.addDragging ? 'none' : 'auto' }"
+         v-show="node.show">
+      <component
+        :is="node.type"
+        :node="node"
+      ></component>
+    </div>
   </slot>
 </template>
 

@@ -1,7 +1,6 @@
 <template>
   <div
       class="circle-rect-shape pointer-events-auto absolute"
-      @click.stop
       draggable="false"
       v-drag="{ rect: node.option.matrixOption, select: node.select }"
       :style="{
