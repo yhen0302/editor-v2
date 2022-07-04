@@ -18,6 +18,7 @@
     @scroll.stop
     ref="el"
   >
+    <img src='~@/assets/images/lightning.png' class='emitter-icon absolute' draggable='false' @click='emitterEffect' v-show='Object.keys(node.option.emitters).length>0'>
     <h3
       class="big-title flex-1"
       :class="fontStyle"
@@ -42,12 +43,13 @@
 import { computed, ref, toRaw, watch } from 'vue'
 import { hexColorToRgba, toPx } from '@/core/2d/util/base'
 import matrixMixin from "../matrixMixin";
+import emitterMixin from '@/components/2d/elements/emitterMixin'
 
 export default {
   name: 'BaseTitle',
   props: ['node'],
   emits: ['select', 'append'],
-  mixins:[matrixMixin],
+  mixins:[matrixMixin,emitterMixin],
   setup(props: any) {
     const h1 = ref<HTMLElement>()
     // exterior
@@ -116,7 +118,7 @@ export default {
       verticalAlign,
       dbClickText,
       h1,
-      textElInput
+      textElInput,
     }
   },
 }
@@ -140,5 +142,10 @@ export default {
 .big-title {
   outline: none;
   word-break: break-all;
+}
+.emitter-icon{
+  right: 0;
+  top: 0;
+  width: 50px;
 }
 </style>

@@ -32,7 +32,7 @@ export function getCss(
   css: keyof CSSStyleDeclaration | [keyof CSSStyleDeclaration]
 ): CSSStyleDeclaration[keyof CSSStyleDeclaration] | CSSStyleDeclaration {
   if (Array.isArray(css)) {
-    let map = <CSSStyleDeclaration>{}
+    const map = <CSSStyleDeclaration>{}
     const cssStyles = window.getComputedStyle(el)
     for (const key of css.values()) {
       // @ts-ignore
@@ -62,6 +62,7 @@ export function debounce<T extends Function>(
   targetFn: T,
   delay: number,
   ctx?: any
+  // eslint-disable-next-line @typescript-eslint/ban-types
 ): Function {
   let timer: number | null = null
   return function (...args: any[]) {

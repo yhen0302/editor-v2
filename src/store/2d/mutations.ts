@@ -12,6 +12,8 @@ export interface EditorMutationI {
   CANCEL_SELECT_2D_NODE: 'CANCEL_SELECT_2D_NODE'
   CLEAR_SELECT_2D_NODES: 'CLEAR_SELECT_2D_NODES'
   TOGGLE_NODE: 'TOGGLE_NODE'
+
+  ADD_EMITTER_TO_NODE:'ADD_EMITTER_TO_NODE'
   // 3d
   ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
 }
@@ -25,6 +27,7 @@ export const EditorMutation: EditorMutationI = {
   CANCEL_SELECT_2D_NODE: 'CANCEL_SELECT_2D_NODE',
   CLEAR_SELECT_2D_NODES: 'CLEAR_SELECT_2D_NODES',
   TOGGLE_NODE: 'TOGGLE_NODE',
+  ADD_EMITTER_TO_NODE:'ADD_EMITTER_TO_NODE',
   ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
 }
 export default {
@@ -70,6 +73,9 @@ export default {
     } else {
       this.commit(EditorMutation.CANCEL_SELECT_2D_NODE, { node })
     }
+  },
+  [EditorMutation.ADD_EMITTER_TO_NODE](state:EditorStore,{node,eventType,eventAction,effect}:{node:LayerTree2dNode,eventType:string,eventAction:string,effect:string}){
+    node.option.emitters[eventType+':'+eventAction] = {effect}
   },
   // 3d
   [EditorMutation.ADD_3D_TREE_NODE](state: EditorStore, payload: { node: LayerTree3dNode }) {

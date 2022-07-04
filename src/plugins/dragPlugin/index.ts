@@ -1,17 +1,14 @@
+// @ts-nocheck
 import {
   Plugin,
   App,
   watch,
   ref,
-  WatchStopHandle,
   toRaw,
-  computed,
   effectScope,
   EffectScope
 } from 'vue'
 import {
-  computedElementsRect,
-  debounce,
   findParentPathHasEl,
   getCss,
   toPx
@@ -21,15 +18,15 @@ import { rectProperties, RectProperty } from './convert'
 import DragWrapper from './DragWrapper.vue'
 import {registryDragDirective} from "@/plugins/dragPlugin/dragDirective";
 
-let activeEl: Ref<HTMLElement[]> = ref<HTMLElement[]>([])
-let effectTotalSet: Set<EffectScope> = new Set<EffectScope>()
-let isCalculating: Ref<boolean> = ref<boolean>(false)
+const activeEl: Ref<HTMLElement[]> = ref<HTMLElement[]>([])
+const effectTotalSet: Set<EffectScope> = new Set<EffectScope>()
+const isCalculating: Ref<boolean> = ref<boolean>(false)
 
 function listenClearEvent() {
   document.addEventListener('click', (ev) => {
     if (ev.shiftKey || !activeEl.value.length) return
 
-    for (let el of activeEl.value) {
+    for (const el of activeEl.value) {
       if (findParentPathHasEl(ev.target as HTMLElement, el)) return
     }
     clearEl()
@@ -112,7 +109,7 @@ function stopEffect(effectScope1: EffectScope) {
 }
 
 function clearWatcher(): void {
-  for (let watchStopSet of effectTotalSet.values()) {
+  for (const watchStopSet of effectTotalSet.values()) {
     stopEffect(watchStopSet)
   }
   effectTotalSet.clear()

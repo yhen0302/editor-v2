@@ -5,6 +5,7 @@
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
+    "allowJs": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -18,5 +19,5 @@
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
   "include": ["src/*.ts","./global.d.ts"],
-  "exclude": ["node_modules", "dist","src/plugins/dragPlugin/**/*.ts"]
+  "exclude": ["node_modules", "dist","./src/plugins/dragPlugin/**/*.ts"]
 }

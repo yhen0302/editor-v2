@@ -72,7 +72,7 @@ import SelectEl from '@/components/2d/common/SelectEl.vue'
 import NavTab from '@/components/2d/common/navTab/NavTab.vue'
 import NavTabItem from '@/components/2d/common/navTab/NavTabItem.vue'
 import SceneTree from '@/components/utils/editmenu/SceneTree.vue'
-import { useGetter } from '@/store/helper'
+import { useGetter, useMutation } from '@/store/helper'
 
 export default {
   name: 'Event',
@@ -82,13 +82,16 @@ export default {
     const selectEvent = ref('click')
     const selectEventAction = ref('linkToPage')
     const editorStore = useStore().state
+    const mutation = useMutation(useStore(),'global',['ADD_EMITTER_TO_NODE'])
     const editorGetter = useGetter(useStore(), 'global', ['GET_SELECT_NODE'])
 
     function saveEventBehavior() {
       const eventType = selectEvent.value as string
       const eventAction = selectEventAction.value
       const node = editorGetter['GET_SELECT_NODE'].value as LayerTree2dNode
-      node.emitters[eventType+':'+eventAction]= {effect:editorStore.selectedSceneTreeNode.uuid}
+      const effect = {effect:editorStore.selectedSceneTreeNode.uuid}
+      mutation['ADD_EMITTER_TO_NODE']({node,eventType,eventAction,effect:effect})
+      navIndex.value = 0
     }
     return { navIndex, eventList, selectEvent, eventAction, selectEventAction, editorStore, saveEventBehavior }
   }

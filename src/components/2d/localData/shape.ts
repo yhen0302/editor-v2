@@ -4,6 +4,7 @@ export const baseShapeList = [
     name: '圆角矩形',
     type: 'RoundedRectShape',
     option: {
+      emitters:{},
       matrixOption: {
         left: 0,
         top: 0,
@@ -21,6 +22,7 @@ export const baseShapeList = [
     name: '矩形',
     type: 'RectShape',
     option: {
+      emitters:{},
       matrixOption: {
         left: 0,
         top: 0,
@@ -38,6 +40,7 @@ export const baseShapeList = [
     name: '圆形',
     type: 'CircleShape',
     option: {
+      emitters:{},
       matrixOption: {
         left: 0,
         top: 0,
@@ -55,6 +58,7 @@ export const baseShapeList = [
     name: '直角三角形',
     type: 'TriangleShape',
     option: {
+      emitters:{},
       matrixOption: {
         left: 0,
         top: 0,

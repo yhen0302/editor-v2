@@ -43,7 +43,6 @@ export default {
         name: data.name + String(id++),
         id,
         type: data.type,
-        emitters:{},
         option: reactive(clone(data.option)),
         select: true,
         show: true

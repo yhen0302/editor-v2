@@ -26,8 +26,6 @@ export interface LayerTree2dNode extends TreeNode {
   option: any
   contentEditable?: boolean
   select: boolean
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  emitters: { [key in string]: {} }
   children?: LayerTree2dNode[]
 }
 

@@ -1,4 +1,5 @@
 export const bigTitle = {
+  emitters:{},
   matrixOption: {
     left: 0,
     top: 0,
@@ -21,6 +22,7 @@ export const bigTitle = {
 }
 
 export const smallTitle = {
+  emitters:{},
   matrixOption: {
     left: 0,
     top: 0,
@@ -43,6 +45,7 @@ export const smallTitle = {
 }
 
 export const baseTitle = {
+  emitters:{},
   matrixOption: {
     left: 0,
     top: 0,
@@ -65,6 +68,8 @@ export const baseTitle = {
 }
 
 export const textContent = {
+  emitters:{},
+
   matrixOption: {
     left: 0,
     top: 0,

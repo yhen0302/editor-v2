@@ -1,11 +1,13 @@
 <template>
   <slot>
-    <div class='ele-node'
-         @select="selectNode(node)"
-         @append="appendSelectNode(node)"
+    <div class='ele-node absolute'
          :style="{ pointerEvents: editorStore.addDragging ? 'none' : 'auto' }"
-         v-show="node.show">
+         @click.stop
+         v-show="node.show"
+          >
       <component
+        @select="selectNode(node)"
+        @append="appendSelectNode(node)"
         :is="node.type"
         :node="node"
       ></component>
@@ -15,7 +17,7 @@
 
 <script lang="ts">
 import { useStore } from 'vuex'
-import { useMutation, useState } from '@/store/helper'
+import { useMutation, useState ,useGetter} from '@/store/helper'
 import { EditorStore, LayerTree2dNode } from '@/store/type'
 
 export default {
@@ -28,6 +30,7 @@ export default {
       'SELECT_2D_TREE_NODE',
       'CLEAR_SELECT_2D_NODES'
     ])
+    const getters = useGetter(store,'global',['GET_SELECT_NODE'])
     function selectNode(node: LayerTree2dNode) {
       mutation['CLEAR_SELECT_2D_NODES']()
       mutation['SELECT_2D_TREE_NODE']({ node })
