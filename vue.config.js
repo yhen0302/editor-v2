@@ -1,7 +1,7 @@
 const webpack = require('webpack')
 
 module.exports = {
-  publicPath: '/demo/editorV2',
+  publicPath: './',
 
   css: {
     loaderOptions: {
