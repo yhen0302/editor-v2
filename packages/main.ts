@@ -1,9 +1,14 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import elementsPlugin from './elements/index'
+import '../src/assets/css/base.css'
+import '../src/assets/css/tailwind.css'
+
 import ElementParser from './elements/ElementParser.vue'
 
-export default function parse(){
-  const app = Vue.createApp(ElementParser)
+export default function parse(config: any) {
+  const app = createApp(ElementParser, config)
   app.use(elementsPlugin)
-}
+  app.mount('#app')
 
+  return app
+}

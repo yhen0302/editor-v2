@@ -22,7 +22,7 @@ const routes: Array<RouteRecordRaw> = [
 ]
 
 const router = createRouter({
-  history: createWebHistory("/demo/editorV2/"),
+  history: createWebHistory('/demo/editorV2'),
   routes
 })
 

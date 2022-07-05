@@ -11,5 +11,4 @@ import dragPlugin from "@/plugins/dragPlugin";
 import elementsInstaller from '@/views/editor/twoDimension/elements'
 
 
-
 createApp(App).use(store).use(router).use(dragDropPlugin).use(elementsInstaller).use(dragPlugin).use(layerPlugin).mount('#app')

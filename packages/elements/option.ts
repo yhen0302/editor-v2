@@ -1,4 +1,4 @@
-import {align, fontStyle, fontType, legendAlign, verticalAlign} from '../../type'
+import {align, fontStyle, fontType, legendAlign, verticalAlign} from './type'
 import {RectShapeProps} from "@/views/editor/twoDimension/elements/shape/RectShapeProps";
 
 export interface MatrixOption {

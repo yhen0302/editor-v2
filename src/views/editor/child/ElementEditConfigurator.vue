@@ -29,15 +29,13 @@
   </section>
 </template>
 
-<script lang="ts">
-import NavTab from "@/component/common/navTab/NavTab";
-import NavTabItem from "@/component/common/navTab/NavTabItem";
-import Event from "@/views/editor/twoDimension/Event";
+<script lang="js">
+import NavTab from "@/component/common/navTab/NavTab.vue";
+import NavTabItem from "@/component/common/navTab/NavTabItem.vue";
+import Event from "@/views/editor/twoDimension/Event.vue";
 import {ref} from "vue";
-import {Ref} from "@vue/reactivity";
 import {useStore} from "vuex";
 import {useGetter, useState} from "@/store/helper";
-import {EditorStore} from "@/store/editor/type";
 import {EditorGetter} from "@/store/editor/getters";
 // configurator
 import AxisLineChartConfigurator from '@/views/editor/configurator/AxisLineChartConfigurator.vue'
@@ -47,6 +45,7 @@ import MediaConfigurator from '@/views/editor/configurator/MediaConfigurator.vue
 import ModelConfigurator from '@/views/editor/configurator/ModelConfigurator.vue'
 import ElementEditConfigurator from "@/views/editor/child/ElementEditConfigurator.vue";
 import PieChartConfigurator from '@/views/editor/configurator/PieChartConfigurator.vue'
+
 export default {
   name: 'ElementEditConfigurator',
   components: {Event, NavTabItem, NavTab,
@@ -60,12 +59,12 @@ export default {
   },
   setup(){
     const store = useStore()
-    const editorStore = useState(store, 'editor') as EditorStore
+    const editorStore = useState(store, 'editor')
     const editorGetter = useGetter(store, 'editor', [
       EditorGetter.GET_CONFIGURATOR
     ])
     //property edit
-    const propertyEditIndex: Ref<number> = ref<number>(0)
+    const propertyEditIndex = ref(0)
 
     return{
       propertyEditIndex,

@@ -1,40 +1,48 @@
 const path = require('path')
 
 const rollup = require('rollup')
-const rollupPluginVue = require('rollup-plugin-vue')
+const vue = require('rollup-plugin-vue')
 const typescript = require('rollup-plugin-typescript2')
 const commonJs = require('@rollup/plugin-commonjs')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
 const css = require('rollup-plugin-css-only')
+const { terser } = require('rollup-plugin-terser')
+const  postcss  = require('rollup-plugin-postcss')
+const {babel} = require('@rollup/plugin-babel')
 
 const inputOptions = {
   plugins: [
     nodeResolve({
-      extensions: ['.js', '.ts', '.vue']
+      extensions: ['.js', '.ts', '.vue'],
+      browser:true
     }),
-    rollupPluginVue({
-      css: true,
-      compileTemplate: true
+    typescript(),
+    vue(),
+    postcss({
+      plugins: [require('tailwindcss'), require('autoprefixer')]
     }),
-    typescript({
-      tsconfig: path.resolve(__dirname, '../tsconfig.json')
+    commonJs({
+      exclude:[/\.vue/],
+      esmExternals:true
     }),
-    // commonJs(),
-    css()
+    // getBabelOutputPlugin({ configFile: path.resolve(__dirname, '../babel.config.js')}),
+    // css({ output: path.resolve(__dirname,'../sdk/kt-element-sdk.css') }),
+    terser()
   ],
-  external: ['vue', 'echarts'],
+
+  // external: ['vue', 'echarts'],
   input: path.resolve(__dirname, '../packages/main.ts')
 }
 
 const outputOptions = {
-  file: 'kt-element-sdk.js',
+  file: path.resolve(__dirname,'../sdk/kt-element-sdk.js'),
   format: 'umd',
-  name:'EditorSdk'
+  name: 'EditorSdk',
 }
 
 async function main() {
   const bundle = await rollup.rollup(inputOptions)
-  await bundle.write(outputOptions);
+  await bundle.write(outputOptions)
 }
 
 main()
