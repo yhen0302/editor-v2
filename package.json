@@ -1,7 +1,6 @@
 {
-  "name": "editor-v3",
+  "name": "editor-v2",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -9,7 +8,9 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@editor-v2/elements": "1.0.0",
     "@vue/babel-plugin-jsx": "^1.1.1",
+    "common-tags": "^1.8.2",
     "core-js": "^3.8.3",
     "echarts": "^5.3.3",
     "underscore": "^1.13.3",
@@ -43,5 +44,9 @@
     "prettier": "^2.2.1",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17",
     "typescript": "~4.1.5"
-  }
+  },
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
 }

@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cross-env NODE_ENV=production node ./script/build.js",
-    "sdk": "cross-env NODE_ENV=production node ./script/sdk.js"
+    "sdk": "cross-env NODE_ENV=production node ./script/sdk.js",
+    "dev:sdk": "cross-env NODE_ENV=development node ./script/sdk.js"
   },
   "keywords": [],
   "author": "",

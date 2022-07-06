@@ -103,6 +103,39 @@
         return res.trim();
     }
 
+    // These tag configs are shared between compiler-dom and runtime-dom, so they
+    // https://developer.mozilla.org/en-US/docs/Web/HTML/Element
+    const HTML_TAGS = 'html,body,base,head,link,meta,style,title,address,article,aside,footer,' +
+        'header,h1,h2,h3,h4,h5,h6,nav,section,div,dd,dl,dt,figcaption,' +
+        'figure,picture,hr,img,li,main,ol,p,pre,ul,a,b,abbr,bdi,bdo,br,cite,code,' +
+        'data,dfn,em,i,kbd,mark,q,rp,rt,ruby,s,samp,small,span,strong,sub,sup,' +
+        'time,u,var,wbr,area,audio,map,track,video,embed,object,param,source,' +
+        'canvas,script,noscript,del,ins,caption,col,colgroup,table,thead,tbody,td,' +
+        'th,tr,button,datalist,fieldset,form,input,label,legend,meter,optgroup,' +
+        'option,output,progress,select,textarea,details,dialog,menu,' +
+        'summary,template,blockquote,iframe,tfoot';
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Element
+    const SVG_TAGS = 'svg,animate,animateMotion,animateTransform,circle,clipPath,color-profile,' +
+        'defs,desc,discard,ellipse,feBlend,feColorMatrix,feComponentTransfer,' +
+        'feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,' +
+        'feDistanceLight,feDropShadow,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,' +
+        'feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,' +
+        'fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,filter,' +
+        'foreignObject,g,hatch,hatchpath,image,line,linearGradient,marker,mask,' +
+        'mesh,meshgradient,meshpatch,meshrow,metadata,mpath,path,pattern,' +
+        'polygon,polyline,radialGradient,rect,set,solidcolor,stop,switch,symbol,' +
+        'text,textPath,title,tspan,unknown,use,view';
+    /**
+     * Compiler only.
+     * Do NOT use in runtime code paths unless behind `('development' !== 'production')` flag.
+     */
+    const isHTMLTag = /*#__PURE__*/ makeMap(HTML_TAGS);
+    /**
+     * Compiler only.
+     * Do NOT use in runtime code paths unless behind `('development' !== 'production')` flag.
+     */
+    const isSVGTag = /*#__PURE__*/ makeMap(SVG_TAGS);
+
     /**
      * For converting {{ interpolation }} values to displayed strings.
      * @private
@@ -142,8 +175,9 @@
         return val;
     };
 
-    const EMPTY_OBJ$1 = {};
-    const EMPTY_ARR = [];
+    const EMPTY_OBJ$1 = Object.freeze({})
+        ;
+    const EMPTY_ARR = Object.freeze([]) ;
     const NOOP = () => { };
     /**
      * Always return false.
@@ -188,6 +222,7 @@
         'onVnodeBeforeMount,onVnodeMounted,' +
         'onVnodeBeforeUpdate,onVnodeUpdated,' +
         'onVnodeBeforeUnmount,onVnodeUnmounted');
+    const isBuiltInDirective = /*#__PURE__*/ makeMap('bind,cloak,else-if,else,for,html,if,model,on,once,pre,show,slot,text,memo');
     const cacheStringFunction = (fn) => {
         const cache = Object.create(null);
         return ((str) => {
@@ -248,6 +283,10 @@
                                 : {}));
     };
 
+    function warn$2(msg, ...args) {
+        console.warn(`[Vue warn] ${msg}`, ...args);
+    }
+
     let activeEffectScope;
     class EffectScope {
         constructor(detached = false) {
@@ -279,6 +318,9 @@
                 finally {
                     activeEffectScope = currentEffectScope;
                 }
+            }
+            else {
+                warn$2(`cannot run an inactive effect scope.`);
             }
         }
         /**
@@ -374,8 +416,8 @@
      */
     const maxMarkerBits = 30;
     let activeEffect;
-    const ITERATE_KEY = Symbol('');
-    const MAP_KEY_ITERATE_KEY = Symbol('');
+    const ITERATE_KEY = Symbol('iterate' );
+    const MAP_KEY_ITERATE_KEY = Symbol('Map key iterate' );
     class ReactiveEffect {
         constructor(fn, scheduler = null, scope) {
             this.fn = fn;
@@ -466,7 +508,9 @@
             if (!dep) {
                 depsMap.set(key, (dep = createDep()));
             }
-            trackEffects(dep);
+            const eventInfo = { effect: activeEffect, target, type, key }
+                ;
+            trackEffects(dep, eventInfo);
         }
     }
     function trackEffects(dep, debuggerEventExtraInfo) {
@@ -484,6 +528,9 @@
         if (shouldTrack) {
             dep.add(activeEffect);
             activeEffect.deps.push(dep);
+            if (activeEffect.onTrack) {
+                activeEffect.onTrack(Object.assign({ effect: activeEffect }, debuggerEventExtraInfo));
+            }
         }
     }
     function trigger$2(target, type, key, newValue, oldValue, oldTarget) {
@@ -539,10 +586,12 @@
                     break;
             }
         }
+        const eventInfo = { target, type, key, newValue, oldValue, oldTarget }
+            ;
         if (deps.length === 1) {
             if (deps[0]) {
                 {
-                    triggerEffects(deps[0]);
+                    triggerEffects(deps[0], eventInfo);
                 }
             }
         }
@@ -554,7 +603,7 @@
                 }
             }
             {
-                triggerEffects(createDep(effects));
+                triggerEffects(createDep(effects), eventInfo);
             }
         }
     }
@@ -563,17 +612,20 @@
         const effects = isArray$2(dep) ? dep : [...dep];
         for (const effect of effects) {
             if (effect.computed) {
-                triggerEffect(effect);
+                triggerEffect(effect, debuggerEventExtraInfo);
             }
         }
         for (const effect of effects) {
             if (!effect.computed) {
-                triggerEffect(effect);
+                triggerEffect(effect, debuggerEventExtraInfo);
             }
         }
     }
     function triggerEffect(effect, debuggerEventExtraInfo) {
         if (effect !== activeEffect || effect.allowRecurse) {
+            if (effect.onTrigger) {
+                effect.onTrigger(extend$1({ effect }, debuggerEventExtraInfo));
+            }
             if (effect.scheduler) {
                 effect.scheduler();
             }
@@ -596,6 +648,7 @@
     const get$1 = /*#__PURE__*/ createGetter();
     const shallowGet = /*#__PURE__*/ createGetter(false, true);
     const readonlyGet = /*#__PURE__*/ createGetter(true);
+    const shallowReadonlyGet = /*#__PURE__*/ createGetter(true, true);
     const arrayInstrumentations = /*#__PURE__*/ createArrayInstrumentations();
     function createArrayInstrumentations() {
         const instrumentations = {};
@@ -684,7 +737,7 @@
                 return false;
             }
             if (!shallow && !isReadonly(value)) {
-                if (!isShallow(value)) {
+                if (!isShallow$1(value)) {
                     value = toRaw(value);
                     oldValue = toRaw(oldValue);
                 }
@@ -703,7 +756,7 @@
                     trigger$2(target, "add" /* ADD */, key, value);
                 }
                 else if (hasChanged(value, oldValue)) {
-                    trigger$2(target, "set" /* SET */, key, value);
+                    trigger$2(target, "set" /* SET */, key, value, oldValue);
                 }
             }
             return result;
@@ -711,10 +764,10 @@
     }
     function deleteProperty(target, key) {
         const hadKey = hasOwn$1(target, key);
-        target[key];
+        const oldValue = target[key];
         const result = Reflect.deleteProperty(target, key);
         if (result && hadKey) {
-            trigger$2(target, "delete" /* DELETE */, key, undefined);
+            trigger$2(target, "delete" /* DELETE */, key, undefined, oldValue);
         }
         return result;
     }
@@ -739,15 +792,27 @@
     const readonlyHandlers = {
         get: readonlyGet,
         set(target, key) {
+            {
+                warn$2(`Set operation on key "${String(key)}" failed: target is readonly.`, target);
+            }
             return true;
         },
         deleteProperty(target, key) {
+            {
+                warn$2(`Delete operation on key "${String(key)}" failed: target is readonly.`, target);
+            }
             return true;
         }
     };
     const shallowReactiveHandlers = /*#__PURE__*/ extend$1({}, mutableHandlers, {
         get: shallowGet,
         set: shallowSet
+    });
+    // Props handlers are special in the sense that it should not unwrap top-level
+    // refs (in order to allow refs to be explicitly passed down), but should
+    // retain the reactivity of the normal readonly object.
+    const shallowReadonlyHandlers = /*#__PURE__*/ extend$1({}, readonlyHandlers, {
+        get: shallowReadonlyGet
     });
 
     const toShallow = (value) => value;
@@ -817,13 +882,16 @@
             key = toRaw(key);
             hadKey = has.call(target, key);
         }
+        else {
+            checkIdentityKeys(target, has, key);
+        }
         const oldValue = get.call(target, key);
         target.set(key, value);
         if (!hadKey) {
             trigger$2(target, "add" /* ADD */, key, value);
         }
         else if (hasChanged(value, oldValue)) {
-            trigger$2(target, "set" /* SET */, key, value);
+            trigger$2(target, "set" /* SET */, key, value, oldValue);
         }
         return this;
     }
@@ -835,21 +903,28 @@
             key = toRaw(key);
             hadKey = has.call(target, key);
         }
-        get ? get.call(target, key) : undefined;
+        else {
+            checkIdentityKeys(target, has, key);
+        }
+        const oldValue = get ? get.call(target, key) : undefined;
         // forward the operation before queueing reactions
         const result = target.delete(key);
         if (hadKey) {
-            trigger$2(target, "delete" /* DELETE */, key, undefined);
+            trigger$2(target, "delete" /* DELETE */, key, undefined, oldValue);
         }
         return result;
     }
     function clear$2() {
         const target = toRaw(this);
         const hadItems = target.size !== 0;
+        const oldTarget = isMap(target)
+                ? new Map(target)
+                : new Set(target)
+            ;
         // forward the operation before queueing reactions
         const result = target.clear();
         if (hadItems) {
-            trigger$2(target, "clear" /* CLEAR */, undefined, undefined);
+            trigger$2(target, "clear" /* CLEAR */, undefined, undefined, oldTarget);
         }
         return result;
     }
@@ -901,6 +976,10 @@
     }
     function createReadonlyMethod(type) {
         return function (...args) {
+            {
+                const key = args[0] ? `on key "${args[0]}" ` : ``;
+                console.warn(`${capitalize(type)} operation ${key}failed: target is readonly.`, toRaw(this));
+            }
             return type === "delete" /* DELETE */ ? false : this;
         };
     }
@@ -1012,6 +1091,20 @@
     const readonlyCollectionHandlers = {
         get: /*#__PURE__*/ createInstrumentationGetter(true, false)
     };
+    const shallowReadonlyCollectionHandlers = {
+        get: /*#__PURE__*/ createInstrumentationGetter(true, true)
+    };
+    function checkIdentityKeys(target, has, key) {
+        const rawKey = toRaw(key);
+        if (rawKey !== key && has.call(target, rawKey)) {
+            const type = toRawType(target);
+            console.warn(`Reactive ${type} contains both the raw and reactive ` +
+                `versions of the same object${type === `Map` ? ` as keys` : ``}, ` +
+                `which can lead to inconsistencies. ` +
+                `Avoid differentiating between the raw and reactive versions ` +
+                `of an object and only use the reactive version if possible.`);
+        }
+    }
 
     const reactiveMap = new WeakMap();
     const shallowReactiveMap = new WeakMap();
@@ -1058,8 +1151,20 @@
     function readonly(target) {
         return createReactiveObject(target, true, readonlyHandlers, readonlyCollectionHandlers, readonlyMap);
     }
+    /**
+     * Returns a reactive-copy of the original object, where only the root level
+     * properties are readonly, and does NOT unwrap refs nor recursively convert
+     * returned properties.
+     * This is used for creating the props proxy object for stateful components.
+     */
+    function shallowReadonly(target) {
+        return createReactiveObject(target, true, shallowReadonlyHandlers, shallowReadonlyCollectionHandlers, shallowReadonlyMap);
+    }
     function createReactiveObject(target, isReadonly, baseHandlers, collectionHandlers, proxyMap) {
         if (!isObject$4(target)) {
+            {
+                console.warn(`value cannot be made reactive: ${String(target)}`);
+            }
             return target;
         }
         // target is already a Proxy, return it.
@@ -1091,7 +1196,7 @@
     function isReadonly(value) {
         return !!(value && value["__v_isReadonly" /* IS_READONLY */]);
     }
-    function isShallow(value) {
+    function isShallow$1(value) {
         return !!(value && value["__v_isShallow" /* IS_SHALLOW */]);
     }
     function isProxy(value) {
@@ -1112,7 +1217,11 @@
         if (shouldTrack && activeEffect) {
             ref = toRaw(ref);
             {
-                trackEffects(ref.dep || (ref.dep = createDep()));
+                trackEffects(ref.dep || (ref.dep = createDep()), {
+                    target: ref,
+                    type: "get" /* GET */,
+                    key: 'value'
+                });
             }
         }
     }
@@ -1120,7 +1229,12 @@
         ref = toRaw(ref);
         if (ref.dep) {
             {
-                triggerEffects(ref.dep);
+                triggerEffects(ref.dep, {
+                    target: ref,
+                    type: "set" /* SET */,
+                    key: 'value',
+                    newValue: newVal
+                });
             }
         }
     }
@@ -1153,7 +1267,7 @@
             if (hasChanged(newVal, this._rawValue)) {
                 this._rawValue = newVal;
                 this._value = this.__v_isShallow ? newVal : toReactive(newVal);
-                triggerRefValue(this);
+                triggerRefValue(this, newVal);
             }
         }
     }
@@ -1215,16 +1329,169 @@
         const onlyGetter = isFunction$1(getterOrOptions);
         if (onlyGetter) {
             getter = getterOrOptions;
-            setter = NOOP;
+            setter = () => {
+                    console.warn('Write operation failed: computed value is readonly');
+                }
+                ;
         }
         else {
             getter = getterOrOptions.get;
             setter = getterOrOptions.set;
         }
         const cRef = new ComputedRefImpl(getter, setter, onlyGetter || !setter, isSSR);
+        if (debugOptions && !isSSR) {
+            cRef.effect.onTrack = debugOptions.onTrack;
+            cRef.effect.onTrigger = debugOptions.onTrigger;
+        }
         return cRef;
     }
 
+    const stack = [];
+    function pushWarningContext(vnode) {
+        stack.push(vnode);
+    }
+    function popWarningContext() {
+        stack.pop();
+    }
+    function warn$1(msg, ...args) {
+        // avoid props formatting or warn handler tracking deps that might be mutated
+        // during patch, leading to infinite recursion.
+        pauseTracking();
+        const instance = stack.length ? stack[stack.length - 1].component : null;
+        const appWarnHandler = instance && instance.appContext.config.warnHandler;
+        const trace = getComponentTrace();
+        if (appWarnHandler) {
+            callWithErrorHandling(appWarnHandler, instance, 11 /* APP_WARN_HANDLER */, [
+                msg + args.join(''),
+                instance && instance.proxy,
+                trace
+                    .map(({ vnode }) => `at <${formatComponentName(instance, vnode.type)}>`)
+                    .join('\n'),
+                trace
+            ]);
+        }
+        else {
+            const warnArgs = [`[Vue warn]: ${msg}`, ...args];
+            /* istanbul ignore if */
+            if (trace.length &&
+                // avoid spamming console during tests
+                !false) {
+                warnArgs.push(`\n`, ...formatTrace(trace));
+            }
+            console.warn(...warnArgs);
+        }
+        resetTracking();
+    }
+    function getComponentTrace() {
+        let currentVNode = stack[stack.length - 1];
+        if (!currentVNode) {
+            return [];
+        }
+        // we can't just use the stack because it will be incomplete during updates
+        // that did not start from the root. Re-construct the parent chain using
+        // instance parent pointers.
+        const normalizedStack = [];
+        while (currentVNode) {
+            const last = normalizedStack[0];
+            if (last && last.vnode === currentVNode) {
+                last.recurseCount++;
+            }
+            else {
+                normalizedStack.push({
+                    vnode: currentVNode,
+                    recurseCount: 0
+                });
+            }
+            const parentInstance = currentVNode.component && currentVNode.component.parent;
+            currentVNode = parentInstance && parentInstance.vnode;
+        }
+        return normalizedStack;
+    }
+    /* istanbul ignore next */
+    function formatTrace(trace) {
+        const logs = [];
+        trace.forEach((entry, i) => {
+            logs.push(...(i === 0 ? [] : [`\n`]), ...formatTraceEntry(entry));
+        });
+        return logs;
+    }
+    function formatTraceEntry({ vnode, recurseCount }) {
+        const postfix = recurseCount > 0 ? `... (${recurseCount} recursive calls)` : ``;
+        const isRoot = vnode.component ? vnode.component.parent == null : false;
+        const open = ` at <${formatComponentName(vnode.component, vnode.type, isRoot)}`;
+        const close = `>` + postfix;
+        return vnode.props
+            ? [open, ...formatProps(vnode.props), close]
+            : [open + close];
+    }
+    /* istanbul ignore next */
+    function formatProps(props) {
+        const res = [];
+        const keys = Object.keys(props);
+        keys.slice(0, 3).forEach(key => {
+            res.push(...formatProp(key, props[key]));
+        });
+        if (keys.length > 3) {
+            res.push(` ...`);
+        }
+        return res;
+    }
+    /* istanbul ignore next */
+    function formatProp(key, value, raw) {
+        if (isString$1(value)) {
+            value = JSON.stringify(value);
+            return raw ? value : [`${key}=${value}`];
+        }
+        else if (typeof value === 'number' ||
+            typeof value === 'boolean' ||
+            value == null) {
+            return raw ? value : [`${key}=${value}`];
+        }
+        else if (isRef(value)) {
+            value = formatProp(key, toRaw(value.value), true);
+            return raw ? value : [`${key}=Ref<`, value, `>`];
+        }
+        else if (isFunction$1(value)) {
+            return [`${key}=fn${value.name ? `<${value.name}>` : ``}`];
+        }
+        else {
+            value = toRaw(value);
+            return raw ? value : [`${key}=`, value];
+        }
+    }
+
+    const ErrorTypeStrings = {
+        ["sp" /* SERVER_PREFETCH */]: 'serverPrefetch hook',
+        ["bc" /* BEFORE_CREATE */]: 'beforeCreate hook',
+        ["c" /* CREATED */]: 'created hook',
+        ["bm" /* BEFORE_MOUNT */]: 'beforeMount hook',
+        ["m" /* MOUNTED */]: 'mounted hook',
+        ["bu" /* BEFORE_UPDATE */]: 'beforeUpdate hook',
+        ["u" /* UPDATED */]: 'updated',
+        ["bum" /* BEFORE_UNMOUNT */]: 'beforeUnmount hook',
+        ["um" /* UNMOUNTED */]: 'unmounted hook',
+        ["a" /* ACTIVATED */]: 'activated hook',
+        ["da" /* DEACTIVATED */]: 'deactivated hook',
+        ["ec" /* ERROR_CAPTURED */]: 'errorCaptured hook',
+        ["rtc" /* RENDER_TRACKED */]: 'renderTracked hook',
+        ["rtg" /* RENDER_TRIGGERED */]: 'renderTriggered hook',
+        [0 /* SETUP_FUNCTION */]: 'setup function',
+        [1 /* RENDER_FUNCTION */]: 'render function',
+        [2 /* WATCH_GETTER */]: 'watcher getter',
+        [3 /* WATCH_CALLBACK */]: 'watcher callback',
+        [4 /* WATCH_CLEANUP */]: 'watcher cleanup function',
+        [5 /* NATIVE_EVENT_HANDLER */]: 'native event handler',
+        [6 /* COMPONENT_EVENT_HANDLER */]: 'component event handler',
+        [7 /* VNODE_HOOK */]: 'vnode hook',
+        [8 /* DIRECTIVE_HOOK */]: 'directive hook',
+        [9 /* TRANSITION_HOOK */]: 'transition hook',
+        [10 /* APP_ERROR_HANDLER */]: 'app errorHandler',
+        [11 /* APP_WARN_HANDLER */]: 'app warnHandler',
+        [12 /* FUNCTION_REF */]: 'ref function',
+        [13 /* ASYNC_COMPONENT_LOADER */]: 'async component loader',
+        [14 /* SCHEDULER */]: 'scheduler flush. This is likely a Vue internals bug. ' +
+            'Please open an issue at https://new-issue.vuejs.org/?repo=vuejs/core'
+    };
     function callWithErrorHandling(fn, instance, type, args) {
         let res;
         try {
@@ -1258,7 +1525,7 @@
             // the exposed instance is the render proxy to keep it consistent with 2.x
             const exposedInstance = instance.proxy;
             // in production the hook receives only the error code
-            const errorInfo = type;
+            const errorInfo = ErrorTypeStrings[type] ;
             while (cur) {
                 const errorCapturedHooks = cur.ec;
                 if (errorCapturedHooks) {
@@ -1281,8 +1548,21 @@
     }
     function logError$1(err, type, contextVNode, throwInDev = true) {
         {
-            // recover in prod to reduce the impact on end-user
-            console.error(err);
+            const info = ErrorTypeStrings[type];
+            if (contextVNode) {
+                pushWarningContext(contextVNode);
+            }
+            warn$1(`Unhandled error${info ? ` during execution of ${info}` : ``}`);
+            if (contextVNode) {
+                popWarningContext();
+            }
+            // crash in dev by default so it's more noticeable
+            if (throwInDev) {
+                throw err;
+            }
+            else {
+                console.error(err);
+            }
         }
     }
 
@@ -1299,6 +1579,7 @@
     const resolvedPromise = /*#__PURE__*/ Promise.resolve();
     let currentFlushPromise = null;
     let currentPreFlushParentJob = null;
+    const RECURSION_LIMIT = 100;
     function nextTick(fn) {
         const p = currentFlushPromise || resolvedPromise;
         return fn ? p.then(this ? fn.bind(this) : fn) : p;
@@ -1375,7 +1656,13 @@
             currentPreFlushParentJob = parentJob;
             activePreFlushCbs = [...new Set(pendingPreFlushCbs)];
             pendingPreFlushCbs.length = 0;
+            {
+                seen = seen || new Map();
+            }
             for (preFlushIndex = 0; preFlushIndex < activePreFlushCbs.length; preFlushIndex++) {
+                if (checkRecursiveUpdates(seen, activePreFlushCbs[preFlushIndex])) {
+                    continue;
+                }
                 activePreFlushCbs[preFlushIndex]();
             }
             activePreFlushCbs = null;
@@ -1397,8 +1684,14 @@
                 return;
             }
             activePostFlushCbs = deduped;
+            {
+                seen = seen || new Map();
+            }
             activePostFlushCbs.sort((a, b) => getId$1(a) - getId$1(b));
             for (postFlushIndex = 0; postFlushIndex < activePostFlushCbs.length; postFlushIndex++) {
+                if (checkRecursiveUpdates(seen, activePostFlushCbs[postFlushIndex])) {
+                    continue;
+                }
                 activePostFlushCbs[postFlushIndex]();
             }
             activePostFlushCbs = null;
@@ -1409,6 +1702,9 @@
     function flushJobs(seen) {
         isFlushPending = false;
         isFlushing = true;
+        {
+            seen = seen || new Map();
+        }
         flushPreFlushCbs(seen);
         // Sort queue before flush.
         // This ensures that:
@@ -1423,12 +1719,15 @@
         // inside try-catch. This can leave all warning code unshaked. Although
         // they would get eventually shaken by a minifier like terser, some minifiers
         // would fail to do that (e.g. https://github.com/evanw/esbuild/issues/1610)
-        const check = NOOP;
+        const check = (job) => checkRecursiveUpdates(seen, job)
+            ;
         try {
             for (flushIndex = 0; flushIndex < queue.length; flushIndex++) {
                 const job = queue[flushIndex];
                 if (job && job.active !== false) {
-                    if (('production' !== 'production') && check(job)) ;
+                    if (('development' !== 'production') && check(job)) {
+                        continue;
+                    }
                     // console.log(`running:`, job.id)
                     callWithErrorHandling(job, null, 14 /* SCHEDULER */);
                 }
@@ -1437,7 +1736,7 @@
         finally {
             flushIndex = 0;
             queue.length = 0;
-            flushPostFlushCbs();
+            flushPostFlushCbs(seen);
             isFlushing = false;
             currentFlushPromise = null;
             // some postFlushCb queued jobs!
@@ -1448,6 +1747,168 @@
                 flushJobs(seen);
             }
         }
+    }
+    function checkRecursiveUpdates(seen, fn) {
+        if (!seen.has(fn)) {
+            seen.set(fn, 1);
+        }
+        else {
+            const count = seen.get(fn);
+            if (count > RECURSION_LIMIT) {
+                const instance = fn.ownerInstance;
+                const componentName = instance && getComponentName(instance.type);
+                warn$1(`Maximum recursive updates exceeded${componentName ? ` in component <${componentName}>` : ``}. ` +
+                    `This means you have a reactive effect that is mutating its own ` +
+                    `dependencies and thus recursively triggering itself. Possible sources ` +
+                    `include component template, render function, updated hook or ` +
+                    `watcher source function.`);
+                return true;
+            }
+            else {
+                seen.set(fn, count + 1);
+            }
+        }
+    }
+
+    /* eslint-disable no-restricted-globals */
+    let isHmrUpdating = false;
+    const hmrDirtyComponents = new Set();
+    // Expose the HMR runtime on the global object
+    // This makes it entirely tree-shakable without polluting the exports and makes
+    // it easier to be used in toolings like vue-loader
+    // Note: for a component to be eligible for HMR it also needs the __hmrId option
+    // to be set so that its instances can be registered / removed.
+    {
+        getGlobalThis().__VUE_HMR_RUNTIME__ = {
+            createRecord: tryWrap(createRecord),
+            rerender: tryWrap(rerender),
+            reload: tryWrap(reload)
+        };
+    }
+    const map$2 = new Map();
+    function registerHMR(instance) {
+        const id = instance.type.__hmrId;
+        let record = map$2.get(id);
+        if (!record) {
+            createRecord(id, instance.type);
+            record = map$2.get(id);
+        }
+        record.instances.add(instance);
+    }
+    function unregisterHMR(instance) {
+        map$2.get(instance.type.__hmrId).instances.delete(instance);
+    }
+    function createRecord(id, initialDef) {
+        if (map$2.has(id)) {
+            return false;
+        }
+        map$2.set(id, {
+            initialDef: normalizeClassComponent(initialDef),
+            instances: new Set()
+        });
+        return true;
+    }
+    function normalizeClassComponent(component) {
+        return isClassComponent(component) ? component.__vccOpts : component;
+    }
+    function rerender(id, newRender) {
+        const record = map$2.get(id);
+        if (!record) {
+            return;
+        }
+        // update initial record (for not-yet-rendered component)
+        record.initialDef.render = newRender;
+        [...record.instances].forEach(instance => {
+            if (newRender) {
+                instance.render = newRender;
+                normalizeClassComponent(instance.type).render = newRender;
+            }
+            instance.renderCache = [];
+            // this flag forces child components with slot content to update
+            isHmrUpdating = true;
+            instance.update();
+            isHmrUpdating = false;
+        });
+    }
+    function reload(id, newComp) {
+        const record = map$2.get(id);
+        if (!record)
+            return;
+        newComp = normalizeClassComponent(newComp);
+        // update initial def (for not-yet-rendered components)
+        updateComponentDef(record.initialDef, newComp);
+        // create a snapshot which avoids the set being mutated during updates
+        const instances = [...record.instances];
+        for (const instance of instances) {
+            const oldComp = normalizeClassComponent(instance.type);
+            if (!hmrDirtyComponents.has(oldComp)) {
+                // 1. Update existing comp definition to match new one
+                if (oldComp !== record.initialDef) {
+                    updateComponentDef(oldComp, newComp);
+                }
+                // 2. mark definition dirty. This forces the renderer to replace the
+                // component on patch.
+                hmrDirtyComponents.add(oldComp);
+            }
+            // 3. invalidate options resolution cache
+            instance.appContext.optionsCache.delete(instance.type);
+            // 4. actually update
+            if (instance.ceReload) {
+                // custom element
+                hmrDirtyComponents.add(oldComp);
+                instance.ceReload(newComp.styles);
+                hmrDirtyComponents.delete(oldComp);
+            }
+            else if (instance.parent) {
+                // 4. Force the parent instance to re-render. This will cause all updated
+                // components to be unmounted and re-mounted. Queue the update so that we
+                // don't end up forcing the same parent to re-render multiple times.
+                queueJob(instance.parent.update);
+                // instance is the inner component of an async custom element
+                // invoke to reset styles
+                if (instance.parent.type.__asyncLoader &&
+                    instance.parent.ceReload) {
+                    instance.parent.ceReload(newComp.styles);
+                }
+            }
+            else if (instance.appContext.reload) {
+                // root instance mounted via createApp() has a reload method
+                instance.appContext.reload();
+            }
+            else if (typeof window !== 'undefined') {
+                // root instance inside tree created via raw render(). Force reload.
+                window.location.reload();
+            }
+            else {
+                console.warn('[HMR] Root or manually mounted instance modified. Full reload required.');
+            }
+        }
+        // 5. make sure to cleanup dirty hmr components after update
+        queuePostFlushCb(() => {
+            for (const instance of instances) {
+                hmrDirtyComponents.delete(normalizeClassComponent(instance.type));
+            }
+        });
+    }
+    function updateComponentDef(oldComp, newComp) {
+        extend$1(oldComp, newComp);
+        for (const key in oldComp) {
+            if (key !== '__file' && !(key in newComp)) {
+                delete oldComp[key];
+            }
+        }
+    }
+    function tryWrap(fn) {
+        return (id, arg) => {
+            try {
+                return fn(id, arg);
+            }
+            catch (e) {
+                console.error(e);
+                console.warn(`[HMR] Something went wrong during Vue component hot-reload. ` +
+                    `Full reload required.`);
+            }
+        };
     }
 
     let devtools;
@@ -1520,6 +1981,13 @@
             emit(hook, component.appContext.app, component.uid, component.parent ? component.parent.uid : undefined, component);
         };
     }
+    const devtoolsPerfStart = /*#__PURE__*/ createDevtoolsPerformanceHook("perf:start" /* PERFORMANCE_START */);
+    const devtoolsPerfEnd = /*#__PURE__*/ createDevtoolsPerformanceHook("perf:end" /* PERFORMANCE_END */);
+    function createDevtoolsPerformanceHook(hook) {
+        return (component, type, time) => {
+            emit(hook, component.appContext.app, component.uid, component, type, time);
+        };
+    }
     function devtoolsComponentEmit(component, event, params) {
         emit("component:emit" /* COMPONENT_EMIT */, component.appContext.app, component, event, params);
     }
@@ -1528,6 +1996,27 @@
         if (instance.isUnmounted)
             return;
         const props = instance.vnode.props || EMPTY_OBJ$1;
+        {
+            const { emitsOptions, propsOptions: [propsOptions] } = instance;
+            if (emitsOptions) {
+                if (!(event in emitsOptions) &&
+                    !(false )) {
+                    if (!propsOptions || !(toHandlerKey(event) in propsOptions)) {
+                        warn$1(`Component emitted event "${event}" but it is neither declared in ` +
+                            `the emits option nor as an "${toHandlerKey(event)}" prop.`);
+                    }
+                }
+                else {
+                    const validator = emitsOptions[event];
+                    if (isFunction$1(validator)) {
+                        const isValid = validator(...rawArgs);
+                        if (!isValid) {
+                            warn$1(`Invalid event arguments: event validation failed for event "${event}".`);
+                        }
+                    }
+                }
+            }
+        }
         let args = rawArgs;
         const isModelListener = event.startsWith('update:');
         // for v-model update:xxx events, apply modifiers on args
@@ -1542,8 +2031,18 @@
                 args = rawArgs.map(toNumber);
             }
         }
-        if (__VUE_PROD_DEVTOOLS__) {
+        {
             devtoolsComponentEmit(instance, event, args);
+        }
+        {
+            const lowerCaseEvent = event.toLowerCase();
+            if (lowerCaseEvent !== event && props[toHandlerKey(lowerCaseEvent)]) {
+                warn$1(`Event "${lowerCaseEvent}" is emitted in component ` +
+                    `${formatComponentName(instance, instance.type)} but the handler is registered for "${event}". ` +
+                    `Note that HTML attributes are case-insensitive and you cannot use ` +
+                    `v-on to listen to camelCase events when using in-DOM templates. ` +
+                    `You should probably use "${hyphenate(event)}" instead of "${event}".`);
+            }
         }
         let handlerName;
         let handler = props[(handlerName = toHandlerKey(event))] ||
@@ -1672,7 +2171,7 @@
             if (renderFnWithContext._d) {
                 setBlockTracking(1);
             }
-            if (__VUE_PROD_DEVTOOLS__) {
+            {
                 devtoolsComponentUpdated(ctx);
             }
             return res;
@@ -1687,13 +2186,24 @@
         renderFnWithContext._d = true;
         return renderFnWithContext;
     }
+
+    /**
+     * dev only flag to track whether $attrs was used during render.
+     * If $attrs was used during render then the warning for failed attrs
+     * fallthrough can be suppressed.
+     */
+    let accessedAttrs = false;
     function markAttrsAccessed() {
+        accessedAttrs = true;
     }
     function renderComponentRoot(instance) {
         const { type: Component, vnode, proxy, withProxy, props, propsOptions: [propsOptions], slots, attrs, emit, render, renderCache, data, setupState, ctx, inheritAttrs } = instance;
         let result;
         let fallthroughAttrs;
         const prev = setCurrentRenderingInstance(instance);
+        {
+            accessedAttrs = false;
+        }
         try {
             if (vnode.shapeFlag & 4 /* STATEFUL_COMPONENT */) {
                 // withProxy is a proxy with a different `has` trap only for
@@ -1706,9 +2216,11 @@
                 // functional
                 const render = Component;
                 // in dev, mark attrs accessed if optional props (attrs === props)
-                if (('production' !== 'production') && attrs === props) ;
+                if (('development' !== 'production') && attrs === props) {
+                    markAttrsAccessed();
+                }
                 result = normalizeVNode(render.length > 1
-                    ? render(props, ('production' !== 'production')
+                    ? render(props, ('development' !== 'production')
                         ? {
                             get attrs() {
                                 markAttrsAccessed();
@@ -1733,6 +2245,11 @@
         // in dev mode, comments are preserved, and it's possible for a template
         // to have comments along side the root element which makes it a fragment
         let root = result;
+        let setRoot = undefined;
+        if (result.patchFlag > 0 &&
+            result.patchFlag & 2048 /* DEV_ROOT_FRAGMENT */) {
+            [root, setRoot] = getChildRoot(result);
+        }
         if (fallthroughAttrs && inheritAttrs !== false) {
             const keys = Object.keys(fallthroughAttrs);
             const { shapeFlag } = root;
@@ -1747,23 +2264,117 @@
                     }
                     root = cloneVNode(root, fallthroughAttrs);
                 }
+                else if (!accessedAttrs && root.type !== Comment) {
+                    const allAttrs = Object.keys(attrs);
+                    const eventAttrs = [];
+                    const extraAttrs = [];
+                    for (let i = 0, l = allAttrs.length; i < l; i++) {
+                        const key = allAttrs[i];
+                        if (isOn(key)) {
+                            // ignore v-model handlers when they fail to fallthrough
+                            if (!isModelListener(key)) {
+                                // remove `on`, lowercase first letter to reflect event casing
+                                // accurately
+                                eventAttrs.push(key[2].toLowerCase() + key.slice(3));
+                            }
+                        }
+                        else {
+                            extraAttrs.push(key);
+                        }
+                    }
+                    if (extraAttrs.length) {
+                        warn$1(`Extraneous non-props attributes (` +
+                            `${extraAttrs.join(', ')}) ` +
+                            `were passed to component but could not be automatically inherited ` +
+                            `because component renders fragment or text root nodes.`);
+                    }
+                    if (eventAttrs.length) {
+                        warn$1(`Extraneous non-emits event listeners (` +
+                            `${eventAttrs.join(', ')}) ` +
+                            `were passed to component but could not be automatically inherited ` +
+                            `because component renders fragment or text root nodes. ` +
+                            `If the listener is intended to be a component custom event listener only, ` +
+                            `declare it using the "emits" option.`);
+                    }
+                }
             }
         }
         // inherit directives
         if (vnode.dirs) {
+            if (!isElementRoot(root)) {
+                warn$1(`Runtime directive used on component with non-element root node. ` +
+                    `The directives will not function as intended.`);
+            }
             // clone before mutating since the root may be a hoisted vnode
             root = cloneVNode(root);
             root.dirs = root.dirs ? root.dirs.concat(vnode.dirs) : vnode.dirs;
         }
         // inherit transition data
         if (vnode.transition) {
+            if (!isElementRoot(root)) {
+                warn$1(`Component inside <Transition> renders non-element root node ` +
+                    `that cannot be animated.`);
+            }
             root.transition = vnode.transition;
         }
-        {
+        if (setRoot) {
+            setRoot(root);
+        }
+        else {
             result = root;
         }
         setCurrentRenderingInstance(prev);
         return result;
+    }
+    /**
+     * dev only
+     * In dev mode, template root level comments are rendered, which turns the
+     * template into a fragment root, but we need to locate the single element
+     * root for attrs and scope id processing.
+     */
+    const getChildRoot = (vnode) => {
+        const rawChildren = vnode.children;
+        const dynamicChildren = vnode.dynamicChildren;
+        const childRoot = filterSingleRoot(rawChildren);
+        if (!childRoot) {
+            return [vnode, undefined];
+        }
+        const index = rawChildren.indexOf(childRoot);
+        const dynamicIndex = dynamicChildren ? dynamicChildren.indexOf(childRoot) : -1;
+        const setRoot = (updatedRoot) => {
+            rawChildren[index] = updatedRoot;
+            if (dynamicChildren) {
+                if (dynamicIndex > -1) {
+                    dynamicChildren[dynamicIndex] = updatedRoot;
+                }
+                else if (updatedRoot.patchFlag > 0) {
+                    vnode.dynamicChildren = [...dynamicChildren, updatedRoot];
+                }
+            }
+        };
+        return [normalizeVNode(childRoot), setRoot];
+    };
+    function filterSingleRoot(children) {
+        let singleRoot;
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            if (isVNode(child)) {
+                // ignore user comment
+                if (child.type !== Comment || child.children === 'v-if') {
+                    if (singleRoot) {
+                        // has more than 1 non-comment child, return now
+                        return;
+                    }
+                    else {
+                        singleRoot = child;
+                    }
+                }
+            }
+            else {
+                return;
+            }
+        }
+        return singleRoot;
     }
     const getFunctionalFallthrough = (attrs) => {
         let res;
@@ -1783,10 +2394,21 @@
         }
         return res;
     };
+    const isElementRoot = (vnode) => {
+        return (vnode.shapeFlag & (6 /* COMPONENT */ | 1 /* ELEMENT */) ||
+            vnode.type === Comment // potential v-if branch switch
+        );
+    };
     function shouldUpdateComponent(prevVNode, nextVNode, optimized) {
         const { props: prevProps, children: prevChildren, component } = prevVNode;
         const { props: nextProps, children: nextChildren, patchFlag } = nextVNode;
         const emits = component.emitsOptions;
+        // Parent component's render function was hot-updated. Since this may have
+        // caused the child component's slots content to have changed, we need to
+        // force the child to update as well.
+        if ((prevChildren || nextChildren) && isHmrUpdating) {
+            return true;
+        }
         // force child update for runtime directive or transition on component vnode.
         if (nextVNode.dirs || nextVNode.transition) {
             return true;
@@ -1874,7 +2496,11 @@
     }
 
     function provide(key, value) {
-        if (!currentInstance) ;
+        if (!currentInstance) {
+            {
+                warn$1(`provide() can only be used inside setup().`);
+            }
+        }
         else {
             let provides = currentInstance.provides;
             // by default an instance inherits its parent's provides object
@@ -1910,23 +2536,47 @@
                     ? defaultValue.call(instance.proxy)
                     : defaultValue;
             }
-            else ;
+            else {
+                warn$1(`injection "${String(key)}" not found.`);
+            }
+        }
+        else {
+            warn$1(`inject() can only be used inside setup() or functional components.`);
         }
     }
     // initial value for watchers to trigger on undefined initial values
     const INITIAL_WATCHER_VALUE = {};
     // implementation
     function watch(source, cb, options) {
+        if (!isFunction$1(cb)) {
+            warn$1(`\`watch(fn, options?)\` signature has been moved to a separate API. ` +
+                `Use \`watchEffect(fn, options?)\` instead. \`watch\` now only ` +
+                `supports \`watch(source, cb, options?) signature.`);
+        }
         return doWatch(source, cb, options);
     }
     function doWatch(source, cb, { immediate, deep, flush, onTrack, onTrigger } = EMPTY_OBJ$1) {
+        if (!cb) {
+            if (immediate !== undefined) {
+                warn$1(`watch() "immediate" option is only respected when using the ` +
+                    `watch(source, callback, options?) signature.`);
+            }
+            if (deep !== undefined) {
+                warn$1(`watch() "deep" option is only respected when using the ` +
+                    `watch(source, callback, options?) signature.`);
+            }
+        }
+        const warnInvalidSource = (s) => {
+            warn$1(`Invalid watch source: `, s, `A watch source can only be a getter/effect function, a ref, ` +
+                `a reactive object, or an array of these types.`);
+        };
         const instance = currentInstance;
         let getter;
         let forceTrigger = false;
         let isMultiSource = false;
         if (isRef(source)) {
             getter = () => source.value;
-            forceTrigger = isShallow(source);
+            forceTrigger = isShallow$1(source);
         }
         else if (isReactive(source)) {
             getter = () => source;
@@ -1934,7 +2584,7 @@
         }
         else if (isArray$2(source)) {
             isMultiSource = true;
-            forceTrigger = source.some(s => isReactive(s) || isShallow(s));
+            forceTrigger = source.some(s => isReactive(s) || isShallow$1(s));
             getter = () => source.map(s => {
                 if (isRef(s)) {
                     return s.value;
@@ -1945,7 +2595,9 @@
                 else if (isFunction$1(s)) {
                     return callWithErrorHandling(s, instance, 2 /* WATCH_GETTER */);
                 }
-                else ;
+                else {
+                    warnInvalidSource(s);
+                }
             });
         }
         else if (isFunction$1(source)) {
@@ -1968,6 +2620,7 @@
         }
         else {
             getter = NOOP;
+            warnInvalidSource(source);
         }
         if (cb && deep) {
             const baseGetter = getter;
@@ -2043,6 +2696,10 @@
             scheduler = () => queuePreFlushCb(job);
         }
         const effect = new ReactiveEffect(getter, scheduler);
+        {
+            effect.onTrack = onTrack;
+            effect.onTrigger = onTrigger;
+        }
         // initial run
         if (cb) {
             if (immediate) {
@@ -2213,6 +2870,15 @@
             }
             return wrappedHook;
         }
+        else {
+            const apiName = toHandlerKey(ErrorTypeStrings[type].replace(/ hook$/, ''));
+            warn$1(`${apiName} is called when there is no active component instance to be ` +
+                `associated with. ` +
+                `Lifecycle injection APIs can only be used during execution of setup().` +
+                (` If you are using async setup(), make sure to register lifecycle ` +
+                        `hooks before the first await statement.`
+                    ));
+        }
     }
     const createHook = (lifecycle) => (hook, target = currentInstance) => 
     // post-create lifecycle registrations are noops during SSR (except for serverPrefetch)
@@ -2230,12 +2896,31 @@
     function onErrorCaptured(hook, target = currentInstance) {
         injectHook("ec" /* ERROR_CAPTURED */, hook, target);
     }
+
+    /**
+    Runtime helper for applying directives to a vnode. Example usage:
+
+    const comp = resolveComponent('comp')
+    const foo = resolveDirective('foo')
+    const bar = resolveDirective('bar')
+
+    return withDirectives(h(comp), [
+      [foo, this.x],
+      [bar, this.y]
+    ])
+    */
+    function validateDirectiveName(name) {
+        if (isBuiltInDirective(name)) {
+            warn$1('Do not use built-in directive ids as custom directive id: ' + name);
+        }
+    }
     /**
      * Adds directives to a VNode.
      */
     function withDirectives(vnode, directives) {
         const internalInstance = currentRenderingInstance;
         if (internalInstance === null) {
+            warn$1(`withDirectives can only be used inside render functions.`);
             return vnode;
         }
         const instance = getExposeProxy(internalInstance) ||
@@ -2293,6 +2978,18 @@
     /**
      * @private
      */
+    function resolveDynamicComponent(component) {
+        if (isString$1(component)) {
+            return resolveAsset(COMPONENTS, component, false) || component;
+        }
+        else {
+            // invalid types will fallthrough to createVNode and raise warning
+            return (component || NULL_DYNAMIC_COMPONENT);
+        }
+    }
+    /**
+     * @private
+     */
     function resolveDirective(name) {
         return resolveAsset(DIRECTIVES, name);
     }
@@ -2321,7 +3018,18 @@
                 // fallback to implicit self-reference
                 return Component;
             }
+            if (warnMissing && !res) {
+                const extra = type === COMPONENTS
+                    ? `\nIf this is a native custom element, make sure to exclude it from ` +
+                        `component resolution via compilerOptions.isCustomElement.`
+                    : ``;
+                warn$1(`Failed to resolve ${type.slice(0, -1)}: ${name}${extra}`);
+            }
             return res;
+        }
+        else {
+            warn$1(`resolve${capitalize(type.slice(0, -1))} ` +
+                `can only be used in render() or setup().`);
         }
     }
     function resolve(registry, name) {
@@ -2329,6 +3037,49 @@
             (registry[name] ||
                 registry[camelize(name)] ||
                 registry[capitalize(camelize(name))]));
+    }
+
+    /**
+     * Actual implementation
+     */
+    function renderList(source, renderItem, cache, index) {
+        let ret;
+        const cached = (cache && cache[index]);
+        if (isArray$2(source) || isString$1(source)) {
+            ret = new Array(source.length);
+            for (let i = 0, l = source.length; i < l; i++) {
+                ret[i] = renderItem(source[i], i, undefined, cached && cached[i]);
+            }
+        }
+        else if (typeof source === 'number') {
+            if (!Number.isInteger(source)) {
+                warn$1(`The v-for range expect an integer value but got ${source}.`);
+            }
+            ret = new Array(source);
+            for (let i = 0; i < source; i++) {
+                ret[i] = renderItem(i + 1, i, undefined, cached && cached[i]);
+            }
+        }
+        else if (isObject$4(source)) {
+            if (source[Symbol.iterator]) {
+                ret = Array.from(source, (item, i) => renderItem(item, i, undefined, cached && cached[i]));
+            }
+            else {
+                const keys = Object.keys(source);
+                ret = new Array(keys.length);
+                for (let i = 0, l = keys.length; i < l; i++) {
+                    const key = keys[i];
+                    ret[i] = renderItem(source[key], key, i, cached && cached[i]);
+                }
+            }
+        }
+        else {
+            ret = [];
+        }
+        if (cache) {
+            cache[index] = ret;
+        }
+        return ret;
     }
 
     /**
@@ -2350,10 +3101,10 @@
         $: i => i,
         $el: i => i.vnode.el,
         $data: i => i.data,
-        $props: i => (i.props),
-        $attrs: i => (i.attrs),
-        $slots: i => (i.slots),
-        $refs: i => (i.refs),
+        $props: i => (shallowReadonly(i.props) ),
+        $attrs: i => (shallowReadonly(i.attrs) ),
+        $slots: i => (shallowReadonly(i.slots) ),
+        $refs: i => (shallowReadonly(i.refs) ),
         $parent: i => getPublicInstance(i.parent),
         $root: i => getPublicInstance(i.root),
         $emit: i => i.emit,
@@ -2362,9 +3113,23 @@
         $nextTick: i => i.n || (i.n = nextTick.bind(i.proxy)),
         $watch: i => (__VUE_OPTIONS_API__ ? instanceWatch.bind(i) : NOOP)
     });
+    const isReservedPrefix = (key) => key === '_' || key === '$';
     const PublicInstanceProxyHandlers = {
         get({ _: instance }, key) {
             const { ctx, setupState, data, props, accessCache, type, appContext } = instance;
+            // for internal formatters to know that this is a Vue instance
+            if (key === '__isVue') {
+                return true;
+            }
+            // prioritize <script setup> bindings during dev.
+            // this allows even properties that start with _ or $ to be used - so that
+            // it aligns with the production behavior where the render fn is inlined and
+            // indeed has access to all declared variables.
+            if (setupState !== EMPTY_OBJ$1 &&
+                setupState.__isScriptSetup &&
+                hasOwn$1(setupState, key)) {
+                return setupState[key];
+            }
             // data / props / ctx
             // This getter gets called for every property access on the render context
             // during render and is a major hotspot. The most expensive part of this
@@ -2417,6 +3182,7 @@
             if (publicGetter) {
                 if (key === '$attrs') {
                     track(instance, "get" /* GET */, key);
+                    markAttrsAccessed();
                 }
                 return publicGetter(instance);
             }
@@ -2439,7 +3205,20 @@
                     return globalProperties[key];
                 }
             }
-            else ;
+            else if (currentRenderingInstance &&
+                (!isString$1(key) ||
+                    // #1091 avoid internal isRef/isVNode checks on component instance leading
+                    // to infinite warning loop
+                    key.indexOf('__v') !== 0)) {
+                if (data !== EMPTY_OBJ$1 && isReservedPrefix(key[0]) && hasOwn$1(data, key)) {
+                    warn$1(`Property ${JSON.stringify(key)} must be accessed via $data because it starts with a reserved ` +
+                        `character ("$" or "_") and is not proxied on the render context.`);
+                }
+                else if (instance === currentRenderingInstance) {
+                    warn$1(`Property ${JSON.stringify(key)} was accessed during render ` +
+                        `but is not defined on instance.`);
+                }
+            }
         },
         set({ _: instance }, key, value) {
             const { data, setupState, ctx } = instance;
@@ -2452,13 +3231,23 @@
                 return true;
             }
             else if (hasOwn$1(instance.props, key)) {
+                warn$1(`Attempting to mutate prop "${key}". Props are readonly.`, instance);
                 return false;
             }
             if (key[0] === '$' && key.slice(1) in instance) {
+                warn$1(`Attempting to mutate public property "${key}". ` +
+                        `Properties starting with $ are reserved and readonly.`, instance);
                 return false;
             }
             else {
-                {
+                if (key in instance.appContext.config.globalProperties) {
+                    Object.defineProperty(ctx, key, {
+                        enumerable: true,
+                        configurable: true,
+                        value
+                    });
+                }
+                else {
                     ctx[key] = value;
                 }
             }
@@ -2485,6 +3274,83 @@
             return Reflect.defineProperty(target, key, descriptor);
         }
     };
+    {
+        PublicInstanceProxyHandlers.ownKeys = (target) => {
+            warn$1(`Avoid app logic that relies on enumerating keys on a component instance. ` +
+                `The keys will be empty in production mode to avoid performance overhead.`);
+            return Reflect.ownKeys(target);
+        };
+    }
+    // dev only
+    // In dev mode, the proxy target exposes the same properties as seen on `this`
+    // for easier console inspection. In prod mode it will be an empty object so
+    // these properties definitions can be skipped.
+    function createDevRenderContext(instance) {
+        const target = {};
+        // expose internal instance for proxy handlers
+        Object.defineProperty(target, `_`, {
+            configurable: true,
+            enumerable: false,
+            get: () => instance
+        });
+        // expose public properties
+        Object.keys(publicPropertiesMap).forEach(key => {
+            Object.defineProperty(target, key, {
+                configurable: true,
+                enumerable: false,
+                get: () => publicPropertiesMap[key](instance),
+                // intercepted by the proxy so no need for implementation,
+                // but needed to prevent set errors
+                set: NOOP
+            });
+        });
+        return target;
+    }
+    // dev only
+    function exposePropsOnRenderContext(instance) {
+        const { ctx, propsOptions: [propsOptions] } = instance;
+        if (propsOptions) {
+            Object.keys(propsOptions).forEach(key => {
+                Object.defineProperty(ctx, key, {
+                    enumerable: true,
+                    configurable: true,
+                    get: () => instance.props[key],
+                    set: NOOP
+                });
+            });
+        }
+    }
+    // dev only
+    function exposeSetupStateOnRenderContext(instance) {
+        const { ctx, setupState } = instance;
+        Object.keys(toRaw(setupState)).forEach(key => {
+            if (!setupState.__isScriptSetup) {
+                if (isReservedPrefix(key[0])) {
+                    warn$1(`setup() return property ${JSON.stringify(key)} should not start with "$" or "_" ` +
+                        `which are reserved prefixes for Vue internals.`);
+                    return;
+                }
+                Object.defineProperty(ctx, key, {
+                    enumerable: true,
+                    configurable: true,
+                    get: () => setupState[key],
+                    set: NOOP
+                });
+            }
+        });
+    }
+
+    function createDuplicateChecker() {
+        const cache = Object.create(null);
+        return (type, key) => {
+            if (cache[key]) {
+                warn$1(`${type} property "${key}" is already defined in ${cache[key]}.`);
+            }
+            else {
+                cache[key] = type;
+            }
+        };
+    }
     let shouldCacheAccess = true;
     function applyOptions(instance) {
         const options = resolveMergedOptions(instance);
@@ -2506,7 +3372,15 @@
         expose, inheritAttrs, 
         // assets
         components, directives, filters } = options;
-        const checkDuplicateProperties = null;
+        const checkDuplicateProperties = createDuplicateChecker() ;
+        {
+            const [propsOptions] = instance.propsOptions;
+            if (propsOptions) {
+                for (const key in propsOptions) {
+                    checkDuplicateProperties("Props" /* PROPS */, key);
+                }
+            }
+        }
         // options initialization order (to be consistent with Vue 2):
         // - props (already done outside of this function)
         // - inject
@@ -2525,16 +3399,53 @@
                     // methods to the proxy target, and those are read-only but
                     // reconfigurable, so it needs to be redefined here
                     {
-                        ctx[key] = methodHandler.bind(publicThis);
+                        Object.defineProperty(ctx, key, {
+                            value: methodHandler.bind(publicThis),
+                            configurable: true,
+                            enumerable: true,
+                            writable: true
+                        });
                     }
+                    {
+                        checkDuplicateProperties("Methods" /* METHODS */, key);
+                    }
+                }
+                else {
+                    warn$1(`Method "${key}" has type "${typeof methodHandler}" in the component definition. ` +
+                        `Did you reference the function correctly?`);
                 }
             }
         }
         if (dataOptions) {
+            if (!isFunction$1(dataOptions)) {
+                warn$1(`The data option must be a function. ` +
+                    `Plain object usage is no longer supported.`);
+            }
             const data = dataOptions.call(publicThis, publicThis);
-            if (!isObject$4(data)) ;
+            if (isPromise(data)) {
+                warn$1(`data() returned a Promise - note data() cannot be async; If you ` +
+                    `intend to perform data fetching before component renders, use ` +
+                    `async setup() + <Suspense>.`);
+            }
+            if (!isObject$4(data)) {
+                warn$1(`data() should return an object.`);
+            }
             else {
                 instance.data = reactive(data);
+                {
+                    for (const key in data) {
+                        checkDuplicateProperties("Data" /* DATA */, key);
+                        // expose data on ctx during dev
+                        if (!isReservedPrefix(key[0])) {
+                            Object.defineProperty(ctx, key, {
+                                configurable: true,
+                                enumerable: true,
+                                get: () => data[key],
+                                set: NOOP
+                            });
+                        }
+                    }
+                }
             }
         }
         // state initialization complete at this point - start caching access
@@ -2547,9 +3458,15 @@
                     : isFunction$1(opt.get)
                         ? opt.get.bind(publicThis, publicThis)
                         : NOOP;
+                if (get === NOOP) {
+                    warn$1(`Computed property "${key}" has no getter.`);
+                }
                 const set = !isFunction$1(opt) && isFunction$1(opt.set)
                     ? opt.set.bind(publicThis)
-                    : NOOP;
+                    : () => {
+                            warn$1(`Write operation failed: computed property "${key}" is readonly.`);
+                        }
+                        ;
                 const c = computed({
                     get,
                     set
@@ -2560,6 +3477,9 @@
                     get: () => c.value,
                     set: v => (c.value = v)
                 });
+                {
+                    checkDuplicateProperties("Computed" /* COMPUTED */, key);
+                }
             }
         }
         if (watchOptions) {
@@ -2655,11 +3575,21 @@
                     });
                 }
                 else {
+                    {
+                        warn$1(`injected property "${key}" is a ref and will be auto-unwrapped ` +
+                            `and no longer needs \`.value\` in the next minor release. ` +
+                            `To opt-in to the new behavior now, ` +
+                            `set \`app.config.unwrapInjectedRef = true\` (this config is ` +
+                            `temporary and will not be needed in the future.)`);
+                    }
                     ctx[key] = injected;
                 }
             }
             else {
                 ctx[key] = injected;
+            }
+            {
+                checkDuplicateProperties("Inject" /* INJECT */, key);
             }
         }
     }
@@ -2677,6 +3607,9 @@
             if (isFunction$1(handler)) {
                 watch(getter, handler);
             }
+            else {
+                warn$1(`Invalid watch handler specified by key "${raw}"`, handler);
+            }
         }
         else if (isFunction$1(raw)) {
             watch(getter, raw.bind(publicThis));
@@ -2692,9 +3625,14 @@
                 if (isFunction$1(handler)) {
                     watch(getter, handler, raw);
                 }
+                else {
+                    warn$1(`Invalid watch handler specified by key "${raw.handler}"`, handler);
+                }
             }
         }
-        else ;
+        else {
+            warn$1(`Invalid watch option: "${key}"`, raw);
+        }
     }
     /**
      * Resolve merged options and cache it on the component.
@@ -2734,7 +3672,10 @@
             mixins.forEach((m) => mergeOptions(to, m, strats, true));
         }
         for (const key in from) {
-            if (asMixin && key === 'expose') ;
+            if (asMixin && key === 'expose') {
+                warn$1(`"expose" option is ignored when declared in mixins or extends. ` +
+                        `It should only be declared in the base component itself.`);
+            }
             else {
                 const strat = internalOptionMergeStrats[key] || (strats && strats[key]);
                 to[key] = strat ? strat(to[key], from[key]) : from[key];
@@ -2828,6 +3769,10 @@
                 props[key] = undefined;
             }
         }
+        // validation
+        {
+            validateProps(rawProps || {}, props, instance);
+        }
         if (isStateful) {
             // stateful
             instance.props = isSSR ? props : shallowReactive(props);
@@ -2853,7 +3798,9 @@
         // always force full diff in dev
         // - #1942 if hmr is enabled with sfc component
         // - vite#872 non-sfc component used by sfc component
-        (optimized || patchFlag > 0) &&
+        !((instance.type.__hmrId ||
+                (instance.parent && instance.parent.type.__hmrId))) &&
+            (optimized || patchFlag > 0) &&
             !(patchFlag & 16 /* FULL_PROPS */)) {
             if (patchFlag & 8 /* PROPS */) {
                 // Compiler-generated props & no keys change, just set the updated
@@ -2935,6 +3882,9 @@
         // trigger updates for $attrs in case it's used in component slots
         if (hasAttrsChanged) {
             trigger$2(instance, "set" /* SET */, '$attrs');
+        }
+        {
+            validateProps(rawProps || {}, props, instance);
         }
     }
     function setFullProps(instance, rawProps, props, attrs) {
@@ -3047,6 +3997,9 @@
         }
         if (isArray$2(raw)) {
             for (let i = 0; i < raw.length; i++) {
+                if (!isString$1(raw[i])) {
+                    warn$1(`props must be strings when using array syntax.`, raw[i]);
+                }
                 const normalizedKey = camelize(raw[i]);
                 if (validatePropName(normalizedKey)) {
                     normalized[normalizedKey] = EMPTY_OBJ$1;
@@ -3054,6 +4007,9 @@
             }
         }
         else if (raw) {
+            if (!isObject$4(raw)) {
+                warn$1(`invalid props options`, raw);
+            }
             for (const key in raw) {
                 const normalizedKey = camelize(key);
                 if (validatePropName(normalizedKey)) {
@@ -3082,6 +4038,9 @@
         if (key[0] !== '$') {
             return true;
         }
+        else {
+            warn$1(`Invalid prop name: "${key}" is a reserved property.`);
+        }
         return false;
     }
     // use function string name to check type constructors
@@ -3102,6 +4061,136 @@
         }
         return -1;
     }
+    /**
+     * dev only
+     */
+    function validateProps(rawProps, props, instance) {
+        const resolvedValues = toRaw(props);
+        const options = instance.propsOptions[0];
+        for (const key in options) {
+            let opt = options[key];
+            if (opt == null)
+                continue;
+            validateProp(key, resolvedValues[key], opt, !hasOwn$1(rawProps, key) && !hasOwn$1(rawProps, hyphenate(key)));
+        }
+    }
+    /**
+     * dev only
+     */
+    function validateProp(name, value, prop, isAbsent) {
+        const { type, required, validator } = prop;
+        // required!
+        if (required && isAbsent) {
+            warn$1('Missing required prop: "' + name + '"');
+            return;
+        }
+        // missing but optional
+        if (value == null && !prop.required) {
+            return;
+        }
+        // type check
+        if (type != null && type !== true) {
+            let isValid = false;
+            const types = isArray$2(type) ? type : [type];
+            const expectedTypes = [];
+            // value is valid as long as one of the specified types match
+            for (let i = 0; i < types.length && !isValid; i++) {
+                const { valid, expectedType } = assertType(value, types[i]);
+                expectedTypes.push(expectedType || '');
+                isValid = valid;
+            }
+            if (!isValid) {
+                warn$1(getInvalidTypeMessage(name, value, expectedTypes));
+                return;
+            }
+        }
+        // custom validator
+        if (validator && !validator(value)) {
+            warn$1('Invalid prop: custom validator check failed for prop "' + name + '".');
+        }
+    }
+    const isSimpleType = /*#__PURE__*/ makeMap('String,Number,Boolean,Function,Symbol,BigInt');
+    /**
+     * dev only
+     */
+    function assertType(value, type) {
+        let valid;
+        const expectedType = getType(type);
+        if (isSimpleType(expectedType)) {
+            const t = typeof value;
+            valid = t === expectedType.toLowerCase();
+            // for primitive wrapper objects
+            if (!valid && t === 'object') {
+                valid = value instanceof type;
+            }
+        }
+        else if (expectedType === 'Object') {
+            valid = isObject$4(value);
+        }
+        else if (expectedType === 'Array') {
+            valid = isArray$2(value);
+        }
+        else if (expectedType === 'null') {
+            valid = value === null;
+        }
+        else {
+            valid = value instanceof type;
+        }
+        return {
+            valid,
+            expectedType
+        };
+    }
+    /**
+     * dev only
+     */
+    function getInvalidTypeMessage(name, value, expectedTypes) {
+        let message = `Invalid prop: type check failed for prop "${name}".` +
+            ` Expected ${expectedTypes.map(capitalize).join(' | ')}`;
+        const expectedType = expectedTypes[0];
+        const receivedType = toRawType(value);
+        const expectedValue = styleValue(value, expectedType);
+        const receivedValue = styleValue(value, receivedType);
+        // check if we need to specify expected value
+        if (expectedTypes.length === 1 &&
+            isExplicable(expectedType) &&
+            !isBoolean(expectedType, receivedType)) {
+            message += ` with value ${expectedValue}`;
+        }
+        message += `, got ${receivedType} `;
+        // check if we need to specify received value
+        if (isExplicable(receivedType)) {
+            message += `with value ${receivedValue}.`;
+        }
+        return message;
+    }
+    /**
+     * dev only
+     */
+    function styleValue(value, type) {
+        if (type === 'String') {
+            return `"${value}"`;
+        }
+        else if (type === 'Number') {
+            return `${Number(value)}`;
+        }
+        else {
+            return `${value}`;
+        }
+    }
+    /**
+     * dev only
+     */
+    function isExplicable(type) {
+        const explicitTypes = ['string', 'number', 'boolean'];
+        return explicitTypes.some(elem => type.toLowerCase() === elem);
+    }
+    /**
+     * dev only
+     */
+    function isBoolean(...args) {
+        return args.some(elem => elem.toLowerCase() === 'boolean');
+    }
 
     const isInternalKey = (key) => key[0] === '_' || key === '$stable';
     const normalizeSlotValue = (value) => isArray$2(value)
@@ -3113,6 +4202,11 @@
             return rawSlot;
         }
         const normalized = withCtx((...args) => {
+            if (currentInstance) {
+                warn$1(`Slot "${key}" invoked outside of the render function: ` +
+                    `this will not track dependencies used in the slot. ` +
+                    `Invoke the slot function inside the render function instead.`);
+            }
             return normalizeSlotValue(rawSlot(...args));
         }, ctx);
         normalized._c = false;
@@ -3128,12 +4222,21 @@
                 slots[key] = normalizeSlot(key, value, ctx);
             }
             else if (value != null) {
+                {
+                    warn$1(`Non-function value encountered for slot "${key}". ` +
+                        `Prefer function slots for better performance.`);
+                }
                 const normalized = normalizeSlotValue(value);
                 slots[key] = () => normalized;
             }
         }
     };
     const normalizeVNodeSlots = (instance, children) => {
+        if (!isKeepAlive(instance.vnode) &&
+            !(false )) {
+            warn$1(`Non-function value encountered for default slot. ` +
+                `Prefer function slots for better performance.`);
+        }
         const normalized = normalizeSlotValue(children);
         instance.slots.default = () => normalized;
     };
@@ -3167,7 +4270,12 @@
             const type = children._;
             if (type) {
                 // compiled slots.
-                if (optimized && type === 1 /* STABLE */) {
+                if (isHmrUpdating) {
+                    // Parent was HMR updated so slot content may have changed.
+                    // force update slots and mark instance for hmr as well
+                    extend$1(slots, children);
+                }
+                else if (optimized && type === 1 /* STABLE */) {
                     // compiled AND stable.
                     // no need to update, and skip stale slots removal.
                     needDeletionCheck = false;
@@ -3234,6 +4342,7 @@
                 rootComponent = Object.assign({}, rootComponent);
             }
             if (rootProps != null && !isObject$4(rootProps)) {
+                warn$1(`root props passed to app.mount() must be an object.`);
                 rootProps = null;
             }
             const context = createAppContext();
@@ -3251,9 +4360,14 @@
                     return context.config;
                 },
                 set config(v) {
+                    {
+                        warn$1(`app.config cannot be replaced. Modify individual options instead.`);
+                    }
                 },
                 use(plugin, ...options) {
-                    if (installedPlugins.has(plugin)) ;
+                    if (installedPlugins.has(plugin)) {
+                        warn$1(`Plugin has already been applied to target app.`);
+                    }
                     else if (plugin && isFunction$1(plugin.install)) {
                         installedPlugins.add(plugin);
                         plugin.install(app, ...options);
@@ -3262,7 +4376,10 @@
                         installedPlugins.add(plugin);
                         plugin(app, ...options);
                     }
-                    else ;
+                    else {
+                        warn$1(`A plugin must either be a function or an object with an "install" ` +
+                            `function.`);
+                    }
                     return app;
                 },
                 mixin(mixin) {
@@ -3270,29 +4387,60 @@
                         if (!context.mixins.includes(mixin)) {
                             context.mixins.push(mixin);
                         }
+                        else {
+                            warn$1('Mixin has already been applied to target app' +
+                                (mixin.name ? `: ${mixin.name}` : ''));
+                        }
+                    }
+                    else {
+                        warn$1('Mixins are only available in builds supporting Options API');
                     }
                     return app;
                 },
                 component(name, component) {
+                    {
+                        validateComponentName(name, context.config);
+                    }
                     if (!component) {
                         return context.components[name];
+                    }
+                    if (context.components[name]) {
+                        warn$1(`Component "${name}" has already been registered in target app.`);
                     }
                     context.components[name] = component;
                     return app;
                 },
                 directive(name, directive) {
+                    {
+                        validateDirectiveName(name);
+                    }
                     if (!directive) {
                         return context.directives[name];
+                    }
+                    if (context.directives[name]) {
+                        warn$1(`Directive "${name}" has already been registered in target app.`);
                     }
                     context.directives[name] = directive;
                     return app;
                 },
                 mount(rootContainer, isHydrate, isSVG) {
                     if (!isMounted) {
+                        // #5571
+                        if (rootContainer.__vue_app__) {
+                            warn$1(`There is already an app instance mounted on the host container.\n` +
+                                ` If you want to mount another app on the same host container,` +
+                                ` you need to unmount the previous app by calling \`app.unmount()\` first.`);
+                        }
                         const vnode = createVNode$1(rootComponent, rootProps);
                         // store app context on the root VNode.
                         // this will be set on the root instance on initial mount.
                         vnode.appContext = context;
+                        // HMR root reload
+                        {
+                            context.reload = () => {
+                                render(cloneVNode(vnode), rootContainer, isSVG);
+                            };
+                        }
                         if (isHydrate && hydrate) {
                             hydrate(vnode, rootContainer);
                         }
@@ -3302,24 +4450,37 @@
                         isMounted = true;
                         app._container = rootContainer;
                         rootContainer.__vue_app__ = app;
-                        if (__VUE_PROD_DEVTOOLS__) {
+                        {
                             app._instance = vnode.component;
                             devtoolsInitApp(app, version);
                         }
                         return getExposeProxy(vnode.component) || vnode.component.proxy;
                     }
+                    else {
+                        warn$1(`App has already been mounted.\n` +
+                            `If you want to remount the same app, move your app creation logic ` +
+                            `into a factory function and create fresh app instances for each ` +
+                            `mount - e.g. \`const createMyApp = () => createApp(App)\``);
+                    }
                 },
                 unmount() {
                     if (isMounted) {
                         render(null, app._container);
-                        if (__VUE_PROD_DEVTOOLS__) {
+                        {
                             app._instance = null;
                             devtoolsUnmountApp(app);
                         }
                         delete app._container.__vue_app__;
                     }
+                    else {
+                        warn$1(`Cannot unmount an app that is not mounted.`);
+                    }
                 },
                 provide(key, value) {
+                    if (key in context.provides) {
+                        warn$1(`App already provides property with key "${String(key)}". ` +
+                            `It will be overwritten with the new value.`);
+                    }
                     context.provides[key] = value;
                     return app;
                 }
@@ -3346,6 +4507,11 @@
             : vnode.el;
         const value = isUnmount ? null : refValue;
         const { i: owner, r: ref } = rawRef;
+        if (!owner) {
+            warn$1(`Missing ref owner context. ref cannot be used on hoisted vnodes. ` +
+                `A vnode with ref must be created inside the render function.`);
+            return;
+        }
         const oldRef = oldRawRef && oldRawRef.r;
         const refs = owner.refs === EMPTY_OBJ$1 ? (owner.refs = {}) : owner.refs;
         const setupState = owner.setupState;
@@ -3404,7 +4570,9 @@
                         if (rawRef.k)
                             refs[rawRef.k] = value;
                     }
-                    else ;
+                    else {
+                        warn$1('Invalid template ref type:', ref, `(${typeof ref})`);
+                    }
                 };
                 if (value) {
                     doSet.id = -1;
@@ -3414,7 +4582,48 @@
                     doSet();
                 }
             }
+            else {
+                warn$1('Invalid template ref type:', ref, `(${typeof ref})`);
+            }
         }
+    }
+
+    /* eslint-disable no-restricted-globals */
+    let supported;
+    let perf;
+    function startMeasure(instance, type) {
+        if (instance.appContext.config.performance && isSupported()) {
+            perf.mark(`vue-${type}-${instance.uid}`);
+        }
+        {
+            devtoolsPerfStart(instance, type, isSupported() ? perf.now() : Date.now());
+        }
+    }
+    function endMeasure(instance, type) {
+        if (instance.appContext.config.performance && isSupported()) {
+            const startTag = `vue-${type}-${instance.uid}`;
+            const endTag = startTag + `:end`;
+            perf.mark(endTag);
+            perf.measure(`<${formatComponentName(instance, instance.type)}> ${type}`, startTag, endTag);
+            perf.clearMarks(startTag);
+            perf.clearMarks(endTag);
+        }
+        {
+            devtoolsPerfEnd(instance, type, isSupported() ? perf.now() : Date.now());
+        }
+    }
+    function isSupported() {
+        if (supported !== undefined) {
+            return supported;
+        }
+        if (typeof window !== 'undefined' && window.performance) {
+            supported = true;
+            perf = window.performance;
+        }
+        else {
+            supported = false;
+        }
+        return supported;
     }
 
     /**
@@ -3425,11 +4634,22 @@
      * istanbul-ignore-next
      */
     function initFeatureFlags() {
+        const needWarn = [];
         if (typeof __VUE_OPTIONS_API__ !== 'boolean') {
+            needWarn.push(`__VUE_OPTIONS_API__`);
             getGlobalThis().__VUE_OPTIONS_API__ = true;
         }
         if (typeof __VUE_PROD_DEVTOOLS__ !== 'boolean') {
+            needWarn.push(`__VUE_PROD_DEVTOOLS__`);
             getGlobalThis().__VUE_PROD_DEVTOOLS__ = false;
+        }
+        if (needWarn.length) {
+            const multi = needWarn.length > 1;
+            console.warn(`Feature flag${multi ? `s` : ``} ${needWarn.join(', ')} ${multi ? `are` : `is`} not explicitly defined. You are running the esm-bundler build of Vue, ` +
+                `which expects these compile-time feature flags to be globally injected ` +
+                `via the bundler config in order to get better tree-shaking in the ` +
+                `production bundle.\n\n` +
+                `For more details, see https://link.vuejs.org/feature-flags.`);
         }
     }
 
@@ -3461,13 +4681,13 @@
         }
         const target = getGlobalThis();
         target.__VUE__ = true;
-        if (__VUE_PROD_DEVTOOLS__) {
+        {
             setDevtoolsHook(target.__VUE_DEVTOOLS_GLOBAL_HOOK__, target);
         }
         const { insert: hostInsert, remove: hostRemove, patchProp: hostPatchProp, createElement: hostCreateElement, createText: hostCreateText, createComment: hostCreateComment, setText: hostSetText, setElementText: hostSetElementText, parentNode: hostParentNode, nextSibling: hostNextSibling, setScopeId: hostSetScopeId = NOOP, cloneNode: hostCloneNode, insertStaticContent: hostInsertStaticContent } = options;
         // Note: functions inside this closure should use `const xxx = () => {}`
         // style in order to prevent being inlined by minifiers.
-        const patch = (n1, n2, container, anchor = null, parentComponent = null, parentSuspense = null, isSVG = false, slotScopeIds = null, optimized = !!n2.dynamicChildren) => {
+        const patch = (n1, n2, container, anchor = null, parentComponent = null, parentSuspense = null, isSVG = false, slotScopeIds = null, optimized = isHmrUpdating ? false : !!n2.dynamicChildren) => {
             if (n1 === n2) {
                 return;
             }
@@ -3493,6 +4713,9 @@
                     if (n1 == null) {
                         mountStaticNode(n2, container, anchor, isSVG);
                     }
+                    else {
+                        patchStaticNode(n1, n2, container, isSVG);
+                    }
                     break;
                 case Fragment:
                     processFragment(n1, n2, container, anchor, parentComponent, parentSuspense, isSVG, slotScopeIds, optimized);
@@ -3510,7 +4733,9 @@
                     else if (shapeFlag & 128 /* SUSPENSE */) {
                         type.process(n1, n2, container, anchor, parentComponent, parentSuspense, isSVG, slotScopeIds, optimized, internals);
                     }
-                    else ;
+                    else {
+                        warn$1('Invalid VNode type:', type, `(${typeof type})`);
+                    }
             }
             // set ref
             if (ref != null && parentComponent) {
@@ -3539,6 +4764,22 @@
         };
         const mountStaticNode = (n2, container, anchor, isSVG) => {
             [n2.el, n2.anchor] = hostInsertStaticContent(n2.children, container, anchor, isSVG, n2.el, n2.anchor);
+        };
+        /**
+         * Dev / HMR only
+         */
+        const patchStaticNode = (n1, n2, container, isSVG) => {
+            // static nodes are only patched during dev for HMR
+            if (n2.children !== n1.children) {
+                const anchor = hostNextSibling(n1.anchor);
+                // remove existing
+                removeStaticNode(n1);
+                [n2.el, n2.anchor] = hostInsertStaticContent(n2.children, container, anchor, isSVG);
+            }
+            else {
+                n2.el = n1.el;
+                n2.anchor = n1.anchor;
+            }
         };
         const moveStaticNode = ({ el, anchor }, container, nextSibling) => {
             let next;
@@ -3571,16 +4812,7 @@
             let el;
             let vnodeHook;
             const { type, props, shapeFlag, transition, patchFlag, dirs } = vnode;
-            if (vnode.el &&
-                hostCloneNode !== undefined &&
-                patchFlag === -1 /* HOISTED */) {
-                // If a vnode has non-null el, it means it's being reused.
-                // Only static vnodes can be reused, so its mounted DOM nodes should be
-                // exactly the same, and we can simply do a clone here.
-                // only do this in production since cloned trees cannot be HMR updated.
-                el = vnode.el = hostCloneNode(vnode.el);
-            }
-            else {
+            {
                 el = vnode.el = hostCreateElement(vnode.type, isSVG, props && props.is, props);
                 // mount children first, since some props may rely on child content
                 // being already rendered, e.g. `<select value>`
@@ -3619,7 +4851,7 @@
                 // scopeId
                 setScopeId(el, vnode, vnode.scopeId, slotScopeIds, parentComponent);
             }
-            if (__VUE_PROD_DEVTOOLS__) {
+            {
                 Object.defineProperty(el, '__vnode', {
                     value: vnode,
                     enumerable: false
@@ -3662,6 +4894,11 @@
             }
             if (parentComponent) {
                 let subTree = parentComponent.subTree;
+                if (subTree.patchFlag > 0 &&
+                    subTree.patchFlag & 2048 /* DEV_ROOT_FRAGMENT */) {
+                    subTree =
+                        filterSingleRoot(subTree.children) || subTree;
+                }
                 if (vnode === subTree) {
                     const parentVNode = parentComponent.vnode;
                     setScopeId(el, parentVNode, parentVNode.scopeId, parentVNode.slotScopeIds, parentComponent.parent);
@@ -3694,9 +4931,18 @@
                 invokeDirectiveHook(n2, n1, parentComponent, 'beforeUpdate');
             }
             parentComponent && toggleRecurse(parentComponent, true);
+            if (isHmrUpdating) {
+                // HMR updated, force full diff
+                patchFlag = 0;
+                optimized = false;
+                dynamicChildren = null;
+            }
             const areChildrenSVG = isSVG && n2.type !== 'foreignObject';
             if (dynamicChildren) {
                 patchBlockChildren(n1.dynamicChildren, dynamicChildren, el, parentComponent, parentSuspense, areChildrenSVG, slotScopeIds);
+                if (parentComponent && parentComponent.type.__hmrId) {
+                    traverseStaticChildren(n1, n2);
+                }
             }
             else if (!optimized) {
                 // full diff
@@ -3817,6 +5063,13 @@
             const fragmentStartAnchor = (n2.el = n1 ? n1.el : hostCreateText(''));
             const fragmentEndAnchor = (n2.anchor = n1 ? n1.anchor : hostCreateText(''));
             let { patchFlag, dynamicChildren, slotScopeIds: fragmentSlotScopeIds } = n2;
+            if (// #5523 dev root fragment may inherit directives
+                (isHmrUpdating || patchFlag & 2048 /* DEV_ROOT_FRAGMENT */)) {
+                // HMR updated / Dev root fragment (w/ comments), force full diff
+                patchFlag = 0;
+                optimized = false;
+                dynamicChildren = null;
+            }
             // check if this is a slot fragment with :slotted scope ids
             if (fragmentSlotScopeIds) {
                 slotScopeIds = slotScopeIds
@@ -3841,7 +5094,10 @@
                     // a stable fragment (template root or <template v-for>) doesn't need to
                     // patch children order, but it may contain dynamicChildren.
                     patchBlockChildren(n1.dynamicChildren, dynamicChildren, container, parentComponent, parentSuspense, isSVG, slotScopeIds);
-                    if (
+                    if (parentComponent && parentComponent.type.__hmrId) {
+                        traverseStaticChildren(n1, n2);
+                    }
+                    else if (
                     // #2080 if the stable fragment has a key, it's a <template v-for> that may
                     //  get moved around. Make sure all root level vnodes inherit el.
                     // #2134 or if it's a component root, it may also get moved around
@@ -3876,13 +5132,26 @@
         };
         const mountComponent = (initialVNode, container, anchor, parentComponent, parentSuspense, isSVG, optimized) => {
             const instance = (initialVNode.component = createComponentInstance(initialVNode, parentComponent, parentSuspense));
+            if (instance.type.__hmrId) {
+                registerHMR(instance);
+            }
+            {
+                pushWarningContext(initialVNode);
+                startMeasure(instance, `mount`);
+            }
             // inject renderer internals for keepAlive
             if (isKeepAlive(initialVNode)) {
                 instance.ctx.renderer = internals;
             }
             // resolve props and slots for setup context
             {
+                {
+                    startMeasure(instance, `init`);
+                }
                 setupComponent(instance);
+                {
+                    endMeasure(instance, `init`);
+                }
             }
             // setup() is async. This component relies on async logic to be resolved
             // before proceeding
@@ -3897,13 +5166,25 @@
                 return;
             }
             setupRenderEffect(instance, initialVNode, container, anchor, parentSuspense, isSVG, optimized);
+            {
+                popWarningContext();
+                endMeasure(instance, `mount`);
+            }
         };
         const updateComponent = (n1, n2, optimized) => {
             const instance = (n2.component = n1.component);
             if (shouldUpdateComponent(n1, n2, optimized)) {
                 if (instance.asyncDep &&
                     !instance.asyncResolved) {
+                    // async & still pending - just update props and slots
+                    // since the component's reactive effect for render isn't set-up yet
+                    {
+                        pushWarningContext(n2);
+                    }
                     updateComponentPreRender(instance, n2, optimized);
+                    {
+                        popWarningContext();
+                    }
                     return;
                 }
                 else {
@@ -3943,8 +5224,20 @@
                     if (el && hydrateNode) {
                         // vnode has adopted host node - perform hydration instead of mount.
                         const hydrateSubTree = () => {
+                            {
+                                startMeasure(instance, `render`);
+                            }
                             instance.subTree = renderComponentRoot(instance);
+                            {
+                                endMeasure(instance, `render`);
+                            }
+                            {
+                                startMeasure(instance, `hydrate`);
+                            }
                             hydrateNode(el, instance.subTree, instance, parentSuspense, null);
+                            {
+                                endMeasure(instance, `hydrate`);
+                            }
                         };
                         if (isAsyncWrapperVNode) {
                             initialVNode.type.__asyncLoader().then(
@@ -3959,8 +5252,20 @@
                         }
                     }
                     else {
+                        {
+                            startMeasure(instance, `render`);
+                        }
                         const subTree = (instance.subTree = renderComponentRoot(instance));
+                        {
+                            endMeasure(instance, `render`);
+                        }
+                        {
+                            startMeasure(instance, `patch`);
+                        }
                         patch(null, subTree, container, anchor, instance, parentSuspense, isSVG);
+                        {
+                            endMeasure(instance, `patch`);
+                        }
                         initialVNode.el = subTree.el;
                     }
                     // mounted hook
@@ -3983,7 +5288,7 @@
                         instance.a && queuePostRenderEffect(instance.a, parentSuspense);
                     }
                     instance.isMounted = true;
-                    if (__VUE_PROD_DEVTOOLS__) {
+                    {
                         devtoolsComponentAdded(instance);
                     }
                     // #2458: deference mount-only object parameters to prevent memleaks
@@ -3996,6 +5301,9 @@
                     let { next, bu, u, parent, vnode } = instance;
                     let originNext = next;
                     let vnodeHook;
+                    {
+                        pushWarningContext(next || instance.vnode);
+                    }
                     // Disallow component effect recursion during pre-lifecycle hooks.
                     toggleRecurse(instance, false);
                     if (next) {
@@ -4014,14 +5322,27 @@
                         invokeVNodeHook(vnodeHook, parent, next, vnode);
                     }
                     toggleRecurse(instance, true);
+                    // render
+                    {
+                        startMeasure(instance, `render`);
+                    }
                     const nextTree = renderComponentRoot(instance);
+                    {
+                        endMeasure(instance, `render`);
+                    }
                     const prevTree = instance.subTree;
                     instance.subTree = nextTree;
+                    {
+                        startMeasure(instance, `patch`);
+                    }
                     patch(prevTree, nextTree, 
                     // parent may have changed if it's in a teleport
                     hostParentNode(prevTree.el), 
                     // anchor may have changed if it's in a fragment
                     getNextHostNode(prevTree), instance, parentSuspense, isSVG);
+                    {
+                        endMeasure(instance, `patch`);
+                    }
                     next.el = nextTree.el;
                     if (originNext === null) {
                         // self-triggered update. In case of HOC, update parent component
@@ -4037,8 +5358,11 @@
                     if ((vnodeHook = next.props && next.props.onVnodeUpdated)) {
                         queuePostRenderEffect(() => invokeVNodeHook(vnodeHook, parent, next, vnode), parentSuspense);
                     }
-                    if (__VUE_PROD_DEVTOOLS__) {
+                    {
                         devtoolsComponentUpdated(instance);
+                    }
+                    {
+                        popWarningContext();
                     }
                 }
             };
@@ -4050,6 +5374,15 @@
             // allowRecurse
             // #1801, #2043 component render effects should allow recursive updates
             toggleRecurse(instance, true);
+            {
+                effect.onTrack = instance.rtc
+                    ? e => invokeArrayFns(instance.rtc, e)
+                    : void 0;
+                effect.onTrigger = instance.rtg
+                    ? e => invokeArrayFns(instance.rtg, e)
+                    : void 0;
+                update.ownerInstance = instance;
+            }
             update();
         };
         const updateComponentPreRender = (instance, nextVNode, optimized) => {
@@ -4226,6 +5559,9 @@
                         ? cloneIfMounted(c2[i])
                         : normalizeVNode(c2[i]));
                     if (nextChild.key != null) {
+                        if (keyToNewIndexMap.has(nextChild.key)) {
+                            warn$1(`Duplicate keys found during update:`, JSON.stringify(nextChild.key), `Make sure keys are unique.`);
+                        }
                         keyToNewIndexMap.set(nextChild.key, i);
                     }
                 }
@@ -4428,7 +5764,20 @@
         const remove = vnode => {
             const { type, el, anchor, transition } = vnode;
             if (type === Fragment) {
-                {
+                if (vnode.patchFlag > 0 &&
+                    vnode.patchFlag & 2048 /* DEV_ROOT_FRAGMENT */ &&
+                    transition &&
+                    !transition.persisted) {
+                    vnode.children.forEach(child => {
+                        if (child.type === Comment) {
+                            hostRemove(child.el);
+                        }
+                        else {
+                            remove(child);
+                        }
+                    });
+                }
+                else {
                     removeFragment(el, anchor);
                 }
                 return;
@@ -4471,6 +5820,9 @@
             hostRemove(end);
         };
         const unmountComponent = (instance, parentSuspense, doRemove) => {
+            if (instance.type.__hmrId) {
+                unregisterHMR(instance);
+            }
             const { bum, scope, update, subTree, um } = instance;
             // beforeUnmount hook
             if (bum) {
@@ -4506,7 +5858,7 @@
                     parentSuspense.resolve();
                 }
             }
-            if (__VUE_PROD_DEVTOOLS__) {
+            {
                 devtoolsComponentRemoved(instance);
             }
         };
@@ -4590,6 +5942,11 @@
                     if (!shallow)
                         traverseStaticChildren(c1, c2);
                 }
+                // also inherit for comment nodes, but not placeholders (e.g. v-if which
+                // would have received .el during block patch)
+                if (c2.type === Comment && !c2.el) {
+                    c2.el = c1.el;
+                }
             }
         }
     }
@@ -4638,10 +5995,10 @@
 
     const isTeleport = (type) => type.__isTeleport;
 
-    const Fragment = Symbol(undefined);
-    const Text = Symbol(undefined);
-    const Comment = Symbol(undefined);
-    const Static = Symbol(undefined);
+    const Fragment = Symbol('Fragment' );
+    const Text = Symbol('Text' );
+    const Comment = Symbol('Comment' );
+    const Static = Symbol('Static' );
     // Since v-if and v-for are the two possible ways node structure can dynamically
     // change, once we consider v-if branches and each v-for fragment a block, we
     // can divide a template into nested blocks, and within each block the node
@@ -4715,12 +6072,30 @@
     function createElementBlock(type, props, children, patchFlag, dynamicProps, shapeFlag) {
         return setupBlock(createBaseVNode(type, props, children, patchFlag, dynamicProps, shapeFlag, true /* isBlock */));
     }
+    /**
+     * Create a block root vnode. Takes the same exact arguments as `createVNode`.
+     * A block root keeps track of dynamic nodes within the block in the
+     * `dynamicChildren` array.
+     *
+     * @private
+     */
+    function createBlock(type, props, children, patchFlag, dynamicProps) {
+        return setupBlock(createVNode$1(type, props, children, patchFlag, dynamicProps, true /* isBlock: prevent a block from tracking itself */));
+    }
     function isVNode(value) {
         return value ? value.__v_isVNode === true : false;
     }
     function isSameVNodeType(n1, n2) {
+        if (n2.shapeFlag & 6 /* COMPONENT */ &&
+            hmrDirtyComponents.has(n2.type)) {
+            // HMR only: if the component has been hot-updated, force a reload.
+            return false;
+        }
         return n1.type === n2.type && n1.key === n2.key;
     }
+    const createVNodeWithArgsTransform = (...args) => {
+        return _createVNode(...(args));
+    };
     const InternalObjectKey = `__vInternal`;
     const normalizeKey = ({ key }) => key != null ? key : null;
     const normalizeRef = ({ ref, ref_key, ref_for }) => {
@@ -4772,6 +6147,10 @@
                 ? 8 /* TEXT_CHILDREN */
                 : 16 /* ARRAY_CHILDREN */;
         }
+        // validate key
+        if (vnode.key !== vnode.key) {
+            warn$1(`VNode created with invalid key (NaN). VNode type:`, vnode.type);
+        }
         // track vnode for block tree
         if (isBlockTreeEnabled > 0 &&
             // avoid a block node from tracking itself
@@ -4790,9 +6169,12 @@
         }
         return vnode;
     }
-    const createVNode$1 = (_createVNode);
+    const createVNode$1 = (createVNodeWithArgsTransform );
     function _createVNode(type, props = null, children = null, patchFlag = 0, dynamicProps = null, isBlockNode = false) {
         if (!type || type === NULL_DYNAMIC_COMPONENT) {
+            if (!type) {
+                warn$1(`Invalid vnode type when creating vnode: ${type}.`);
+            }
             type = Comment;
         }
         if (isVNode(type)) {
@@ -4847,6 +6229,13 @@
                         : isFunction$1(type)
                             ? 2 /* FUNCTIONAL_COMPONENT */
                             : 0;
+        if (shapeFlag & 4 /* STATEFUL_COMPONENT */ && isProxy(type)) {
+            type = toRaw(type);
+            warn$1(`Vue received a Component which was made a reactive object. This can ` +
+                `lead to unnecessary performance overhead, and should be avoided by ` +
+                `marking the component with \`markRaw\` or using \`shallowRef\` ` +
+                `instead of \`ref\`.`, `\nComponent that was made reactive: `, type);
+        }
         return createBaseVNode(type, props, children, patchFlag, dynamicProps, shapeFlag, isBlockNode, true);
     }
     function guardReactiveProps(props) {
@@ -4879,7 +6268,9 @@
                 : ref,
             scopeId: vnode.scopeId,
             slotScopeIds: vnode.slotScopeIds,
-            children: children,
+            children: patchFlag === -1 /* HOISTED */ && isArray$2(children)
+                ? children.map(deepCloneVNode)
+                : children,
             target: vnode.target,
             targetAnchor: vnode.targetAnchor,
             staticCount: vnode.staticCount,
@@ -4909,6 +6300,17 @@
             el: vnode.el,
             anchor: vnode.anchor
         };
+        return cloned;
+    }
+    /**
+     * Dev only, for HMR of hoisted vnodes reused in v-for
+     * https://github.com/vitejs/vite/issues/2022
+     */
+    function deepCloneVNode(vnode) {
+        const cloned = cloneVNode(vnode);
+        if (isArray$2(vnode.children)) {
+            cloned.children = vnode.children.map(deepCloneVNode);
+        }
         return cloned;
     }
     /**
@@ -5112,7 +6514,7 @@
             sp: null
         };
         {
-            instance.ctx = { _: instance };
+            instance.ctx = createDevRenderContext(instance);
         }
         instance.root = parent ? parent.root : instance;
         instance.emit = emit$1.bind(null, instance);
@@ -5132,6 +6534,13 @@
         currentInstance && currentInstance.scope.off();
         currentInstance = null;
     };
+    const isBuiltInTag = /*#__PURE__*/ makeMap('slot,component');
+    function validateComponentName(name, config) {
+        const appIsNativeTag = config.isNativeTag || NO;
+        if (isBuiltInTag(name) || appIsNativeTag(name)) {
+            warn$1('Do not use built-in or reserved HTML elements as component id: ' + name);
+        }
+    }
     function isStatefulComponent(instance) {
         return instance.vnode.shapeFlag & 4 /* STATEFUL_COMPONENT */;
     }
@@ -5149,12 +6558,38 @@
         return setupResult;
     }
     function setupStatefulComponent(instance, isSSR) {
+        var _a;
         const Component = instance.type;
+        {
+            if (Component.name) {
+                validateComponentName(Component.name, instance.appContext.config);
+            }
+            if (Component.components) {
+                const names = Object.keys(Component.components);
+                for (let i = 0; i < names.length; i++) {
+                    validateComponentName(names[i], instance.appContext.config);
+                }
+            }
+            if (Component.directives) {
+                const names = Object.keys(Component.directives);
+                for (let i = 0; i < names.length; i++) {
+                    validateDirectiveName(names[i]);
+                }
+            }
+            if (Component.compilerOptions && isRuntimeOnly()) {
+                warn$1(`"compilerOptions" is only supported when using a build of Vue that ` +
+                    `includes the runtime compiler. Since you are using a runtime-only ` +
+                    `build, the options should be passed via your build tool config instead.`);
+            }
+        }
         // 0. create render proxy property access cache
         instance.accessCache = Object.create(null);
         // 1. create public instance / render proxy
         // also mark it raw so it's never observed
         instance.proxy = markRaw(new Proxy(instance.ctx, PublicInstanceProxyHandlers));
+        {
+            exposePropsOnRenderContext(instance);
+        }
         // 2. call setup()
         const { setup } = Component;
         if (setup) {
@@ -5162,7 +6597,7 @@
                 setup.length > 1 ? createSetupContext(instance) : null);
             setCurrentInstance(instance);
             pauseTracking();
-            const setupResult = callWithErrorHandling(setup, instance, 0 /* SETUP_FUNCTION */, [instance.props, setupContext]);
+            const setupResult = callWithErrorHandling(setup, instance, 0 /* SETUP_FUNCTION */, [shallowReadonly(instance.props) , setupContext]);
             resetTracking();
             unsetCurrentInstance();
             if (isPromise(setupResult)) {
@@ -5181,6 +6616,13 @@
                     // async setup returned Promise.
                     // bail here and wait for re-entry.
                     instance.asyncDep = setupResult;
+                    if (!instance.suspense) {
+                        const name = (_a = Component.name) !== null && _a !== void 0 ? _a : 'Anonymous';
+                        warn$1(`Component <${name}>: setup function returned a promise, but no ` +
+                            `<Suspense> boundary was found in the parent component tree. ` +
+                            `A component with async setup() must be nested in a <Suspense> ` +
+                            `in order to be rendered.`);
+                    }
                 }
             }
             else {
@@ -5204,17 +6646,28 @@
             }
         }
         else if (isObject$4(setupResult)) {
+            if (isVNode(setupResult)) {
+                warn$1(`setup() should not return VNodes directly - ` +
+                    `return a render function instead.`);
+            }
             // setup returned bindings.
             // assuming a render function compiled from template is present.
-            if (__VUE_PROD_DEVTOOLS__) {
+            {
                 instance.devtoolsRawSetupState = setupResult;
             }
             instance.setupState = proxyRefs(setupResult);
+            {
+                exposeSetupStateOnRenderContext(instance);
+            }
         }
-        else ;
+        else if (setupResult !== undefined) {
+            warn$1(`setup() should return an object. Received: ${setupResult === null ? 'null' : typeof setupResult}`);
+        }
         finishComponentSetup(instance, isSSR);
     }
     let compile;
+    // dev only
+    const isRuntimeOnly = () => !compile;
     function finishComponentSetup(instance, isSSR, skipOptions) {
         const Component = instance.type;
         // template / render function normalization
@@ -5225,6 +6678,9 @@
             if (!isSSR && compile && !Component.render) {
                 const template = Component.template;
                 if (template) {
+                    {
+                        startMeasure(instance, `compile`);
+                    }
                     const { isCustomElement, compilerOptions } = instance.appContext.config;
                     const { delimiters, compilerOptions: componentCompilerOptions } = Component;
                     const finalCompilerOptions = extend$1(extend$1({
@@ -5232,6 +6688,9 @@
                         delimiters
                     }, compilerOptions), componentCompilerOptions);
                     Component.render = compile(template, finalCompilerOptions);
+                    {
+                        endMeasure(instance, `compile`);
+                    }
                 }
             }
             instance.render = (Component.render || NOOP);
@@ -5244,29 +6703,62 @@
             resetTracking();
             unsetCurrentInstance();
         }
+        // warn missing template/render
+        // the runtime compilation of template in SSR is done by server-render
+        if (!Component.render && instance.render === NOOP && !isSSR) {
+            /* istanbul ignore if */
+            if (Component.template) {
+                warn$1(`Component provided template option but ` +
+                    `runtime compilation is not supported in this build of Vue.` +
+                    (` Configure your bundler to alias "vue" to "vue/dist/vue.esm-bundler.js".`
+                        ) /* should not happen */);
+            }
+            else {
+                warn$1(`Component is missing template or render function.`);
+            }
+        }
     }
     function createAttrsProxy(instance) {
         return new Proxy(instance.attrs, {
                 get(target, key) {
+                    markAttrsAccessed();
                     track(instance, "get" /* GET */, '$attrs');
                     return target[key];
+                },
+                set() {
+                    warn$1(`setupContext.attrs is readonly.`);
+                    return false;
+                },
+                deleteProperty() {
+                    warn$1(`setupContext.attrs is readonly.`);
+                    return false;
                 }
-            });
+            }
+            );
     }
     function createSetupContext(instance) {
         const expose = exposed => {
+            if (instance.exposed) {
+                warn$1(`expose() should be called only once per setup().`);
+            }
             instance.exposed = exposed || {};
         };
         let attrs;
         {
-            return {
+            // We use getters in dev in case libs like test-utils overwrite instance
+            // properties (overwrites should not be done in prod)
+            return Object.freeze({
                 get attrs() {
                     return attrs || (attrs = createAttrsProxy(instance));
                 },
-                slots: instance.slots,
-                emit: instance.emit,
+                get slots() {
+                    return shallowReadonly(instance.slots);
+                },
+                get emit() {
+                    return (event, ...args) => instance.emit(event, ...args);
+                },
                 expose
-            };
+            });
         }
     }
     function getExposeProxy(instance) {
@@ -5284,10 +6776,36 @@
                 })));
         }
     }
+    const classifyRE = /(?:^|[-_])(\w)/g;
+    const classify = (str) => str.replace(classifyRE, c => c.toUpperCase()).replace(/[-_]/g, '');
     function getComponentName(Component, includeInferred = true) {
         return isFunction$1(Component)
             ? Component.displayName || Component.name
             : Component.name || (includeInferred && Component.__name);
+    }
+    /* istanbul ignore next */
+    function formatComponentName(instance, Component, isRoot = false) {
+        let name = getComponentName(Component);
+        if (!name && Component.__file) {
+            const match = Component.__file.match(/([^/\\]+)\.\w+$/);
+            if (match) {
+                name = match[1];
+            }
+        }
+        if (!name && instance && instance.parent) {
+            // try to infer the name based on reverse resolution
+            const inferFromRegistry = (registry) => {
+                for (const key in registry) {
+                    if (registry[key] === Component) {
+                        return key;
+                    }
+                }
+            };
+            name =
+                inferFromRegistry(instance.components ||
+                    instance.parent.type.components) || inferFromRegistry(instance.appContext.components);
+        }
+        return name ? classify(name) : isRoot ? `App` : `Anonymous`;
     }
     function isClassComponent(value) {
         return isFunction$1(value) && '__vccOpts' in value;
@@ -5297,6 +6815,199 @@
         // @ts-ignore
         return computed$1(getterOrOptions, debugOptions, isInSSRComponentSetup);
     });
+
+    function isShallow(value) {
+        return !!(value && value["__v_isShallow" /* IS_SHALLOW */]);
+    }
+
+    function initCustomFormatter() {
+        /* eslint-disable no-restricted-globals */
+        if (typeof window === 'undefined') {
+            return;
+        }
+        const vueStyle = { style: 'color:#3ba776' };
+        const numberStyle = { style: 'color:#0b1bc9' };
+        const stringStyle = { style: 'color:#b62e24' };
+        const keywordStyle = { style: 'color:#9d288c' };
+        // custom formatter for Chrome
+        // https://www.mattzeunert.com/2016/02/19/custom-chrome-devtools-object-formatters.html
+        const formatter = {
+            header(obj) {
+                // TODO also format ComponentPublicInstance & ctx.slots/attrs in setup
+                if (!isObject$4(obj)) {
+                    return null;
+                }
+                if (obj.__isVue) {
+                    return ['div', vueStyle, `VueInstance`];
+                }
+                else if (isRef(obj)) {
+                    return [
+                        'div',
+                        {},
+                        ['span', vueStyle, genRefFlag(obj)],
+                        '<',
+                        formatValue(obj.value),
+                        `>`
+                    ];
+                }
+                else if (isReactive(obj)) {
+                    return [
+                        'div',
+                        {},
+                        ['span', vueStyle, isShallow(obj) ? 'ShallowReactive' : 'Reactive'],
+                        '<',
+                        formatValue(obj),
+                        `>${isReadonly(obj) ? ` (readonly)` : ``}`
+                    ];
+                }
+                else if (isReadonly(obj)) {
+                    return [
+                        'div',
+                        {},
+                        ['span', vueStyle, isShallow(obj) ? 'ShallowReadonly' : 'Readonly'],
+                        '<',
+                        formatValue(obj),
+                        '>'
+                    ];
+                }
+                return null;
+            },
+            hasBody(obj) {
+                return obj && obj.__isVue;
+            },
+            body(obj) {
+                if (obj && obj.__isVue) {
+                    return [
+                        'div',
+                        {},
+                        ...formatInstance(obj.$)
+                    ];
+                }
+            }
+        };
+        function formatInstance(instance) {
+            const blocks = [];
+            if (instance.type.props && instance.props) {
+                blocks.push(createInstanceBlock('props', toRaw(instance.props)));
+            }
+            if (instance.setupState !== EMPTY_OBJ$1) {
+                blocks.push(createInstanceBlock('setup', instance.setupState));
+            }
+            if (instance.data !== EMPTY_OBJ$1) {
+                blocks.push(createInstanceBlock('data', toRaw(instance.data)));
+            }
+            const computed = extractKeys(instance, 'computed');
+            if (computed) {
+                blocks.push(createInstanceBlock('computed', computed));
+            }
+            const injected = extractKeys(instance, 'inject');
+            if (injected) {
+                blocks.push(createInstanceBlock('injected', injected));
+            }
+            blocks.push([
+                'div',
+                {},
+                [
+                    'span',
+                    {
+                        style: keywordStyle.style + ';opacity:0.66'
+                    },
+                    '$ (internal): '
+                ],
+                ['object', { object: instance }]
+            ]);
+            return blocks;
+        }
+        function createInstanceBlock(type, target) {
+            target = extend$1({}, target);
+            if (!Object.keys(target).length) {
+                return ['span', {}];
+            }
+            return [
+                'div',
+                { style: 'line-height:1.25em;margin-bottom:0.6em' },
+                [
+                    'div',
+                    {
+                        style: 'color:#476582'
+                    },
+                    type
+                ],
+                [
+                    'div',
+                    {
+                        style: 'padding-left:1.25em'
+                    },
+                    ...Object.keys(target).map(key => {
+                        return [
+                            'div',
+                            {},
+                            ['span', keywordStyle, key + ': '],
+                            formatValue(target[key], false)
+                        ];
+                    })
+                ]
+            ];
+        }
+        function formatValue(v, asRaw = true) {
+            if (typeof v === 'number') {
+                return ['span', numberStyle, v];
+            }
+            else if (typeof v === 'string') {
+                return ['span', stringStyle, JSON.stringify(v)];
+            }
+            else if (typeof v === 'boolean') {
+                return ['span', keywordStyle, v];
+            }
+            else if (isObject$4(v)) {
+                return ['object', { object: asRaw ? toRaw(v) : v }];
+            }
+            else {
+                return ['span', stringStyle, String(v)];
+            }
+        }
+        function extractKeys(instance, type) {
+            const Comp = instance.type;
+            if (isFunction$1(Comp)) {
+                return;
+            }
+            const extracted = {};
+            for (const key in instance.ctx) {
+                if (isKeyOfType(Comp, key, type)) {
+                    extracted[key] = instance.ctx[key];
+                }
+            }
+            return extracted;
+        }
+        function isKeyOfType(Comp, key, type) {
+            const opts = Comp[type];
+            if ((isArray$2(opts) && opts.includes(key)) ||
+                (isObject$4(opts) && key in opts)) {
+                return true;
+            }
+            if (Comp.extends && isKeyOfType(Comp.extends, key, type)) {
+                return true;
+            }
+            if (Comp.mixins && Comp.mixins.some(m => isKeyOfType(m, key, type))) {
+                return true;
+            }
+        }
+        function genRefFlag(v) {
+            if (isShallow(v)) {
+                return `ShallowRef`;
+            }
+            if (v.effect) {
+                return `ComputedRef`;
+            }
+            return `Ref`;
+        }
+        if (window.devtoolsFormatters) {
+            window.devtoolsFormatters.push(formatter);
+        }
+        else {
+            window.devtoolsFormatters = [formatter];
+        }
+    }
 
     // Core API ------------------------------------------------------------------
     const version = "3.2.37";
@@ -5576,6 +7287,10 @@
             el[key] = value;
         }
         catch (e) {
+            {
+                warn$1(`Failed setting prop "${key}" on <${el.tagName.toLowerCase()}>: ` +
+                    `value ${value} is invalid.`, e);
+            }
         }
         needRemove && el.removeAttribute(key);
     }
@@ -5839,6 +7554,10 @@
     }
     const createApp = ((...args) => {
         const app = ensureRenderer().createApp(...args);
+        {
+            injectNativeTagCheck(app);
+            injectCompilerOptionsCheck(app);
+        }
         const { mount } = app;
         app.mount = (containerOrSelector) => {
             const container = normalizeContainer(containerOrSelector);
@@ -5863,12 +7582,71 @@
         };
         return app;
     });
+    function injectNativeTagCheck(app) {
+        // Inject `isNativeTag`
+        // this is used for component name validation (dev only)
+        Object.defineProperty(app.config, 'isNativeTag', {
+            value: (tag) => isHTMLTag(tag) || isSVGTag(tag),
+            writable: false
+        });
+    }
+    // dev only
+    function injectCompilerOptionsCheck(app) {
+        {
+            const isCustomElement = app.config.isCustomElement;
+            Object.defineProperty(app.config, 'isCustomElement', {
+                get() {
+                    return isCustomElement;
+                },
+                set() {
+                    warn$1(`The \`isCustomElement\` config option is deprecated. Use ` +
+                        `\`compilerOptions.isCustomElement\` instead.`);
+                }
+            });
+            const compilerOptions = app.config.compilerOptions;
+            const msg = `The \`compilerOptions\` config option is only respected when using ` +
+                `a build of Vue.js that includes the runtime compiler (aka "full build"). ` +
+                `Since you are using the runtime-only build, \`compilerOptions\` ` +
+                `must be passed to \`@vue/compiler-dom\` in the build setup instead.\n` +
+                `- For vue-loader: pass it via vue-loader's \`compilerOptions\` loader option.\n` +
+                `- For vue-cli: see https://cli.vuejs.org/guide/webpack.html#modifying-options-of-a-loader\n` +
+                `- For vite: pass it via @vitejs/plugin-vue options. See https://github.com/vitejs/vite/tree/main/packages/plugin-vue#example-for-passing-options-to-vuecompiler-dom`;
+            Object.defineProperty(app.config, 'compilerOptions', {
+                get() {
+                    warn$1(msg);
+                    return compilerOptions;
+                },
+                set() {
+                    warn$1(msg);
+                }
+            });
+        }
+    }
     function normalizeContainer(container) {
         if (isString$1(container)) {
             const res = document.querySelector(container);
+            if (!res) {
+                warn$1(`Failed to mount app: mount target selector "${container}" returned null.`);
+            }
             return res;
         }
+        if (window.ShadowRoot &&
+            container instanceof window.ShadowRoot &&
+            container.mode === 'closed') {
+            warn$1(`mounting on a ShadowRoot with \`{mode: "closed"}\` may lead to unpredictable bugs`);
+        }
         return container;
+    }
+
+    function initDev() {
+        {
+            initCustomFormatter();
+        }
+    }
+
+    // This entry exports the runtime only, and is built as
+    {
+        initDev();
     }
 
     function styleInject(css, ref) {
@@ -5898,8 +7676,8 @@
       }
     }
 
-    var css_248z$9 = "/*\n! tailwindcss v3.1.4 | MIT License | https://tailwindcss.com\n*//*\n1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)\n2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)\n*/\n\n*,\n::before,\n::after {\n  box-sizing: border-box; /* 1 */\n  border-width: 0; /* 2 */\n  border-style: solid; /* 2 */\n  border-color: #e5e7eb; /* 2 */\n}\n\n::before,\n::after {\n  --tw-content: '';\n}\n\n/*\n1. Use a consistent sensible line-height in all browsers.\n2. Prevent adjustments of font size after orientation changes in iOS.\n3. Use a more readable tab size.\n4. Use the user's configured `sans` font-family by default.\n*/\n\nhtml {\n  line-height: 1.5; /* 1 */\n  -webkit-text-size-adjust: 100%; /* 2 */\n  -moz-tab-size: 4; /* 3 */\n  -o-tab-size: 4;\n     tab-size: 4; /* 3 */\n  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"; /* 4 */\n}\n\n/*\n1. Remove the margin in all browsers.\n2. Inherit line-height from `html` so users can set them as a class directly on the `html` element.\n*/\n\nbody {\n  margin: 0; /* 1 */\n  line-height: inherit; /* 2 */\n}\n\n/*\n1. Add the correct height in Firefox.\n2. Correct the inheritance of border color in Firefox. (https://bugzilla.mozilla.org/show_bug.cgi?id=190655)\n3. Ensure horizontal rules are visible by default.\n*/\n\nhr {\n  height: 0; /* 1 */\n  color: inherit; /* 2 */\n  border-top-width: 1px; /* 3 */\n}\n\n/*\nAdd the correct text decoration in Chrome, Edge, and Safari.\n*/\n\nabbr:where([title]) {\n  -webkit-text-decoration: underline dotted;\n          text-decoration: underline dotted;\n}\n\n/*\nRemove the default font size and weight for headings.\n*/\n\nh1,\nh2,\nh3,\nh4,\nh5,\nh6 {\n  font-size: inherit;\n  font-weight: inherit;\n}\n\n/*\nReset links to optimize for opt-in styling instead of opt-out.\n*/\n\na {\n  color: inherit;\n  text-decoration: inherit;\n}\n\n/*\nAdd the correct font weight in Edge and Safari.\n*/\n\nb,\nstrong {\n  font-weight: bolder;\n}\n\n/*\n1. Use the user's configured `mono` font family by default.\n2. Correct the odd `em` font sizing in all browsers.\n*/\n\ncode,\nkbd,\nsamp,\npre {\n  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace; /* 1 */\n  font-size: 1em; /* 2 */\n}\n\n/*\nAdd the correct font size in all browsers.\n*/\n\nsmall {\n  font-size: 80%;\n}\n\n/*\nPrevent `sub` and `sup` elements from affecting the line height in all browsers.\n*/\n\nsub,\nsup {\n  font-size: 75%;\n  line-height: 0;\n  position: relative;\n  vertical-align: baseline;\n}\n\nsub {\n  bottom: -0.25em;\n}\n\nsup {\n  top: -0.5em;\n}\n\n/*\n1. Remove text indentation from table contents in Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=999088, https://bugs.webkit.org/show_bug.cgi?id=201297)\n2. Correct table border color inheritance in all Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=935729, https://bugs.webkit.org/show_bug.cgi?id=195016)\n3. Remove gaps between table borders by default.\n*/\n\ntable {\n  text-indent: 0; /* 1 */\n  border-color: inherit; /* 2 */\n  border-collapse: collapse; /* 3 */\n}\n\n/*\n1. Change the font styles in all browsers.\n2. Remove the margin in Firefox and Safari.\n3. Remove default padding in all browsers.\n*/\n\nbutton,\ninput,\noptgroup,\nselect,\ntextarea {\n  font-family: inherit; /* 1 */\n  font-size: 100%; /* 1 */\n  font-weight: inherit; /* 1 */\n  line-height: inherit; /* 1 */\n  color: inherit; /* 1 */\n  margin: 0; /* 2 */\n  padding: 0; /* 3 */\n}\n\n/*\nRemove the inheritance of text transform in Edge and Firefox.\n*/\n\nbutton,\nselect {\n  text-transform: none;\n}\n\n/*\n1. Correct the inability to style clickable types in iOS and Safari.\n2. Remove default button styles.\n*/\n\nbutton,\n[type='button'],\n[type='reset'],\n[type='submit'] {\n  -webkit-appearance: button; /* 1 */\n  background-color: transparent; /* 2 */\n  background-image: none; /* 2 */\n}\n\n/*\nUse the modern Firefox focus style for all focusable elements.\n*/\n\n:-moz-focusring {\n  outline: auto;\n}\n\n/*\nRemove the additional `:invalid` styles in Firefox. (https://github.com/mozilla/gecko-dev/blob/2f9eacd9d3d995c937b4251a5557d95d494c9be1/layout/style/res/forms.css#L728-L737)\n*/\n\n:-moz-ui-invalid {\n  box-shadow: none;\n}\n\n/*\nAdd the correct vertical alignment in Chrome and Firefox.\n*/\n\nprogress {\n  vertical-align: baseline;\n}\n\n/*\nCorrect the cursor style of increment and decrement buttons in Safari.\n*/\n\n::-webkit-inner-spin-button,\n::-webkit-outer-spin-button {\n  height: auto;\n}\n\n/*\n1. Correct the odd appearance in Chrome and Safari.\n2. Correct the outline style in Safari.\n*/\n\n[type='search'] {\n  -webkit-appearance: textfield; /* 1 */\n  outline-offset: -2px; /* 2 */\n}\n\n/*\nRemove the inner padding in Chrome and Safari on macOS.\n*/\n\n::-webkit-search-decoration {\n  -webkit-appearance: none;\n}\n\n/*\n1. Correct the inability to style clickable types in iOS and Safari.\n2. Change font properties to `inherit` in Safari.\n*/\n\n::-webkit-file-upload-button {\n  -webkit-appearance: button; /* 1 */\n  font: inherit; /* 2 */\n}\n\n/*\nAdd the correct display in Chrome and Safari.\n*/\n\nsummary {\n  display: list-item;\n}\n\n/*\nRemoves the default spacing and border for appropriate elements.\n*/\n\nblockquote,\ndl,\ndd,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\nhr,\nfigure,\np,\npre {\n  margin: 0;\n}\n\nfieldset {\n  margin: 0;\n  padding: 0;\n}\n\nlegend {\n  padding: 0;\n}\n\nol,\nul,\nmenu {\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n\n/*\nPrevent resizing textareas horizontally by default.\n*/\n\ntextarea {\n  resize: vertical;\n}\n\n/*\n1. Reset the default placeholder opacity in Firefox. (https://github.com/tailwindlabs/tailwindcss/issues/3300)\n2. Set the default placeholder color to the user's configured gray 400 color.\n*/\n\ninput::-moz-placeholder, textarea::-moz-placeholder {\n  opacity: 1; /* 1 */\n  color: #9ca3af; /* 2 */\n}\n\ninput:-ms-input-placeholder, textarea:-ms-input-placeholder {\n  opacity: 1; /* 1 */\n  color: #9ca3af; /* 2 */\n}\n\ninput::placeholder,\ntextarea::placeholder {\n  opacity: 1; /* 1 */\n  color: #9ca3af; /* 2 */\n}\n\n/*\nSet the default cursor for buttons.\n*/\n\nbutton,\n[role=\"button\"] {\n  cursor: pointer;\n}\n\n/*\nMake sure disabled buttons don't get the pointer cursor.\n*/\n:disabled {\n  cursor: default;\n}\n\n/*\n1. Make replaced elements `display: block` by default. (https://github.com/mozdevs/cssremedy/issues/14)\n2. Add `vertical-align: middle` to align replaced elements more sensibly by default. (https://github.com/jensimmons/cssremedy/issues/14#issuecomment-634934210)\n   This can trigger a poorly considered lint error in some tools but is included by design.\n*/\n\nimg,\nsvg,\nvideo,\ncanvas,\naudio,\niframe,\nembed,\nobject {\n  display: block; /* 1 */\n  vertical-align: middle; /* 2 */\n}\n\n/*\nConstrain images and videos to the parent width and preserve their intrinsic aspect ratio. (https://github.com/mozdevs/cssremedy/issues/14)\n*/\n\nimg,\nvideo {\n  max-width: 100%;\n  height: auto;\n}\n\n*, ::before, ::after {\n  --tw-border-spacing-x: 0;\n  --tw-border-spacing-y: 0;\n  --tw-translate-x: 0;\n  --tw-translate-y: 0;\n  --tw-rotate: 0;\n  --tw-skew-x: 0;\n  --tw-skew-y: 0;\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  --tw-pan-x:  ;\n  --tw-pan-y:  ;\n  --tw-pinch-zoom:  ;\n  --tw-scroll-snap-strictness: proximity;\n  --tw-ordinal:  ;\n  --tw-slashed-zero:  ;\n  --tw-numeric-figure:  ;\n  --tw-numeric-spacing:  ;\n  --tw-numeric-fraction:  ;\n  --tw-ring-inset:  ;\n  --tw-ring-offset-width: 0px;\n  --tw-ring-offset-color: #fff;\n  --tw-ring-color: rgb(59 130 246 / 0.5);\n  --tw-ring-offset-shadow: 0 0 #0000;\n  --tw-ring-shadow: 0 0 #0000;\n  --tw-shadow: 0 0 #0000;\n  --tw-shadow-colored: 0 0 #0000;\n  --tw-blur:  ;\n  --tw-brightness:  ;\n  --tw-contrast:  ;\n  --tw-grayscale:  ;\n  --tw-hue-rotate:  ;\n  --tw-invert:  ;\n  --tw-saturate:  ;\n  --tw-sepia:  ;\n  --tw-drop-shadow:  ;\n  --tw-backdrop-blur:  ;\n  --tw-backdrop-brightness:  ;\n  --tw-backdrop-contrast:  ;\n  --tw-backdrop-grayscale:  ;\n  --tw-backdrop-hue-rotate:  ;\n  --tw-backdrop-invert:  ;\n  --tw-backdrop-opacity:  ;\n  --tw-backdrop-saturate:  ;\n  --tw-backdrop-sepia:  ;\n}\n\n::-webkit-backdrop {\n  --tw-border-spacing-x: 0;\n  --tw-border-spacing-y: 0;\n  --tw-translate-x: 0;\n  --tw-translate-y: 0;\n  --tw-rotate: 0;\n  --tw-skew-x: 0;\n  --tw-skew-y: 0;\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  --tw-pan-x:  ;\n  --tw-pan-y:  ;\n  --tw-pinch-zoom:  ;\n  --tw-scroll-snap-strictness: proximity;\n  --tw-ordinal:  ;\n  --tw-slashed-zero:  ;\n  --tw-numeric-figure:  ;\n  --tw-numeric-spacing:  ;\n  --tw-numeric-fraction:  ;\n  --tw-ring-inset:  ;\n  --tw-ring-offset-width: 0px;\n  --tw-ring-offset-color: #fff;\n  --tw-ring-color: rgb(59 130 246 / 0.5);\n  --tw-ring-offset-shadow: 0 0 #0000;\n  --tw-ring-shadow: 0 0 #0000;\n  --tw-shadow: 0 0 #0000;\n  --tw-shadow-colored: 0 0 #0000;\n  --tw-blur:  ;\n  --tw-brightness:  ;\n  --tw-contrast:  ;\n  --tw-grayscale:  ;\n  --tw-hue-rotate:  ;\n  --tw-invert:  ;\n  --tw-saturate:  ;\n  --tw-sepia:  ;\n  --tw-drop-shadow:  ;\n  --tw-backdrop-blur:  ;\n  --tw-backdrop-brightness:  ;\n  --tw-backdrop-contrast:  ;\n  --tw-backdrop-grayscale:  ;\n  --tw-backdrop-hue-rotate:  ;\n  --tw-backdrop-invert:  ;\n  --tw-backdrop-opacity:  ;\n  --tw-backdrop-saturate:  ;\n  --tw-backdrop-sepia:  ;\n}\n\n::backdrop {\n  --tw-border-spacing-x: 0;\n  --tw-border-spacing-y: 0;\n  --tw-translate-x: 0;\n  --tw-translate-y: 0;\n  --tw-rotate: 0;\n  --tw-skew-x: 0;\n  --tw-skew-y: 0;\n  --tw-scale-x: 1;\n  --tw-scale-y: 1;\n  --tw-pan-x:  ;\n  --tw-pan-y:  ;\n  --tw-pinch-zoom:  ;\n  --tw-scroll-snap-strictness: proximity;\n  --tw-ordinal:  ;\n  --tw-slashed-zero:  ;\n  --tw-numeric-figure:  ;\n  --tw-numeric-spacing:  ;\n  --tw-numeric-fraction:  ;\n  --tw-ring-inset:  ;\n  --tw-ring-offset-width: 0px;\n  --tw-ring-offset-color: #fff;\n  --tw-ring-color: rgb(59 130 246 / 0.5);\n  --tw-ring-offset-shadow: 0 0 #0000;\n  --tw-ring-shadow: 0 0 #0000;\n  --tw-shadow: 0 0 #0000;\n  --tw-shadow-colored: 0 0 #0000;\n  --tw-blur:  ;\n  --tw-brightness:  ;\n  --tw-contrast:  ;\n  --tw-grayscale:  ;\n  --tw-hue-rotate:  ;\n  --tw-invert:  ;\n  --tw-saturate:  ;\n  --tw-sepia:  ;\n  --tw-drop-shadow:  ;\n  --tw-backdrop-blur:  ;\n  --tw-backdrop-brightness:  ;\n  --tw-backdrop-contrast:  ;\n  --tw-backdrop-grayscale:  ;\n  --tw-backdrop-hue-rotate:  ;\n  --tw-backdrop-invert:  ;\n  --tw-backdrop-opacity:  ;\n  --tw-backdrop-saturate:  ;\n  --tw-backdrop-sepia:  ;\n}";
-    styleInject(css_248z$9);
+    var css_248z$a = "@tailwind base;\r\n@tailwind utilities;";
+    styleInject(css_248z$a);
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation.
@@ -9448,6 +11226,9 @@
             };
         }
         return function (str) {
+            {
+                logError('Base64 isn\'t natively supported in the current environment.');
+            }
             return null;
         };
     })();
@@ -11977,10 +13758,14 @@
         };
         Element.prototype._attachComponent = function (componentEl) {
             if (componentEl.__zr && !componentEl.__hostTarget) {
-                return;
+                {
+                    throw new Error('Text element has been added to zrender.');
+                }
             }
             if (componentEl === this) {
-                return;
+                {
+                    throw new Error('Recursive component attachment.');
+                }
             }
             var zr = this.__zr;
             if (zr) {
@@ -12025,6 +13810,11 @@
             }
             if (previousTextContent && previousTextContent !== textEl) {
                 this.removeTextContent();
+            }
+            {
+                if (textEl.__zr && !textEl.__hostTarget) {
+                    throw new Error('Text element has been added to zrender.');
+                }
             }
             textEl.innerTransformable = new Transformable();
             this._attachComponent(textEl);
@@ -12144,6 +13934,15 @@
         };
         Element.prototype.animate = function (key, loop, allowDiscreteAnimation) {
             var target = key ? this[key] : this;
+            {
+                if (!target) {
+                    logError('Property "'
+                        + key
+                        + '" is not existed in element '
+                        + this.id);
+                    return;
+                }
+            }
             var animator = new Animator$1(target, loop, allowDiscreteAnimation);
             key && (animator.targetName = key);
             this.addAnimator(animator, key);
@@ -12216,9 +14015,19 @@
                                 elProto.ignoreClip =
                                     elProto.__inHover = false;
             elProto.__dirty = REDRAW_BIT;
+            var logs = {};
+            function logDeprecatedError(key, xKey, yKey) {
+                if (!logs[key + xKey + yKey]) {
+                    console.warn("DEPRECATED: '" + key + "' has been deprecated. use '" + xKey + "', '" + yKey + "' instead");
+                    logs[key + xKey + yKey] = true;
+                }
+            }
             function createLegacyProperty(key, privateKey, xKey, yKey) {
                 Object.defineProperty(elProto, key, {
                     get: function () {
+                        {
+                            logDeprecatedError(key, xKey, yKey);
+                        }
                         if (!this[privateKey]) {
                             var pos = this[privateKey] = [];
                             enhanceArray(this, pos);
@@ -12226,6 +14035,9 @@
                         return this[privateKey];
                     },
                     set: function (pos) {
+                        {
+                            logDeprecatedError(key, xKey, yKey);
+                        }
                         this[xKey] = pos[0];
                         this[yKey] = pos[1];
                         this[privateKey] = pos;
@@ -12505,6 +14317,11 @@
                     this._children.push(child);
                     this._doAdd(child);
                 }
+                {
+                    if (child.__hostTarget) {
+                        throw 'This elemenet has been used as an attachment';
+                    }
+                }
             }
             return this;
         };
@@ -12689,6 +14506,11 @@
             var rendererType = opts.renderer || 'canvas';
             if (!painterCtors[rendererType]) {
                 rendererType = keys(painterCtors)[0];
+            }
+            {
+                if (!painterCtors[rendererType]) {
+                    throw new Error("Renderer '" + rendererType + "' is not imported. Please import it first.");
+                }
             }
             opts.useDirtyRect = opts.useDirtyRect == null
                 ? false
@@ -13446,8 +15268,79 @@
         console[type](ECHARTS_PREFIX + str);
       }
     }
+
+    function log(str, onlyOnce) {
+      outputLog('log', str, onlyOnce);
+    }
     function warn(str, onlyOnce) {
       outputLog('warn', str, onlyOnce);
+    }
+    function error(str, onlyOnce) {
+      outputLog('error', str, onlyOnce);
+    }
+    function deprecateLog(str) {
+      {
+        // Not display duplicate message.
+        outputLog('warn', 'DEPRECATED: ' + str, true);
+      }
+    }
+    function deprecateReplaceLog(oldOpt, newOpt, scope) {
+      {
+        deprecateLog((scope ? "[" + scope + "]" : '') + (oldOpt + " is deprecated, use " + newOpt + " instead."));
+      }
+    }
+    /**
+     * If in __DEV__ environment, get console printable message for users hint.
+     * Parameters are separated by ' '.
+     * @usuage
+     * makePrintable('This is an error on', someVar, someObj);
+     *
+     * @param hintInfo anything about the current execution context to hint users.
+     * @throws Error
+     */
+
+    function makePrintable() {
+      var hintInfo = [];
+
+      for (var _i = 0; _i < arguments.length; _i++) {
+        hintInfo[_i] = arguments[_i];
+      }
+
+      var msg = '';
+
+      {
+        // Fuzzy stringify for print.
+        // This code only exist in dev environment.
+        var makePrintableStringIfPossible_1 = function (val) {
+          return val === void 0 ? 'undefined' : val === Infinity ? 'Infinity' : val === -Infinity ? '-Infinity' : eqNaN(val) ? 'NaN' : val instanceof Date ? 'Date(' + val.toISOString() + ')' : isFunction(val) ? 'function () { ... }' : isRegExp(val) ? val + '' : null;
+        };
+
+        msg = map$1(hintInfo, function (arg) {
+          if (isString(arg)) {
+            // Print without quotation mark for some statement.
+            return arg;
+          } else {
+            var printableStr = makePrintableStringIfPossible_1(arg);
+
+            if (printableStr != null) {
+              return printableStr;
+            } else if (typeof JSON !== 'undefined' && JSON.stringify) {
+              try {
+                return JSON.stringify(arg, function (n, val) {
+                  var printableStr = makePrintableStringIfPossible_1(val);
+                  return printableStr == null ? val : printableStr;
+                }); // In most cases the info object is small, so do not line break.
+              } catch (err) {
+                return '?';
+              }
+            } else {
+              return '?';
+            }
+          }
+        }).join(' ');
+      }
+
+      return msg;
     }
     /**
      * @throws Error
@@ -13574,6 +15467,18 @@
         if (!isObject$3(cmptOption)) {
           newCmptOptions[index] = null;
           return;
+        }
+
+        {
+          // There is some legacy case that name is set as `false`.
+          // But should work normally rather than throw error.
+          if (cmptOption.id != null && !isValidIdOrName(cmptOption.id)) {
+            warnInvalidateIdOrName(cmptOption.id);
+          }
+
+          if (cmptOption.name != null && !isValidIdOrName(cmptOption.name)) {
+            warnInvalidateIdOrName(cmptOption.name);
+          }
         }
       });
       var result = prepareResult(existings, existingIdIdxMap, mode);
@@ -13802,6 +15707,11 @@
 
 
     function makeComparableKey(val) {
+      {
+        if (val == null) {
+          throw new Error();
+        }
+      }
 
       return convertOptionIdName(val, '');
     }
@@ -13812,6 +15722,16 @@
       }
 
       return isString(idOrName) ? idOrName : isNumber(idOrName) || isStringSafe(idOrName) ? idOrName + '' : defaultValue;
+    }
+
+    function warnInvalidateIdOrName(idOrName) {
+      {
+        warn('`' + idOrName + '` is invalid id or name. Must be a string or number.');
+      }
+    }
+
+    function isValidIdOrName(idOrName) {
+      return isStringSafe(idOrName) || isNumeric(idOrName);
     }
 
     function isNameSpecified(componentModel) {
@@ -14201,6 +16121,13 @@
       rootClz.$constructor = rootClz; // FIXME: not necessary?
 
       rootClz.extend = function (proto) {
+        {
+          each$f(mandatoryMethods, function (method) {
+            if (!proto[method]) {
+              console.warn('Method `' + method + '` should be implemented' + (proto.type ? ' in ' + proto.type : '') + '.');
+            }
+          });
+        }
 
         var superClass = this;
         var ExtendedClass;
@@ -14284,6 +16211,10 @@
       var classAttr = ['__\0is_clz', classBase++].join('_');
       target.prototype[classAttr] = true;
 
+      {
+        assert(!target.isInstance, 'The method "is" can not be defined.');
+      }
+
       target.isInstance = function (obj) {
         return !!(obj && obj[classAttr]);
       };
@@ -14344,6 +16275,11 @@
           var componentTypeInfo = parseClassType(componentFullType);
 
           if (!componentTypeInfo.sub) {
+            {
+              if (storage[componentTypeInfo.main]) {
+                console.warn(componentTypeInfo.main + ' exists.');
+              }
+            }
 
             storage[componentTypeInfo.main] = clz;
           } else if (componentTypeInfo.sub !== IS_CONTAINER) {
@@ -17396,6 +19332,9 @@
             this._defaultStyle = defaultTextStyle || DEFAULT_RICH_TEXT_COLOR;
         };
         ZRText.prototype.setTextContent = function (textContent) {
+            {
+                throw new Error('Can\'t attach text on another text');
+            }
         };
         ZRText.prototype._mergeStyle = function (targetStyle, sourceStyle) {
             if (!sourceStyle) {
@@ -18247,6 +20186,9 @@
       var data = seriesModel.getData(payload.dataType);
 
       if (!data) {
+        {
+          error("Unknown dataType " + payload.dataType);
+        }
 
         return;
       }
@@ -18307,6 +20249,9 @@
       var focusSelf;
 
       for (var i = 0; i < dispatchers.length; i++) {
+        if (!isHighDownDispatcher(dispatchers[i])) {
+          error('param should be highDownDispatcher');
+        }
 
         if (getECData(dispatchers[i]).focus === 'self') {
           focusSelf = true;
@@ -18320,6 +20265,9 @@
       };
     }
     function handleGlobalMouseOverForHighDown(dispatcher, e, api) {
+      if (!isHighDownDispatcher(dispatcher)) {
+        error('param should be highDownDispatcher');
+      }
 
       var ecData = getECData(dispatcher);
 
@@ -18353,6 +20301,9 @@
       }
     }
     function handleGlobalMouseOutForHighDown(dispatcher, e, api) {
+      if (!isHighDownDispatcher(dispatcher)) {
+        error('param should be highDownDispatcher');
+      }
 
       allLeaveBlur(api);
       var ecData = getECData(dispatcher);
@@ -21120,6 +23071,11 @@
       var opacity = retrieve2(textStyleModel.getShallow('opacity'), globalTextStyle.opacity);
 
       if (fillColor === 'inherit' || fillColor === 'auto') {
+        {
+          if (fillColor === 'auto') {
+            deprecateReplaceLog('color: \'auto\'', 'color: \'inherit\'');
+          }
+        }
 
         if (inheritColor) {
           fillColor = inheritColor;
@@ -21129,6 +23085,11 @@
       }
 
       if (strokeColor === 'inherit' || strokeColor === 'auto') {
+        {
+          if (strokeColor === 'auto') {
+            deprecateReplaceLog('color: \'auto\'', 'color: \'inherit\'');
+          }
+        }
 
         if (inheritColor) {
           strokeColor = inheritColor;
@@ -21232,11 +23193,21 @@
         }
 
         if ((textStyle.backgroundColor === 'auto' || textStyle.backgroundColor === 'inherit') && inheritColor) {
+          {
+            if (textStyle.backgroundColor === 'auto') {
+              deprecateReplaceLog('backgroundColor: \'auto\'', 'backgroundColor: \'inherit\'');
+            }
+          }
 
           textStyle.backgroundColor = inheritColor;
         }
 
         if ((textStyle.borderColor === 'auto' || textStyle.borderColor === 'inherit') && inheritColor) {
+          {
+            if (textStyle.borderColor === 'auto') {
+              deprecateReplaceLog('borderColor: \'auto\'', 'borderColor: \'inherit\'');
+            }
+          }
 
           textStyle.borderColor = inheritColor;
         }
@@ -21619,6 +23590,10 @@
 
         each$f(targetNameSet, function () {
           var errMsg = '';
+
+          {
+            errMsg = makePrintable('Circular dependency may exists: ', targetNameSet, targetNameList, fullNameList);
+          }
 
           throw new Error(errMsg);
         });
@@ -23667,6 +25642,12 @@
         return newCmptOptionList;
       }
 
+      {
+        for (var i = 0; i < internalOptions.length; i++) {
+          assert(isComponentIdInternal(internalOptions[i]));
+        }
+      }
+
       return newCmptOptionList.concat(internalOptions);
     }
 
@@ -23756,6 +25737,72 @@
     var initBase;
     var OPTION_INNER_KEY = '\0_ec_inner';
     var OPTION_INNER_VALUE = 1;
+    var BUITIN_COMPONENTS_MAP = {
+      grid: 'GridComponent',
+      polar: 'PolarComponent',
+      geo: 'GeoComponent',
+      singleAxis: 'SingleAxisComponent',
+      parallel: 'ParallelComponent',
+      calendar: 'CalendarComponent',
+      graphic: 'GraphicComponent',
+      toolbox: 'ToolboxComponent',
+      tooltip: 'TooltipComponent',
+      axisPointer: 'AxisPointerComponent',
+      brush: 'BrushComponent',
+      title: 'TitleComponent',
+      timeline: 'TimelineComponent',
+      markPoint: 'MarkPointComponent',
+      markLine: 'MarkLineComponent',
+      markArea: 'MarkAreaComponent',
+      legend: 'LegendComponent',
+      dataZoom: 'DataZoomComponent',
+      visualMap: 'VisualMapComponent',
+      // aria: 'AriaComponent',
+      // dataset: 'DatasetComponent',
+      // Dependencies
+      xAxis: 'GridComponent',
+      yAxis: 'GridComponent',
+      angleAxis: 'PolarComponent',
+      radiusAxis: 'PolarComponent'
+    };
+    var BUILTIN_CHARTS_MAP = {
+      line: 'LineChart',
+      bar: 'BarChart',
+      pie: 'PieChart',
+      scatter: 'ScatterChart',
+      radar: 'RadarChart',
+      map: 'MapChart',
+      tree: 'TreeChart',
+      treemap: 'TreemapChart',
+      graph: 'GraphChart',
+      gauge: 'GaugeChart',
+      funnel: 'FunnelChart',
+      parallel: 'ParallelChart',
+      sankey: 'SankeyChart',
+      boxplot: 'BoxplotChart',
+      candlestick: 'CandlestickChart',
+      effectScatter: 'EffectScatterChart',
+      lines: 'LinesChart',
+      heatmap: 'HeatmapChart',
+      pictorialBar: 'PictorialBarChart',
+      themeRiver: 'ThemeRiverChart',
+      sunburst: 'SunburstChart',
+      custom: 'CustomChart'
+    };
+    var componetsMissingLogPrinted = {};
+
+    function checkMissingComponents(option) {
+      each$f(option, function (componentOption, mainType) {
+        if (!ComponentModel$1.hasClass(mainType)) {
+          var componentImportName = BUITIN_COMPONENTS_MAP[mainType];
+
+          if (componentImportName && !componetsMissingLogPrinted[componentImportName]) {
+            error("Component " + mainType + " is used but not imported.\nimport { " + componentImportName + " } from 'echarts/components';\necharts.use([" + componentImportName + "]);");
+            componetsMissingLogPrinted[componentImportName] = true;
+          }
+        }
+      });
+    }
 
     var GlobalModel =
     /** @class */
@@ -23776,6 +25823,10 @@
       };
 
       GlobalModel.prototype.setOption = function (option, opts, optionPreprocessorFuncs) {
+        {
+          assert(option != null, 'option is null/undefined');
+          assert(option[OPTION_INNER_KEY] !== OPTION_INNER_VALUE, 'please use chart.getOption()');
+        }
 
         var innerOpt = normalizeSetOptionInput(opts);
 
@@ -23802,6 +25853,10 @@
 
         if (!type || type === 'recreate') {
           var baseOption = optionManager.mountOption(type === 'recreate');
+
+          {
+            checkMissingComponents(baseOption);
+          }
 
           if (!this.option || type === 'recreate') {
             initBase(this, baseOption);
@@ -23912,6 +25967,7 @@
           var cmptsByMainType = [];
           var cmptsCountByMainType = 0;
           var tooltipExists;
+          var tooltipWarningLogged;
           each$f(mappingResult, function (resultItem, index) {
             var componentModel = resultItem.existing;
             var newCmptOption = resultItem.newOption;
@@ -23933,6 +25989,20 @@
               );
 
               if (!ComponentModelClass) {
+                {
+                  var subType = resultItem.keyInfo.subType;
+                  var seriesImportName = BUILTIN_CHARTS_MAP[subType];
+
+                  if (!componetsMissingLogPrinted[subType]) {
+                    componetsMissingLogPrinted[subType] = true;
+
+                    if (seriesImportName) {
+                      error("Series " + subType + " is used but not imported.\nimport { " + seriesImportName + " } from 'echarts/charts';\necharts.use([" + seriesImportName + "]);");
+                    } else {
+                      error("Unkown series " + subType);
+                    }
+                  }
+                }
 
                 return;
               } // TODO Before multiple tooltips get supported, we do this check to avoid unexpected exception.
@@ -23940,6 +26010,12 @@
 
               if (mainType === 'tooltip') {
                 if (tooltipExists) {
+                  {
+                    if (!tooltipWarningLogged) {
+                      warn('Currently only one tooltip component is allowed.');
+                      tooltipWarningLogged = true;
+                    }
+                  }
 
                   return;
                 }
@@ -24329,6 +26405,13 @@
         };
 
         assertSeriesInitialized = function (ecModel) {
+          // Components that use _seriesIndices should depends on series component,
+          // which make sure that their initialization is after series.
+          {
+            if (!ecModel._seriesIndices) {
+              throw new Error('Option should contains series.');
+            }
+          }
         };
 
         initBase = function (ecModel, baseOption) {
@@ -24426,6 +26509,9 @@
     function normalizeSetOptionInput(opts) {
       var replaceMergeMainTypeMap = createHashMap();
       opts && each$f(normalizeToArray(opts.replaceMerge), function (mainType) {
+        {
+          assert(ComponentModel$1.hasClass(mainType), '"' + mainType + '" is not valid component main type in "replaceMerge"');
+        }
 
         replaceMergeMainTypeMap.set(mainType, true);
       });
@@ -24751,6 +26837,12 @@
       if (hasMedia) {
         if (isArray$1(mediaOnRoot)) {
           each$f(mediaOnRoot, function (singleMedia) {
+            {
+              // Real case of wrong config.
+              if (singleMedia && !singleMedia.option && isObject$3(singleMedia.query) && isObject$3(singleMedia.query.option)) {
+                error('Illegal media option. Must be like { media: [ { query: {}, option: {} } ] }');
+              }
+            }
 
             if (singleMedia && singleMedia.option) {
               if (singleMedia.query) {
@@ -24761,6 +26853,11 @@
               }
             }
           });
+        } else {
+          {
+            // Real case of wrong config.
+            error('Illegal media option. Must be an array. Like { media: [ {...}, {...} ] }');
+          }
         }
       }
 
@@ -24947,6 +27044,9 @@
         var emphasisItemStyleOpt = itemStyleOpt.emphasis;
 
         if (normalItemStyleOpt && normalItemStyleOpt[styleName]) {
+          {
+            deprecateReplaceLog("itemStyle.normal." + styleName, styleName);
+          }
 
           opt[styleName] = opt[styleName] || {};
 
@@ -24960,6 +27060,9 @@
         }
 
         if (emphasisItemStyleOpt && emphasisItemStyleOpt[styleName]) {
+          {
+            deprecateReplaceLog("itemStyle.emphasis." + styleName, "emphasis." + styleName);
+          }
 
           opt[styleName] = opt[styleName] || {};
 
@@ -24980,6 +27083,10 @@
         var emphasisOpt = opt[optType].emphasis;
 
         if (normalOpt) {
+          {
+            // eslint-disable-next-line max-len
+            deprecateLog("'normal' hierarchy in " + optType + " has been removed since 4.0. All style properties are configured in " + optType + " directly now.");
+          } // Timeline controlStyle has other properties besides normal and emphasis
 
 
           if (useExtend) {
@@ -24991,6 +27098,9 @@
         }
 
         if (emphasisOpt) {
+          {
+            deprecateLog(optType + ".emphasis has been changed to emphasis." + optType + " since 4.0");
+          }
 
           opt.emphasis = opt.emphasis || {};
           opt.emphasis[optType] = emphasisOpt; // Also compat the case user mix the style and focus together in ec3 style
@@ -25025,6 +27135,10 @@
       var textStyle = isObject$2(labelOptSingle) && labelOptSingle.textStyle;
 
       if (textStyle) {
+        {
+          // eslint-disable-next-line max-len
+          deprecateLog("textStyle hierarchy in " + propName + " has been removed since 4.0. All textStyle properties are configured in " + propName + " directly now.");
+        }
 
         for (var i = 0, len = TEXT_STYLE_OPTIONS.length; i < len; i++) {
           var textPropName = TEXT_STYLE_OPTIONS[i];
@@ -25192,11 +27306,27 @@
         if (radarOpt.name && radarOpt.axisName == null) {
           radarOpt.axisName = radarOpt.name;
           delete radarOpt.name;
+
+          {
+            deprecateLog('name property in radar component has been changed to axisName');
+          }
         }
 
         if (radarOpt.nameGap != null && radarOpt.axisNameGap == null) {
           radarOpt.axisNameGap = radarOpt.nameGap;
           delete radarOpt.nameGap;
+
+          {
+            deprecateLog('nameGap property in radar component has been changed to axisNameGap');
+          }
+        }
+
+        {
+          each$d(radarOpt.indicator, function (indicatorOpt) {
+            if (indicatorOpt.text) {
+              deprecateReplaceLog('text', 'name', 'radar.indicator');
+            }
+          });
         }
       });
       each$d(toArr(option.geo), function (geoOpt) {
@@ -25289,6 +27419,10 @@
 
           if (itemStyle[oldName] != null) {
             itemStyle[newName] = itemStyle[oldName];
+
+            {
+              deprecateReplaceLog(oldName, newName);
+            }
           }
         }
       }
@@ -25300,6 +27434,9 @@
       }
 
       if (option.alignTo === 'edge' && option.margin != null && option.edgeDistance == null) {
+        {
+          deprecateReplaceLog('label.margin', 'label.edgeDistance', 'pie');
+        }
 
         option.edgeDistance = option.margin;
       }
@@ -25312,6 +27449,10 @@
 
       if (option.downplay && !option.blur) {
         option.blur = option.downplay;
+
+        {
+          deprecateReplaceLog('downplay', 'blur', 'sunburst');
+        }
       }
     }
 
@@ -25324,6 +27465,9 @@
         option.emphasis = option.emphasis || {};
 
         if (option.emphasis.focus == null) {
+          {
+            deprecateReplaceLog('focusNodeAdjacency', 'emphasis: { focus: \'adjacency\'}', 'graph/sankey');
+          }
 
           option.emphasis.focus = 'adjacency';
         }
@@ -25353,10 +27497,18 @@
         if (seriesType === 'line') {
           if (seriesOpt.clipOverflow != null) {
             seriesOpt.clip = seriesOpt.clipOverflow;
+
+            {
+              deprecateReplaceLog('clipOverflow', 'clip', 'line');
+            }
           }
         } else if (seriesType === 'pie' || seriesType === 'gauge') {
           if (seriesOpt.clockWise != null) {
             seriesOpt.clockwise = seriesOpt.clockWise;
+
+            {
+              deprecateReplaceLog('clockWise', 'clockwise');
+            }
           }
 
           compatPieLabel(seriesOpt.label);
@@ -25372,6 +27524,9 @@
             seriesOpt.emphasis = seriesOpt.emphasis || {};
 
             if (seriesOpt.emphasis.scaleSize = null) {
+              {
+                deprecateReplaceLog('hoverOffset', 'emphasis.scaleSize');
+              }
 
               seriesOpt.emphasis.scaleSize = seriesOpt.hoverOffset;
             }
@@ -25401,6 +27556,10 @@
 
             if (!seriesOpt.emphasis.focus) {
               seriesOpt.emphasis.focus = highlightPolicy;
+
+              {
+                deprecateReplaceLog('highlightPolicy', 'emphasis.focus', 'sunburst');
+              }
             }
           }
 
@@ -25410,11 +27569,17 @@
           compatGraphFocus(seriesOpt); // TODO nodes, edges?
         } else if (seriesType === 'map') {
           if (seriesOpt.mapType && !seriesOpt.map) {
+            {
+              deprecateReplaceLog('mapType', 'map', 'map');
+            }
 
             seriesOpt.map = seriesOpt.mapType;
           }
 
           if (seriesOpt.mapLocation) {
+            {
+              deprecateLog('`mapLocation` is not used anymore.');
+            }
 
             defaults(seriesOpt, seriesOpt.mapLocation);
           }
@@ -25424,6 +27589,9 @@
           seriesOpt.emphasis = seriesOpt.emphasis || {};
 
           if (seriesOpt.emphasis && seriesOpt.emphasis.scale == null) {
+            {
+              deprecateReplaceLog('hoverAnimation', 'emphasis.scale');
+            }
 
             seriesOpt.emphasis.scale = seriesOpt.hoverAnimation;
           }
@@ -25733,7 +27901,11 @@
       } else if (sourceFormat === SOURCE_FORMAT_ORIGINAL) {
         var value0 = getDataItemValue(data[0]);
         dimensionsDetectedCount = isArray$1(value0) && value0.length || 1;
-      } else ;
+      } else if (sourceFormat === SOURCE_FORMAT_TYPED_ARRAY) {
+        {
+          assert(!!dimensionsDefine, 'dimensions must be given if data is TypedArray.');
+        }
+      }
 
       return {
         startIndex: startIndex,
@@ -25890,6 +28062,11 @@
         var data = this._data = source.data; // Typed array. TODO IE10+?
 
         if (source.sourceFormat === SOURCE_FORMAT_TYPED_ARRAY) {
+          {
+            if (dimSize == null) {
+              throw new Error('Typed array data must specify dimension size');
+            }
+          }
 
           this._offset = 0;
           this._dimSize = dimSize;
@@ -25932,6 +28109,10 @@
           var startIndex = source.startIndex;
           var dimsDef = source.dimensionsDefine;
           var methods = providerMethods[getMethodMapKey(sourceFormat, seriesLayoutBy)];
+
+          {
+            assert(methods, 'Invalide sourceFormat: ' + sourceFormat);
+          }
 
           extend(provider, methods);
 
@@ -26018,6 +28199,9 @@
           persistent: false,
           pure: true,
           appendData: function (newData) {
+            {
+              assert(isTypedArray(newData), 'Added data must be TypedArray if data in initialization is TypedArray');
+            }
 
             this._data = newData;
           },
@@ -26062,6 +28246,12 @@
       for (var i = 0; i < dimsDef.length; i++) {
         var dimName = dimsDef[i].name;
 
+        {
+          if (dimName == null) {
+            throw new Error();
+          }
+        }
+
         var col = rawData[dimName];
         item[i] = col ? col[idx] : null;
       }
@@ -26070,6 +28260,10 @@
     }, _a[SOURCE_FORMAT_ORIGINAL] = getItemSimply, _a);
     function getRawSourceItemGetter(sourceFormat, seriesLayoutBy) {
       var method = rawSourceItemGetterMap[getMethodMapKey(sourceFormat, seriesLayoutBy)];
+
+      {
+        assert(method, 'Do not support get item on "' + sourceFormat + '", "' + seriesLayoutBy + '".');
+      }
 
       return method;
     }
@@ -26086,11 +28280,21 @@
     }, _b[SOURCE_FORMAT_OBJECT_ROWS] = countSimply, _b[SOURCE_FORMAT_KEYED_COLUMNS] = function (rawData, startIndex, dimsDef) {
       var dimName = dimsDef[0].name;
 
+      {
+        if (dimName == null) {
+          throw new Error();
+        }
+      }
+
       var col = rawData[dimName];
       return col ? col.length : 0;
     }, _b[SOURCE_FORMAT_ORIGINAL] = countSimply, _b);
     function getRawSourceDataCounter(sourceFormat, seriesLayoutBy) {
       var method = rawSourceDataCounterMap[getMethodMapKey(sourceFormat, seriesLayoutBy)];
+
+      {
+        assert(method, 'Do not suppport count on "' + sourceFormat + '", "' + seriesLayoutBy + '".');
+      }
 
       return method;
     }
@@ -26109,6 +28313,10 @@
     }, _c[SOURCE_FORMAT_TYPED_ARRAY] = getRawValueSimply, _c);
     function getRawSourceValueGetter(sourceFormat) {
       var method = rawSourceValueGetterMap[sourceFormat];
+
+      {
+        assert(method, 'Do not suppport get value on "' + sourceFormat + '".');
+      }
 
       return method;
     }
@@ -26245,6 +28453,12 @@
 
             if (dimLoose.charAt(0) === '[' && dimLoose.charAt(len - 1) === ']') {
               dimLoose = +dimLoose.slice(1, len - 1); // Also support: '[]' => 0
+
+              {
+                if (isNaN(dimLoose)) {
+                  error("Invalide label formatter: @" + dimStr + ", only support @[0], @[1], @[2], ...");
+                }
+              }
             }
 
             var val = retrieveRawValue(data, dataIndex, dimLoose);
@@ -26306,6 +28520,10 @@
       if (isObject$3(result)) {
         if (result.type) {
           markupFragment = result;
+        } else {
+          {
+            console.warn('The return type of `formatTooltip` is not supported: ' + makePrintable(result));
+          }
         } // else {
         //     markupText = (result as TooltipFormatResultLegacyObject).html;
         //     markers = (result as TooltipFormatResultLegacyObject).markers;
@@ -26404,10 +28622,16 @@
         var step = performArgs && performArgs.step;
 
         if (upTask) {
+          {
+            assert(upTask._outputDueEnd != null);
+          }
 
           this._dueEnd = upTask._outputDueEnd;
         } // DataTask or overallTask
         else {
+            {
+              assert(!this._progress || this._count);
+            }
 
             this._dueEnd = this._count ? this._count(this.context) : Infinity;
           } // Note: Stubs, that its host overall task let it has progress, has progress.
@@ -26434,6 +28658,11 @@
           // input data is the same, so use `dueIndex` as `outputDueEnd`.
 
           var outputDueEnd = this._settedOutputEnd != null ? this._settedOutputEnd : end;
+
+          {
+            // ??? Can not rollback.
+            assert(outputDueEnd >= this._outputDueEnd);
+          }
 
           this._outputDueEnd = outputDueEnd;
         } else {
@@ -26500,6 +28729,9 @@
 
 
       Task.prototype.pipe = function (downTask) {
+        {
+          assert(downTask && !downTask._disposed && downTask !== this);
+        } // If already downstream, do not dirty downTask.
 
 
         if (this._downstream !== downTask || this._dirty) {
@@ -26728,6 +28960,10 @@
         if (!isNumber(rval)) {
           var errMsg = '';
 
+          {
+            errMsg = 'rvalue of "<", ">", "<=", ">=" can only be number in filter.';
+          }
+
           throwError(errMsg);
         }
 
@@ -26953,6 +29189,12 @@
       var errMsg = '';
 
       if (internalSource.seriesLayoutBy !== SERIES_LAYOUT_BY_COLUMN) {
+        // For the logic simplicity in transformer, only 'culumn' is
+        // supported in data transform. Otherwise, the `dimensionsDefine`
+        // might be detected by 'row', which probably confuses users.
+        {
+          errMsg = '`seriesLayoutBy` of upstream dataset can only be "column" in data transform.';
+        }
 
         throwError(errMsg);
       } // [MEMO]
@@ -26985,6 +29227,9 @@
             var errMsg_1 = '';
 
             if (hasOwn(dimsByName, name)) {
+              {
+                errMsg_1 = 'dimension name "' + name + '" duplicated.';
+              }
 
               throwError(errMsg_1);
             }
@@ -27048,6 +29293,10 @@
       if (!isSupportedSourceFormat(sourceFormat)) {
         var errMsg = '';
 
+        {
+          errMsg = '`getRawData` is not supported in source format ' + sourceFormat;
+        }
+
         throwError(errMsg);
       }
 
@@ -27060,6 +29309,10 @@
 
       if (!isSupportedSourceFormat(sourceFormat)) {
         var errMsg = '';
+
+        {
+          errMsg = '`cloneRawData` is not supported in source format ' + sourceFormat;
+        }
 
         throwError(errMsg);
       }
@@ -27110,6 +29363,9 @@
       var errMsg = '';
 
       if (!type) {
+        {
+          errMsg = 'Must have a `type` when `registerTransform`.';
+        }
 
         throwError(errMsg);
       }
@@ -27117,6 +29373,9 @@
       var typeParsed = type.split(':');
 
       if (typeParsed.length !== 2) {
+        {
+          errMsg = 'Name must include namespace like "ns:regression".';
+        }
 
         throwError(errMsg);
       } // Namespace 'echarts:xxx' is official namespace, where the transforms should
@@ -27139,13 +29398,16 @@
       var errMsg = '';
 
       if (!pipeLen) {
+        {
+          errMsg = 'If `transform` declared, it should at least contain one transform.';
+        }
 
         throwError(errMsg);
       }
 
       for (var i = 0, len = pipeLen; i < len; i++) {
         var transOption = pipedTransOption[i];
-        sourceList = applySingleDataTransform(transOption, sourceList); // piped transform only support single input, except the fist one.
+        sourceList = applySingleDataTransform(transOption, sourceList, infoForPrint, pipeLen === 1 ? null : i); // piped transform only support single input, except the fist one.
         // piped transform only support single output, except the last one.
 
         if (i !== len - 1) {
@@ -27161,11 +29423,17 @@
       var errMsg = '';
 
       if (!upSourceList.length) {
+        {
+          errMsg = 'Must have at least one upstream dataset.';
+        }
 
         throwError(errMsg);
       }
 
       if (!isObject$3(transOption)) {
+        {
+          errMsg = 'transform declaration must be an object rather than ' + typeof transOption + '.';
+        }
 
         throwError(errMsg);
       }
@@ -27174,6 +29442,9 @@
       var externalTransform = externalTransformMap.get(transType);
 
       if (!externalTransform) {
+        {
+          errMsg = 'Can not find transform on type "' + transType + '".';
+        }
 
         throwError(errMsg);
       } // Prepare source
@@ -27188,15 +29459,31 @@
         config: clone$5(transOption.config)
       }));
 
+      {
+        if (transOption.print) {
+          var printStrArr = map$1(resultList, function (extSource) {
+            var pipeIndexStr = pipeIndex != null ? ' === pipe index: ' + pipeIndex : '';
+            return ['=== dataset index: ' + infoForPrint.datasetIndex + pipeIndexStr + ' ===', '- transform result data:', makePrintable(extSource.data), '- transform result dimensions:', makePrintable(extSource.dimensions)].join('\n');
+          }).join('\n');
+          log(printStrArr);
+        }
+      }
+
       return map$1(resultList, function (result, resultIndex) {
         var errMsg = '';
 
         if (!isObject$3(result)) {
+          {
+            errMsg = 'A transform should not return some empty results.';
+          }
 
           throwError(errMsg);
         }
 
         if (!result.data) {
+          {
+            errMsg = 'Transform result data should be not be null or undefined';
+          }
 
           throwError(errMsg);
         }
@@ -27204,6 +29491,9 @@
         var sourceFormat = detectSourceFormat(result.data);
 
         if (!isSupportedSourceFormat(sourceFormat)) {
+          {
+            errMsg = 'Transform result data should be array rows or object rows.';
+          }
 
           throwError(errMsg);
         }
@@ -27349,6 +29639,9 @@
 
 
       DataStore.prototype.initData = function (provider, inputDimensions, dimValueGetter) {
+        {
+          assert(isFunction(provider.getItem) && isFunction(provider.count), 'Invalid data provider.');
+        }
 
         this._provider = provider; // Clear
 
@@ -27361,8 +29654,13 @@
         this._dimValueGetter = dimValueGetter || defaultGetter; // Reset raw extent.
 
         this._rawExtent = [];
-        shouldRetrieveDataByName(source);
+        var willRetrieveDataByName = shouldRetrieveDataByName(source);
         this._dimensions = map$1(inputDimensions, function (dim) {
+          {
+            if (willRetrieveDataByName) {
+              assert(dim.property != null);
+            }
+          }
 
           return {
             // Only pick these two props. Not leak other properties like orderMeta.
@@ -27461,6 +29759,9 @@
 
 
       DataStore.prototype.appendData = function (data) {
+        {
+          assert(!this._indices, 'appendData can only be called on raw data.');
+        }
 
         var provider = this._provider;
         var start = this.count();
@@ -28630,6 +30931,10 @@
             }
         }
 
+        {
+          assert(resultSourceList && upstreamSignList);
+        }
+
         this._setLocalSource(resultSourceList, upstreamSignList);
       };
 
@@ -28638,10 +30943,17 @@
         var transformOption = datasetModel.get('transform', true);
         var fromTransformResult = datasetModel.get('fromTransformResult', true);
 
+        {
+          assert(fromTransformResult != null || transformOption != null);
+        }
+
         if (fromTransformResult != null) {
           var errMsg = '';
 
           if (upMgrList.length !== 1) {
+            {
+              errMsg = 'When using `fromTransformResult`, there should be only one upstream dataset';
+            }
 
             doThrow(errMsg);
           }
@@ -28656,6 +30968,9 @@
           var errMsg = '';
 
           if (fromTransformResult != null && !upSource) {
+            {
+              errMsg = 'Can not retrieve result by `fromTransformResult`: ' + fromTransformResult;
+            }
 
             doThrow(errMsg);
           }
@@ -28726,6 +31041,9 @@
 
 
       SourceManager.prototype.getSharedDataStore = function (seriesDimRequest) {
+        {
+          assert(isSeries(this._sourceHost), 'Can only call getDataStore on series source manager.');
+        }
 
         var schema = seriesDimRequest.makeStoreSchema();
         return this._innerGetDataStore(schema.dimensions, seriesDimRequest.source, schema.hash);
@@ -29091,6 +31409,9 @@
         if (isString(marker)) {
           return marker;
         } else {
+          {
+            assert(markerId);
+          }
 
           this.richTextStyles[markerId] = marker.style;
           return marker.content;
@@ -29280,6 +31601,10 @@
         var data = this.getInitialData(option, ecModel);
         wrapData(data, this);
         this.dataTask.context.data = data;
+
+        {
+          assert(data, 'getInitialData returned invalid data.');
+        }
 
         inner$k(this).dataBeforeProcessed = data; // If we reverse the order (make data firstly, and then make
         // dataBeforeProcessed by cloneShallow), cloneShallow will
@@ -29920,6 +32245,9 @@
       ChartView.prototype.init = function (ecModel, api) {};
 
       ChartView.prototype.render = function (seriesModel, ecModel, api, payload) {
+        {
+          throw new Error('render method must been implemented');
+        }
       };
       /**
        * Highlight series or specified data item.
@@ -29930,6 +32258,9 @@
         var data = seriesModel.getData(payload && payload.dataType);
 
         if (!data) {
+          {
+            error("Unknown dataType " + payload.dataType);
+          }
 
           return;
         }
@@ -29945,6 +32276,9 @@
         var data = seriesModel.getData(payload && payload.dataType);
 
         if (!data) {
+          {
+            error("Unknown dataType " + payload.dataType);
+          }
 
           return;
         }
@@ -30027,7 +32361,7 @@
       }
     }
 
-    enableClassExtend(ChartView);
+    enableClassExtend(ChartView, ['dispose']);
     enableClassManagement(ChartView);
 
     function renderTaskPlan(context) {
@@ -30700,6 +33034,11 @@
           var record = stageTaskMap.get(handler.uid) || stageTaskMap.set(handler.uid, {});
           var errMsg = '';
 
+          {
+            // Currently do not need to support to sepecify them both.
+            errMsg = '"reset" and "overallReset" must not be both specified.';
+          }
+
           assert(!(handler.reset && handler.overallReset), errMsg);
           handler.reset && this._createSeriesStageTask(handler, record, ecModel, api);
           handler.overallReset && this._createOverallStageTask(handler, record, ecModel, api);
@@ -30896,6 +33235,10 @@
         // we set the pipeline block.
 
         var errMsg = '';
+
+        {
+          errMsg = '"createOnAllSeries" do not supported for "overallReset", ' + 'becuase it will block all streams.';
+        }
 
         assert(!stageHandler.createOnAllSeries, errMsg);
 
@@ -31601,6 +33944,11 @@
         case 'liftZ':
           return data.getItemVisual(dataIndex, key);
 
+        default:
+          {
+            console.warn("Unknown visual type " + key);
+          }
+
       }
     }
     function getVisualFromData(data, key) {
@@ -31616,6 +33964,11 @@
         case 'symbolSize':
         case 'liftZ':
           return data.getVisual(key);
+
+        default:
+          {
+            console.warn("Unknown visual type " + key);
+          }
 
       }
     }
@@ -31639,6 +33992,11 @@
           data.setItemVisual(dataIndex, key, value);
           break;
 
+        default:
+          {
+            console.warn("Unknown visual type " + key);
+          }
+
       }
     }
 
@@ -31661,6 +34019,10 @@
         ecRegisterAction(eventsMap[0], function (payload, ecModel, api) {
           payload = extend({}, payload);
 
+          {
+            deprecateReplaceLog(payload.type, eventsMap[1]);
+          }
+
           api.dispatchAction(extend(payload, {
             type: eventsMap[1],
             seriesIndex: getSeriesIndices(ecModel, payload)
@@ -31673,6 +34035,9 @@
       var legacyEventName = type + eventPostfix;
 
       if (!ecIns.isSilent(legacyEventName)) {
+        {
+          deprecateLog("event " + legacyEventName + " is deprecated.");
+        }
 
         ecModel.eachComponent({
           mainType: 'series',
@@ -32927,6 +35292,21 @@
           width *= symbolRepeats;
           var height = lineBlockLengthY * lineBlockLengthsX.length * symbolArray.length;
 
+          {
+            var warn = function (attrName) {
+              /* eslint-disable-next-line */
+              console.warn("Calculated decal size is greater than " + attrName + " due to decal option settings so " + attrName + " is used for the decal size. Please consider changing the decal option to make a smaller decal or set " + attrName + " to be larger to avoid incontinuity.");
+            };
+
+            if (width > decalOpt.maxTileWidth) {
+              warn('maxTileWidth');
+            }
+
+            if (height > decalOpt.maxTileHeight) {
+              warn('maxTileHeight');
+            }
+          }
+
           return {
             width: Math.max(1, Math.min(width, decalOpt.maxTileWidth)),
             height: Math.max(1, Math.min(height, decalOpt.maxTileHeight))
@@ -33224,10 +35604,20 @@
     var implsStore = {}; // TODO Type
 
     function registerImpl(name, impl) {
+      {
+        if (implsStore[name]) {
+          error("Already has an implementation of " + name + ".");
+        }
+      }
 
       implsStore[name] = impl;
     }
     function getImpl(name) {
+      {
+        if (!implsStore[name]) {
+          error("Implementation of " + name + " doesn't exists.");
+        }
+      }
 
       return implsStore[name];
     }
@@ -33355,7 +35745,7 @@
     var triggerUpdatedEvent;
     var bindRenderedEvent;
     var bindMouseEvent;
-    var render$f;
+    var render$g;
     var renderComponents;
     var renderSeries;
     var createExtensionAPI;
@@ -33387,6 +35777,15 @@
         _this._dom = dom;
         var defaultRenderer = 'canvas';
         var defaultUseDirtyRect = false;
+
+        {
+          var root =
+          /* eslint-disable-next-line */
+          hasWindow ? window : global;
+          defaultRenderer = root.__ECHARTS__DEFAULT__RENDERER__ || defaultRenderer;
+          var devUseDirtyRect = root.__ECHARTS__DEFAULT__USE_DIRTY_RECT__;
+          defaultUseDirtyRect = devUseDirtyRect == null ? defaultUseDirtyRect : devUseDirtyRect;
+        }
 
         var zr = _this._zr = init$2(dom, {
           renderer: opts.renderer || defaultRenderer,
@@ -33514,6 +35913,9 @@
 
       ECharts.prototype.setOption = function (option, notMerge, lazyUpdate) {
         if (this[IN_MAIN_PROCESS_KEY]) {
+          {
+            error('`setOption` should not be called during main process.');
+          }
 
           return;
         }
@@ -33593,6 +35995,7 @@
 
 
       ECharts.prototype.setTheme = function () {
+        deprecateLog('ECharts#setTheme() is DEPRECATED in ECharts 3.0');
       }; // We don't want developers to use getModel directly.
 
 
@@ -33624,6 +36027,9 @@
 
 
       ECharts.prototype.getRenderedCanvas = function (opts) {
+        {
+          deprecateReplaceLog('getRenderedCanvas', 'renderToCanvas');
+        }
 
         return this.renderToCanvas(opts);
       };
@@ -33631,6 +36037,12 @@
       ECharts.prototype.renderToCanvas = function (opts) {
         opts = opts || {};
         var painter = this._zr.painter;
+
+        {
+          if (painter.type !== 'canvas') {
+            throw new Error('renderToCanvas can only be used in the canvas renderer.');
+          }
+        }
 
         return painter.getRenderedCanvas({
           backgroundColor: opts.backgroundColor || this._model.get('backgroundColor'),
@@ -33641,6 +36053,12 @@
       ECharts.prototype.renderToSVGString = function (opts) {
         opts = opts || {};
         var painter = this._zr.painter;
+
+        {
+          if (painter.type !== 'svg') {
+            throw new Error('renderToSVGString can only be used in the svg renderer.');
+          }
+        }
 
         return painter.renderToString({
           useViewBox: opts.useViewBox
@@ -33827,8 +36245,16 @@
 
               if (view && view.containPoint) {
                 result = result || view.containPoint(value, model);
+              } else {
+                {
+                  console.warn(key + ': ' + (view ? 'The found component do not support containPoint.' : 'No view mapping to the found component.'));
+                }
               }
-            } else ;
+            } else {
+              {
+                console.warn(key + ': containPoint is not supported');
+              }
+            }
           }, this);
         }, this);
         return !!result;
@@ -33856,6 +36282,12 @@
           defaultMainType: 'series'
         });
         var seriesModel = parsedFinder.seriesModel;
+
+        {
+          if (!seriesModel) {
+            console.warn('There is no specified seires model');
+          }
+        }
 
         var data = seriesModel.getData();
         var dataIndexInside = parsedFinder.hasOwnProperty('dataIndexInside') ? parsedFinder.dataIndexInside : parsedFinder.hasOwnProperty('dataIndex') ? data.indexOfRawIndex(parsedFinder.dataIndex) : null;
@@ -33929,6 +36361,15 @@
 
               var model = componentType && componentIndex != null && ecModel.getComponent(componentType, componentIndex);
               var view = model && _this[model.mainType === 'series' ? '_chartsMap' : '_componentsMap'][model.__viewId];
+
+              {
+                // `event.componentType` and `event[componentTpype + 'Index']` must not
+                // be missed, otherwise there is no way to distinguish source component.
+                // See `dataFormat.getDataParams`.
+                if (!isGlobalOut && !(model && view)) {
+                  console.warn('model or view can not be found by params');
+                }
+              }
 
               params.event = e;
               params.type = eveName;
@@ -34019,6 +36460,9 @@
 
       ECharts.prototype.resize = function (opts) {
         if (this[IN_MAIN_PROCESS_KEY]) {
+          {
+            error('`resize` should not be called during main process.');
+          }
 
           return;
         }
@@ -34088,6 +36532,9 @@
         this.hideLoading();
 
         if (!loadingEffects[name]) {
+          {
+            console.warn('Loading effects ' + name + ' not exists.');
+          }
 
           return;
         }
@@ -34193,6 +36640,10 @@
         var ecModel = this.getModel();
         var seriesModel = ecModel.getSeriesByIndex(seriesIndex);
 
+        {
+          assert(params.data && seriesModel);
+        }
+
         seriesModel.appendData(params); // Note: `appendData` does not support that update extent of coordinate
         // system, util some scenario require that. In the expected usage of
         // `appendData`, the initial extent of coordinate system should better
@@ -34259,6 +36710,10 @@
               // like "liquidfill", but recommend "series.liquidfill"
               // But need a base class to make a type series.
               ChartView$1.getClass(classType.sub);
+
+              {
+                assert(Clazz, classType.sub + ' does not exist.');
+              }
 
               view = new Clazz();
               view.init(ecModel, api);
@@ -34430,7 +36885,7 @@
             coordSysMgr.update(ecModel, api);
             clearColorPalette(ecModel);
             scheduler.performVisualTasks(ecModel, payload);
-            render$f(this, ecModel, api, payload, updateParams); // Set background
+            render$g(this, ecModel, api, payload, updateParams); // Set background
 
             var backgroundColor = ecModel.get('backgroundColor') || 'transparent';
             var darkMode = ecModel.get('darkMode');
@@ -34510,7 +36965,7 @@
               setDirty: true
             });
 
-            render$f(this, ecModel, this._api, payload, {});
+            render$g(this, ecModel, this._api, payload, {});
             lifecycle$1.trigger('afterupdate', ecModel, this._api);
           },
           updateVisual: function (payload) {
@@ -34574,6 +37029,10 @@
             if (coordSys[methodName] && (result = coordSys[methodName](ecModel, parsedFinder, value)) != null) {
               return result;
             }
+          }
+
+          {
+            console.warn('No coordinate system that supports ' + methodName + ' found by the given finder.');
           }
         };
 
@@ -34838,7 +37297,7 @@
           }
         }
 
-        render$f = function (ecIns, ecModel, api, payload, updateParams) {
+        render$g = function (ecIns, ecModel, api, payload, updateParams) {
           allocateZlevels(ecModel);
           renderComponents(ecIns, ecModel, api, payload, updateParams);
           each$f(ecIns._chartsViews, function (chart) {
@@ -35269,6 +37728,7 @@
 
     echartsProto.one = function (eventName, cb, ctx) {
       var self = this;
+      deprecateLog('ECharts#one is deprecated.');
 
       function wrapped() {
         var args2 = [];
@@ -35288,6 +37748,9 @@
     var MOUSE_EVENT_NAMES = ['click', 'dblclick', 'mouseover', 'mouseout', 'mousemove', 'mousedown', 'mouseup', 'globalout', 'contextmenu'];
 
     function disposedWarning(id) {
+      {
+        console.warn('Instance ' + id + ' has been disposed');
+      }
     }
 
     var actions = {};
@@ -35320,12 +37783,26 @@
       var isClient = !(opts && opts.ssr);
 
       if (isClient) {
+        {
+          if (!dom) {
+            throw new Error('Initialize failed: invalid dom.');
+          }
+        }
 
         var existInstance = getInstanceByDom(dom);
 
         if (existInstance) {
+          {
+            console.warn('There is a chart instance already initialized on the dom.');
+          }
 
           return existInstance;
+        }
+
+        {
+          if (isDom(dom) && dom.nodeName.toUpperCase() !== 'CANVAS' && (!dom.clientWidth && (!opts || opts.width == null) || !dom.clientHeight && (!opts || opts.height == null))) {
+            console.warn('Can\'t get DOM width or height. Please check ' + 'dom.clientWidth and dom.clientHeight. They should not be 0.' + 'For example, you may need to call this in the callback ' + 'of window.onload.');
+          }
         }
       }
 
@@ -35426,6 +37903,17 @@
         fn = priority;
         priority = defaultPriority;
       }
+
+      {
+        if (isNaN(priority) || priority == null) {
+          throw new Error('Illegal priority');
+        } // Check duplicate
+
+
+        each$f(targetList, function (wrap) {
+          assert(wrap.__raw !== fn);
+        });
+      } // Already registered
 
 
       if (indexOf(registeredTasks, fn) >= 0) {
@@ -35909,6 +38397,9 @@
         var coordDim = dimItem.coordDim;
 
         if (coordDim) {
+          {
+            assert(VISUAL_DIMENSIONS.get(coordDim) == null);
+          }
 
           var coordDimIndex = dimItem.coordDimIndex;
           getOrCreateEncodeArr(encode, coordDim)[coordDimIndex] = dimName;
@@ -36379,6 +38870,10 @@
             this._idDimIdx = i;
           }
 
+          {
+            assert(assignStoreDimIdx || dimensionInfo.storeDimIndex >= 0);
+          }
+
           if (assignStoreDimIdx) {
             dimensionInfo.storeDimIndex = i;
           }
@@ -36496,6 +38991,12 @@
 
       SeriesData.prototype._getStoreDimIndex = function (dim) {
         var dimIdx = this.getDimensionIndex(dim);
+
+        {
+          if (dimIdx == null) {
+            throw new Error('Unkown dimension ' + dim);
+          }
+        }
 
         return dimIdx;
       };
@@ -36912,6 +39413,12 @@
       SeriesData.prototype.rawIndexOf = function (dim, value) {
         var invertedIndices = dim && this._invertedIndicesMap[dim];
 
+        {
+          if (!invertedIndices) {
+            throw new Error('Do not supported yet');
+          }
+        }
+
         var rawIndex = invertedIndices[value];
 
         if (rawIndex == null || isNaN(rawIndex)) {
@@ -37013,9 +39520,20 @@
       };
 
       SeriesData.prototype.modify = function (dims, cb, ctx, ctxCompat) {
+        var _this = this; // ctxCompat just for compat echarts3
 
 
         var fCtx = ctx || ctxCompat || this;
+
+        {
+          each$f(normalizeDimensions(dims), function (dim) {
+            var dimInfo = _this.getDimensionInfo(dim);
+
+            if (!dimInfo.isCalculationCoord) {
+              console.error('Danger: only stack dimension can be modified');
+            }
+          });
+        }
 
         var dimIndices = map(normalizeDimensions(dims), this._getStoreDimIndex, this); // If do shallow clone here, if there are too many stacked series,
         // it still cost lots of memory, becuase `_store.dimensions` are not shared.
@@ -37738,6 +40256,16 @@
         var xAxisModel = seriesModel.getReferringComponents('xAxis', SINGLE_REFERRING).models[0];
         var yAxisModel = seriesModel.getReferringComponents('yAxis', SINGLE_REFERRING).models[0];
 
+        {
+          if (!xAxisModel) {
+            throw new Error('xAxis "' + retrieve(seriesModel.get('xAxisIndex'), seriesModel.get('xAxisId'), 0) + '" not found');
+          }
+
+          if (!yAxisModel) {
+            throw new Error('yAxis "' + retrieve(seriesModel.get('xAxisIndex'), seriesModel.get('yAxisId'), 0) + '" not found');
+          }
+        }
+
         result.coordSysDims = ['x', 'y'];
         axisMap.set('x', xAxisModel);
         axisMap.set('y', yAxisModel);
@@ -37755,6 +40283,12 @@
       singleAxis: function (seriesModel, result, axisMap, categoryAxisMap) {
         var singleAxisModel = seriesModel.getReferringComponents('singleAxis', SINGLE_REFERRING).models[0];
 
+        {
+          if (!singleAxisModel) {
+            throw new Error('singleAxis should be specified.');
+          }
+        }
+
         result.coordSysDims = ['single'];
         axisMap.set('single', singleAxisModel);
 
@@ -37767,6 +40301,16 @@
         var polarModel = seriesModel.getReferringComponents('polar', SINGLE_REFERRING).models[0];
         var radiusAxisModel = polarModel.findAxisModel('radiusAxis');
         var angleAxisModel = polarModel.findAxisModel('angleAxis');
+
+        {
+          if (!angleAxisModel) {
+            throw new Error('angleAxis option not found');
+          }
+
+          if (!radiusAxisModel) {
+            throw new Error('radiusAxis option not found');
+          }
+        }
 
         result.coordSysDims = ['radius', 'angle'];
         axisMap.set('radius', radiusAxisModel);
@@ -38269,6 +40813,11 @@
 
     var OrdinalMeta$1 = OrdinalMeta;
 
+    function isValueNice(val) {
+      var exp10 = Math.pow(10, quantityExponent(Math.abs(val)));
+      var f = Math.abs(val / exp10);
+      return f === 0 || f === 1 || f === 2 || f === 3 || f === 5;
+    }
     function isIntervalOrLogScale(scale) {
       return scale.type === 'interval' || scale.type === 'log';
     }
@@ -39814,6 +42363,12 @@
         }
       }
 
+      {
+        if (iter >= safeLimit) {
+          warn('Exceed safe limit.');
+        }
+      }
+
       var levelsTicksInExtent = filter(map$1(levelsTicks, function (levelTicks) {
         return filter(levelTicks, function (tick) {
           return tick.value >= extent[0] && tick.value <= extent[1] && !tick.notAdd;
@@ -40066,6 +42621,9 @@
           var boundaryGapArr = isArray$1(boundaryGap) ? boundaryGap : [boundaryGap || 0, boundaryGap || 0];
 
           if (typeof boundaryGapArr[0] === 'boolean' || typeof boundaryGapArr[1] === 'boolean') {
+            {
+              console.warn('Boolean type for boundaryGap is only ' + 'allowed for ordinal axis. Please use string in ' + 'percentage instead, e.g., "20%". Currently, ' + 'boundaryGap is set to be 0.');
+            }
 
             this._boundaryGapInner = [0, 0];
           } else {
@@ -40158,12 +42716,20 @@
       };
 
       ScaleRawExtentInfo.prototype.modifyDataMinMax = function (minMaxName, val) {
+        {
+          assert(!this.frozen);
+        }
 
         this[DATA_MIN_MAX_ATTR[minMaxName]] = val;
       };
 
       ScaleRawExtentInfo.prototype.setDeterminedMinMax = function (minMaxName, val) {
         var attr = DETERMINED_MIN_MAX_ATTR[minMaxName];
+
+        {
+          assert(!this.frozen // Earse them usually means logic flaw.
+          && this[attr] == null);
+        }
 
         this[attr] = val;
       };
@@ -43808,6 +46374,9 @@
             gradientAttrs.r = retrieve2(val.r, 0.5);
         }
         else {
+            {
+                logError('Illegal gradient type.');
+            }
             return;
         }
         var colors = val.colorStops;
@@ -43962,6 +46531,11 @@
         for (var i = beginIdx; i <= endIdx; ++i) {
             var key = children[i].key;
             if (key !== undefined) {
+                {
+                    if (map[key] != null) {
+                        console.error("Duplicate key " + key);
+                    }
+                }
                 map[key] = i;
             }
         }
@@ -44195,8 +46769,8 @@
     var SVGPainter = (function () {
         function SVGPainter(root, storage, opts) {
             this.type = 'svg';
-            this.refreshHover = createMethodNotSupport();
-            this.configLayer = createMethodNotSupport();
+            this.refreshHover = createMethodNotSupport('refreshHover');
+            this.configLayer = createMethodNotSupport('configLayer');
             this.storage = storage;
             this._opts = opts = extend({}, opts);
             this.root = root;
@@ -44413,6 +46987,9 @@
     }());
     function createMethodNotSupport(method) {
         return function () {
+            {
+                logError('In SVG mode painter not support method "' + method + '"');
+            }
         };
     }
     var SVGPainter$1 = SVGPainter;
@@ -45047,9 +47624,15 @@
             var prevLayer = null;
             var i = -1;
             if (layersMap[zlevel]) {
+                {
+                    logError('ZLevel ' + zlevel + ' has been used already');
+                }
                 return;
             }
             if (!isLayerValid(layer)) {
+                {
+                    logError('Layer of zlevel ' + zlevel + ' is not valid');
+                }
                 return;
             }
             if (len > 0 && zlevel > zlevelList[0]) {
@@ -45346,6 +47929,13 @@
       }
 
       LineSeriesModel.prototype.getInitialData = function (option) {
+        {
+          var coordSys = option.coordinateSystem;
+
+          if (coordSys !== 'polar' && coordSys !== 'cartesian2d') {
+            throw new Error('Line not support coordinateSystem besides cartesian and polar');
+          }
+        }
 
         return createSeriesData(null, this, {
           useEncodeDefaulter: true
@@ -46929,6 +49519,9 @@
       }
 
       if (coordSys.type !== 'cartesian2d') {
+        {
+          console.warn('Visual map on line style is only supported on cartesian2d.');
+        }
 
         return;
       }
@@ -46947,6 +49540,9 @@
       }
 
       if (!visualMeta) {
+        {
+          console.warn('Visual map on line style only support x or y dimension.');
+        }
 
         return;
       } // If the area to be rendered is bigger than area defined by LinearGradient,
@@ -47182,6 +49778,11 @@
 
         return clipPath;
       } else {
+        {
+          if (seriesModel.get(['endLabel', 'show'])) {
+            console.warn('endLabel is not supported for lines in polar systems.');
+          }
+        }
 
         return createPolarClipPath(coordSys, hasAnimation, seriesModel);
       }
@@ -48588,6 +51189,8 @@
           // Clear previously rendered progressive elements.
           this._progressiveEls = null;
           this._isLargeDraw ? this._renderLarge(seriesModel, ecModel, api) : this._renderNormal(seriesModel, ecModel, api, payload);
+        } else {
+          warn('Only cartesian2d and polar supported for bar.');
         }
       };
 
@@ -49145,6 +51748,18 @@
     function shouldRealtimeSort(seriesModel, coordSys) {
       var realtimeSortOption = seriesModel.get('realtimeSort', true);
       var baseAxis = coordSys.getBaseAxis();
+
+      {
+        if (realtimeSortOption) {
+          if (baseAxis.type !== 'category') {
+            warn('`realtimeSort` will not work because this bar series is not based on a category axis.');
+          }
+
+          if (coordSys.type !== 'cartesian2d') {
+            warn('`realtimeSort` will not work because this bar series is not on cartesian2d.');
+          }
+        }
+      }
 
       if (realtimeSortOption && baseAxis.type === 'category' && coordSys.type === 'cartesian2d') {
         return {
@@ -52008,6 +54623,12 @@
         var axisType = key.replace(/Model$/, '');
         var axisModel = seriesModel.getReferringComponents(axisType, SINGLE_REFERRING).models[0];
 
+        {
+          if (!axisModel) {
+            throw new Error(axisType + ' "' + retrieve3(seriesModel.get(axisType + 'Index'), seriesModel.get(axisType + 'Id'), 0) + '" not found');
+          }
+        }
+
         axisModelMap[key] = axisModel;
       });
       return axisModelMap;
@@ -52102,6 +54723,15 @@
 
       if (t0 || t1) {
         intervalScaleProto.setNiceExtent.call(scale, min + interval, max - interval);
+      }
+
+      {
+        var ticks = intervalScaleProto.getTicks.call(scale);
+
+        if (ticks[1] && (!isValueNice(interval) || getPrecisionSafe(ticks[1].value) > getPrecisionSafe(interval))) {
+          warn( // eslint-disable-next-line
+          "The ticks may be not readable when set min: " + axisModel.get('min') + ", max: " + axisModel.get('max') + " and alignTicks: true");
+        }
       }
     }
 
@@ -52518,6 +55148,16 @@
           var xAxisModel = axesModelMap.xAxisModel;
           var yAxisModel = axesModelMap.yAxisModel;
           var gridModel = xAxisModel.getCoordSysModel();
+
+          {
+            if (!gridModel) {
+              throw new Error('Grid "' + retrieve3(xAxisModel.get('gridIndex'), xAxisModel.get('gridId'), 0) + '" not found');
+            }
+
+            if (xAxisModel.getCoordSysModel() !== yAxisModel.getCoordSysModel()) {
+              throw new Error('xAxis and yAxis must use the same grid');
+            }
+          }
 
           var grid = gridModel.coordinateSystem;
           seriesModel.coordinateSystem = grid.getCartesian(xAxisModel.componentIndex, yAxisModel.componentIndex);
@@ -53544,6 +56184,11 @@
       };
 
       AxisView.registerAxisPointerClass = function (type, clazz) {
+        {
+          if (axisPointerClazz[type]) {
+            throw new Error('axisPointer ' + type + ' exists');
+          }
+        }
 
         axisPointerClazz[type] = clazz;
       };
@@ -54546,6 +57191,10 @@
 
               if (points[0]) {
                 points.push(points[0].slice());
+              } else {
+                {
+                  console.error('Can\'t draw value axis ' + i);
+                }
               }
 
               if (showSplitLine) {
@@ -55250,6 +57899,11 @@
         SVGParser.prototype.parse = function (xml, opt) {
             opt = opt || {};
             var svg = parseXML(xml);
+            {
+                if (!svg) {
+                    throw new Error('Illegal svg');
+                }
+            }
             this._defsUsePending = [];
             var root = new Group$4();
             this._root = root;
@@ -56478,6 +59132,9 @@
         var resource = storage.get(mapName);
 
         if (!resource) {
+          {
+            console.error('Map ' + mapName + ' not exists. The GeoJSON of the map must be provided.');
+          }
 
           return;
         }
@@ -57962,11 +60619,30 @@
         var projection = opt.projection;
         var source = geoSourceManager.load(map, opt.nameMap, opt.nameProperty);
         var resource = geoSourceManager.getGeoResource(map);
-        _this.resourceType = resource ? resource.type : null;
+        var resourceType = _this.resourceType = resource ? resource.type : null;
         var regions = _this.regions = source.regions;
         var defaultParams = GEO_DEFAULT_PARAMS[resource.type];
         _this._regionsMap = source.regionsMap;
         _this.regions = source.regions;
+
+        if (projection) {
+          // Do some check
+          if (resourceType === 'geoSVG') {
+            {
+              warn("Map " + map + " with SVG source can't use projection. Only GeoJSON source supports projection.");
+            }
+
+            projection = null;
+          }
+
+          if (!(projection.project && projection.unproject)) {
+            {
+              warn('project and unproject must be both provided in the projeciton.');
+            }
+
+            projection = null;
+          }
+        }
 
         _this.projection = projection;
         var boundingRect;
@@ -58127,7 +60803,11 @@
         var leftTop_1 = boundingCoords[0];
         var rightBottom_1 = boundingCoords[1];
 
-        if (!(isFinite(leftTop_1[0]) && isFinite(leftTop_1[1]) && isFinite(rightBottom_1[0]) && isFinite(rightBottom_1[1]))) ; else {
+        if (!(isFinite(leftTop_1[0]) && isFinite(leftTop_1[1]) && isFinite(rightBottom_1[0]) && isFinite(rightBottom_1[1]))) {
+          {
+            console.error('Invalid boundingCoords');
+          }
+        } else {
           // Sample around the lng/lat rect and use projection to calculate actual bounding rect.
           var projection_1 = this.projection;
 
@@ -58181,6 +60861,10 @@
 
         if (!isNaN(center[0]) && !isNaN(center[1]) && !isNaN(size)) {
           useCenterAndSize = true;
+        } else {
+          {
+            console.warn('Given layoutCenter or layoutSize data are invalid. Use left/top/width/height instead.');
+          }
         }
       }
 
@@ -59521,6 +62205,10 @@
                 childPoints: childPoints
               }
             }, seriesModel);
+          }
+        } else {
+          {
+            throw new Error('The polyline edgeShape can only be used in orthogonal layout');
           }
         }
       } // show all edge when edgeShape is 'curve', filter node `isExpand` is false when edgeShape is 'polyline'
@@ -62743,7 +65431,7 @@
         thisOption.parsedVisual = map$1(visualArr, function (item) {
           var color = parse$1(item);
 
-          if (!color && 'production' !== 'production') {
+          if (!color && 'development' !== 'production') {
             warn("'" + item + "' is an illegal color, fallback to '#000000'", true);
           }
 
@@ -65502,6 +68190,9 @@
         var nodesMap = this._nodesMap;
 
         if (nodesMap[generateNodeKey(id)]) {
+          {
+            console.error('Graph nodes have duplicate name or id');
+          }
 
           return;
         }
@@ -67316,6 +70007,18 @@
           var y2 = void 0;
           var labelLineLen = labelLineModel.get('length');
 
+          {
+            if (orient === 'vertical' && ['top', 'bottom'].indexOf(labelPosition) > -1) {
+              labelPosition = 'left';
+              console.warn('Position error: Funnel chart on vertical orient dose not support top and bottom.');
+            }
+
+            if (orient === 'horizontal' && ['left', 'right'].indexOf(labelPosition) > -1) {
+              labelPosition = 'bottom';
+              console.warn('Position error: Funnel chart on horizontal orient dose not support left and right.');
+            }
+          }
+
           if (labelPosition === 'left') {
             // Left side
             x1 = (points[3][0] + points[0][0]) / 2;
@@ -68937,6 +71640,10 @@
         _this._covers = [];
         _this._handlers = {};
 
+        {
+          assert(zr);
+        }
+
         _this._zr = zr;
         _this.group = new Group$4();
         _this._uid = 'brushController_' + baseUID++;
@@ -68951,6 +71658,9 @@
 
 
       BrushController.prototype.enableBrush = function (brushOption) {
+        {
+          assert(this._mounted);
+        }
 
         this._brushType && this._doDisableBrush();
         brushOption.brushType && this._doEnableBrush(brushOption);
@@ -69000,6 +71710,10 @@
       BrushController.prototype.mount = function (opt) {
         opt = opt || {};
 
+        {
+          this._mounted = true; // should be at first.
+        }
+
         this._enableGlobalPan = opt.enableGlobalPan;
         var thisGroup = this.group;
 
@@ -69026,6 +71740,9 @@
 
 
       BrushController.prototype.updateCovers = function (coverConfigList) {
+        {
+          assert(this._mounted);
+        }
 
         coverConfigList = map$1(coverConfigList, function (coverConfig) {
           return merge(clone$5(DEFAULT_BRUSH_OPT), coverConfig, true);
@@ -69066,12 +71783,21 @@
       };
 
       BrushController.prototype.unmount = function () {
+        {
+          if (!this._mounted) {
+            return;
+          }
+        }
 
         this.enableBrush(false); // container may 'removeAll' outside.
 
         clearCovers(this);
 
         this._zr.remove(this.group);
+
+        {
+          this._mounted = false; // should be at last.
+        }
 
         return this;
       };
@@ -69471,6 +72197,9 @@
 
     function determineBrushType(brushType, panel) {
       if (brushType === 'auto') {
+        {
+          assert(panel && panel.defaultBrushType, 'MUST have defaultBrushType when brushType is "atuo"');
+        }
 
         return panel.defaultBrushType;
       }
@@ -70222,6 +72951,10 @@
         for (var i = 0; i < levels.length; i++) {
           if (levels[i].depth != null && levels[i].depth >= 0) {
             levelModels[levels[i].depth] = new Model$1(levels[i], this, ecModel);
+          } else {
+            {
+              throw new Error('levels[i].depth is mandatory and should be natural number');
+            }
           }
         }
 
@@ -71548,6 +74281,10 @@
 
         if (upstream.sourceFormat !== SOURCE_FORMAT_ARRAY_ROWS) {
           var errMsg = '';
+
+          {
+            errMsg = makePrintable('source data is not applicable for this boxplot transform. Expect number[][].');
+          }
 
           throwError(errMsg);
         }
@@ -73227,6 +75964,9 @@
         var coordSys = seriesModel.coordinateSystem;
 
         if (!coordSys) {
+          {
+            error('The lines series must have a coordinate system.');
+          }
 
           return;
         }
@@ -73342,6 +76082,8 @@
               motionBlur: true,
               lastFrameAlpha: Math.max(Math.min(trailLength / 10 + 0.9, 1), 0)
             });
+          } else {
+            console.warn('SVG render mode doesn\'t support lines with trail effect');
           }
         }
 
@@ -73418,6 +76160,12 @@
         var pipelineContext = seriesModel.pipelineContext;
         var isLargeDraw = pipelineContext.large;
 
+        {
+          if (hasEffect && isLargeDraw) {
+            console.warn('Large lines not support effect');
+          }
+        }
+
         if (!lineDraw || hasEffect !== this._hasEffet || isPolyline !== this._isPolyline || isLargeDraw !== this._isLargeDraw) {
           if (lineDraw) {
             lineDraw.remove();
@@ -73471,6 +76219,9 @@
       var data = seriesOpt.data;
 
       if (data && data[0] && data[0][0] && data[0][0].coord) {
+        {
+          console.warn('Lines data configuration has been changed to' + ' { coords:[[1,2],[2,3]] }');
+        }
 
         seriesOpt.data = map$1(data, function (itemOpt) {
           var coords = [itemOpt[0].coord, itemOpt[1].coord];
@@ -73563,6 +76314,12 @@
         var itemModel = this.getData().getItemModel(idx);
         var coords = itemModel.option instanceof Array ? itemModel.option : itemModel.getShallow('coords');
 
+        {
+          if (!(coords instanceof Array && coords.length > 0 && coords[0] instanceof Array)) {
+            throw new Error('Invalid coords ' + JSON.stringify(coords) + '. Lines must have 2d coords array in data item.');
+          }
+        }
+
         return coords;
       };
 
@@ -73630,6 +76387,12 @@
               var y = data[i++];
               coordsStorage[coordsCursor++] = x;
               coordsStorage[coordsCursor++] = y;
+
+              if (i > len) {
+                {
+                  throw new Error('Invalid data format.');
+                }
+              }
             }
           }
 
@@ -73648,6 +76411,13 @@
       };
 
       LinesSeriesModel.prototype.getInitialData = function (option, ecModel) {
+        {
+          var CoordSys = CoordinateSystem.get(option.coordinateSystem);
+
+          if (!CoordSys) {
+            throw new Error('Unkown coordinate system ' + option.coordinateSystem);
+          }
+        }
 
         var lineData = new SeriesData$1(['value'], this);
         lineData.hasItemOption = false;
@@ -74061,6 +76831,12 @@
           });
         });
 
+        {
+          if (!visualMapOfThisSeries) {
+            throw new Error('Heatmap must use with visualMap');
+          }
+        } // Clear previously rendered progressive elements.
+
 
         this._progressiveEls = null;
         this.group.removeAll();
@@ -74107,6 +76883,16 @@
         if (isCartesian2d) {
           var xAxis = coordSys.getAxis('x');
           var yAxis = coordSys.getAxis('y');
+
+          {
+            if (!(xAxis.type === 'category' && yAxis.type === 'category')) {
+              throw new Error('Heatmap on cartesian must have two category axes');
+            }
+
+            if (!(xAxis.onBand && yAxis.onBand)) {
+              throw new Error('Heatmap on cartesian must have two axes with boundaryGap true');
+            }
+          } // add 0.5px to avoid the gaps
 
 
           width = xAxis.getBandWidth() + .5;
@@ -75830,6 +78616,10 @@
           }
         }
 
+        {
+          deprecateReplaceLog('highlight', 'sunburstHighlight');
+        } // Fast forward action
+
 
         api.dispatchAction(extend(payload, {
           type: 'highlight'
@@ -75840,6 +78630,10 @@
         update: 'updateView'
       }, function (payload, ecModel, api) {
         payload = extend({}, payload);
+
+        {
+          deprecateReplaceLog('downplay', 'sunburstUnhighlight');
+        }
 
         api.dispatchAction(extend(payload, {
           type: 'downplay'
@@ -76733,6 +79527,7 @@
       };
     }
 
+    var deprecatedLogs = {};
     /**
      * Whether need to call `convertEC4CompatibleStyle`.
      */
@@ -76920,17 +79715,28 @@
       hasOwn(richItem, 'textShadowOffsetY') && (out.textShadowOffsetY = richItem.textShadowOffsetY);
     }
 
+    function warnDeprecated(deprecated, insteadApproach) {
+      {
+        var key = deprecated + '^_^' + insteadApproach;
+
+        if (!deprecatedLogs[key]) {
+          console.warn("[ECharts] DEPRECATED: \"" + deprecated + "\" has been deprecated. " + insteadApproach);
+          deprecatedLogs[key] = true;
+        }
+      }
+    }
+
     var LEGACY_TRANSFORM_PROPS_MAP = {
       position: ['x', 'y'],
       scale: ['scaleX', 'scaleY'],
       origin: ['originX', 'originY']
     };
     var LEGACY_TRANSFORM_PROPS = keys(LEGACY_TRANSFORM_PROPS_MAP);
-    reduce(TRANSFORMABLE_PROPS, function (obj, key) {
+    var TRANSFORM_PROPS_MAP = reduce(TRANSFORMABLE_PROPS, function (obj, key) {
       obj[key] = 1;
       return obj;
     }, {});
-    TRANSFORMABLE_PROPS.join(', '); // '' means root
+    var transformPropNamesStr = TRANSFORMABLE_PROPS.join(', '); // '' means root
 
     var ELEMENT_ANIMATABLE_PROPS = ['', 'style', 'shape', 'extra'];
     var transitionInnerStore = makeInner();
@@ -77130,15 +79936,24 @@
     var transitionDuringAPI = {
       // Usually other props do not need to be changed in animation during.
       setTransform: function (key, val) {
+        {
+          assert(hasOwn(TRANSFORM_PROPS_MAP, key), 'Only ' + transformPropNamesStr + ' available in `setTransform`.');
+        }
 
         tmpDuringScope.el[key] = val;
         return this;
       },
       getTransform: function (key) {
+        {
+          assert(hasOwn(TRANSFORM_PROPS_MAP, key), 'Only ' + transformPropNamesStr + ' available in `getTransform`.');
+        }
 
         return tmpDuringScope.el[key];
       },
       setShape: function (key, val) {
+        {
+          assertNotReserved(key);
+        }
 
         var el = tmpDuringScope.el;
         var shape = el.shape || (el.shape = {});
@@ -77147,6 +79962,9 @@
         return this;
       },
       getShape: function (key) {
+        {
+          assertNotReserved(key);
+        }
 
         var shape = tmpDuringScope.el.shape;
 
@@ -77155,11 +79973,19 @@
         }
       },
       setStyle: function (key, val) {
+        {
+          assertNotReserved(key);
+        }
 
         var el = tmpDuringScope.el;
         var style = el.style;
 
         if (style) {
+          {
+            if (eqNaN(val)) {
+              warn('style.' + key + ' must not be assigned with NaN.');
+            }
+          }
 
           style[key] = val;
           el.dirtyStyle && el.dirtyStyle();
@@ -77168,6 +79994,9 @@
         return this;
       },
       getStyle: function (key) {
+        {
+          assertNotReserved(key);
+        }
 
         var style = tmpDuringScope.el.style;
 
@@ -77176,12 +80005,18 @@
         }
       },
       setExtra: function (key, val) {
+        {
+          assertNotReserved(key);
+        }
 
         var extra = tmpDuringScope.el.extra || (tmpDuringScope.el.extra = {});
         extra[key] = val;
         return this;
       },
       getExtra: function (key) {
+        {
+          assertNotReserved(key);
+        }
 
         var extra = tmpDuringScope.el.extra;
 
@@ -77190,6 +80025,14 @@
         }
       }
     };
+
+    function assertNotReserved(key) {
+      {
+        if (key === 'transition' || key === 'enterFrom' || key === 'leaveTo') {
+          throw new Error('key must not be "' + key + '"');
+        }
+      }
+    }
 
     function duringCall() {
       // Do not provide "percent" until some requirements come.
@@ -77301,6 +80144,10 @@
 
         var elVal = el[key];
 
+        {
+          checkTransformPropRefer(key, 'el.transition');
+        } // Do not clone, animator will perform that clone.
+
 
         transFromProps[key] = elVal;
       }
@@ -77375,6 +80222,16 @@
       return !isArrayLike(optVal) ? optVal != null && isFinite(optVal) : optVal !== elVal;
     }
 
+    var checkTransformPropRefer;
+
+    {
+      checkTransformPropRefer = function (key, usedIn) {
+        if (!hasOwn(TRANSFORM_PROPS_MAP, key)) {
+          warn('Prop `' + key + '` is not a permitted in `' + usedIn + '`. ' + 'Only `' + keys(TRANSFORM_PROPS_MAP).join('`, `') + '` are permitted.');
+        }
+      };
+    }
+
     var getStateToRestore = makeInner();
     var KEYFRAME_EXCLUDE_KEYS = ['percent', 'easing', 'shape', 'style', 'extra'];
     /**
@@ -77421,6 +80278,7 @@
         }
 
         var animator;
+        var endFrameIsSet = false; // Sort keyframes by percent.
 
         keyframes.sort(function (a, b) {
           return a.percent - b.percent;
@@ -77429,6 +80287,12 @@
           // Stop current animation.
           var animators = el.animators;
           var kfValues = targetPropName ? kf[targetPropName] : kf;
+
+          {
+            if (kf.percent >= 1) {
+              endFrameIsSet = true;
+            }
+          }
 
           if (!kfValues) {
             return;
@@ -77470,6 +80334,12 @@
 
         if (!animator) {
           return;
+        }
+
+        {
+          if (!endFrameIsSet) {
+            warn('End frame with percent: 1 is missing in the keyframeAnimation.', true);
+          }
         }
 
         animator.delay(animationOpts.delay || 0).duration(duration).start(animationOpts.easing);
@@ -77683,6 +80553,10 @@
         if (!Clz) {
           var errMsg = '';
 
+          {
+            errMsg = 'graphic type "' + graphicType + '" can not be found.';
+          }
+
           throwError(errMsg);
         }
 
@@ -77828,6 +80702,10 @@
       var prepareResult = {};
 
       if (coordSys) {
+        {
+          assert(renderItem, 'series.render is required.');
+          assert(coordSys.prepareCustoms || prepareCustoms[coordSys.type], 'This coordSys does not support custom series.');
+        } // `coordSys.prepareCustoms` is used for external coord sys like bmap.
 
 
         prepareResult = coordSys.prepareCustoms ? coordSys.prepareCustoms(coordSys) : prepareCustoms[coordSys.type](coordSys);
@@ -77953,6 +80831,9 @@
 
 
       function style(userProps, dataIndexInside) {
+        {
+          warnDeprecated('api.style', 'Please write literal style directly instead.');
+        }
 
         dataIndexInside == null && (dataIndexInside = currDataIndexInside);
         var style = data.getItemVisual(dataIndexInside, 'style');
@@ -77985,6 +80866,9 @@
 
 
       function styleEmphasis(userProps, dataIndexInside) {
+        {
+          warnDeprecated('api.styleEmphasis', 'Please write literal style directly instead.');
+        }
 
         dataIndexInside == null && (dataIndexInside = currDataIndexInside);
         var itemStyle = getItemStyleModel(dataIndexInside, EMPHASIS).getItemStyle();
@@ -78103,6 +80987,9 @@
     }
 
     function doCreateOrUpdateEl(api, existsEl, dataIndex, elOption, seriesModel, group) {
+      {
+        assert(elOption, 'should not have an null/undefined element setting');
+      }
 
       var toBeReplacedIdx = -1;
       var oldEl = existsEl;
@@ -78215,6 +81102,10 @@
         if (!clipPath) {
           clipPath = createEl$1(clipPathOpt);
 
+          {
+            assert(isPath(clipPath), 'Only any type of `path` can be used in `clipPath`, rather than ' + clipPath.type + '.');
+          }
+
           el.setClipPath(clipPath);
         }
 
@@ -78308,6 +81199,11 @@
         var txConOptNormal_1 = txConOpt; // `textContent: {type: 'text'}`, the "type" is easy to be missing. So we tolerate it.
 
         !txConOptNormal_1.type && (txConOptNormal_1.type = 'text');
+
+        {
+          // Do not tolerate incorret type for forward compat.
+          assert(txConOptNormal_1.type === 'text', 'textContent.type must be "text"');
+        }
       }
 
       var info = !state ? attachedTxInfo.normal : attachedTxInfo[state];
@@ -80412,6 +83308,12 @@
         ecModel.eachSeries(function (seriesModel) {
           if (seriesModel.get('coordinateSystem') === 'polar') {
             var polarModel = seriesModel.getReferringComponents('polar', SINGLE_REFERRING).models[0];
+
+            {
+              if (!polarModel) {
+                throw new Error('Polar "' + retrieve(seriesModel.get('polarIndex'), seriesModel.get('polarId'), 0) + '" not found');
+              }
+            }
 
             seriesModel.coordinateSystem = polarModel.coordinateSystem;
           }
@@ -82597,6 +85499,9 @@
         }
 
         if (!normalizedRange) {
+          {
+            logError('Invalid date range.');
+          } // Not handling it.
 
 
           return range;
@@ -82766,6 +85671,10 @@
 
       if ($action === 'merge') {
         if (existElOption) {
+          {
+            var newType = newElOption.type;
+            assert(!newType || existElOption.type === newType, 'Please set $action: "replace" to change `type`');
+          } // We can ensure that newElOptCopy and existElOption are not
           // the same object, so `merge` will not change newElOptCopy.
 
 
@@ -82877,6 +85786,10 @@
         var elOptionsToUpdate = this._elOptionsToUpdate = [];
         each$f(mappingResult, function (resultItem, index) {
           var newElOption = resultItem.newOption;
+
+          {
+            assert(isObject$3(newElOption) || resultItem.existing, 'Empty graphic option definition');
+          }
 
           if (!newElOption) {
             return;
@@ -83050,6 +85963,10 @@
 
 
           var elOptionCleaned = getCleanedElOption(elOption); // For simple, do not support parent change, otherwise reorder is needed.
+
+          {
+            elExisting && assert(targetElParent === elExisting.parent, 'Changing parent is not supported.');
+          }
 
           var $action = elOption.$action || 'merge';
           var isMerge = $action === 'merge';
@@ -83242,10 +86159,17 @@
     }(ComponentView$1);
 
     function newEl(graphicType) {
+      {
+        assert(graphicType, 'graphic type MUST be set');
+      }
 
       var Clz = hasOwn(nonShapeGraphicElements, graphicType) // Those graphic elements are not shapes. They should not be
       // overwritten by users, so do them first.
       ? nonShapeGraphicElements[graphicType] : getShapeClass(graphicType);
+
+      {
+        assert(Clz, "graphic type " + graphicType + " can not be found");
+      }
 
       var el = new Clz({});
       inner$7(el).type = graphicType;
@@ -83372,6 +86296,9 @@
       return indexOf(SERIES_COORDS, coordType) >= 0;
     }
     function getAxisMainType(axisDim) {
+      {
+        assert(axisDim);
+      }
 
       return axisDim + 'Axis';
     }
@@ -83802,6 +86729,9 @@
 
 
       DataZoomModel.prototype.getAxisModel = function (axisDim, axisIndex) {
+        {
+          assert(axisDim && axisIndex != null);
+        }
 
         var axisInfo = this._targetAxisInfoMap.get(axisDim);
 
@@ -83913,6 +86843,10 @@
       };
 
       DataZoomModel.prototype.getOrient = function () {
+        {
+          // Should not be called before initialized.
+          assert(this._orient);
+        }
 
         return this._orient;
       };
@@ -85505,6 +88439,10 @@
         addEventListener(closeButton, 'click', close);
         addEventListener(refreshButton, 'click', function () {
           if (contentToOption == null && optionToContent != null || contentToOption != null && optionToContent == null) {
+            {
+              // eslint-disable-next-line
+              warn('It seems you have just provided one of `contentToOption` and `optionToContent` functions but missed the other one. Data change is ignored.');
+            }
 
             close();
             return;
@@ -85825,6 +88763,11 @@
         each$f(areas, function (area) {
           var targetInfo = this.findTargetInfo(area, ecModel);
 
+          {
+            assert(!targetInfo || targetInfo === true || area.coordRange, 'coordRange must be specified when coord index specified.');
+            assert(!targetInfo || targetInfo !== true || area.range, 'range must be specified in global brush.');
+          }
+
           area.range = area.range || []; // convert coordRange to global range and set panelId.
 
           if (targetInfo && targetInfo !== true) {
@@ -86026,6 +88969,9 @@
     };
 
     function axisConvert(axisNameIndex, to, coordSys, rangeOrCoordRange) {
+      {
+        assert(coordSys.type === 'cartesian2d', 'lineX/lineY brush is available only in cartesian2d.');
+      }
 
       var axis = coordSys.getAxis(['x', 'y'][axisNameIndex]);
       var values = formatMinMax(map$1([0, 1], function (i) {
@@ -86885,7 +89831,7 @@
         var _this = this;
 
         if (isObject$3(content)) {
-          throwError('');
+          throwError('Passing DOM nodes as content is not supported in richText tooltip!' );
         }
 
         if (this.el) {
@@ -88616,6 +91562,12 @@
 
 
       BrushModel.prototype.setAreas = function (areas) {
+        {
+          assert(isArray$1(areas));
+          each$f(areas, function (area) {
+            assert(area.brushType, 'Illegal areas');
+          });
+        } // If areas is null/undefined, range state remain.
         // This helps user to dispatchAction({type: 'brush'}) with no areas
         // set but just want to get the current brush select info from a `brush` event.
 
@@ -90244,6 +93196,11 @@
 
 
       MarkerModel.prototype.init = function (option, parentModel, ecModel) {
+        {
+          if (this.type === 'marker') {
+            throw new Error('Marker component is abstract component. Use markLine, markPoint, markArea instead.');
+          }
+        }
 
         this.mergeDefaultAndTheme(option, ecModel);
 
@@ -90885,6 +93842,10 @@
             value: value
           }];
         } else {
+          // Invalid data
+          {
+            logError('Invalid markLine data.');
+          }
 
           itemArray = [];
         }
@@ -92043,6 +95004,12 @@
                 legendDrawnMap.set(name, true);
               }
             }, this);
+          }
+
+          {
+            if (!legendDrawnMap.get(name)) {
+              console.warn(name + ' series not exists. Legend data should be same with series name or data name.');
+            }
           }
         }, this);
 
@@ -93992,6 +96959,10 @@
           if (!symbolBuildProxies[iconStr] && iconStr.indexOf('path://') < 0 && iconStr.indexOf('image://') < 0) {
             // Compatitable with the old icon parsers. Which can use a path string without path://
             iconStr = 'path://' + iconStr;
+
+            {
+              deprecateLog('handleIcon now needs \'path://\' prefix when using a path string');
+            }
           }
 
           var path = createSymbol$1(iconStr, -1, 0, 2, 2, null, true);
@@ -96700,6 +99671,12 @@
             useMinMax[0] && interval[1] === Infinity && (close_1[0] = 0);
             useMinMax[1] && interval[0] === -Infinity && (close_1[1] = 0);
 
+            {
+              if (interval[0] > interval[1]) {
+                console.warn('Piece ' + index + 'is illegal: ' + interval + ' lower bound should not greater then uppper bound.');
+              }
+            }
+
             if (interval[0] === interval[1] && close_1[0] && close_1[1]) {
               // Consider: [{min: 5, max: 5, visual: {...}}, {min: 0, max: 5}],
               // we use value to lift the priority when min === max
@@ -97205,6 +100182,10 @@
         if (condValue == null) {
           var errMsg = '';
 
+          {
+            errMsg = makePrintable('Illegal regexp', rVal, 'in');
+          }
+
           throwError(errMsg);
         }
       }
@@ -97315,6 +100296,9 @@
       var errMsg = '';
 
       if (!isObjectNotArray(exprOption)) {
+        {
+          errMsg = makePrintable('Illegal config. Expect a plain object but actually', exprOption);
+        }
 
         throwError(errMsg);
       }
@@ -97333,6 +100317,10 @@
     function parseAndOrOption(op, exprOption, getters) {
       var subOptionArr = exprOption[op];
       var errMsg = '';
+
+      {
+        errMsg = makePrintable('"and"/"or" condition should only be `' + op + ': [...]` and must not be empty array.', 'Illegal condition:', exprOption);
+      }
 
       if (!isArray$1(subOptionArr)) {
         throwError(errMsg);
@@ -97357,6 +100345,10 @@
     function parseNotOption(exprOption, getters) {
       var subOption = exprOption.not;
       var errMsg = '';
+
+      {
+        errMsg = makePrintable('"not" condition should only be `not: {}`.', 'Illegal condition:', exprOption);
+      }
 
       if (!isObjectNotArray(subOption)) {
         throwError(errMsg);
@@ -97393,6 +100385,9 @@
         var evaluator = createFilterComparator(op, condValueParsed) || op === 'reg' && new RegExpEvaluator(condValueParsed);
 
         if (!evaluator) {
+          {
+            errMsg = makePrintable('Illegal relational operation: "' + keyRaw + '" in condition:', exprOption);
+          }
 
           throwError(errMsg);
         }
@@ -97401,6 +100396,9 @@
       }
 
       if (!subCondList.length) {
+        {
+          errMsg = makePrintable('Relational condition must have at least one operator.', 'Illegal condition:', exprOption);
+        } // No relational operator always disabled in case of dangers result.
 
 
         throwError(errMsg);
@@ -97454,6 +100452,9 @@
             var dimLoose = exprOption.dimension;
 
             if (!hasOwn(exprOption, 'dimension')) {
+              {
+                errMsg = makePrintable('Relation condition must has prop "dimension" specified.', 'Illegal condition:', exprOption);
+              }
 
               throwError(errMsg);
             }
@@ -97461,6 +100462,9 @@
             var dimInfo = upstream.getDimensionInfo(dimLoose);
 
             if (!dimInfo) {
+              {
+                errMsg = makePrintable('Can not find dimension info via: ' + dimLoose + '.\n', 'Existing dimensions: ', upstream.cloneAllDimensionInfo(), '.\n', 'Illegal condition:', exprOption, '.\n');
+              }
 
               throwError(errMsg);
             }
@@ -97489,6 +100493,12 @@
       }
     };
 
+    var sampleLog = '';
+
+    {
+      sampleLog = ['Valid config is like:', '{ dimension: "age", order: "asc" }', 'or [{ dimension: "age", order: "asc"], { dimension: "date", order: "desc" }]'].join(' ');
+    }
+
     var sortTransform = {
       type: 'echarts:sort',
       transform: function (params) {
@@ -97502,6 +100512,9 @@
         var orderExprList = normalizeToArray(config);
 
         if (!orderExprList.length) {
+          {
+            errMsg = 'Empty `config` in sort transform.';
+          }
 
           throwError(errMsg);
         }
@@ -97514,11 +100527,17 @@
           var incomparable = orderExpr.incomparable;
 
           if (dimLoose == null) {
+            {
+              errMsg = 'Sort transform config must has "dimension" specified.' + sampleLog;
+            }
 
             throwError(errMsg);
           }
 
           if (order !== 'asc' && order !== 'desc') {
+            {
+              errMsg = 'Sort transform config must has "order" specified.' + sampleLog;
+            }
 
             throwError(errMsg);
           }
@@ -97526,11 +100545,19 @@
           if (incomparable && incomparable !== 'min' && incomparable !== 'max') {
             var errMsg_1 = '';
 
+            {
+              errMsg_1 = 'incomparable must be "min" or "max" rather than "' + incomparable + '".';
+            }
+
             throwError(errMsg_1);
           }
 
           if (order !== 'asc' && order !== 'desc') {
             var errMsg_2 = '';
+
+            {
+              errMsg_2 = 'order must be "asc" or "desc" rather than "' + order + '".';
+            }
 
             throwError(errMsg_2);
           }
@@ -97538,6 +100565,9 @@
           var dimInfo = upstream.getDimensionInfo(dimLoose);
 
           if (!dimInfo) {
+            {
+              errMsg = makePrintable('Can not find dimension info via: ' + dimLoose + '.\n', 'Existing dimensions: ', upstream.cloneAllDimensionInfo(), '.\n', 'Illegal config:', orderExpr, '.\n');
+            }
 
             throwError(errMsg);
           }
@@ -97545,6 +100575,9 @@
           var parser = parserName ? getRawValueParser(parserName) : null;
 
           if (parserName && !parser) {
+            {
+              errMsg = makePrintable('Invalid parser name ' + parserName + '.\n', 'Illegal config:', orderExpr, '.\n');
+            }
 
             throwError(errMsg);
           }
@@ -97559,6 +100592,9 @@
         var sourceFormat = upstream.sourceFormat;
 
         if (sourceFormat !== SOURCE_FORMAT_ARRAY_ROWS && sourceFormat !== SOURCE_FORMAT_OBJECT_ROWS) {
+          {
+            errMsg = 'sourceFormat "' + sourceFormat + '" is not supported yet';
+          }
 
           throwError(errMsg);
         } // Other upstream format are all array.
@@ -98949,6 +101985,9 @@
         var data = seriesInfo.data;
 
         if (data.count() > DATA_COUNT_THRESHOLD) {
+          {
+            warn('Universal transition is disabled on large data > 10k.');
+          }
 
           return;
         }
@@ -99309,6 +102348,12 @@
         }
       });
 
+      function checkTransitionSeriesKeyDuplicated(transitionKeyStr) {
+        if (updateBatches.get(transitionKeyStr)) {
+          warn("Duplicated seriesKey in universalTransition " + transitionKeyStr);
+        }
+      }
+
       each$f(params.updatedSeries, function (series) {
         if (series.isUniversalTransitionEnabled() && series.isAnimationEnabled()) {
           var newData = series.getData();
@@ -99318,6 +102363,9 @@
           var oldData = oldDataMap.get(transitionKeyStr); // string transition key is the best match.
 
           if (oldData) {
+            {
+              checkTransitionSeriesKeyDuplicated(transitionKeyStr);
+            } // TODO check if data is same?
 
 
             updateBatches.set(transitionKeyStr, {
@@ -99333,6 +102381,9 @@
           } else {
             // Transition from multiple series.
             if (isArray$1(transitionKey)) {
+              {
+                checkTransitionSeriesKeyDuplicated(transitionKeyStr);
+              }
 
               var oldSeries_1 = [];
               each$f(transitionKey, function (key) {
@@ -99805,8 +102856,52 @@
         }
     };
 
-    var script$e = {
+    var script$f = {
         name: 'RectShape',
+        props: ['node'],
+        emits: ['select', 'append'],
+        mixins: [matrixMixin],
+        setup(props) {
+            const color = computed(() => {
+                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            });
+            const opacity = computed(() => {
+                return (props.node.option.transparency / 100).toFixed(2);
+            });
+            return {
+                color,
+                opacity
+            };
+        },
+    };
+
+    function render$f(_ctx, _cache, $props, $setup, $data, $options) {
+      const _directive_drag = resolveDirective("drag");
+
+      return withDirectives((openBlock(), createElementBlock("div", {
+        class: "rect-shape pointer-events-auto absolute",
+        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
+        draggable: "false",
+        style: normalizeStyle$1({
+          width: _ctx.width,
+          height: _ctx.height,
+          left: _ctx.left,
+          top: _ctx.top,
+          backgroundColor: $setup.color,
+          opacity: $setup.opacity
+        }),
+        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        ref: "el"
+      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
+        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
+      ])
+    }
+
+    script$f.render = render$f;
+    script$f.__file = "src/components/shape/RectShape.vue";
+
+    var script$e = {
+        name: 'RoundedRectShape',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin],
@@ -99828,7 +102923,7 @@
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
-        class: "rect-shape pointer-events-auto absolute",
+        class: "rounded-rect-shape pointer-events-auto absolute",
         onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
         draggable: "false",
         style: normalizeStyle$1({
@@ -99841,15 +102936,20 @@
         }),
         onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
         ref: "el"
-      }, null, 36)), [
+      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
       ])
     }
 
+    var css_248z$9 = "\n.rounded-rect-shape[data-v-c59a2864]{\r\n  border-radius: 10%;\n}\r\n";
+    styleInject(css_248z$9);
+
     script$e.render = render$e;
+    script$e.__scopeId = "data-v-c59a2864";
+    script$e.__file = "src/components/shape/RoundedRectShape.vue";
 
     var script$d = {
-        name: 'RoundedRectShape',
+        name: 'CircleShape',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin],
@@ -99871,53 +102971,6 @@
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
-        class: "rounded-rect-shape pointer-events-auto absolute",
-        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
-        draggable: "false",
-        style: normalizeStyle$1({
-          width: _ctx.width,
-          height: _ctx.height,
-          left: _ctx.left,
-          top: _ctx.top,
-          backgroundColor: $setup.color,
-          opacity: $setup.opacity
-        }),
-        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        ref: "el"
-      }, null, 36)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
-    }
-
-    var css_248z$8 = "\n.rounded-rect-shape[data-v-d17e9bb4]{\r\n  border-radius: 10%;\n}\r\n";
-    styleInject(css_248z$8);
-
-    script$d.render = render$d;
-    script$d.__scopeId = "data-v-d17e9bb4";
-
-    var script$c = {
-        name: 'CircleShape',
-        props: ['node'],
-        emits: ['select', 'append'],
-        mixins: [matrixMixin],
-        setup(props) {
-            const color = computed(() => {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
-            });
-            const opacity = computed(() => {
-                return (props.node.option.transparency / 100).toFixed(2);
-            });
-            return {
-                color,
-                opacity
-            };
-        },
-    };
-
-    function render$c(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
-
-      return withDirectives((openBlock(), createElementBlock("div", {
         class: "circle-rect-shape pointer-events-auto absolute",
         onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
         draggable: "false",
@@ -99931,18 +102984,19 @@
         }),
         onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
         ref: "el"
-      }, null, 36)), [
+      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
       ])
     }
 
-    var css_248z$7 = "\n.circle-rect-shape[data-v-8dbf2970]{\r\n  border-radius: 50%;\n}\r\n";
-    styleInject(css_248z$7);
+    var css_248z$8 = "\n.circle-rect-shape[data-v-d550f47a]{\r\n  border-radius: 50%;\n}\r\n";
+    styleInject(css_248z$8);
 
-    script$c.render = render$c;
-    script$c.__scopeId = "data-v-8dbf2970";
+    script$d.render = render$d;
+    script$d.__scopeId = "data-v-d550f47a";
+    script$d.__file = "src/components/shape/CircleShape.vue";
 
-    var script$b = {
+    var script$c = {
         name: 'TriangleShape',
         props: ['node'],
         emits: ['select', 'append'],
@@ -99962,7 +103016,7 @@
         },
     };
 
-    function render$b(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$c(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -99978,18 +103032,19 @@
           opacity: $setup.opacity
         }),
         onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args)))
-      }, null, 36)), [
+      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
       ])
     }
 
-    var css_248z$6 = "\n.triangle-shape[data-v-6f660eaf] {\r\n  -webkit-clip-path: polygon(0 0, 0% 100%, 100% 100%);\r\n          clip-path: polygon(0 0, 0% 100%, 100% 100%);\n}\r\n";
-    styleInject(css_248z$6);
+    var css_248z$7 = "\n.triangle-shape[data-v-54d47dea] {\r\n  clip-path: polygon(0 0, 0% 100%, 100% 100%);\n}\r\n";
+    styleInject(css_248z$7);
 
-    script$b.render = render$b;
-    script$b.__scopeId = "data-v-6f660eaf";
+    script$c.render = render$c;
+    script$c.__scopeId = "data-v-54d47dea";
+    script$c.__file = "src/components/shape/TriangleShape.vue";
 
-    var script$a = {
+    var script$b = {
         name: 'ImageMedia',
         props: ['node'],
         mixins: [matrixMixin],
@@ -100008,7 +103063,7 @@
       class: "img-placeholder"
     };
 
-    function render$a(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$b(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -100030,20 +103085,21 @@
               class: "image-media pointer-events-auto absolute",
               draggable: "false",
               src: $setup.src
-            }, null, 8, _hoisted_1$1))
+            }, null, 8 /* PROPS */, _hoisted_1$1))
           : (openBlock(), createElementBlock("div", _hoisted_2$1))
-      ], 36)), [
+      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
       ])
     }
 
-    var css_248z$5 = "\n.image-media-wrap[data-v-a2e0ea0a] {\r\n  position: absolute;\r\n  pointer-events: auto;\n}\n.image-media[data-v-a2e0ea0a]{\r\n  width: 100%;\r\n  height: 100%;\r\n  -o-object-fit: fill;\r\n     object-fit: fill;\n}\n.img-placeholder[data-v-a2e0ea0a] {\r\n  width: 100%;\r\n  height: 100%;\r\n  background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;\n}\r\n";
-    styleInject(css_248z$5);
+    var css_248z$6 = "\n.image-media-wrap[data-v-dcb9cef8] {\r\n  position: absolute;\r\n  pointer-events: auto;\n}\n.image-media[data-v-dcb9cef8]{\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\n.img-placeholder[data-v-dcb9cef8] {\r\n  width: 100%;\r\n  height: 100%;\r\n  background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;\n}\r\n";
+    styleInject(css_248z$6);
 
-    script$a.render = render$a;
-    script$a.__scopeId = "data-v-a2e0ea0a";
+    script$b.render = render$b;
+    script$b.__scopeId = "data-v-dcb9cef8";
+    script$b.__file = "src/components/media/ImageMedia.vue";
 
-    var script$9 = {
+    var script$a = {
         name: 'VideoMedia',
         props: ['node'],
         emits: ['select', 'append'],
@@ -100062,7 +103118,7 @@
       class: "img-placeholder"
     };
 
-    function render$9(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$a(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -100086,20 +103142,21 @@
               autoplay: "",
               loop: "",
               src: $setup.src
-            }, null, 8, _hoisted_1))
+            }, null, 8 /* PROPS */, _hoisted_1))
           : (openBlock(), createElementBlock("div", _hoisted_2))
-      ], 36)), [
+      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
       ])
     }
 
-    var css_248z$4 = "\n.video-media-wrap[data-v-9b14e932] {\r\n  position: absolute;\r\n  pointer-events: auto;\n}\n.video-media[data-v-9b14e932] {\r\n  width: 100%;\r\n  height: 100%;\r\n  -o-object-fit: fill;\r\n     object-fit: fill;\n}\n.img-placeholder[data-v-9b14e932] {\r\n  width: 100%;\r\n  height: 100%;\r\n  background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;\n}\r\n";
-    styleInject(css_248z$4);
+    var css_248z$5 = "\n.video-media-wrap[data-v-6ff79d38] {\r\n  position: absolute;\r\n  pointer-events: auto;\n}\n.video-media[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\n.img-placeholder[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;\n}\r\n";
+    styleInject(css_248z$5);
 
-    script$9.render = render$9;
-    script$9.__scopeId = "data-v-9b14e932";
+    script$a.render = render$a;
+    script$a.__scopeId = "data-v-6ff79d38";
+    script$a.__file = "src/components/media/VideoMedia.vue";
 
-    var script$8 = {
+    var script$9 = {
         name: 'BigTitle',
         props: ['node'],
         emits: ['select', 'append'],
@@ -100170,7 +103227,7 @@
         }
     };
 
-    function render$8(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$9(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -100205,23 +103262,158 @@
           onKeydown: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
           onKeyup: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
           onKeypress: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"]))
-        }, toDisplayString($setup.value), 39)
-      ], 36)), [
+        }, toDisplayString($setup.value), 39 /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */)
+      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
       ])
     }
 
-    var css_248z$3 = "\n.text-wrapper[data-v-fa6368d4] {\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y: contain;\n}\n.weight[data-v-fa6368d4] {\r\n  font-weight: bold;\n}\n.underline[data-v-fa6368d4] {\r\n  text-decoration: underline;\n}\n.italic[data-v-fa6368d4] {\r\n  font-style: oblique;\n}\n.big-title[data-v-fa6368d4] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
-    styleInject(css_248z$3);
+    var css_248z$4 = "\n.text-wrapper[data-v-5c83e1cc] {\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y: contain;\n}\n.weight[data-v-5c83e1cc] {\r\n  font-weight: bold;\n}\n.underline[data-v-5c83e1cc] {\r\n  text-decoration: underline;\n}\n.italic[data-v-5c83e1cc] {\r\n  font-style: oblique;\n}\n.big-title[data-v-5c83e1cc] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
+    styleInject(css_248z$4);
 
-    script$8.render = render$8;
-    script$8.__scopeId = "data-v-fa6368d4";
+    script$9.render = render$9;
+    script$9.__scopeId = "data-v-5c83e1cc";
+    script$9.__file = "src/components/text/BigTitle.vue";
 
-    var script$7 = {
+    var script$8 = {
         name: 'SmallTitle',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin],
+        setup(props) {
+            const h1 = ref();
+            // exterior
+            const color = computed(() => {
+                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            });
+            const opacity = computed(() => {
+                return (props.node.option.transparency / 100).toFixed(2);
+            });
+            // font
+            const fontColor = computed(() => {
+                return props.node.option.textOption.color;
+            });
+            const fontSize = computed(() => {
+                return toPx(props.node.option.textOption.fontSize);
+            });
+            const fontFamily = computed(() => {
+                return props.node.option.textOption.fontFamily;
+            });
+            const fontStyle = computed(() => {
+                return props.node.option.textOption.fontStyle;
+            });
+            const align = computed(() => {
+                return props.node.option.textOption.align;
+            });
+            const verticalAlign = computed(() => {
+                return props.node.option.textOption.verticalAlign;
+            });
+            // value
+            const value = computed(() => {
+                return props.node.option.value;
+            });
+            let dbClickText;
+            let textElInput;
+            // editor
+            {
+                dbClickText = (ev) => {
+                    ev.target;
+                    props.node.contentEditable = true;
+                };
+                watch(() => props.node.contentEditable, (newVal, oldVal) => {
+                    h1.value.contentEditable = String(newVal);
+                    if (newVal)
+                        h1.value?.focus();
+                });
+                textElInput = (ev) => {
+                    props.node.option.value = ev.target.innerText;
+                };
+            }
+            return {
+                color,
+                opacity,
+                value,
+                fontColor,
+                fontSize,
+                fontFamily,
+                fontStyle,
+                align,
+                verticalAlign,
+                dbClickText,
+                h1,
+                textElInput
+            };
+        },
+    };
+
+    function render$8(_ctx, _cache, $props, $setup, $data, $options) {
+      const _directive_drag = resolveDirective("drag");
+
+      return withDirectives((openBlock(), createElementBlock("div", {
+        class: "text-wrapper pointer-events-auto absolute flex",
+        draggable: "false",
+        style: normalizeStyle$1({
+          width: _ctx.width,
+          height: _ctx.height,
+          left: _ctx.left,
+          top: _ctx.top,
+          backgroundColor: $setup.color,
+          opacity: $setup.opacity,
+          textAlign: $setup.align,
+          alignItems: $setup.verticalAlign
+        }),
+        onClick: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"])),
+        onMousedown: _cache[6] || (_cache[6] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onWheelPassive: _cache[7] || (_cache[7] = withModifiers(() => {}, ["stop"])),
+        onScroll: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
+        ref: "el"
+      }, [
+        createBaseVNode("h6", {
+          class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
+          style: normalizeStyle$1({
+            color: $setup.fontColor,
+            fontSize: $setup.fontSize,
+            fontFamily: $setup.fontFamily
+          }),
+          onDblclick: _cache[0] || (_cache[0] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
+          ref: "h1",
+          onInput: _cache[1] || (_cache[1] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
+          onKeydown: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
+          onKeyup: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
+          onKeypress: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"]))
+        }, toDisplayString($setup.value), 39 /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */)
+      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
+        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
+      ])
+    }
+
+    var css_248z$3 = "\n.text-wrapper[data-v-7a696473]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-7a696473] {\r\n  font-weight: bold;\n}\n.underline[data-v-7a696473] {\r\n  text-decoration: underline;\n}\n.italic[data-v-7a696473] {\r\n  font-style: oblique;\n}\n.big-title[data-v-7a696473] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
+    styleInject(css_248z$3);
+
+    script$8.render = render$8;
+    script$8.__scopeId = "data-v-7a696473";
+    script$8.__file = "src/components/text/SmallTitle.vue";
+
+    //@ts-nocheck
+    var emitterMixin = {
+        methods: {
+            emitterEffect(ev) {
+                for (const key of Object.keys(this.node.option.emitters)) {
+                    const s = key.split(':');
+                    const eventType = s[0];
+                    const eventAction = s[1];
+                    const effect = this.node.option.emitters[key];
+                    console.log(ev.type, eventType, eventAction, effect);
+                }
+            }
+        }
+    };
+
+    var script$7 = {
+        name: 'BaseTitle',
+        props: ['node'],
+        emits: ['select', 'append'],
+        mixins: [matrixMixin, emitterMixin],
         setup(props) {
             const h1 = ref();
             // exterior
@@ -100304,57 +103496,51 @@
           textAlign: $setup.align,
           alignItems: $setup.verticalAlign
         }),
-        onClick: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"])),
-        onMousedown: _cache[6] || (_cache[6] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        onWheelPassive: _cache[7] || (_cache[7] = withModifiers(() => {}, ["stop"])),
-        onScroll: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[6] || (_cache[6] = withModifiers(() => {}, ["stop"])),
+        onMousedown: _cache[7] || (_cache[7] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onWheelPassive: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
+        onScroll: _cache[9] || (_cache[9] = withModifiers(() => {}, ["stop"])),
         ref: "el"
       }, [
-        createBaseVNode("h6", {
+        withDirectives(createBaseVNode("img", {
+          src: _imports_0__default["default"],
+          class: "emitter-icon absolute",
+          draggable: "false",
+          onClick: _cache[0] || (_cache[0] = (...args) => (_ctx.emitterEffect && _ctx.emitterEffect(...args)))
+        }, null, 512 /* NEED_PATCH */), [
+          [vShow, Object.keys($props.node.option.emitters).length>0]
+        ]),
+        createBaseVNode("h3", {
           class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
           style: normalizeStyle$1({
             color: $setup.fontColor,
             fontSize: $setup.fontSize,
             fontFamily: $setup.fontFamily
           }),
-          onDblclick: _cache[0] || (_cache[0] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
+          onDblclick: _cache[1] || (_cache[1] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
           ref: "h1",
-          onInput: _cache[1] || (_cache[1] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
-          onKeydown: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
-          onKeyup: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
-          onKeypress: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"]))
-        }, toDisplayString($setup.value), 39)
-      ], 36)), [
+          onInput: _cache[2] || (_cache[2] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
+          onKeydown: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
+          onKeyup: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"])),
+          onKeypress: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"]))
+        }, toDisplayString($setup.value), 39 /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */)
+      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
       ])
     }
 
-    var css_248z$2 = "\n.text-wrapper[data-v-8b11ac22]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-8b11ac22] {\r\n  font-weight: bold;\n}\n.underline[data-v-8b11ac22] {\r\n  text-decoration: underline;\n}\n.italic[data-v-8b11ac22] {\r\n  font-style: oblique;\n}\n.big-title[data-v-8b11ac22] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
+    var css_248z$2 = "\n.text-wrapper[data-v-71cfa315]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-71cfa315] {\r\n  font-weight: bold;\n}\n.underline[data-v-71cfa315] {\r\n  text-decoration: underline;\n}\n.italic[data-v-71cfa315] {\r\n  font-style: oblique;\n}\n.big-title[data-v-71cfa315] {\r\n  outline: none;\r\n  word-break: break-all;\n}\n.emitter-icon[data-v-71cfa315]{\r\n  right: 0;\r\n  top: 0;\r\n  width: 50px;\n}\r\n";
     styleInject(css_248z$2);
 
     script$7.render = render$7;
-    script$7.__scopeId = "data-v-8b11ac22";
-
-    //@ts-nocheck
-    var emitterMixin = {
-        methods: {
-            emitterEffect(ev) {
-                for (const key of Object.keys(this.node.option.emitters)) {
-                    const s = key.split(':');
-                    const eventType = s[0];
-                    const eventAction = s[1];
-                    const effect = this.node.option.emitters[key];
-                    console.log(ev.type, eventType, eventAction, effect);
-                }
-            }
-        }
-    };
+    script$7.__scopeId = "data-v-71cfa315";
+    script$7.__file = "src/components/text/BaseTitle.vue";
 
     var script$6 = {
-        name: 'BaseTitle',
+        name: 'TextContent',
         props: ['node'],
         emits: ['select', 'append'],
-        mixins: [matrixMixin, emitterMixin],
+        mixins: [matrixMixin],
         setup(props) {
             const h1 = ref();
             // exterior
@@ -100437,132 +103623,6 @@
           textAlign: $setup.align,
           alignItems: $setup.verticalAlign
         }),
-        onClick: _cache[6] || (_cache[6] = withModifiers(() => {}, ["stop"])),
-        onMousedown: _cache[7] || (_cache[7] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        onWheelPassive: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
-        onScroll: _cache[9] || (_cache[9] = withModifiers(() => {}, ["stop"])),
-        ref: "el"
-      }, [
-        withDirectives(createBaseVNode("img", {
-          src: _imports_0__default["default"],
-          class: "emitter-icon absolute",
-          draggable: "false",
-          onClick: _cache[0] || (_cache[0] = (...args) => (_ctx.emitterEffect && _ctx.emitterEffect(...args)))
-        }, null, 512), [
-          [vShow, Object.keys($props.node.option.emitters).length>0]
-        ]),
-        createBaseVNode("h3", {
-          class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
-          style: normalizeStyle$1({
-            color: $setup.fontColor,
-            fontSize: $setup.fontSize,
-            fontFamily: $setup.fontFamily
-          }),
-          onDblclick: _cache[1] || (_cache[1] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
-          ref: "h1",
-          onInput: _cache[2] || (_cache[2] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
-          onKeydown: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
-          onKeyup: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"])),
-          onKeypress: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"]))
-        }, toDisplayString($setup.value), 39)
-      ], 36)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
-    }
-
-    var css_248z$1 = "\n.text-wrapper[data-v-15f09f52]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-15f09f52] {\r\n  font-weight: bold;\n}\n.underline[data-v-15f09f52] {\r\n  text-decoration: underline;\n}\n.italic[data-v-15f09f52] {\r\n  font-style: oblique;\n}\n.big-title[data-v-15f09f52] {\r\n  outline: none;\r\n  word-break: break-all;\n}\n.emitter-icon[data-v-15f09f52]{\r\n  right: 0;\r\n  top: 0;\r\n  width: 50px;\n}\r\n";
-    styleInject(css_248z$1);
-
-    script$6.render = render$6;
-    script$6.__scopeId = "data-v-15f09f52";
-
-    var script$5 = {
-        name: 'TextContent',
-        props: ['node'],
-        emits: ['select', 'append'],
-        mixins: [matrixMixin],
-        setup(props) {
-            const h1 = ref();
-            // exterior
-            const color = computed(() => {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
-            });
-            const opacity = computed(() => {
-                return (props.node.option.transparency / 100).toFixed(2);
-            });
-            // font
-            const fontColor = computed(() => {
-                return props.node.option.textOption.color;
-            });
-            const fontSize = computed(() => {
-                return toPx(props.node.option.textOption.fontSize);
-            });
-            const fontFamily = computed(() => {
-                return props.node.option.textOption.fontFamily;
-            });
-            const fontStyle = computed(() => {
-                return props.node.option.textOption.fontStyle;
-            });
-            const align = computed(() => {
-                return props.node.option.textOption.align;
-            });
-            const verticalAlign = computed(() => {
-                return props.node.option.textOption.verticalAlign;
-            });
-            // value
-            const value = computed(() => {
-                return props.node.option.value;
-            });
-            let dbClickText;
-            let textElInput;
-            // editor
-            {
-                dbClickText = (ev) => {
-                    ev.target;
-                    props.node.contentEditable = true;
-                };
-                watch(() => props.node.contentEditable, (newVal, oldVal) => {
-                    h1.value.contentEditable = String(newVal);
-                    if (newVal)
-                        h1.value?.focus();
-                });
-                textElInput = (ev) => {
-                    props.node.option.value = ev.target.innerText;
-                };
-            }
-            return {
-                color,
-                opacity,
-                value,
-                fontColor,
-                fontSize,
-                fontFamily,
-                fontStyle,
-                align,
-                verticalAlign,
-                dbClickText,
-                h1,
-                textElInput
-            };
-        },
-    };
-
-    function render$5(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
-
-      return withDirectives((openBlock(), createElementBlock("div", {
-        class: "text-wrapper pointer-events-auto absolute flex",
-        draggable: "false",
-        style: normalizeStyle$1({
-          width: _ctx.width,
-          height: _ctx.height,
-          left: _ctx.left,
-          top: _ctx.top,
-          backgroundColor: $setup.color,
-          opacity: $setup.opacity,
-          textAlign: $setup.align,
-          alignItems: $setup.verticalAlign
-        }),
         onClick: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"])),
         onMousedown: _cache[6] || (_cache[6] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
         onWheelPassive: _cache[7] || (_cache[7] = withModifiers(() => {}, ["stop"])),
@@ -100582,17 +103642,18 @@
           onKeydown: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
           onKeyup: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
           onKeypress: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"]))
-        }, toDisplayString($setup.value), 39)
-      ], 36)), [
+        }, toDisplayString($setup.value), 39 /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */)
+      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
       ])
     }
 
-    var css_248z = "\n.text-wrapper[data-v-5a46c5ba]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-5a46c5ba] {\r\n  font-weight: bold;\n}\n.underline[data-v-5a46c5ba] {\r\n  text-decoration: underline;\n}\n.italic[data-v-5a46c5ba] {\r\n  font-style: oblique;\n}\n.big-title[data-v-5a46c5ba] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
-    styleInject(css_248z);
+    var css_248z$1 = "\n.text-wrapper[data-v-3a41379a]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-3a41379a] {\r\n  font-weight: bold;\n}\n.underline[data-v-3a41379a] {\r\n  text-decoration: underline;\n}\n.italic[data-v-3a41379a] {\r\n  font-style: oblique;\n}\n.big-title[data-v-3a41379a] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
+    styleInject(css_248z$1);
 
-    script$5.render = render$5;
-    script$5.__scopeId = "data-v-5a46c5ba";
+    script$6.render = render$6;
+    script$6.__scopeId = "data-v-3a41379a";
+    script$6.__file = "src/components/text/TextContent.vue";
 
     var chartMixin = {
       methods: {
@@ -100640,7 +103701,7 @@
       }
     };
 
-    var script$4 = {
+    var script$5 = {
       name: 'ChartBar',
       mixins: [matrixMixin,chartMixin],
       props: ['node'],
@@ -100730,7 +103791,7 @@
       }
     };
 
-    function render$4(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$5(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -100745,7 +103806,7 @@
           top: _ctx.top
         }),
         ref: "chartWrap"
-      }, null, 36)), [
+      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, {
           rect: $props.node.option.matrixOption,
           select: $props.node.select,
@@ -100754,9 +103815,10 @@
       ])
     }
 
-    script$4.render = render$4;
+    script$5.render = render$5;
+    script$5.__file = "src/components/chart/ChartBar.vue";
 
-    var script$3 = {
+    var script$4 = {
       name: 'ChartLine',
       mixins: [matrixMixin,chartMixin],
       props: ['node'],
@@ -100846,7 +103908,7 @@
       },
     };
 
-    function render$3(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$4(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -100861,7 +103923,7 @@
           top: _ctx.top
         }),
         ref: "chartWrap"
-      }, null, 36)), [
+      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, {
           rect: $props.node.option.matrixOption,
           select: $props.node.select,
@@ -100870,9 +103932,10 @@
       ])
     }
 
-    script$3.render = render$3;
+    script$4.render = render$4;
+    script$4.__file = "src/components/chart/ChartLine.vue";
 
-    var script$2 = {
+    var script$3 = {
       name: 'ChartPie',
       mixins: [matrixMixin, chartMixin],
       props: ['node'],
@@ -100958,7 +104021,7 @@
       }
     };
 
-    function render$2(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$3(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -100973,7 +104036,7 @@
           top: _ctx.top
         }),
         ref: "chartWrap"
-      }, null, 36)), [
+      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, {
           rect: $props.node.option.matrixOption,
           select: $props.node.select,
@@ -100982,9 +104045,10 @@
       ])
     }
 
-    script$2.render = render$2;
+    script$3.render = render$3;
+    script$3.__file = "src/components/chart/ChartPie.vue";
 
-    var script$1 = {
+    var script$2 = {
       name: 'ChartGauge',
       mixins: [matrixMixin,chartMixin],
       props: ['node'],
@@ -101066,7 +104130,7 @@
       }
     };
 
-    function render$1(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$2(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -101081,7 +104145,7 @@
           top: _ctx.top
         }),
         ref: "chartWrap"
-      }, null, 36)), [
+      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, {
           rect: $props.node.option.matrixOption,
           select: $props.node.select,
@@ -101090,9 +104154,10 @@
       ])
     }
 
-    script$1.render = render$1;
+    script$2.render = render$2;
+    script$2.__file = "src/components/chart/ChartGauge.vue";
 
-    var script = {
+    var script$1 = {
       name: 'ChartCurve',
       mixins: [matrixMixin,chartMixin],
       props: ['node'],
@@ -101182,7 +104247,7 @@
       }
     };
 
-    function render(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$1(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -101197,7 +104262,7 @@
           top: _ctx.top
         }),
         ref: "chartWrap"
-      }, null, 36)), [
+      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, {
           rect: $props.node.option.matrixOption,
           select: $props.node.select,
@@ -101206,10 +104271,12 @@
       ])
     }
 
-    script.render = render;
+    script$1.render = render$1;
+    script$1.__file = "src/components/chart/ChartCurve.vue";
 
     var elementInstaller = {
         install(app) {
+            app.component(script$f.name, script$f);
             app.component(script$e.name, script$e);
             app.component(script$d.name, script$d);
             app.component(script$c.name, script$c);
@@ -101224,15 +104291,48 @@
             app.component(script$3.name, script$3);
             app.component(script$2.name, script$2);
             app.component(script$1.name, script$1);
-            app.component(script.name, script);
         }
     };
+
+    var script = {
+      name: 'ElementParser',
+      props: ['pageTreeNodes','drawingBoard'],
+      setup(props, ctx) {
+        console.log('absd123');
+        const nodes = computed(()=>{
+          return props.pageTreeNodes[0].children[0]?.trees?.twoDimension || []
+        });
+        console.log(props);
+        return {nodes,toPx}
+      }
+    };
+
+    function render(_ctx, _cache, $props, $setup, $data, $options) {
+      return (openBlock(), createElementBlock("section", {
+        id: "app",
+        style: normalizeStyle$1({height:$setup.toPx($props.drawingBoard.height),width:$setup.toPx($props.drawingBoard.width)})
+      }, [
+        (openBlock(true), createElementBlock(Fragment, null, renderList($setup.nodes, (item) => {
+          return (openBlock(), createBlock(resolveDynamicComponent(_ctx.node.type), {
+            key: item.id,
+            node: item
+          }, null, 8 /* PROPS */, ["node"]))
+        }), 128 /* KEYED_FRAGMENT */))
+      ], 4 /* STYLE */))
+    }
+
+    var css_248z = "\n#app[data-v-58db88bb]{\n  position: relative;\n}\n";
+    styleInject(css_248z);
+
+    script.render = render;
+    script.__scopeId = "data-v-58db88bb";
+    script.__file = "src/components/ElementParser.vue";
 
     // const app = createApp(App)
     // app.use(elementInstaller)
     // app.mount('#app')
-    function parse(root, config) {
-        const app = createApp(root, config);
+    function parse(config) {
+        const app = createApp(script, config);
         app.use(elementInstaller);
         app.mount('#app');
         return app;

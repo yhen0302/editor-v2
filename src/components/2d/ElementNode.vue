@@ -17,8 +17,8 @@
 
 <script lang="ts">
 import { useStore } from 'vuex'
-import { useMutation, useState ,useGetter} from '@/store/helper'
-import { EditorStore, LayerTree2dNode } from '@/store/type'
+import { useMutation, useState ,useGetter} from '../../store/helper'
+import { EditorStore, LayerTree2dNode } from '../../store/type'
 
 export default {
   name: 'ElementNode',

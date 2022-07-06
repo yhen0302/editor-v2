@@ -1,7 +1,7 @@
 import {createApp} from 'vue'
 import './style.css'
 import elementInstaller from './index'
-import {Component} from "@vue/runtime-core";
+import ElementParser from './components/ElementParser.vue'
 
 
 // const app = createApp(App)
@@ -10,8 +10,8 @@ import {Component} from "@vue/runtime-core";
 // app.mount('#app')
 
 
-export default function parse(root:Component,config: any) {
-    const app = createApp(root, config)
+export default function parse(config: any) {
+    const app = createApp(ElementParser, config)
     app.use(elementInstaller)
     app.mount('#app')
   

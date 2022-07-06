@@ -1,9 +1,9 @@
 //@ts-nocheck
-import {toPx} from "./util/base";
+import { toPx } from './util/base'
 
 export default {
-  methods:{
-    onMouseDown(ev:MouseEvent) {
+  methods: {
+    onMouseDown(ev: MouseEvent) {
       // @ts-ignore
       if (this.node.select) return
       if (ev.shiftKey) {
@@ -15,10 +15,18 @@ export default {
       this.$emit('select')
     }
   },
-  computed:{
-    left(){return toPx(this.node.option.matrixOption.left)},
-    width() {return  toPx(this.node.option.matrixOption.width)},
-    height(){return toPx(this.node.option.matrixOption.height)},
-    top(){return toPx(this.node.option.matrixOption.top)},
+  computed: {
+    left() {
+      return toPx(this.node.option.matrixOption.left)
+    },
+    width() {
+      return toPx(this.node.option.matrixOption.width)
+    },
+    height() {
+      return toPx(this.node.option.matrixOption.height)
+    },
+    top() {
+      return toPx(this.node.option.matrixOption.top)
+    }
   }
 }

@@ -15,7 +15,7 @@
       </div>
 
       <div class="content-right" v-once>
-        <TipButton :icon="require('@/assets/images/header/editor_preview_btn_dark.png')" name="1" tip-position="tb">
+        <TipButton :icon="require('@/assets/images/header/editor_preview_btn_dark.png')" name="1" tip-position="tb" @click="preview">
           <template v-slot:tip>
             <p>预览</p>
             <p>Ctrl+P</p>
@@ -48,11 +48,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref } from 'vue'
 import Timer from '@/components/utils/common/Timer.vue'
 import TipButton from '@/components/utils/TipButton.vue'
 import { useStore } from 'vuex'
-
+import createPreviewTemplate from '@/core/utils/createPreviewTemplate'
+import htmlToUrl from '@/core/utils/htmlToUrl'
+import { clone } from '@/core/2d/util/base'
 export default defineComponent({
   name: 'Header',
   components: {
@@ -65,9 +67,28 @@ export default defineComponent({
       return (store.state.drawingBoard.scale * 100).toFixed()
     })
 
+
+    async function preview() {
+      const sdk = await (await fetch('/sdk/index.js')).text()
+      const html = createPreviewTemplate(sdk, `console.log(EDITOR_SDK(${JSON.stringify({ pageTreeNodes: getAvailablePageTreeNodes(), drawingBoard: store.state.drawingBoard })}))`)
+      // console.log(window.open(htmlToUrl(html)))
+    }
+    function getAvailablePageTreeNodes(){
+      const pageTreeNodes = clone(store.state.pageTreeNodes)
+      for(const scene of pageTreeNodes){
+        for(const page of scene.children){
+          deleteTreeParentQuote(page.trees.twoDimension)
+        }
+      }
+      return pageTreeNodes
+    }
+    function deleteTreeParentQuote(tree:any){
+      console.log(tree)
+    }
     return {
       store,
-      scaleRatio
+      scaleRatio,
+      preview
     }
   }
 })

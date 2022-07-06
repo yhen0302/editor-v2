@@ -1,5 +1,6 @@
 import * as echarts from 'echarts';
-import { computed, resolveDirective, withDirectives, openBlock, createElementBlock, withModifiers, normalizeStyle, ref, watch, createElementVNode, normalizeClass, toDisplayString, getCurrentInstance } from 'vue';
+import { computed, resolveDirective, withDirectives, openBlock, createElementBlock, withModifiers, normalizeStyle, ref, watch, createElementVNode, normalizeClass, toDisplayString, vShow, getCurrentInstance } from 'vue';
+import _imports_0 from '@/assets/images/lightning.png';
 
 function toPx(target) {
     const cssUnitRE = /^\d+(px|rem|em|vh|vw|%|cm|mm)$/;
@@ -671,11 +672,26 @@ styleInject(css_248z$2);
 script$7.render = render$7;
 script$7.__scopeId = "data-v-8b11ac22";
 
+//@ts-nocheck
+var emitterMixin = {
+    methods: {
+        emitterEffect(ev) {
+            for (const key of Object.keys(this.node.option.emitters)) {
+                const s = key.split(':');
+                const eventType = s[0];
+                const eventAction = s[1];
+                const effect = this.node.option.emitters[key];
+                console.log(ev.type, eventType, eventAction, effect);
+            }
+        }
+    }
+};
+
 var script$6 = {
     name: 'BaseTitle',
     props: ['node'],
     emits: ['select', 'append'],
-    mixins: [matrixMixin],
+    mixins: [matrixMixin, emitterMixin],
     setup(props) {
         const h1 = ref();
         // exterior
@@ -758,12 +774,20 @@ function render$6(_ctx, _cache, $props, $setup, $data, $options) {
       textAlign: $setup.align,
       alignItems: $setup.verticalAlign
     }),
-    onClick: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"])),
-    onMousedown: _cache[6] || (_cache[6] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-    onWheelPassive: _cache[7] || (_cache[7] = withModifiers(() => {}, ["stop"])),
-    onScroll: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
+    onClick: _cache[6] || (_cache[6] = withModifiers(() => {}, ["stop"])),
+    onMousedown: _cache[7] || (_cache[7] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+    onWheelPassive: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
+    onScroll: _cache[9] || (_cache[9] = withModifiers(() => {}, ["stop"])),
     ref: "el"
   }, [
+    withDirectives(createElementVNode("img", {
+      src: _imports_0,
+      class: "emitter-icon absolute",
+      draggable: "false",
+      onClick: _cache[0] || (_cache[0] = (...args) => (_ctx.emitterEffect && _ctx.emitterEffect(...args)))
+    }, null, 512), [
+      [vShow, Object.keys($props.node.option.emitters).length>0]
+    ]),
     createElementVNode("h3", {
       class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
       style: normalizeStyle({
@@ -771,23 +795,23 @@ function render$6(_ctx, _cache, $props, $setup, $data, $options) {
         fontSize: $setup.fontSize,
         fontFamily: $setup.fontFamily
       }),
-      onDblclick: _cache[0] || (_cache[0] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
+      onDblclick: _cache[1] || (_cache[1] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
       ref: "h1",
-      onInput: _cache[1] || (_cache[1] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
-      onKeydown: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
-      onKeyup: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
-      onKeypress: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"]))
+      onInput: _cache[2] || (_cache[2] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
+      onKeydown: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
+      onKeyup: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"])),
+      onKeypress: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"]))
     }, toDisplayString($setup.value), 39)
   ], 36)), [
     [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
   ])
 }
 
-var css_248z$1 = "\n.text-wrapper[data-v-a5b8a632]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-a5b8a632] {\r\n  font-weight: bold;\n}\n.underline[data-v-a5b8a632] {\r\n  text-decoration: underline;\n}\n.italic[data-v-a5b8a632] {\r\n  font-style: oblique;\n}\n.big-title[data-v-a5b8a632] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
+var css_248z$1 = "\n.text-wrapper[data-v-15f09f52]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-15f09f52] {\r\n  font-weight: bold;\n}\n.underline[data-v-15f09f52] {\r\n  text-decoration: underline;\n}\n.italic[data-v-15f09f52] {\r\n  font-style: oblique;\n}\n.big-title[data-v-15f09f52] {\r\n  outline: none;\r\n  word-break: break-all;\n}\n.emitter-icon[data-v-15f09f52]{\r\n  right: 0;\r\n  top: 0;\r\n  width: 50px;\n}\r\n";
 styleInject(css_248z$1);
 
 script$6.render = render$6;
-script$6.__scopeId = "data-v-a5b8a632";
+script$6.__scopeId = "data-v-15f09f52";
 
 var script$5 = {
     name: 'TextContent',
