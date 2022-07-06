@@ -4,6 +4,8 @@ import { EventsBus } from '../EventsBus'
 import { throttled } from '../utils/base'
 import { any } from 'underscore'
 import * as Text from '../utils/text3D'
+import * as Fly from '../utils/flyLine'
+import { render } from 'vue'
 
 declare const Bol3D: any
 
@@ -85,6 +87,8 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       ;(store as any).state.template.threeDimension.push(node)
     },
     onLoad: (evt: any) => {
+      animation()
+
       callback && callback(evt)
 
       // console.log('loaded')
@@ -618,12 +622,42 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     // }
   })
 
+  const clock = new Bol3D.Clock()
+  const animation = () => {
+    requestAnimationFrame(animation)
+
+    if ((store as any).state.elementFlyLine.length > 0) {
+      ;(store as any).state.elementFlyLine.forEach((item: any) => {
+        item.material.uniforms.time.value = clock.getElapsedTime()
+      })
+    }
+  }
+
+  // 添加图标自定义元素
   const geometryPlane = new Bol3D.PlaneGeometry(1, 1)
   const materialPlane = new Bol3D.MeshBasicMaterial({ color: 0x16ddfa, side: Bol3D.DoubleSide, map: new Bol3D.TextureLoader().load(publicPath + 'textures/circularPin.png'), transparent: true })
   const lightPlane = new Bol3D.Mesh(geometryPlane, materialPlane)
   lightPlane.rotation.x = -Math.PI / 2
   lightPlane.renderOrder = 1000
   lightPlane.position.y = 0.03
+
+  // 飞线部分自定义元素
+  const geometry = new Bol3D.SphereGeometry(10, 32, 16)
+  const material = new Bol3D.MeshBasicMaterial({ color: 0xffff00 })
+  const curveSphere1 = new Bol3D.Mesh(geometry, material)
+  const curveSphere2 = new Bol3D.Mesh(geometry, material)
+  curveSphere1.visible = false
+  curveSphere2.visible = false
+  curveSphere1.name = 'flyLineSelfSphere1'
+  curveSphere2.name = 'flyLineSelfSphere2'
+  container.attach(curveSphere1)
+  container.attach(curveSphere2)
+  var curve = new Bol3D.CatmullRomCurve3([new Bol3D.Vector3(0, 0, 0), new Bol3D.Vector3(50, 100, 0), new Bol3D.Vector3(100, 0, 0)])
+  curve.closed = false
+  const ponits = curve.getPoints(100)
+  var line = new Bol3D.Line(new Bol3D.BufferGeometry().setFromPoints(ponits), new Bol3D.LineBasicMaterial({ color: 0xffff00 }))
+  line.visible = false
+  container.attach(line)
 
   var dragObj: any = null
   // 新增raycaster射线
@@ -655,7 +689,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     if (e.button != 0) return
 
     const intersects = addRay(e)
-    if (intersects.length > 0 && (store as any).state.addElementType) {
+    if (intersects.length > 0 && (store as any).state.addElementType && intersects[0].object.visible) {
       const object = intersects[0].object
       const name = intersects[0].object.name
       if (name.includes('iconSelf') || name.includes('textSelf')) {
@@ -675,6 +709,36 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
           EventsBus.emit('toolBarSelected', { node })
         } else if (name.includes('textSelf')) {
           const node = { type: 'text3D', selected: object.userData.selected, name: object.name, clickObj: true }
+          EventsBus.emit('toolBarSelected', { node })
+        }
+      } else if (name.includes('flyLineSelf')) {
+        if (name.includes('flyLineSelfSphere')) {
+          container.clickObjects.forEach((item: any, i: number) => {
+            if (item.uuid == object.uuid) {
+              container.clickObjects.splice(i, 1)
+            }
+          })
+          container.orbitControls.enableRotate = false
+          dragObj = object
+          document.getElementsByClassName('scene-3d')[0].addEventListener('mousemove', newMove)
+        } else {
+          ;(store as any).state.addElementType.mesh = object
+          curveSphere1.position.copy(object.userData.source.clone())
+          curveSphere2.position.copy(object.userData.target.clone())
+          var havePoint = false
+          container.clickObjects.forEach((item: any) => {
+            if (item.uuid == curveSphere1.uuid || item.uuid == curveSphere2.uuid) {
+              havePoint = true
+            }
+          })
+          if (!havePoint) {
+            container.clickObjects.push(curveSphere1, curveSphere2)
+          }
+          curveSphere1.visible = true
+          curveSphere2.visible = true
+          ;(store as any).state.addElementType.basePoint = curveSphere1
+          ;(store as any).state.addElementType.movePoint = curveSphere2
+          const node = { type: 'flyLine', selected: object.name, name: object.name, clickObj: true }
           EventsBus.emit('toolBarSelected', { node })
         }
       }
@@ -726,9 +790,27 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       } else if (element.type == 'text' && !name.includes('textSelf')) {
         EventsBus.emit('toolBarSelected', { node: {} })
         Text.addCanvas(container, position, element.smallType)
-      } else if (!name.includes('iconSelf') && !name.includes('textSelf')) {
+      } else if (element.type == 'flyLine' && !name.includes('flyLineSelf')) {
+        ;(store as any).state.addElementType.basePoint = curveSphere1
+        ;(store as any).state.addElementType.movePoint = curveSphere2
+        Fly.flyBasePoint(container, position, curveSphere1, curveSphere2, line)
+      } else if (!name.includes('iconSelf') && !name.includes('textSelf') && !name.includes('flyLineSelf')) {
         EventsBus.emit('toolBarSelected', { node: {} })
         lightPlane.visible = false
+        curveSphere1.visible = false
+        curveSphere2.visible = false
+      }
+    }
+  }
+
+  events.onhover = (e: any) => {
+    const name: any = e.objects[0].object.name
+    const position = [e.objects[0].point.x, e.objects[0].point.y, e.objects[0].point.z]
+    const element = (store as any).state.addElementType
+    if (element && element.type == 'flyLine') {
+      if ((store as any).state.addElementType.painting) {
+        curveSphere2.position.set(...position)
+        Fly.reviseCurveLine(position, line)
       }
     }
   }

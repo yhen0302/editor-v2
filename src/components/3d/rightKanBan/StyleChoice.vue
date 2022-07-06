@@ -38,6 +38,10 @@
     <input-el :class="setting.typeText == '' ? 'setting-input-line' : 'input-three'" :min="setting.scope[0]" :max="setting.scope[1]" v-model:value="setting.value" :type="setting.typeText"> </input-el>
   </div>
 
+  <div class="setting-color" v-else-if="setting.type == 'color'">
+    <color-picker-el v-model:value="setting.value"></color-picker-el>
+  </div>
+
   <div class="setting-font" v-else-if="setting.type == 'fontStyle'">
     <div class="setting-fontFamily">
       <select-el v-model:value="setting.value.fontFamily.value" :list="setting.value.fontFamily.list"></select-el>
@@ -209,5 +213,8 @@ const setting = ref(props.value)
 .slider-head {
   margin-top: 7px;
   margin-right: 5px;
+}
+.setting-color {
+  margin-top: 12px;
 }
 </style>

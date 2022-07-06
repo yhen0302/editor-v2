@@ -34,15 +34,31 @@ const escOut = () => {
     detailsList.value[key].selected = false
   }
   visible.value = false
-//   store.state.addElementType = {
-//     mesh: store.state.addElementType.mesh,
-//     moving: store.state.addElementType.moving,
-//     lightMesh: store.state.addElementType.lightMesh
-//   }
+
+  if (store.state.addElementType.curveObj) {
+    store.state.addElementType.curveObj.visible = false
+  }
+  if (store.state.addElementType.basePoint) {
+    store.state.addElementType.basePoint.visible = false
+  }
+  if (store.state.addElementType.movePoint) {
+    store.state.addElementType.movePoint.visible = false
+  }
+
+  store.state.addElementType = {
+    mesh: store.state.addElementType.mesh,
+    moving: false,
+    basePoint: null,
+    movePoint: null,
+    curveObj: null,
+    painting: false
+  }
   document.onkeydown = null
   document.querySelector('body').style.cursor = 'default'
   document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseenter', mouseEnter)
   document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseleave', mouseLeave)
+  let node = {}
+  EventsBus.emit('toolBarSelected', { node })
 }
 
 onUnmounted(() => {
@@ -50,8 +66,17 @@ onUnmounted(() => {
   document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseenter', mouseEnter)
   document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseleave', mouseLeave)
   document.onkeydown = null
+  if (store.state.addElementType.curveObj) {
+    store.state.addElementType.curveObj.visible = false
+  }
+  if (store.state.addElementType.basePoint) {
+    store.state.addElementType.basePoint.visible = false
+  }
+  if (store.state.addElementType.movePoint) {
+    store.state.addElementType.movePoint.visible = false
+  }
   nextTick(() => {
-    // store.state.addElementType = null
+    store.state.addElementType = null
   })
 })
 
@@ -75,15 +100,18 @@ const selectItem = (options) => {
   target.selected = !flag
   visible.value = true
 
-//   store.state.addElementType = {
-//     type: 'text',
-//     smallType: key,
-//     mesh: null,
-//     moving: false,
-//     lightMesh: null
-//   }
-//   let node = { type: 'text3D', selected: key, name: target.name }
-//   EventsBus.emit('toolBarSelected', { node })
+  store.state.addElementType = {
+    type: 'flyLine',
+    smallType: key,
+    mesh: null,
+    moving: false,
+    basePoint: null,
+    movePoint: null,
+    curveObj: null,
+    painting: false
+  }
+  // let node = { type: 'flyLine', selected: key, name: target.name }
+  // EventsBus.emit('toolBarSelected', { node })
 }
 </script>
 
