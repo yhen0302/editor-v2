@@ -43,6 +43,7 @@ import MSAAPassForms3D from './editForms/MSAAPassForms3D.vue'
 // 添加元素图标模块
 import Icon from '../rightKanBan/Icon.vue'
 import Text from '../rightKanBan/Text.vue'
+import FlyLine from '../rightKanBan/FlyLine.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 
@@ -73,7 +74,8 @@ export default defineComponent({
     MSAAPassForms3D,
     // 添加元素图标板块
     Icon,
-    Text
+    Text,
+    FlyLine
   },
   setup() {
     const store = useStore()
@@ -187,6 +189,10 @@ export default defineComponent({
           break
         case 'text3D':
           type.value = 'Text'
+          node.value = e.node
+          break
+        case 'flyLine':
+          type.value = 'FlyLine'
           node.value = e.node
           break
       }

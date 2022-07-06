@@ -8,7 +8,8 @@ export default createStore({
     selectBarToolType: '', // 左边工具栏选择类型
     selectedSceneTreeNode: null, // 右边选中的scene tree node
     selectedPageTreeNode: null, // 右边选中的page tree node
-    pageTreeNodes:[ // 页面树
+    pageTreeNodes: [
+      // 页面树
       {
         name: '场景1',
         type: 'scene',
@@ -27,8 +28,8 @@ export default createStore({
         ]
       }
     ],
-    layerTree2d:[],
-    select2dNodes:new Set,
+    layerTree2d: [],
+    select2dNodes: new Set(),
     drawingBoard: {
       // 中间画布宽高
       width: 1920,
@@ -45,7 +46,8 @@ export default createStore({
     //  添加元素变量
     addElementType: null,
     elementIcon: [], // 存储图标数组
-    elementText: [] // 存储文本数组
+    elementText: [], // 存储文本数组
+    elementFlyLine: [] // 存储飞线数组
   } as any,
   mutations: { ...mutations2d },
   actions: {},
