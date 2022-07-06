@@ -1,8 +1,10 @@
 <template>
   <div class="middle-main">
     <div
-      class="drawing-board-container"
+      class="drawing-board-container art-board-wrapper"
       ref="drawingBoardContainer"
+      @click='clean2dSelectedNode()'
+      v-dropable
       :style="{ width: containerWidthPx, height: containerHeightPx, transform: `translate(${drawingBoardContainerX}px,${drawingBoardContainerY}px)` }"
     >
       <div
@@ -45,9 +47,10 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted, Ref, ref } from 'vue'
 
-import DrawingBoard2D from '@/components/2d/drawingboard/DrawingBoard2D.vue'
+import DrawingBoard2D from '@/components/2d/ArtBoard2DContent.vue'
 import DrawingBoard3D from '@/components/3d/drawingboard/DrawingBoard3D.vue'
 import { useStore } from 'vuex'
+import { useMutation } from '@/store/helper'
 
 export default defineComponent({
   name: 'Middle',
@@ -62,6 +65,8 @@ export default defineComponent({
     const drawingBoardContainerY = ref(0)
 
     const store = useStore()
+    const editorStore = store.state
+    const editorMutation = useMutation(store,'global',['CLEAR_SELECT_2D_NODES'])
     const width = store.state.drawingBoard.width
     const height = store.state.drawingBoard.height
     const scale = store.state.drawingBoard.scale
@@ -125,6 +130,9 @@ export default defineComponent({
       // **************** scrollbar func end ****************
     })
 
+    function clean2dSelectedNode() {
+      editorMutation['CLEAR_SELECT_2D_NODES']()
+    }
     return {
       drawingBoard,
       drawingBoardContainer,
@@ -138,7 +146,8 @@ export default defineComponent({
       scrollY,
       scrollXItem,
       scrollYItem,
-      store
+      store,
+      clean2dSelectedNode
     }
   }
 })

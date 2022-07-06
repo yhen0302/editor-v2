@@ -1,5 +1,7 @@
+const webpack = require('webpack')
+
 module.exports = {
-  publicPath: '/demo/editorV2',
+  publicPath: './',
 
   css: {
     loaderOptions: {
@@ -7,6 +9,12 @@ module.exports = {
         plugins: [require('tailwindcss'), require('autoprefixer')]
       }
     }
+  },
+  configureWebpack:{
+    plugins:[  new webpack.DefinePlugin({
+      IS_EDITOR:true
+    })
+    ]
   },
   transpileDependencies: []
 }
