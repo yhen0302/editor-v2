@@ -13,6 +13,7 @@ import ElementParser from './components/ElementParser.vue'
 export default function parse(config: any) {
     const app = createApp(ElementParser, config)
     app.use(elementInstaller)
+    app.directive('drag',{})
     app.mount('#app')
   
     return app

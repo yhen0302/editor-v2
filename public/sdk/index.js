@@ -7676,7 +7676,7 @@
       }
     }
 
-    var css_248z$a = "@tailwind base;\r\n@tailwind utilities;";
+    var css_248z$a = "@tailwind base;\r\n@tailwind utilities;\r\n*{\r\n    margin: 0;\r\n    padding: 0;\r\n}\r\n.absolute{\r\n  position: absolute;\r\n}\r\nimg {\r\n    height: initial;\r\n}\r\ninput:focus {\r\n    outline: none;\r\n}\r\ninput::-webkit-inner-spin-button {\r\n    -webkit-appearance: none;\r\n}\r\n.property-box {\r\n    max-height: 48vh;\r\n    min-height: 38vh;\r\n    overflow-y: scroll;\r\n}\r\n*::-webkit-scrollbar {\r\n    background: transparent;\r\n    width: 5px;\r\n    height: 5px;\r\n}\r\n*::-webkit-scrollbar-thumb {\r\n    background: #c2c2c2;\r\n    border-radius: 10px;\r\n    width: 10px;\r\n}\r\n*::-webkit-scrollbar-corner {\r\n    background: transparent;\r\n}\r\n.modal {\r\n    position: fixed;\r\n    top: 0;\r\n    left: 0;\r\n    width: 100vw;\r\n    height: 100vh;\r\n    z-index: 2017;\r\n    background: rgba(0, 0, 0, 0.7);\r\n}\r\n";
     styleInject(css_248z$a);
 
     /*! *****************************************************************************
@@ -104296,24 +104296,25 @@
 
     var script = {
       name: 'ElementParser',
-      props: ['pageTreeNodes','drawingBoard'],
+      props: ['pageTreeNodes', 'drawingBoard'],
       setup(props, ctx) {
-        console.log('absd123');
-        const nodes = computed(()=>{
+        const nodes = computed(() => {
           return props.pageTreeNodes[0].children[0]?.trees?.twoDimension || []
         });
+
         console.log(props);
-        return {nodes,toPx}
+        console.log('nodes', nodes.value);
+        return { nodes, toPx }
       }
     };
 
     function render(_ctx, _cache, $props, $setup, $data, $options) {
       return (openBlock(), createElementBlock("section", {
         id: "app",
-        style: normalizeStyle$1({height:$setup.toPx($props.drawingBoard.height),width:$setup.toPx($props.drawingBoard.width)})
+        style: normalizeStyle$1({ height: $setup.toPx($props.drawingBoard.height), width: $setup.toPx($props.drawingBoard.width) })
       }, [
         (openBlock(true), createElementBlock(Fragment, null, renderList($setup.nodes, (item) => {
-          return (openBlock(), createBlock(resolveDynamicComponent(_ctx.node.type), {
+          return (openBlock(), createBlock(resolveDynamicComponent(item.type), {
             key: item.id,
             node: item
           }, null, 8 /* PROPS */, ["node"]))
@@ -104321,7 +104322,7 @@
       ], 4 /* STYLE */))
     }
 
-    var css_248z = "\n#app[data-v-58db88bb]{\n  position: relative;\n}\n";
+    var css_248z = "\n#app[data-v-58db88bb] {\n  position: relative;\n}\n";
     styleInject(css_248z);
 
     script.render = render;
@@ -104334,6 +104335,7 @@
     function parse(config) {
         const app = createApp(script, config);
         app.use(elementInstaller);
+        app.directive('drag', {});
         app.mount('#app');
         return app;
     }

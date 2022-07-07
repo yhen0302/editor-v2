@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref, toRaw } from 'vue'
 import Timer from '@/components/utils/common/Timer.vue'
 import TipButton from '@/components/utils/TipButton.vue'
 import { useStore } from 'vuex'
@@ -67,23 +67,33 @@ export default defineComponent({
       return (store.state.drawingBoard.scale * 100).toFixed()
     })
 
-
     async function preview() {
       const sdk = await (await fetch('/sdk/index.js')).text()
       const html = createPreviewTemplate(sdk, `console.log(EDITOR_SDK(${JSON.stringify({ pageTreeNodes: getAvailablePageTreeNodes(), drawingBoard: store.state.drawingBoard })}))`)
-      // console.log(window.open(htmlToUrl(html)))
+      console.log(window.open(htmlToUrl(html)))
     }
-    function getAvailablePageTreeNodes(){
-      const pageTreeNodes = clone(store.state.pageTreeNodes)
-      for(const scene of pageTreeNodes){
-        for(const page of scene.children){
+
+    function getAvailablePageTreeNodes() {
+      const pageTreeNodes = clone(toRaw(store.state.pageTreeNodes))
+      for (const scene of pageTreeNodes) {
+        for (const page of scene.children) {
           deleteTreeParentQuote(page.trees.twoDimension)
         }
       }
       return pageTreeNodes
     }
-    function deleteTreeParentQuote(tree:any){
-      console.log(tree)
+
+    function deleteTreeParentQuote(tree: any) {
+      let nodes = [...tree],
+        node = null
+
+      // eslint-disable-next-line no-cond-assign
+      while (node = nodes.pop()) {
+        node.parent = null
+        if (node?.children?.length > 0) {
+          nodes.unshift(...node?.children)
+        }
+      }
     }
     return {
       store,

@@ -107,7 +107,7 @@ import {
   POSITION_ALIGN,
   FONT_STYLE,
   FONT_FAMILY
-} from '../elements/constant'
+} from '../../../../packages/elements/src/components/constant'
 import { computed, markRaw, SetupContext } from 'vue'
 import CheckEl from '@/components/2d/common/CheckEl.vue'
 import { useStore } from 'vuex'

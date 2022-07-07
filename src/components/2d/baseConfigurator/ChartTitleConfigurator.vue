@@ -158,7 +158,7 @@ import {
   POSITION_ALIGN,
   FONT_STYLE,
   FONT_FAMILY
-} from '../elements/constant'
+} from '@editor-v2/elements/src/components/constant'
 import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
 import { clone } from '@/core/2d/util/base'

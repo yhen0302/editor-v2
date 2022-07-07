@@ -29,14 +29,14 @@ export default defineComponent({
         'models/HangKong/ChangJing/WeiQiang.glb'
       ]
 
-  /*    loadScene({
+      loadScene({
         publicPath,
         modelUrls,
         domElement: scene.value,
         callback: (evt: any) => {
           // console.log('container', evt)
         }
-      })*/
+      })
     })
 
     return {
