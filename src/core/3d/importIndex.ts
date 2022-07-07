@@ -1,16 +1,16 @@
-import { parseModelNode } from './util'
-import store from '../../store'
-import { EventsBus } from '../EventsBus'
-import { throttled } from '../utils/base'
-import { any } from 'underscore'
-import * as Text from '../utils/text3D'
-import * as Fly from '../utils/flyLine'
-import { render } from 'vue'
+// import { parseModelNode } from './util'
+// import store from '../../store'
+// import { EventsBus } from '../EventsBus'
+// import { throttled } from '../utils/base'
+// import { any } from 'underscore'
+// import * as Text from '../utils/text3D'
+// import * as Fly from '../utils/flyLine'
+// import { render } from 'vue'
 
 declare const Bol3D: any
 
-export const importScene = (canvas: any) => {
-  const scene = store.state.exportContent[0].children[0].trees.threeDimension
+export const importScene = (canvas: any, threeObjs: any) => {
+  const scene = threeObjs
   var Camera: any,
     AmbientLight: any,
     HemisphereLight: any,
