@@ -1,7 +1,7 @@
 // @ts-ignore
 import {html} from 'common-tags'
-
-export default function createPreviewTemplate(sdk:string,code:string){
+const baseURL = location.origin
+export default function createPreviewTemplate(code:string){
   return html`
     <!DOCTYPE html>
     <html lang='en'>
@@ -11,9 +11,8 @@ export default function createPreviewTemplate(sdk:string,code:string){
     </head>
     <body>
       <div id='app'></div>
-      <script>
-        ${sdk}
-      </script>
+      <script src='${baseURL}/sdk/index.js'></script>
+      <script src='${baseURL}/static/main.js'></script>
       <script>
         ${code}
       </script>

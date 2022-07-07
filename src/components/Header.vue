@@ -142,8 +142,10 @@ export default defineComponent({
 
   
     async function preview() {
-      const sdk = await (await fetch('/sdk/index.js')).text()
-      const html = createPreviewTemplate(sdk, `console.log(EDITOR_SDK(${JSON.stringify({ pageTreeNodes: getAvailablePageTreeNodes(), drawingBoard: store.state.drawingBoard })}))`)
+      // const sdk = await (await fetch('/sdk/index.js')).text()
+      // const sdk3d = await (await fetch('/static/main.js')).text()
+
+      const html = createPreviewTemplate( `console.log(EDITOR_SDK(${JSON.stringify({ pageTreeNodes: getAvailablePageTreeNodes(), drawingBoard: store.state.drawingBoard })}))`)
       console.log(window.open(htmlToUrl(html)))
     }
 
@@ -168,6 +170,7 @@ export default defineComponent({
           nodes.unshift(...node?.children)
         }
       }
+      console.log(tree)
     }
     return {
       store,

@@ -64,7 +64,7 @@
         else if (isString$1(value)) {
             return value;
         }
-        else if (isObject$4(value)) {
+        else if (isObject$5(value)) {
             return value;
         }
     }
@@ -93,7 +93,7 @@
                 }
             }
         }
-        else if (isObject$4(value)) {
+        else if (isObject$5(value)) {
             for (const name in value) {
                 if (value[name]) {
                     res += name + ' ';
@@ -146,7 +146,7 @@
             : val == null
                 ? ''
                 : isArray$2(val) ||
-                    (isObject$4(val) &&
+                    (isObject$5(val) &&
                         (val.toString === objectToString || !isFunction$1(val.toString)))
                     ? JSON.stringify(val, replacer, 2)
                     : String(val);
@@ -169,7 +169,7 @@
                 [`Set(${val.size})`]: [...val.values()]
             };
         }
-        else if (isObject$4(val) && !isArray$2(val) && !isPlainObject(val)) {
+        else if (isObject$5(val) && !isArray$2(val) && !isPlainObject(val)) {
             return String(val);
         }
         return val;
@@ -201,9 +201,9 @@
     const isFunction$1 = (val) => typeof val === 'function';
     const isString$1 = (val) => typeof val === 'string';
     const isSymbol = (val) => typeof val === 'symbol';
-    const isObject$4 = (val) => val !== null && typeof val === 'object';
-    const isPromise = (val) => {
-        return isObject$4(val) && isFunction$1(val.then) && isFunction$1(val.catch);
+    const isObject$5 = (val) => val !== null && typeof val === 'object';
+    const isPromise$1 = (val) => {
+        return isObject$5(val) && isFunction$1(val.then) && isFunction$1(val.catch);
     };
     const objectToString = Object.prototype.toString;
     const toTypeString = (value) => objectToString.call(value);
@@ -719,7 +719,7 @@
                 // ref unwrapping - skip unwrap for Array + integer key.
                 return targetIsArray && isIntegerKey(key) ? res : res.value;
             }
-            if (isObject$4(res)) {
+            if (isObject$5(res)) {
                 // Convert returned value into a proxy as well. we do the isObject check
                 // here to avoid invalid value warning. Also need to lazy access readonly
                 // and reactive here to avoid circular dependency.
@@ -1161,7 +1161,7 @@
         return createReactiveObject(target, true, shallowReadonlyHandlers, shallowReadonlyCollectionHandlers, shallowReadonlyMap);
     }
     function createReactiveObject(target, isReadonly, baseHandlers, collectionHandlers, proxyMap) {
-        if (!isObject$4(target)) {
+        if (!isObject$5(target)) {
             {
                 console.warn(`value cannot be made reactive: ${String(target)}`);
             }
@@ -1210,8 +1210,8 @@
         def(value, "__v_skip" /* SKIP */, true);
         return value;
     }
-    const toReactive = (value) => isObject$4(value) ? reactive(value) : value;
-    const toReadonly = (value) => isObject$4(value) ? readonly(value) : value;
+    const toReactive = (value) => isObject$5(value) ? reactive(value) : value;
+    const toReadonly = (value) => isObject$5(value) ? readonly(value) : value;
 
     function trackRefValue(ref) {
         if (shouldTrack && activeEffect) {
@@ -1505,7 +1505,7 @@
     function callWithAsyncErrorHandling(fn, instance, type, args) {
         if (isFunction$1(fn)) {
             const res = callWithErrorHandling(fn, instance, type, args);
-            if (res && isPromise(res)) {
+            if (res && isPromise$1(res)) {
                 res.catch(err => {
                     handleError(err, instance, type);
                 });
@@ -2760,7 +2760,7 @@
         };
     }
     function traverse(value, seen) {
-        if (!isObject$4(value) || value["__v_skip" /* SKIP */]) {
+        if (!isObject$5(value) || value["__v_skip" /* SKIP */]) {
             return value;
         }
         seen = seen || new Set();
@@ -3060,7 +3060,7 @@
                 ret[i] = renderItem(i + 1, i, undefined, cached && cached[i]);
             }
         }
-        else if (isObject$4(source)) {
+        else if (isObject$5(source)) {
             if (source[Symbol.iterator]) {
                 ret = Array.from(source, (item, i) => renderItem(item, i, undefined, cached && cached[i]));
             }
@@ -3422,12 +3422,12 @@
                     `Plain object usage is no longer supported.`);
             }
             const data = dataOptions.call(publicThis, publicThis);
-            if (isPromise(data)) {
+            if (isPromise$1(data)) {
                 warn$1(`data() returned a Promise - note data() cannot be async; If you ` +
                     `intend to perform data fetching before component renders, use ` +
                     `async setup() + <Suspense>.`);
             }
-            if (!isObject$4(data)) {
+            if (!isObject$5(data)) {
                 warn$1(`data() should return an object.`);
             }
             else {
@@ -3553,7 +3553,7 @@
         for (const key in injectOptions) {
             const opt = injectOptions[key];
             let injected;
-            if (isObject$4(opt)) {
+            if (isObject$5(opt)) {
                 if ('default' in opt) {
                     injected = inject(opt.from || key, opt.default, true /* treat default function as factory */);
                 }
@@ -3614,7 +3614,7 @@
         else if (isFunction$1(raw)) {
             watch(getter, raw.bind(publicThis));
         }
-        else if (isObject$4(raw)) {
+        else if (isObject$5(raw)) {
             if (isArray$2(raw)) {
                 raw.forEach(r => createWatcher(r, ctx, publicThis, key));
             }
@@ -4007,7 +4007,7 @@
             }
         }
         else if (raw) {
-            if (!isObject$4(raw)) {
+            if (!isObject$5(raw)) {
                 warn$1(`invalid props options`, raw);
             }
             for (const key in raw) {
@@ -4125,7 +4125,7 @@
             }
         }
         else if (expectedType === 'Object') {
-            valid = isObject$4(value);
+            valid = isObject$5(value);
         }
         else if (expectedType === 'Array') {
             valid = isArray$2(value);
@@ -4341,7 +4341,7 @@
             if (!isFunction$1(rootComponent)) {
                 rootComponent = Object.assign({}, rootComponent);
             }
-            if (rootProps != null && !isObject$4(rootProps)) {
+            if (rootProps != null && !isObject$5(rootProps)) {
                 warn$1(`root props passed to app.mount() must be an object.`);
                 rootProps = null;
             }
@@ -4589,41 +4589,41 @@
     }
 
     /* eslint-disable no-restricted-globals */
-    let supported;
-    let perf;
+    let supported$1;
+    let perf$1;
     function startMeasure(instance, type) {
         if (instance.appContext.config.performance && isSupported()) {
-            perf.mark(`vue-${type}-${instance.uid}`);
+            perf$1.mark(`vue-${type}-${instance.uid}`);
         }
         {
-            devtoolsPerfStart(instance, type, isSupported() ? perf.now() : Date.now());
+            devtoolsPerfStart(instance, type, isSupported() ? perf$1.now() : Date.now());
         }
     }
     function endMeasure(instance, type) {
         if (instance.appContext.config.performance && isSupported()) {
             const startTag = `vue-${type}-${instance.uid}`;
             const endTag = startTag + `:end`;
-            perf.mark(endTag);
-            perf.measure(`<${formatComponentName(instance, instance.type)}> ${type}`, startTag, endTag);
-            perf.clearMarks(startTag);
-            perf.clearMarks(endTag);
+            perf$1.mark(endTag);
+            perf$1.measure(`<${formatComponentName(instance, instance.type)}> ${type}`, startTag, endTag);
+            perf$1.clearMarks(startTag);
+            perf$1.clearMarks(endTag);
         }
         {
-            devtoolsPerfEnd(instance, type, isSupported() ? perf.now() : Date.now());
+            devtoolsPerfEnd(instance, type, isSupported() ? perf$1.now() : Date.now());
         }
     }
     function isSupported() {
-        if (supported !== undefined) {
-            return supported;
+        if (supported$1 !== undefined) {
+            return supported$1;
         }
         if (typeof window !== 'undefined' && window.performance) {
-            supported = true;
-            perf = window.performance;
+            supported$1 = true;
+            perf$1 = window.performance;
         }
         else {
-            supported = false;
+            supported$1 = false;
         }
-        return supported;
+        return supported$1;
     }
 
     /**
@@ -6208,7 +6208,7 @@
             if (klass && !isString$1(klass)) {
                 props.class = normalizeClass(klass);
             }
-            if (isObject$4(style)) {
+            if (isObject$5(style)) {
                 // reactive state objects need to be cloned since they are likely to be
                 // mutated
                 if (isProxy(style) && !isArray$2(style)) {
@@ -6224,7 +6224,7 @@
                 ? 128 /* SUSPENSE */
                 : isTeleport(type)
                     ? 64 /* TELEPORT */
-                    : isObject$4(type)
+                    : isObject$5(type)
                         ? 4 /* STATEFUL_COMPONENT */
                         : isFunction$1(type)
                             ? 2 /* FUNCTIONAL_COMPONENT */
@@ -6600,7 +6600,7 @@
             const setupResult = callWithErrorHandling(setup, instance, 0 /* SETUP_FUNCTION */, [shallowReadonly(instance.props) , setupContext]);
             resetTracking();
             unsetCurrentInstance();
-            if (isPromise(setupResult)) {
+            if (isPromise$1(setupResult)) {
                 setupResult.then(unsetCurrentInstance, unsetCurrentInstance);
                 if (isSSR) {
                     // return the promise so server-renderer can wait on it
@@ -6645,7 +6645,7 @@
                 instance.render = setupResult;
             }
         }
-        else if (isObject$4(setupResult)) {
+        else if (isObject$5(setupResult)) {
             if (isVNode(setupResult)) {
                 warn$1(`setup() should not return VNodes directly - ` +
                     `return a render function instead.`);
@@ -6834,7 +6834,7 @@
         const formatter = {
             header(obj) {
                 // TODO also format ComponentPublicInstance & ctx.slots/attrs in setup
-                if (!isObject$4(obj)) {
+                if (!isObject$5(obj)) {
                     return null;
                 }
                 if (obj.__isVue) {
@@ -6959,7 +6959,7 @@
             else if (typeof v === 'boolean') {
                 return ['span', keywordStyle, v];
             }
-            else if (isObject$4(v)) {
+            else if (isObject$5(v)) {
                 return ['object', { object: asRaw ? toRaw(v) : v }];
             }
             else {
@@ -6982,7 +6982,7 @@
         function isKeyOfType(Comp, key, type) {
             const opts = Comp[type];
             if ((isArray$2(opts) && opts.includes(key)) ||
-                (isObject$4(opts) && key in opts)) {
+                (isObject$5(opts) && key in opts)) {
                 return true;
             }
             if (Comp.extends && isKeyOfType(Comp.extends, key, type)) {
@@ -7944,15 +7944,15 @@
         return result;
     }
     function merge(target, source, overwrite) {
-        if (!isObject$3(source) || !isObject$3(target)) {
+        if (!isObject$4(source) || !isObject$4(target)) {
             return overwrite ? clone$5(source) : target;
         }
         for (var key in source) {
             if (source.hasOwnProperty(key) && key !== protoKey) {
                 var targetProp = target[key];
                 var sourceProp = source[key];
-                if (isObject$3(sourceProp)
-                    && isObject$3(targetProp)
+                if (isObject$4(sourceProp)
+                    && isObject$4(targetProp)
                     && !isArray$1(sourceProp)
                     && !isArray$1(targetProp)
                     && !isDom(sourceProp)
@@ -8184,7 +8184,7 @@
     function isNumber(value) {
         return typeof value === 'number';
     }
-    function isObject$3(value) {
+    function isObject$4(value) {
         var type = typeof value;
         return type === 'function' || (!!value && type === 'object');
     }
@@ -8254,7 +8254,7 @@
         }
         return val;
     }
-    function assert(condition, message) {
+    function assert$1(condition, message) {
         if (!condition) {
             throw new Error(message);
         }
@@ -13470,7 +13470,7 @@
             if (typeof keyOrObj === 'string') {
                 this.attrKV(keyOrObj, value);
             }
-            else if (isObject$3(keyOrObj)) {
+            else if (isObject$4(keyOrObj)) {
                 var obj = keyOrObj;
                 var keysArr = keys(obj);
                 for (var i = 0; i < keysArr.length; i++) {
@@ -14188,7 +14188,7 @@
         var delay = cfg.delay;
         var additive = cfg.additive;
         var setToFinal = cfg.setToFinal;
-        var animateAll = !isObject$3(animationProps);
+        var animateAll = !isObject$4(animationProps);
         var existsAnimators = animatable.animators;
         var animationKeys = [];
         for (var k = 0; k < targetKeys.length; k++) {
@@ -14196,7 +14196,7 @@
             var targetVal = target[innerKey];
             if (targetVal != null && animateObj[innerKey] != null
                 && (animateAll || animationProps[innerKey])) {
-                if (isObject$3(targetVal)
+                if (isObject$4(targetVal)
                     && !isArrayLike(targetVal)
                     && !isGradientObject(targetVal)) {
                     if (topKey) {
@@ -15414,7 +15414,7 @@
      */
 
     function getDataItemValue(dataItem) {
-      return isObject$3(dataItem) && !isArray$1(dataItem) && !(dataItem instanceof Date) ? dataItem.value : dataItem;
+      return isObject$4(dataItem) && !isArray$1(dataItem) && !(dataItem instanceof Date) ? dataItem.value : dataItem;
     }
     /**
      * data could be [12, 2323, {value: 223}, [1221, 23], {value: [2, 23]}]
@@ -15422,7 +15422,7 @@
      */
 
     function isDataItemOption(dataItem) {
-      return isObject$3(dataItem) && !(dataItem instanceof Array); // // markLine data can be array
+      return isObject$4(dataItem) && !(dataItem instanceof Array); // // markLine data can be array
       // && !(dataItem[0] && isObject(dataItem[0]) && !(dataItem[0] instanceof Array));
     }
     /**
@@ -15464,7 +15464,7 @@
       var existingIdIdxMap = createHashMap(); // Validate id and name on user input option.
 
       each$f(newCmptOptions, function (cmptOption, index) {
-        if (!isObject$3(cmptOption)) {
+        if (!isObject$4(cmptOption)) {
           newCmptOptions[index] = null;
           return;
         }
@@ -15547,7 +15547,7 @@
 
         if (existingIdx != null) {
           var resultItem = result[existingIdx];
-          assert(!resultItem.newOption, 'Duplicated option on id "' + optionId + '".');
+          assert$1(!resultItem.newOption, 'Duplicated option on id "' + optionId + '".');
           resultItem.newOption = cmptOption; // In both mode, if id matched, new option will be merged to
           // the existings rather than creating new component model.
 
@@ -15652,7 +15652,7 @@
       each$f(mapResult, function (item) {
         var opt = item.newOption; // Force ensure id not duplicated.
 
-        assert(!opt || opt.id == null || !idMap.get(opt.id) || idMap.get(opt.id) === item, 'id duplicates: ' + (opt && opt.id));
+        assert$1(!opt || opt.id == null || !idMap.get(opt.id) || idMap.get(opt.id) === item, 'id duplicates: ' + (opt && opt.id));
         opt && opt.id != null && idMap.set(opt.id, item);
         !item.keyInfo && (item.keyInfo = {});
       }); // Make name and id.
@@ -15662,7 +15662,7 @@
         var opt = item.newOption;
         var keyInfo = item.keyInfo;
 
-        if (!isObject$3(opt)) {
+        if (!isObject$4(opt)) {
           return;
         } // name can be overwitten. Consider case: axis.name = '20km'.
         // But id generated by name will not be changed, which affect
@@ -15756,7 +15756,7 @@
       each$f(mappingResult, function (item) {
         var newOption = item.newOption;
 
-        if (isObject$3(newOption)) {
+        if (isObject$4(newOption)) {
           item.keyInfo.mainType = mainType;
           item.keyInfo.subType = determineSubType(mainType, newOption, item.existing, componentModelCtor);
         }
@@ -15971,7 +15971,7 @@
       }
 
       if (indexOption === 'none' || indexOption === false) {
-        assert(opt.enableNone, '`"none"` or `false` is not a valid value on index option.');
+        assert$1(opt.enableNone, '`"none"` or `false` is not a valid value on index option.');
         result.models = [];
         return result;
       } // `queryComponents` will return all components if
@@ -15979,7 +15979,7 @@
 
 
       if (indexOption === 'all') {
-        assert(opt.enableAll, '`"all"` is not a valid value on index option.');
+        assert$1(opt.enableAll, '`"all"` is not a valid value on index option.');
         indexOption = idOption = nameOption = null;
       }
 
@@ -16100,7 +16100,7 @@
      */
 
     function checkClassType(componentType) {
-      assert(/^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)?$/.test(componentType), 'componentType "' + componentType + '" illegal');
+      assert$1(/^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)?$/.test(componentType), 'componentType "' + componentType + '" illegal');
     }
 
     function isExtendedClass(clz) {
@@ -16212,7 +16212,7 @@
       target.prototype[classAttr] = true;
 
       {
-        assert(!target.isInstance, 'The method "is" can not be defined.');
+        assert$1(!target.isInstance, 'The method "is" can not be defined.');
       }
 
       target.isInstance = function (obj) {
@@ -20135,7 +20135,7 @@
 
           if (isArrayLike(focus)) {
             leaveBlurOfIndices(seriesModel.getData(), focus);
-          } else if (isObject$3(focus)) {
+          } else if (isObject$4(focus)) {
             var dataTypes = keys(focus);
 
             for (var d = 0; d < dataTypes.length; d++) {
@@ -22049,7 +22049,7 @@
         during = cb;
         cb = dataIndex;
         dataIndex = null;
-      } else if (isObject$3(dataIndex)) {
+      } else if (isObject$4(dataIndex)) {
         cb = dataIndex.cb;
         during = dataIndex.during;
         isFrom = dataIndex.isFrom;
@@ -24443,7 +24443,7 @@
 
     function convertToColorString(color, defaultColor) {
       defaultColor = defaultColor || 'transparent';
-      return isString(color) ? color : isObject$3(color) ? color.colorStops && (color.colorStops[0] || {}).color || defaultColor : defaultColor;
+      return isString(color) ? color : isObject$4(color) ? color.colorStops && (color.colorStops[0] || {}).color || defaultColor : defaultColor;
     }
     /**
      * open new tab
@@ -24790,7 +24790,7 @@
     }
     function fetchLayoutMode(ins) {
       var layoutMode = ins.layoutMode || ins.constructor.layoutMode;
-      return isObject$3(layoutMode) ? layoutMode : layoutMode ? {
+      return isObject$4(layoutMode) ? layoutMode : layoutMode ? {
         type: layoutMode
       } : null;
     }
@@ -25321,7 +25321,7 @@
       var categoryWayValueDimStart;
       coordDimensions = coordDimensions.slice();
       each$f(coordDimensions, function (coordDimInfoLoose, coordDimIdx) {
-        var coordDimInfo = isObject$3(coordDimInfoLoose) ? coordDimInfoLoose : coordDimensions[coordDimIdx] = {
+        var coordDimInfo = isObject$4(coordDimInfoLoose) ? coordDimInfoLoose : coordDimensions[coordDimIdx] = {
           name: coordDimInfoLoose
         };
 
@@ -25400,7 +25400,7 @@
 
       if (sourceFormat === SOURCE_FORMAT_OBJECT_ROWS || sourceFormat === SOURCE_FORMAT_KEYED_COLUMNS) {
         each$f(dimensionsDefine, function (dim, idx) {
-          if ((isObject$3(dim) ? dim.name : dim) === 'name') {
+          if ((isObject$4(dim) ? dim.name : dim) === 'name') {
             potentialNameDimIndex = idx;
           }
         });
@@ -25529,7 +25529,7 @@
       if (dimensionsDefine) {
         var dimDefItem = dimensionsDefine[dimIndex];
 
-        if (isObject$3(dimDefItem)) {
+        if (isObject$4(dimDefItem)) {
           dimName = dimDefItem.name;
           dimType = dimDefItem.type;
         } else if (isString(dimDefItem)) {
@@ -25626,7 +25626,7 @@
 
     var internalOptionCreatorMap = createHashMap();
     function registerInternalOptionCreator(mainType, creator) {
-      assert(internalOptionCreatorMap.get(mainType) == null && creator);
+      assert$1(internalOptionCreatorMap.get(mainType) == null && creator);
       internalOptionCreatorMap.set(mainType, creator);
     }
     function concatInternalOptions(ecModel, mainType, newCmptOptionList) {
@@ -25644,7 +25644,7 @@
 
       {
         for (var i = 0; i < internalOptions.length; i++) {
-          assert(isComponentIdInternal(internalOptions[i]));
+          assert$1(isComponentIdInternal(internalOptions[i]));
         }
       }
 
@@ -25824,8 +25824,8 @@
 
       GlobalModel.prototype.setOption = function (option, opts, optionPreprocessorFuncs) {
         {
-          assert(option != null, 'option is null/undefined');
-          assert(option[OPTION_INNER_KEY] !== OPTION_INNER_VALUE, 'please use chart.getOption()');
+          assert$1(option != null, 'option is null/undefined');
+          assert$1(option[OPTION_INNER_KEY] !== OPTION_INNER_VALUE, 'please use chart.getOption()');
         }
 
         var innerOpt = normalizeSetOptionInput(opts);
@@ -26247,7 +26247,7 @@
             }
           });
         } else {
-          var cmpts = isString(mainType) ? componentsMap.get(mainType) : isObject$3(mainType) ? this.findComponents(mainType) : null;
+          var cmpts = isString(mainType) ? componentsMap.get(mainType) : isObject$4(mainType) ? this.findComponents(mainType) : null;
 
           for (var i = 0; cmpts && i < cmpts.length; i++) {
             var cmpt = cmpts[i];
@@ -26429,7 +26429,7 @@
 
           var airaOption = baseOption.aria;
 
-          if (isObject$3(airaOption) && airaOption.enabled == null) {
+          if (isObject$4(airaOption) && airaOption.enabled == null) {
             airaOption.enabled = true;
           }
 
@@ -26510,7 +26510,7 @@
       var replaceMergeMainTypeMap = createHashMap();
       opts && each$f(normalizeToArray(opts.replaceMerge), function (mainType) {
         {
-          assert(ComponentModel$1.hasClass(mainType), '"' + mainType + '" is not valid component main type in "replaceMerge"');
+          assert$1(ComponentModel$1.hasClass(mainType), '"' + mainType + '" is not valid component main type in "replaceMerge"');
         }
 
         replaceMergeMainTypeMap.set(mainType, true);
@@ -26839,7 +26839,7 @@
           each$f(mediaOnRoot, function (singleMedia) {
             {
               // Real case of wrong config.
-              if (singleMedia && !singleMedia.option && isObject$3(singleMedia.query) && isObject$3(singleMedia.query.option)) {
+              if (singleMedia && !singleMedia.option && isObject$4(singleMedia.query) && isObject$4(singleMedia.query.option)) {
                 error('Illegal media option. Must be like { media: [ { query: {}, option: {} } ] }');
               }
             }
@@ -27028,7 +27028,7 @@
     var OptionManager$1 = OptionManager;
 
     var each$d = each$f;
-    var isObject$2 = isObject$3;
+    var isObject$3 = isObject$4;
     var POSSIBLE_STYLES = ['areaStyle', 'lineStyle', 'nodeStyle', 'linkStyle', 'chordStyle', 'label', 'labelLine'];
 
     function compatEC2ItemStyle(opt) {
@@ -27131,8 +27131,8 @@
 
     function compatTextStyle(opt, propName) {
       // Check whether is not object (string\null\undefined ...)
-      var labelOptSingle = isObject$2(opt) && opt[propName];
-      var textStyle = isObject$2(labelOptSingle) && labelOptSingle.textStyle;
+      var labelOptSingle = isObject$3(opt) && opt[propName];
+      var textStyle = isObject$3(labelOptSingle) && labelOptSingle.textStyle;
 
       if (textStyle) {
         {
@@ -27159,7 +27159,7 @@
     }
 
     function processSeries(seriesOpt) {
-      if (!isObject$2(seriesOpt)) {
+      if (!isObject$3(seriesOpt)) {
         return;
       }
 
@@ -27276,7 +27276,7 @@
 
     function globalCompatStyle(option, isTheme) {
       each$d(toArr(option.series), function (seriesOpt) {
-        isObject$2(seriesOpt) && processSeries(seriesOpt);
+        isObject$3(seriesOpt) && processSeries(seriesOpt);
       });
       var axes = ['xAxis', 'yAxis', 'radiusAxis', 'angleAxis', 'singleAxis', 'parallelAxis', 'radar'];
       isTheme && axes.push('valueAxis', 'categoryAxis', 'logAxis', 'timeAxis');
@@ -27330,7 +27330,7 @@
         }
       });
       each$d(toArr(option.geo), function (geoOpt) {
-        if (isObject$2(geoOpt)) {
+        if (isObject$3(geoOpt)) {
           compatEC3CommonStyles(geoOpt);
           each$d(toArr(geoOpt.regions), function (regionObj) {
             compatEC3CommonStyles(regionObj);
@@ -27344,7 +27344,7 @@
         convertNormalEmphasis(timelineOpt, 'controlStyle', true);
         var data = timelineOpt.data;
         isArray$1(data) && each$f(data, function (item) {
-          if (isObject$3(item)) {
+          if (isObject$4(item)) {
             convertNormalEmphasis(item, 'label');
             convertNormalEmphasis(item, 'itemStyle');
           }
@@ -27488,7 +27488,7 @@
 
       option.series = normalizeToArray(option.series);
       each$f(option.series, function (seriesOpt) {
-        if (!isObject$3(seriesOpt)) {
+        if (!isObject$4(seriesOpt)) {
           return;
         }
 
@@ -27816,12 +27816,12 @@
           } else if (isArray$1(item)) {
             sourceFormat = SOURCE_FORMAT_ARRAY_ROWS;
             break;
-          } else if (isObject$3(item)) {
+          } else if (isObject$4(item)) {
             sourceFormat = SOURCE_FORMAT_OBJECT_ROWS;
             break;
           }
         }
-      } else if (isObject$3(data)) {
+      } else if (isObject$4(data)) {
         for (var key in data) {
           if (hasOwn(data, key) && isArrayLike(data[key])) {
             sourceFormat = SOURCE_FORMAT_KEYED_COLUMNS;
@@ -27903,7 +27903,7 @@
         dimensionsDetectedCount = isArray$1(value0) && value0.length || 1;
       } else if (sourceFormat === SOURCE_FORMAT_TYPED_ARRAY) {
         {
-          assert(!!dimensionsDefine, 'dimensions must be given if data is TypedArray.');
+          assert$1(!!dimensionsDefine, 'dimensions must be given if data is TypedArray.');
         }
       }
 
@@ -27941,7 +27941,7 @@
 
       var nameMap = createHashMap();
       return map$1(dimensionsDefine, function (rawItem, index) {
-        rawItem = isObject$3(rawItem) ? rawItem : {
+        rawItem = isObject$4(rawItem) ? rawItem : {
           name: rawItem
         }; // Other fields will be discarded.
 
@@ -28111,7 +28111,7 @@
           var methods = providerMethods[getMethodMapKey(sourceFormat, seriesLayoutBy)];
 
           {
-            assert(methods, 'Invalide sourceFormat: ' + sourceFormat);
+            assert$1(methods, 'Invalide sourceFormat: ' + sourceFormat);
           }
 
           extend(provider, methods);
@@ -28200,7 +28200,7 @@
           pure: true,
           appendData: function (newData) {
             {
-              assert(isTypedArray(newData), 'Added data must be TypedArray if data in initialization is TypedArray');
+              assert$1(isTypedArray(newData), 'Added data must be TypedArray if data in initialization is TypedArray');
             }
 
             this._data = newData;
@@ -28262,7 +28262,7 @@
       var method = rawSourceItemGetterMap[getMethodMapKey(sourceFormat, seriesLayoutBy)];
 
       {
-        assert(method, 'Do not support get item on "' + sourceFormat + '", "' + seriesLayoutBy + '".');
+        assert$1(method, 'Do not support get item on "' + sourceFormat + '", "' + seriesLayoutBy + '".');
       }
 
       return method;
@@ -28293,7 +28293,7 @@
       var method = rawSourceDataCounterMap[getMethodMapKey(sourceFormat, seriesLayoutBy)];
 
       {
-        assert(method, 'Do not suppport count on "' + sourceFormat + '", "' + seriesLayoutBy + '".');
+        assert$1(method, 'Do not suppport count on "' + sourceFormat + '", "' + seriesLayoutBy + '".');
       }
 
       return method;
@@ -28315,7 +28315,7 @@
       var method = rawSourceValueGetterMap[sourceFormat];
 
       {
-        assert(method, 'Do not suppport get value on "' + sourceFormat + '".');
+        assert$1(method, 'Do not suppport get value on "' + sourceFormat + '".');
       }
 
       return method;
@@ -28517,7 +28517,7 @@
 
       var markupFragment;
 
-      if (isObject$3(result)) {
+      if (isObject$4(result)) {
         if (result.type) {
           markupFragment = result;
         } else {
@@ -28623,14 +28623,14 @@
 
         if (upTask) {
           {
-            assert(upTask._outputDueEnd != null);
+            assert$1(upTask._outputDueEnd != null);
           }
 
           this._dueEnd = upTask._outputDueEnd;
         } // DataTask or overallTask
         else {
             {
-              assert(!this._progress || this._count);
+              assert$1(!this._progress || this._count);
             }
 
             this._dueEnd = this._count ? this._count(this.context) : Infinity;
@@ -28661,7 +28661,7 @@
 
           {
             // ??? Can not rollback.
-            assert(outputDueEnd >= this._outputDueEnd);
+            assert$1(outputDueEnd >= this._outputDueEnd);
           }
 
           this._outputDueEnd = outputDueEnd;
@@ -28730,7 +28730,7 @@
 
       Task.prototype.pipe = function (downTask) {
         {
-          assert(downTask && !downTask._disposed && downTask !== this);
+          assert$1(downTask && !downTask._disposed && downTask !== this);
         } // If already downstream, do not dirty downTask.
 
 
@@ -29430,7 +29430,7 @@
         throwError(errMsg);
       }
 
-      if (!isObject$3(transOption)) {
+      if (!isObject$4(transOption)) {
         {
           errMsg = 'transform declaration must be an object rather than ' + typeof transOption + '.';
         }
@@ -29472,7 +29472,7 @@
       return map$1(resultList, function (result, resultIndex) {
         var errMsg = '';
 
-        if (!isObject$3(result)) {
+        if (!isObject$4(result)) {
           {
             errMsg = 'A transform should not return some empty results.';
           }
@@ -29640,7 +29640,7 @@
 
       DataStore.prototype.initData = function (provider, inputDimensions, dimValueGetter) {
         {
-          assert(isFunction(provider.getItem) && isFunction(provider.count), 'Invalid data provider.');
+          assert$1(isFunction(provider.getItem) && isFunction(provider.count), 'Invalid data provider.');
         }
 
         this._provider = provider; // Clear
@@ -29658,7 +29658,7 @@
         this._dimensions = map$1(inputDimensions, function (dim) {
           {
             if (willRetrieveDataByName) {
-              assert(dim.property != null);
+              assert$1(dim.property != null);
             }
           }
 
@@ -29760,7 +29760,7 @@
 
       DataStore.prototype.appendData = function (data) {
         {
-          assert(!this._indices, 'appendData can only be called on raw data.');
+          assert$1(!this._indices, 'appendData can only be called on raw data.');
         }
 
         var provider = this._provider;
@@ -30932,7 +30932,7 @@
         }
 
         {
-          assert(resultSourceList && upstreamSignList);
+          assert$1(resultSourceList && upstreamSignList);
         }
 
         this._setLocalSource(resultSourceList, upstreamSignList);
@@ -30944,7 +30944,7 @@
         var fromTransformResult = datasetModel.get('fromTransformResult', true);
 
         {
-          assert(fromTransformResult != null || transformOption != null);
+          assert$1(fromTransformResult != null || transformOption != null);
         }
 
         if (fromTransformResult != null) {
@@ -31042,7 +31042,7 @@
 
       SourceManager.prototype.getSharedDataStore = function (seriesDimRequest) {
         {
-          assert(isSeries(this._sourceHost), 'Can only call getDataStore on series source manager.');
+          assert$1(isSeries(this._sourceHost), 'Can only call getDataStore on series source manager.');
         }
 
         var schema = seriesDimRequest.makeStoreSchema();
@@ -31221,7 +31221,7 @@
       var gaps = getGap(getBlockGapLevel(fragment));
       var subMarkupTextList = [];
       var subBlocks = fragment.blocks || [];
-      assert(!subBlocks || isArray$1(subBlocks));
+      assert$1(!subBlocks || isArray$1(subBlocks));
       subBlocks = subBlocks || [];
       var orderMode = ctx.orderMode;
 
@@ -31410,7 +31410,7 @@
           return marker;
         } else {
           {
-            assert(markerId);
+            assert$1(markerId);
           }
 
           this.richTextStyles[markerId] = marker.style;
@@ -31603,7 +31603,7 @@
         this.dataTask.context.data = data;
 
         {
-          assert(data, 'getInitialData returned invalid data.');
+          assert$1(data, 'getInitialData returned invalid data.');
         }
 
         inner$k(this).dataBeforeProcessed = data; // If we reverse the order (make data firstly, and then make
@@ -31996,7 +31996,7 @@
         if (selectedMode === 'series') {
           option.selectedMap = 'all';
         } else if (selectedMode === 'multiple') {
-          if (!isObject$3(option.selectedMap)) {
+          if (!isObject$4(option.selectedMap)) {
             option.selectedMap = {};
           }
 
@@ -33039,7 +33039,7 @@
             errMsg = '"reset" and "overallReset" must not be both specified.';
           }
 
-          assert(!(handler.reset && handler.overallReset), errMsg);
+          assert$1(!(handler.reset && handler.overallReset), errMsg);
           handler.reset && this._createSeriesStageTask(handler, record, ecModel, api);
           handler.overallReset && this._createOverallStageTask(handler, record, ecModel, api);
         }, this);
@@ -33240,7 +33240,7 @@
           errMsg = '"createOnAllSeries" do not supported for "overallReset", ' + 'becuase it will block all streams.';
         }
 
-        assert(!stageHandler.createOnAllSeries, errMsg);
+        assert$1(!stageHandler.createOnAllSeries, errMsg);
 
         if (seriesType) {
           ecModel.eachRawSeriesByType(seriesType, createStub);
@@ -35929,7 +35929,7 @@
         var replaceMerge;
         var transitionOpt;
 
-        if (isObject$3(notMerge)) {
+        if (isObject$4(notMerge)) {
           lazyUpdate = notMerge.lazyUpdate;
           silent = notMerge.silent;
           replaceMerge = notMerge.replaceMerge;
@@ -36523,7 +36523,7 @@
           return;
         }
 
-        if (isObject$3(name)) {
+        if (isObject$4(name)) {
           cfg = name;
           name = '';
         }
@@ -36581,7 +36581,7 @@
           return;
         }
 
-        if (!isObject$3(opt)) {
+        if (!isObject$4(opt)) {
           opt = {
             silent: !!opt
           };
@@ -36641,7 +36641,7 @@
         var seriesModel = ecModel.getSeriesByIndex(seriesIndex);
 
         {
-          assert(params.data && seriesModel);
+          assert$1(params.data && seriesModel);
         }
 
         seriesModel.appendData(params); // Note: `appendData` does not support that update extent of coordinate
@@ -36712,7 +36712,7 @@
               ChartView$1.getClass(classType.sub);
 
               {
-                assert(Clazz, classType.sub + ' does not exist.');
+                assert$1(Clazz, classType.sub + ' does not exist.');
               }
 
               view = new Clazz();
@@ -37855,13 +37855,13 @@
     function registerUpdateLifecycle(name, cb) {
       lifecycle$1.on(name, cb);
     }
-    function registerAction(actionInfo, eventName, action) {
+    function registerAction$1(actionInfo, eventName, action) {
       if (isFunction(eventName)) {
         action = eventName;
         eventName = '';
       }
 
-      var actionType = isObject$3(actionInfo) ? actionInfo.type : [actionInfo, actionInfo = {
+      var actionType = isObject$4(actionInfo) ? actionInfo.type : [actionInfo, actionInfo = {
         event: eventName
       }][0]; // Event name is all lowercase
 
@@ -37874,7 +37874,7 @@
       } // Validate action type and event name.
 
 
-      assert(ACTION_REG.test(actionType) && ACTION_REG.test(eventName));
+      assert$1(ACTION_REG.test(actionType) && ACTION_REG.test(eventName));
 
       if (!actions[actionType]) {
         actions[actionType] = {
@@ -37899,7 +37899,7 @@
     var registeredTasks = [];
 
     function normalizeRegister(targetList, priority, fn, defaultPriority, visualType) {
-      if (isFunction(priority) || isObject$3(priority)) {
+      if (isFunction(priority) || isObject$4(priority)) {
         fn = priority;
         priority = defaultPriority;
       }
@@ -37911,7 +37911,7 @@
 
 
         each$f(targetList, function (wrap) {
-          assert(wrap.__raw !== fn);
+          assert$1(wrap.__raw !== fn);
         });
       } // Already registered
 
@@ -37965,27 +37965,27 @@
     registerProcessor(PRIORITY_PROCESSOR_DATASTACK, dataStack);
     registerLoading('default', defaultLoading); // Default actions
 
-    registerAction({
+    registerAction$1({
       type: HIGHLIGHT_ACTION_TYPE,
       event: HIGHLIGHT_ACTION_TYPE,
       update: HIGHLIGHT_ACTION_TYPE
     }, noop);
-    registerAction({
+    registerAction$1({
       type: DOWNPLAY_ACTION_TYPE,
       event: DOWNPLAY_ACTION_TYPE,
       update: DOWNPLAY_ACTION_TYPE
     }, noop);
-    registerAction({
+    registerAction$1({
       type: SELECT_ACTION_TYPE,
       event: SELECT_ACTION_TYPE,
       update: SELECT_ACTION_TYPE
     }, noop);
-    registerAction({
+    registerAction$1({
       type: UNSELECT_ACTION_TYPE,
       event: UNSELECT_ACTION_TYPE,
       update: UNSELECT_ACTION_TYPE
     }, noop);
-    registerAction({
+    registerAction$1({
       type: TOGGLE_SELECT_ACTION_TYPE,
       event: TOGGLE_SELECT_ACTION_TYPE,
       update: TOGGLE_SELECT_ACTION_TYPE
@@ -38001,7 +38001,7 @@
       registerPostInit: registerPostInit,
       registerPostUpdate: registerPostUpdate,
       registerUpdateLifecycle: registerUpdateLifecycle,
-      registerAction: registerAction,
+      registerAction: registerAction$1,
       registerCoordinateSystem: registerCoordinateSystem,
       registerLayout: registerLayout,
       registerVisual: registerVisual,
@@ -38398,7 +38398,7 @@
 
         if (coordDim) {
           {
-            assert(VISUAL_DIMENSIONS.get(coordDim) == null);
+            assert$1(VISUAL_DIMENSIONS.get(coordDim) == null);
           }
 
           var coordDimIndex = dimItem.coordDimIndex;
@@ -38739,7 +38739,7 @@
 
       for (var i = 0; i < (dimsDef || []).length; i++) {
         var dimDefItemRaw = dimsDef[i];
-        var userDimName = isObject$3(dimDefItemRaw) ? dimDefItemRaw.name : dimDefItemRaw;
+        var userDimName = isObject$4(dimDefItemRaw) ? dimDefItemRaw.name : dimDefItemRaw;
 
         if (userDimName != null && dataDimNameMap.get(userDimName) == null) {
           dataDimNameMap.set(userDimName, i);
@@ -38756,7 +38756,7 @@
       return dimCount > 30;
     }
 
-    var isObject$1 = isObject$3;
+    var isObject$2 = isObject$4;
     var map = map$1;
     var CtorInt32Array = typeof Int32Array === 'undefined' ? Array : Int32Array; // Use prefix to avoid index to be the same as otherIdList[idx],
     // which will cause weird udpate animation.
@@ -38871,7 +38871,7 @@
           }
 
           {
-            assert(assignStoreDimIdx || dimensionInfo.storeDimIndex >= 0);
+            assert$1(assignStoreDimIdx || dimensionInfo.storeDimIndex >= 0);
           }
 
           if (assignStoreDimIdx) {
@@ -39255,7 +39255,7 @@
       };
 
       SeriesData.prototype.setCalculationInfo = function (key, value) {
-        isObject$1(key) ? extend(this._calculationInfo, key) : this._calculationInfo[key] = value;
+        isObject$2(key) ? extend(this._calculationInfo, key) : this._calculationInfo[key] = value;
       };
       /**
        * @return Never be null/undefined. `number` will be converted to string. Becuase:
@@ -39606,7 +39606,7 @@
       SeriesData.prototype.setVisual = function (kvObj, val) {
         this._visual = this._visual || {};
 
-        if (isObject$1(kvObj)) {
+        if (isObject$2(kvObj)) {
           extend(this._visual, kvObj);
         } else {
           this._visual[kvObj] = val;
@@ -39658,7 +39658,7 @@
 
           if (isArray$1(val)) {
             val = val.slice();
-          } else if (isObject$1(val)) {
+          } else if (isObject$2(val)) {
             val = extend({}, val);
           }
 
@@ -39673,7 +39673,7 @@
         var itemVisual = this._itemVisuals[idx] || {};
         this._itemVisuals[idx] = itemVisual;
 
-        if (isObject$1(key)) {
+        if (isObject$2(key)) {
           extend(itemVisual, key);
         } else {
           itemVisual[key] = value;
@@ -39690,7 +39690,7 @@
       };
 
       SeriesData.prototype.setLayout = function (key, val) {
-        isObject$1(key) ? extend(this._layout, key) : this._layout[key] = val;
+        isObject$2(key) ? extend(this._layout, key) : this._layout[key] = val;
       };
       /**
        * Get layout property.
@@ -39948,7 +39948,7 @@
 
         if (idx < 0) {
           var dimDefItemRaw = dimsDef[dimIdx];
-          var dimDefItem = isObject$3(dimDefItemRaw) ? dimDefItemRaw : {
+          var dimDefItem = isObject$4(dimDefItemRaw) ? dimDefItemRaw : {
             name: dimDefItemRaw
           };
           var resultItem = new SeriesDimensionDefine$1();
@@ -40055,7 +40055,7 @@
 
           if (resultItem.name == null && sysDimItemDimsDef) {
             var sysDimItemDimsDefItem = sysDimItemDimsDef[coordDimIndex];
-            !isObject$3(sysDimItemDimsDefItem) && (sysDimItemDimsDefItem = {
+            !isObject$4(sysDimItemDimsDefItem) && (sysDimItemDimsDefItem = {
               name: sysDimItemDimsDefItem
             });
             resultItem.name = resultItem.displayName = sysDimItemDimsDefItem.name;
@@ -40183,7 +40183,7 @@
       each$f(sysDims, function (sysDimItem) {
         var sysDimItemDimsDef;
 
-        if (isObject$3(sysDimItem) && (sysDimItemDimsDef = sysDimItem.dimsDef)) {
+        if (isObject$4(sysDimItem) && (sysDimItemDimsDef = sysDimItem.dimsDef)) {
           dimCount = Math.max(dimCount, sysDimItemDimsDef.length);
         }
       });
@@ -40804,7 +40804,7 @@
     }();
 
     function getName(obj) {
-      if (isObject$3(obj) && obj.value != null) {
+      if (isObject$4(obj) && obj.value != null) {
         return obj.value;
       } else {
         return obj + '';
@@ -40924,7 +40924,7 @@
         if (isArray$1(ordinalMeta)) {
           ordinalMeta = new OrdinalMeta$1({
             categories: map$1(ordinalMeta, function (item) {
-              return isObject$3(item) ? item.value : item;
+              return isObject$4(item) ? item.value : item;
             })
           });
         }
@@ -42717,7 +42717,7 @@
 
       ScaleRawExtentInfo.prototype.modifyDataMinMax = function (minMaxName, val) {
         {
-          assert(!this.frozen);
+          assert$1(!this.frozen);
         }
 
         this[DATA_MIN_MAX_ATTR[minMaxName]] = val;
@@ -42727,7 +42727,7 @@
         var attr = DETERMINED_MIN_MAX_ATTR[minMaxName];
 
         {
-          assert(!this.frozen // Earse them usually means logic flaw.
+          assert$1(!this.frozen // Earse them usually means logic flaw.
           && this[attr] == null);
         }
 
@@ -46428,8 +46428,8 @@
             }
             if (typeof Image === 'undefined') {
                 var errMsg = 'Image width/height must been given explictly in svg-ssr renderer.';
-                assert(imageWidth_1, errMsg);
-                assert(imageHeight_1, errMsg);
+                assert$1(imageWidth_1, errMsg);
+                assert$1(imageHeight_1, errMsg);
             }
             else if (imageWidth_1 == null || imageHeight_1 == null) {
                 var setSizeToVNode_1 = function (vNode, img) {
@@ -46561,7 +46561,7 @@
                     }
                 }
             }
-            else if (isDef(vnode.text) && !isObject$3(vnode.text)) {
+            else if (isDef(vnode.text) && !isObject$4(vnode.text)) {
                 appendChild(elm, createTextNode(vnode.text));
             }
         }
@@ -47040,7 +47040,7 @@
             if (typeof id === 'string') {
                 dom = createDom(id, painter, dpr);
             }
-            else if (isObject$3(id)) {
+            else if (isObject$4(id)) {
                 dom = id;
                 id = dom.id;
             }
@@ -48407,7 +48407,7 @@
     }
 
     function normalizeUpdateOpt(opt) {
-      if (opt != null && !isObject$3(opt)) {
+      if (opt != null && !isObject$4(opt)) {
         opt = {
           isIgnore: opt
         };
@@ -54893,7 +54893,7 @@
           return this._coordsMap[key];
         }
 
-        if (isObject$3(xAxisIndex)) {
+        if (isObject$4(xAxisIndex)) {
           yAxisIndex = xAxisIndex.yAxisIndex;
           xAxisIndex = xAxisIndex.xAxisIndex;
         }
@@ -55772,7 +55772,7 @@
         if (rawCategoryData && rawCategoryData[tickValue]) {
           var rawCategoryItem = rawCategoryData[tickValue];
 
-          if (isObject$3(rawCategoryItem) && rawCategoryItem.textStyle) {
+          if (isObject$4(rawCategoryItem) && rawCategoryItem.textStyle) {
             itemLabelModel = new Model$1(rawCategoryItem.textStyle, labelModel, axisModel.ecModel);
           }
         }
@@ -57488,7 +57488,7 @@
     // TODO: SELF REGISTERED.
 
 
-    registerAction({
+    registerAction$1({
       type: 'takeGlobalCursor',
       event: 'globalCursorTaken',
       update: 'update'
@@ -58576,7 +58576,7 @@
             ignoreRootClip: true
           }) || {};
           rootFromParse = result.root;
-          assert(rootFromParse != null);
+          assert$1(rootFromParse != null);
         } catch (e) {
           throw new Error('Invalid svg format\n' + e.message);
         } // Note: we keep the covenant that the root has no transform. So always add an extra root.
@@ -62422,7 +62422,7 @@
         mainData.wrapMethod(methodName, curry$1(changeInjection, opt));
       }); // Make sure datas contains mainData.
 
-      assert(datas[mainData.dataType] === mainData);
+      assert$1(datas[mainData.dataType] === mainData);
     }
 
     function transferInjection(opt, res) {
@@ -64974,7 +64974,7 @@
     var TreemapView$1 = TreemapView;
 
     var each$c = each$f;
-    var isObject = isObject$3;
+    var isObject$1 = isObject$4;
     var CATEGORY_DEFAULT_VISUAL_INDEX = -1;
 
     var VisualMapping =
@@ -65001,7 +65001,7 @@
           : normalizeVisualRange(thisOption, true);
         } else {
           // mappingMethod === 'linear' or 'fixed'
-          assert(mappingMethod !== 'linear' || thisOption.dataExtent);
+          assert$1(mappingMethod !== 'linear' || thisOption.dataExtent);
           normalizeVisualRange(thisOption);
         }
       }
@@ -65047,7 +65047,7 @@
 
 
       VisualMapping.eachVisual = function (visual, callback, context) {
-        if (isObject$3(visual)) {
+        if (isObject$4(visual)) {
           each$f(visual, callback, context);
         } else {
           callback.call(context, visual);
@@ -65056,7 +65056,7 @@
 
       VisualMapping.mapVisual = function (visual, callback, context) {
         var isPrimary;
-        var newVisual = isArray$1(visual) ? [] : isObject$3(visual) ? {} : (isPrimary = true, null);
+        var newVisual = isArray$1(visual) ? [] : isObject$4(visual) ? {} : (isPrimary = true, null);
         VisualMapping.eachVisual(visual, function (v, key) {
           var newVal = callback.call(context, v, key);
           isPrimary ? newVisual = newVal : newVisual[key] = newVal;
@@ -65092,7 +65092,7 @@
       VisualMapping.prepareVisualTypes = function (visualTypes) {
         if (isArray$1(visualTypes)) {
           visualTypes = visualTypes.slice();
-        } else if (isObject(visualTypes)) {
+        } else if (isObject$1(visualTypes)) {
           var types_1 = [];
           each$c(visualTypes, function (item, type) {
             types_1.push(type);
@@ -65306,7 +65306,7 @@
       if (!isArray$1(visual)) {
         var visualArr_1 = [];
 
-        if (isObject$3(visual)) {
+        if (isObject$4(visual)) {
           each$c(visual, function (v, cate) {
             var index = categoryMap[cate];
             visualArr_1[index != null ? index : CATEGORY_DEFAULT_VISUAL_INDEX] = v;
@@ -65333,7 +65333,7 @@
       var visual = thisOption.visual;
       var visualArr = [];
 
-      if (isObject$3(visual)) {
+      if (isObject$4(visual)) {
         each$c(visual, function (v) {
           visualArr.push(v);
         });
@@ -70686,7 +70686,7 @@
     function mergeAxisOptionFromParallel(option) {
       var axes = normalizeToArray(option.parallelAxis);
       each$f(axes, function (axisOption) {
-        if (!isObject$3(axisOption)) {
+        if (!isObject$4(axisOption)) {
           return;
         }
 
@@ -71641,7 +71641,7 @@
         _this._handlers = {};
 
         {
-          assert(zr);
+          assert$1(zr);
         }
 
         _this._zr = zr;
@@ -71659,7 +71659,7 @@
 
       BrushController.prototype.enableBrush = function (brushOption) {
         {
-          assert(this._mounted);
+          assert$1(this._mounted);
         }
 
         this._brushType && this._doDisableBrush();
@@ -71741,7 +71741,7 @@
 
       BrushController.prototype.updateCovers = function (coverConfigList) {
         {
-          assert(this._mounted);
+          assert$1(this._mounted);
         }
 
         coverConfigList = map$1(coverConfigList, function (coverConfig) {
@@ -72198,7 +72198,7 @@
     function determineBrushType(brushType, panel) {
       if (brushType === 'auto') {
         {
-          assert(panel && panel.defaultBrushType, 'MUST have defaultBrushType when brushType is "atuo"');
+          assert$1(panel && panel.defaultBrushType, 'MUST have defaultBrushType when brushType is "atuo"');
         }
 
         return panel.defaultBrushType;
@@ -74732,7 +74732,7 @@
 
 
       each$f(option.series, function (seriesItem) {
-        if (isObject$3(seriesItem) && seriesItem.type === 'k') {
+        if (isObject$4(seriesItem) && seriesItem.type === 'k') {
           seriesItem.type = 'candlestick';
         }
       });
@@ -79937,7 +79937,7 @@
       // Usually other props do not need to be changed in animation during.
       setTransform: function (key, val) {
         {
-          assert(hasOwn(TRANSFORM_PROPS_MAP, key), 'Only ' + transformPropNamesStr + ' available in `setTransform`.');
+          assert$1(hasOwn(TRANSFORM_PROPS_MAP, key), 'Only ' + transformPropNamesStr + ' available in `setTransform`.');
         }
 
         tmpDuringScope.el[key] = val;
@@ -79945,7 +79945,7 @@
       },
       getTransform: function (key) {
         {
-          assert(hasOwn(TRANSFORM_PROPS_MAP, key), 'Only ' + transformPropNamesStr + ' available in `getTransform`.');
+          assert$1(hasOwn(TRANSFORM_PROPS_MAP, key), 'Only ' + transformPropNamesStr + ' available in `getTransform`.');
         }
 
         return tmpDuringScope.el[key];
@@ -80703,8 +80703,8 @@
 
       if (coordSys) {
         {
-          assert(renderItem, 'series.render is required.');
-          assert(coordSys.prepareCustoms || prepareCustoms[coordSys.type], 'This coordSys does not support custom series.');
+          assert$1(renderItem, 'series.render is required.');
+          assert$1(coordSys.prepareCustoms || prepareCustoms[coordSys.type], 'This coordSys does not support custom series.');
         } // `coordSys.prepareCustoms` is used for external coord sys like bmap.
 
 
@@ -80988,7 +80988,7 @@
 
     function doCreateOrUpdateEl(api, existsEl, dataIndex, elOption, seriesModel, group) {
       {
-        assert(elOption, 'should not have an null/undefined element setting');
+        assert$1(elOption, 'should not have an null/undefined element setting');
       }
 
       var toBeReplacedIdx = -1;
@@ -81103,7 +81103,7 @@
           clipPath = createEl$1(clipPathOpt);
 
           {
-            assert(isPath(clipPath), 'Only any type of `path` can be used in `clipPath`, rather than ' + clipPath.type + '.');
+            assert$1(isPath(clipPath), 'Only any type of `path` can be used in `clipPath`, rather than ' + clipPath.type + '.');
           }
 
           el.setClipPath(clipPath);
@@ -81202,7 +81202,7 @@
 
         {
           // Do not tolerate incorret type for forward compat.
-          assert(txConOptNormal_1.type === 'text', 'textContent.type must be "text"');
+          assert$1(txConOptNormal_1.type === 'text', 'textContent.type must be "text"');
         }
       }
 
@@ -81706,7 +81706,7 @@
     }
 
     function propsEqual(lastProps, newProps) {
-      if (isObject$3(lastProps) && isObject$3(newProps)) {
+      if (isObject$4(lastProps) && isObject$4(newProps)) {
         var equals_1 = true;
         each$f(newProps, function (item, key) {
           equals_1 = equals_1 && propsEqual(lastProps[key], item);
@@ -83492,7 +83492,7 @@
           if (rawCategoryData && rawCategoryData[tickValue]) {
             var rawCategoryItem = rawCategoryData[tickValue];
 
-            if (isObject$3(rawCategoryItem) && rawCategoryItem.textStyle) {
+            if (isObject$4(rawCategoryItem) && rawCategoryItem.textStyle) {
               labelModel = new Model$1(rawCategoryItem.textStyle, commonLabelModel, commonLabelModel.ecModel);
             }
           }
@@ -85673,7 +85673,7 @@
         if (existElOption) {
           {
             var newType = newElOption.type;
-            assert(!newType || existElOption.type === newType, 'Please set $action: "replace" to change `type`');
+            assert$1(!newType || existElOption.type === newType, 'Please set $action: "replace" to change `type`');
           } // We can ensure that newElOptCopy and existElOption are not
           // the same object, so `merge` will not change newElOptCopy.
 
@@ -85788,7 +85788,7 @@
           var newElOption = resultItem.newOption;
 
           {
-            assert(isObject$3(newElOption) || resultItem.existing, 'Empty graphic option definition');
+            assert$1(isObject$4(newElOption) || resultItem.existing, 'Empty graphic option definition');
           }
 
           if (!newElOption) {
@@ -85965,7 +85965,7 @@
           var elOptionCleaned = getCleanedElOption(elOption); // For simple, do not support parent change, otherwise reorder is needed.
 
           {
-            elExisting && assert(targetElParent === elExisting.parent, 'Changing parent is not supported.');
+            elExisting && assert$1(targetElParent === elExisting.parent, 'Changing parent is not supported.');
           }
 
           var $action = elOption.$action || 'merge';
@@ -86160,7 +86160,7 @@
 
     function newEl(graphicType) {
       {
-        assert(graphicType, 'graphic type MUST be set');
+        assert$1(graphicType, 'graphic type MUST be set');
       }
 
       var Clz = hasOwn(nonShapeGraphicElements, graphicType) // Those graphic elements are not shapes. They should not be
@@ -86168,7 +86168,7 @@
       ? nonShapeGraphicElements[graphicType] : getShapeClass(graphicType);
 
       {
-        assert(Clz, "graphic type " + graphicType + " can not be found");
+        assert$1(Clz, "graphic type " + graphicType + " can not be found");
       }
 
       var el = new Clz({});
@@ -86297,7 +86297,7 @@
     }
     function getAxisMainType(axisDim) {
       {
-        assert(axisDim);
+        assert$1(axisDim);
       }
 
       return axisDim + 'Axis';
@@ -86730,7 +86730,7 @@
 
       DataZoomModel.prototype.getAxisModel = function (axisDim, axisIndex) {
         {
-          assert(axisDim && axisIndex != null);
+          assert$1(axisDim && axisIndex != null);
         }
 
         var axisInfo = this._targetAxisInfoMap.get(axisDim);
@@ -86845,7 +86845,7 @@
       DataZoomModel.prototype.getOrient = function () {
         {
           // Should not be called before initialized.
-          assert(this._orient);
+          assert$1(this._orient);
         }
 
         return this._orient;
@@ -88102,7 +88102,7 @@
       }
     }; // TODO: SELF REGISTERED.
 
-    registerAction({
+    registerAction$1({
       type: 'changeMagicType',
       event: 'magicTypeChanged',
       update: 'prepareAndUpdate'
@@ -88522,8 +88522,8 @@
       return map$1(newData, function (newVal, idx) {
         var original = originalData && originalData[idx];
 
-        if (isObject$3(original) && !isArray$1(original)) {
-          var newValIsObject = isObject$3(newVal) && !isArray$1(newVal);
+        if (isObject$4(original) && !isArray$1(original)) {
+          var newValIsObject = isObject$4(newVal) && !isArray$1(newVal);
 
           if (!newValIsObject) {
             newVal = {
@@ -88544,7 +88544,7 @@
     } // TODO: SELF REGISTERED.
 
 
-    registerAction({
+    registerAction$1({
       type: 'changeDataView',
       event: 'dataViewChanged',
       update: 'prepareAndUpdate'
@@ -88686,7 +88686,7 @@
     }(ToolboxFeature); // TODO: SELF REGISTERED.
 
 
-    registerAction({
+    registerAction$1({
       type: 'restore',
       event: 'restore',
       update: 'prepareAndUpdate'
@@ -88764,8 +88764,8 @@
           var targetInfo = this.findTargetInfo(area, ecModel);
 
           {
-            assert(!targetInfo || targetInfo === true || area.coordRange, 'coordRange must be specified when coord index specified.');
-            assert(!targetInfo || targetInfo !== true || area.range, 'range must be specified in global brush.');
+            assert$1(!targetInfo || targetInfo === true || area.coordRange, 'coordRange must be specified when coord index specified.');
+            assert$1(!targetInfo || targetInfo !== true || area.range, 'range must be specified in global brush.');
           }
 
           area.range = area.range || []; // convert coordRange to global range and set panelId.
@@ -88970,7 +88970,7 @@
 
     function axisConvert(axisNameIndex, to, coordSys, rangeOrCoordRange) {
       {
-        assert(coordSys.type === 'cartesian2d', 'lineX/lineY brush is available only in cartesian2d.');
+        assert$1(coordSys.type === 'cartesian2d', 'lineX/lineY brush is available only in cartesian2d.');
       }
 
       var axis = coordSys.getAxis(['x', 'y'][axisNameIndex]);
@@ -89830,7 +89830,7 @@
       TooltipRichContent.prototype.setContent = function (content, markupStyleCreator, tooltipModel, borderColor, arrowPosition) {
         var _this = this;
 
-        if (isObject$3(content)) {
+        if (isObject$4(content)) {
           throwError('Passing DOM nodes as content is not supported in richText tooltip!' );
         }
 
@@ -90595,7 +90595,7 @@
         if (isArray$1(positionExpr)) {
           x = parsePercent(positionExpr[0], viewWidth);
           y = parsePercent(positionExpr[1], viewHeight);
-        } else if (isObject$3(positionExpr)) {
+        } else if (isObject$4(positionExpr)) {
           var boxLayoutPosition = positionExpr;
           boxLayoutPosition.width = contentSize[0];
           boxLayoutPosition.height = contentSize[1];
@@ -91563,9 +91563,9 @@
 
       BrushModel.prototype.setAreas = function (areas) {
         {
-          assert(isArray$1(areas));
+          assert$1(isArray$1(areas));
           each$f(areas, function (area) {
-            assert(area.brushType, 'Illegal areas');
+            assert$1(area.brushType, 'Illegal areas');
           });
         } // If areas is null/undefined, range state remain.
         // This helps user to dispatchAction({type: 'brush'}) with no areas
@@ -92071,7 +92071,7 @@
             var value = convertOptionIdName(getDataItemValue(item), '');
             var newItem;
 
-            if (isObject$3(item)) {
+            if (isObject$4(item)) {
               newItem = clone$5(item);
               newItem.value = index;
             } else {
@@ -93103,7 +93103,7 @@
       }
 
       each$f(opt.data || [], function (dataItem) {
-        if (isObject$3(dataItem) && !isArray$1(dataItem)) {
+        if (isObject$4(dataItem) && !isArray$1(dataItem)) {
           if (!has$1(dataItem, 'value') && has$1(dataItem, 'name')) {
             // In ec2, using name as value.
             dataItem.value = dataItem.name;
@@ -99208,7 +99208,7 @@
 
         if (pieces && isArray$1(pieces)) {
           each(pieces, function (piece) {
-            if (isObject$3(piece)) {
+            if (isObject$4(piece)) {
               if (has(piece, 'start') && !has(piece, 'min')) {
                 piece.min = piece.start;
               }
@@ -99628,7 +99628,7 @@
       pieces: function (outPieceList) {
         var thisOption = this.option;
         each$f(thisOption.pieces, function (pieceListItem, index) {
-          if (!isObject$3(pieceListItem)) {
+          if (!isObject$4(pieceListItem)) {
             pieceListItem = {
               value: pieceListItem
             };
@@ -100413,7 +100413,7 @@
     }
 
     function isObjectNotArray(val) {
-      return isObject$3(val) && !isArrayLike(val);
+      return isObject$4(val) && !isArrayLike(val);
     }
 
     var ConditionalExpressionParsed =
@@ -103057,7 +103057,7 @@
         },
     };
 
-    const _hoisted_1$1 = ["src"];
+    const _hoisted_1$2 = ["src"];
     const _hoisted_2$1 = {
       key: 1,
       class: "img-placeholder"
@@ -103085,7 +103085,7 @@
               class: "image-media pointer-events-auto absolute",
               draggable: "false",
               src: $setup.src
-            }, null, 8 /* PROPS */, _hoisted_1$1))
+            }, null, 8 /* PROPS */, _hoisted_1$2))
           : (openBlock(), createElementBlock("div", _hoisted_2$1))
       ], 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
@@ -103112,7 +103112,7 @@
         }
     };
 
-    const _hoisted_1 = ["src"];
+    const _hoisted_1$1 = ["src"];
     const _hoisted_2 = {
       key: 1,
       class: "img-placeholder"
@@ -103142,7 +103142,7 @@
               autoplay: "",
               loop: "",
               src: $setup.src
-            }, null, 8 /* PROPS */, _hoisted_1))
+            }, null, 8 /* PROPS */, _hoisted_1$1))
           : (openBlock(), createElementBlock("div", _hoisted_2))
       ], 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
@@ -104294,6 +104294,1626 @@
         }
     };
 
+    function getDevtoolsGlobalHook() {
+        return getTarget().__VUE_DEVTOOLS_GLOBAL_HOOK__;
+    }
+    function getTarget() {
+        // @ts-ignore
+        return (typeof navigator !== 'undefined' && typeof window !== 'undefined')
+            ? window
+            : typeof global !== 'undefined'
+                ? global
+                : {};
+    }
+    const isProxyAvailable = typeof Proxy === 'function';
+
+    const HOOK_SETUP = 'devtools-plugin:setup';
+    const HOOK_PLUGIN_SETTINGS_SET = 'plugin:settings:set';
+
+    let supported;
+    let perf;
+    function isPerformanceSupported() {
+        var _a;
+        if (supported !== undefined) {
+            return supported;
+        }
+        if (typeof window !== 'undefined' && window.performance) {
+            supported = true;
+            perf = window.performance;
+        }
+        else if (typeof global !== 'undefined' && ((_a = global.perf_hooks) === null || _a === void 0 ? void 0 : _a.performance)) {
+            supported = true;
+            perf = global.perf_hooks.performance;
+        }
+        else {
+            supported = false;
+        }
+        return supported;
+    }
+    function now() {
+        return isPerformanceSupported() ? perf.now() : Date.now();
+    }
+
+    class ApiProxy {
+        constructor(plugin, hook) {
+            this.target = null;
+            this.targetQueue = [];
+            this.onQueue = [];
+            this.plugin = plugin;
+            this.hook = hook;
+            const defaultSettings = {};
+            if (plugin.settings) {
+                for (const id in plugin.settings) {
+                    const item = plugin.settings[id];
+                    defaultSettings[id] = item.defaultValue;
+                }
+            }
+            const localSettingsSaveId = `__vue-devtools-plugin-settings__${plugin.id}`;
+            let currentSettings = Object.assign({}, defaultSettings);
+            try {
+                const raw = localStorage.getItem(localSettingsSaveId);
+                const data = JSON.parse(raw);
+                Object.assign(currentSettings, data);
+            }
+            catch (e) {
+                // noop
+            }
+            this.fallbacks = {
+                getSettings() {
+                    return currentSettings;
+                },
+                setSettings(value) {
+                    try {
+                        localStorage.setItem(localSettingsSaveId, JSON.stringify(value));
+                    }
+                    catch (e) {
+                        // noop
+                    }
+                    currentSettings = value;
+                },
+                now() {
+                    return now();
+                },
+            };
+            if (hook) {
+                hook.on(HOOK_PLUGIN_SETTINGS_SET, (pluginId, value) => {
+                    if (pluginId === this.plugin.id) {
+                        this.fallbacks.setSettings(value);
+                    }
+                });
+            }
+            this.proxiedOn = new Proxy({}, {
+                get: (_target, prop) => {
+                    if (this.target) {
+                        return this.target.on[prop];
+                    }
+                    else {
+                        return (...args) => {
+                            this.onQueue.push({
+                                method: prop,
+                                args,
+                            });
+                        };
+                    }
+                },
+            });
+            this.proxiedTarget = new Proxy({}, {
+                get: (_target, prop) => {
+                    if (this.target) {
+                        return this.target[prop];
+                    }
+                    else if (prop === 'on') {
+                        return this.proxiedOn;
+                    }
+                    else if (Object.keys(this.fallbacks).includes(prop)) {
+                        return (...args) => {
+                            this.targetQueue.push({
+                                method: prop,
+                                args,
+                                resolve: () => { },
+                            });
+                            return this.fallbacks[prop](...args);
+                        };
+                    }
+                    else {
+                        return (...args) => {
+                            return new Promise(resolve => {
+                                this.targetQueue.push({
+                                    method: prop,
+                                    args,
+                                    resolve,
+                                });
+                            });
+                        };
+                    }
+                },
+            });
+        }
+        async setRealTarget(target) {
+            this.target = target;
+            for (const item of this.onQueue) {
+                this.target.on[item.method](...item.args);
+            }
+            for (const item of this.targetQueue) {
+                item.resolve(await this.target[item.method](...item.args));
+            }
+        }
+    }
+
+    function setupDevtoolsPlugin(pluginDescriptor, setupFn) {
+        const descriptor = pluginDescriptor;
+        const target = getTarget();
+        const hook = getDevtoolsGlobalHook();
+        const enableProxy = isProxyAvailable && descriptor.enableEarlyProxy;
+        if (hook && (target.__VUE_DEVTOOLS_PLUGIN_API_AVAILABLE__ || !enableProxy)) {
+            hook.emit(HOOK_SETUP, pluginDescriptor, setupFn);
+        }
+        else {
+            const proxy = enableProxy ? new ApiProxy(descriptor, hook) : null;
+            const list = target.__VUE_DEVTOOLS_PLUGINS__ = target.__VUE_DEVTOOLS_PLUGINS__ || [];
+            list.push({
+                pluginDescriptor: descriptor,
+                setupFn,
+                proxy,
+            });
+            if (proxy)
+                setupFn(proxy.proxiedTarget);
+        }
+    }
+
+    /*!
+     * vuex v4.0.2
+     * (c) 2021 Evan You
+     * @license MIT
+     */
+
+    var storeKey = 'store';
+
+    /**
+     * forEach for object
+     */
+    function forEachValue (obj, fn) {
+      Object.keys(obj).forEach(function (key) { return fn(obj[key], key); });
+    }
+
+    function isObject (obj) {
+      return obj !== null && typeof obj === 'object'
+    }
+
+    function isPromise (val) {
+      return val && typeof val.then === 'function'
+    }
+
+    function assert (condition, msg) {
+      if (!condition) { throw new Error(("[vuex] " + msg)) }
+    }
+
+    function partial (fn, arg) {
+      return function () {
+        return fn(arg)
+      }
+    }
+
+    function genericSubscribe (fn, subs, options) {
+      if (subs.indexOf(fn) < 0) {
+        options && options.prepend
+          ? subs.unshift(fn)
+          : subs.push(fn);
+      }
+      return function () {
+        var i = subs.indexOf(fn);
+        if (i > -1) {
+          subs.splice(i, 1);
+        }
+      }
+    }
+
+    function resetStore (store, hot) {
+      store._actions = Object.create(null);
+      store._mutations = Object.create(null);
+      store._wrappedGetters = Object.create(null);
+      store._modulesNamespaceMap = Object.create(null);
+      var state = store.state;
+      // init all modules
+      installModule(store, state, [], store._modules.root, true);
+      // reset state
+      resetStoreState(store, state, hot);
+    }
+
+    function resetStoreState (store, state, hot) {
+      var oldState = store._state;
+
+      // bind store public getters
+      store.getters = {};
+      // reset local getters cache
+      store._makeLocalGettersCache = Object.create(null);
+      var wrappedGetters = store._wrappedGetters;
+      var computedObj = {};
+      forEachValue(wrappedGetters, function (fn, key) {
+        // use computed to leverage its lazy-caching mechanism
+        // direct inline function use will lead to closure preserving oldState.
+        // using partial to return function with only arguments preserved in closure environment.
+        computedObj[key] = partial(fn, store);
+        Object.defineProperty(store.getters, key, {
+          // TODO: use `computed` when it's possible. at the moment we can't due to
+          // https://github.com/vuejs/vuex/pull/1883
+          get: function () { return computedObj[key](); },
+          enumerable: true // for local getters
+        });
+      });
+
+      store._state = reactive({
+        data: state
+      });
+
+      // enable strict mode for new state
+      if (store.strict) {
+        enableStrictMode(store);
+      }
+
+      if (oldState) {
+        if (hot) {
+          // dispatch changes in all subscribed watchers
+          // to force getter re-evaluation for hot reloading.
+          store._withCommit(function () {
+            oldState.data = null;
+          });
+        }
+      }
+    }
+
+    function installModule (store, rootState, path, module, hot) {
+      var isRoot = !path.length;
+      var namespace = store._modules.getNamespace(path);
+
+      // register in namespace map
+      if (module.namespaced) {
+        if (store._modulesNamespaceMap[namespace] && ('development' !== 'production')) {
+          console.error(("[vuex] duplicate namespace " + namespace + " for the namespaced module " + (path.join('/'))));
+        }
+        store._modulesNamespaceMap[namespace] = module;
+      }
+
+      // set state
+      if (!isRoot && !hot) {
+        var parentState = getNestedState(rootState, path.slice(0, -1));
+        var moduleName = path[path.length - 1];
+        store._withCommit(function () {
+          {
+            if (moduleName in parentState) {
+              console.warn(
+                ("[vuex] state field \"" + moduleName + "\" was overridden by a module with the same name at \"" + (path.join('.')) + "\"")
+              );
+            }
+          }
+          parentState[moduleName] = module.state;
+        });
+      }
+
+      var local = module.context = makeLocalContext(store, namespace, path);
+
+      module.forEachMutation(function (mutation, key) {
+        var namespacedType = namespace + key;
+        registerMutation(store, namespacedType, mutation, local);
+      });
+
+      module.forEachAction(function (action, key) {
+        var type = action.root ? key : namespace + key;
+        var handler = action.handler || action;
+        registerAction(store, type, handler, local);
+      });
+
+      module.forEachGetter(function (getter, key) {
+        var namespacedType = namespace + key;
+        registerGetter(store, namespacedType, getter, local);
+      });
+
+      module.forEachChild(function (child, key) {
+        installModule(store, rootState, path.concat(key), child, hot);
+      });
+    }
+
+    /**
+     * make localized dispatch, commit, getters and state
+     * if there is no namespace, just use root ones
+     */
+    function makeLocalContext (store, namespace, path) {
+      var noNamespace = namespace === '';
+
+      var local = {
+        dispatch: noNamespace ? store.dispatch : function (_type, _payload, _options) {
+          var args = unifyObjectStyle(_type, _payload, _options);
+          var payload = args.payload;
+          var options = args.options;
+          var type = args.type;
+
+          if (!options || !options.root) {
+            type = namespace + type;
+            if (!store._actions[type]) {
+              console.error(("[vuex] unknown local action type: " + (args.type) + ", global type: " + type));
+              return
+            }
+          }
+
+          return store.dispatch(type, payload)
+        },
+
+        commit: noNamespace ? store.commit : function (_type, _payload, _options) {
+          var args = unifyObjectStyle(_type, _payload, _options);
+          var payload = args.payload;
+          var options = args.options;
+          var type = args.type;
+
+          if (!options || !options.root) {
+            type = namespace + type;
+            if (!store._mutations[type]) {
+              console.error(("[vuex] unknown local mutation type: " + (args.type) + ", global type: " + type));
+              return
+            }
+          }
+
+          store.commit(type, payload, options);
+        }
+      };
+
+      // getters and state object must be gotten lazily
+      // because they will be changed by state update
+      Object.defineProperties(local, {
+        getters: {
+          get: noNamespace
+            ? function () { return store.getters; }
+            : function () { return makeLocalGetters(store, namespace); }
+        },
+        state: {
+          get: function () { return getNestedState(store.state, path); }
+        }
+      });
+
+      return local
+    }
+
+    function makeLocalGetters (store, namespace) {
+      if (!store._makeLocalGettersCache[namespace]) {
+        var gettersProxy = {};
+        var splitPos = namespace.length;
+        Object.keys(store.getters).forEach(function (type) {
+          // skip if the target getter is not match this namespace
+          if (type.slice(0, splitPos) !== namespace) { return }
+
+          // extract local getter type
+          var localType = type.slice(splitPos);
+
+          // Add a port to the getters proxy.
+          // Define as getter property because
+          // we do not want to evaluate the getters in this time.
+          Object.defineProperty(gettersProxy, localType, {
+            get: function () { return store.getters[type]; },
+            enumerable: true
+          });
+        });
+        store._makeLocalGettersCache[namespace] = gettersProxy;
+      }
+
+      return store._makeLocalGettersCache[namespace]
+    }
+
+    function registerMutation (store, type, handler, local) {
+      var entry = store._mutations[type] || (store._mutations[type] = []);
+      entry.push(function wrappedMutationHandler (payload) {
+        handler.call(store, local.state, payload);
+      });
+    }
+
+    function registerAction (store, type, handler, local) {
+      var entry = store._actions[type] || (store._actions[type] = []);
+      entry.push(function wrappedActionHandler (payload) {
+        var res = handler.call(store, {
+          dispatch: local.dispatch,
+          commit: local.commit,
+          getters: local.getters,
+          state: local.state,
+          rootGetters: store.getters,
+          rootState: store.state
+        }, payload);
+        if (!isPromise(res)) {
+          res = Promise.resolve(res);
+        }
+        if (store._devtoolHook) {
+          return res.catch(function (err) {
+            store._devtoolHook.emit('vuex:error', err);
+            throw err
+          })
+        } else {
+          return res
+        }
+      });
+    }
+
+    function registerGetter (store, type, rawGetter, local) {
+      if (store._wrappedGetters[type]) {
+        {
+          console.error(("[vuex] duplicate getter key: " + type));
+        }
+        return
+      }
+      store._wrappedGetters[type] = function wrappedGetter (store) {
+        return rawGetter(
+          local.state, // local state
+          local.getters, // local getters
+          store.state, // root state
+          store.getters // root getters
+        )
+      };
+    }
+
+    function enableStrictMode (store) {
+      watch(function () { return store._state.data; }, function () {
+        {
+          assert(store._committing, "do not mutate vuex store state outside mutation handlers.");
+        }
+      }, { deep: true, flush: 'sync' });
+    }
+
+    function getNestedState (state, path) {
+      return path.reduce(function (state, key) { return state[key]; }, state)
+    }
+
+    function unifyObjectStyle (type, payload, options) {
+      if (isObject(type) && type.type) {
+        options = payload;
+        payload = type;
+        type = type.type;
+      }
+
+      {
+        assert(typeof type === 'string', ("expects string as the type, but found " + (typeof type) + "."));
+      }
+
+      return { type: type, payload: payload, options: options }
+    }
+
+    var LABEL_VUEX_BINDINGS = 'vuex bindings';
+    var MUTATIONS_LAYER_ID = 'vuex:mutations';
+    var ACTIONS_LAYER_ID = 'vuex:actions';
+    var INSPECTOR_ID = 'vuex';
+
+    var actionId = 0;
+
+    function addDevtools (app, store) {
+      setupDevtoolsPlugin(
+        {
+          id: 'org.vuejs.vuex',
+          app: app,
+          label: 'Vuex',
+          homepage: 'https://next.vuex.vuejs.org/',
+          logo: 'https://vuejs.org/images/icons/favicon-96x96.png',
+          packageName: 'vuex',
+          componentStateTypes: [LABEL_VUEX_BINDINGS]
+        },
+        function (api) {
+          api.addTimelineLayer({
+            id: MUTATIONS_LAYER_ID,
+            label: 'Vuex Mutations',
+            color: COLOR_LIME_500
+          });
+
+          api.addTimelineLayer({
+            id: ACTIONS_LAYER_ID,
+            label: 'Vuex Actions',
+            color: COLOR_LIME_500
+          });
+
+          api.addInspector({
+            id: INSPECTOR_ID,
+            label: 'Vuex',
+            icon: 'storage',
+            treeFilterPlaceholder: 'Filter stores...'
+          });
+
+          api.on.getInspectorTree(function (payload) {
+            if (payload.app === app && payload.inspectorId === INSPECTOR_ID) {
+              if (payload.filter) {
+                var nodes = [];
+                flattenStoreForInspectorTree(nodes, store._modules.root, payload.filter, '');
+                payload.rootNodes = nodes;
+              } else {
+                payload.rootNodes = [
+                  formatStoreForInspectorTree(store._modules.root, '')
+                ];
+              }
+            }
+          });
+
+          api.on.getInspectorState(function (payload) {
+            if (payload.app === app && payload.inspectorId === INSPECTOR_ID) {
+              var modulePath = payload.nodeId;
+              makeLocalGetters(store, modulePath);
+              payload.state = formatStoreForInspectorState(
+                getStoreModule(store._modules, modulePath),
+                modulePath === 'root' ? store.getters : store._makeLocalGettersCache,
+                modulePath
+              );
+            }
+          });
+
+          api.on.editInspectorState(function (payload) {
+            if (payload.app === app && payload.inspectorId === INSPECTOR_ID) {
+              var modulePath = payload.nodeId;
+              var path = payload.path;
+              if (modulePath !== 'root') {
+                path = modulePath.split('/').filter(Boolean).concat( path);
+              }
+              store._withCommit(function () {
+                payload.set(store._state.data, path, payload.state.value);
+              });
+            }
+          });
+
+          store.subscribe(function (mutation, state) {
+            var data = {};
+
+            if (mutation.payload) {
+              data.payload = mutation.payload;
+            }
+
+            data.state = state;
+
+            api.notifyComponentUpdate();
+            api.sendInspectorTree(INSPECTOR_ID);
+            api.sendInspectorState(INSPECTOR_ID);
+
+            api.addTimelineEvent({
+              layerId: MUTATIONS_LAYER_ID,
+              event: {
+                time: Date.now(),
+                title: mutation.type,
+                data: data
+              }
+            });
+          });
+
+          store.subscribeAction({
+            before: function (action, state) {
+              var data = {};
+              if (action.payload) {
+                data.payload = action.payload;
+              }
+              action._id = actionId++;
+              action._time = Date.now();
+              data.state = state;
+
+              api.addTimelineEvent({
+                layerId: ACTIONS_LAYER_ID,
+                event: {
+                  time: action._time,
+                  title: action.type,
+                  groupId: action._id,
+                  subtitle: 'start',
+                  data: data
+                }
+              });
+            },
+            after: function (action, state) {
+              var data = {};
+              var duration = Date.now() - action._time;
+              data.duration = {
+                _custom: {
+                  type: 'duration',
+                  display: (duration + "ms"),
+                  tooltip: 'Action duration',
+                  value: duration
+                }
+              };
+              if (action.payload) {
+                data.payload = action.payload;
+              }
+              data.state = state;
+
+              api.addTimelineEvent({
+                layerId: ACTIONS_LAYER_ID,
+                event: {
+                  time: Date.now(),
+                  title: action.type,
+                  groupId: action._id,
+                  subtitle: 'end',
+                  data: data
+                }
+              });
+            }
+          });
+        }
+      );
+    }
+
+    // extracted from tailwind palette
+    var COLOR_LIME_500 = 0x84cc16;
+    var COLOR_DARK = 0x666666;
+    var COLOR_WHITE = 0xffffff;
+
+    var TAG_NAMESPACED = {
+      label: 'namespaced',
+      textColor: COLOR_WHITE,
+      backgroundColor: COLOR_DARK
+    };
+
+    /**
+     * @param {string} path
+     */
+    function extractNameFromPath (path) {
+      return path && path !== 'root' ? path.split('/').slice(-2, -1)[0] : 'Root'
+    }
+
+    /**
+     * @param {*} module
+     * @return {import('@vue/devtools-api').CustomInspectorNode}
+     */
+    function formatStoreForInspectorTree (module, path) {
+      return {
+        id: path || 'root',
+        // all modules end with a `/`, we want the last segment only
+        // cart/ -> cart
+        // nested/cart/ -> cart
+        label: extractNameFromPath(path),
+        tags: module.namespaced ? [TAG_NAMESPACED] : [],
+        children: Object.keys(module._children).map(function (moduleName) { return formatStoreForInspectorTree(
+            module._children[moduleName],
+            path + moduleName + '/'
+          ); }
+        )
+      }
+    }
+
+    /**
+     * @param {import('@vue/devtools-api').CustomInspectorNode[]} result
+     * @param {*} module
+     * @param {string} filter
+     * @param {string} path
+     */
+    function flattenStoreForInspectorTree (result, module, filter, path) {
+      if (path.includes(filter)) {
+        result.push({
+          id: path || 'root',
+          label: path.endsWith('/') ? path.slice(0, path.length - 1) : path || 'Root',
+          tags: module.namespaced ? [TAG_NAMESPACED] : []
+        });
+      }
+      Object.keys(module._children).forEach(function (moduleName) {
+        flattenStoreForInspectorTree(result, module._children[moduleName], filter, path + moduleName + '/');
+      });
+    }
+
+    /**
+     * @param {*} module
+     * @return {import('@vue/devtools-api').CustomInspectorState}
+     */
+    function formatStoreForInspectorState (module, getters, path) {
+      getters = path === 'root' ? getters : getters[path];
+      var gettersKeys = Object.keys(getters);
+      var storeState = {
+        state: Object.keys(module.state).map(function (key) { return ({
+          key: key,
+          editable: true,
+          value: module.state[key]
+        }); })
+      };
+
+      if (gettersKeys.length) {
+        var tree = transformPathsToObjectTree(getters);
+        storeState.getters = Object.keys(tree).map(function (key) { return ({
+          key: key.endsWith('/') ? extractNameFromPath(key) : key,
+          editable: false,
+          value: canThrow(function () { return tree[key]; })
+        }); });
+      }
+
+      return storeState
+    }
+
+    function transformPathsToObjectTree (getters) {
+      var result = {};
+      Object.keys(getters).forEach(function (key) {
+        var path = key.split('/');
+        if (path.length > 1) {
+          var target = result;
+          var leafKey = path.pop();
+          path.forEach(function (p) {
+            if (!target[p]) {
+              target[p] = {
+                _custom: {
+                  value: {},
+                  display: p,
+                  tooltip: 'Module',
+                  abstract: true
+                }
+              };
+            }
+            target = target[p]._custom.value;
+          });
+          target[leafKey] = canThrow(function () { return getters[key]; });
+        } else {
+          result[key] = canThrow(function () { return getters[key]; });
+        }
+      });
+      return result
+    }
+
+    function getStoreModule (moduleMap, path) {
+      var names = path.split('/').filter(function (n) { return n; });
+      return names.reduce(
+        function (module, moduleName, i) {
+          var child = module[moduleName];
+          if (!child) {
+            throw new Error(("Missing module \"" + moduleName + "\" for path \"" + path + "\"."))
+          }
+          return i === names.length - 1 ? child : child._children
+        },
+        path === 'root' ? moduleMap : moduleMap.root._children
+      )
+    }
+
+    function canThrow (cb) {
+      try {
+        return cb()
+      } catch (e) {
+        return e
+      }
+    }
+
+    // Base data struct for store's module, package with some attribute and method
+    var Module = function Module (rawModule, runtime) {
+      this.runtime = runtime;
+      // Store some children item
+      this._children = Object.create(null);
+      // Store the origin module object which passed by programmer
+      this._rawModule = rawModule;
+      var rawState = rawModule.state;
+
+      // Store the origin module's state
+      this.state = (typeof rawState === 'function' ? rawState() : rawState) || {};
+    };
+
+    var prototypeAccessors$1 = { namespaced: { configurable: true } };
+
+    prototypeAccessors$1.namespaced.get = function () {
+      return !!this._rawModule.namespaced
+    };
+
+    Module.prototype.addChild = function addChild (key, module) {
+      this._children[key] = module;
+    };
+
+    Module.prototype.removeChild = function removeChild (key) {
+      delete this._children[key];
+    };
+
+    Module.prototype.getChild = function getChild (key) {
+      return this._children[key]
+    };
+
+    Module.prototype.hasChild = function hasChild (key) {
+      return key in this._children
+    };
+
+    Module.prototype.update = function update (rawModule) {
+      this._rawModule.namespaced = rawModule.namespaced;
+      if (rawModule.actions) {
+        this._rawModule.actions = rawModule.actions;
+      }
+      if (rawModule.mutations) {
+        this._rawModule.mutations = rawModule.mutations;
+      }
+      if (rawModule.getters) {
+        this._rawModule.getters = rawModule.getters;
+      }
+    };
+
+    Module.prototype.forEachChild = function forEachChild (fn) {
+      forEachValue(this._children, fn);
+    };
+
+    Module.prototype.forEachGetter = function forEachGetter (fn) {
+      if (this._rawModule.getters) {
+        forEachValue(this._rawModule.getters, fn);
+      }
+    };
+
+    Module.prototype.forEachAction = function forEachAction (fn) {
+      if (this._rawModule.actions) {
+        forEachValue(this._rawModule.actions, fn);
+      }
+    };
+
+    Module.prototype.forEachMutation = function forEachMutation (fn) {
+      if (this._rawModule.mutations) {
+        forEachValue(this._rawModule.mutations, fn);
+      }
+    };
+
+    Object.defineProperties( Module.prototype, prototypeAccessors$1 );
+
+    var ModuleCollection = function ModuleCollection (rawRootModule) {
+      // register root module (Vuex.Store options)
+      this.register([], rawRootModule, false);
+    };
+
+    ModuleCollection.prototype.get = function get (path) {
+      return path.reduce(function (module, key) {
+        return module.getChild(key)
+      }, this.root)
+    };
+
+    ModuleCollection.prototype.getNamespace = function getNamespace (path) {
+      var module = this.root;
+      return path.reduce(function (namespace, key) {
+        module = module.getChild(key);
+        return namespace + (module.namespaced ? key + '/' : '')
+      }, '')
+    };
+
+    ModuleCollection.prototype.update = function update$1 (rawRootModule) {
+      update([], this.root, rawRootModule);
+    };
+
+    ModuleCollection.prototype.register = function register (path, rawModule, runtime) {
+        var this$1$1 = this;
+        if ( runtime === void 0 ) runtime = true;
+
+      {
+        assertRawModule(path, rawModule);
+      }
+
+      var newModule = new Module(rawModule, runtime);
+      if (path.length === 0) {
+        this.root = newModule;
+      } else {
+        var parent = this.get(path.slice(0, -1));
+        parent.addChild(path[path.length - 1], newModule);
+      }
+
+      // register nested modules
+      if (rawModule.modules) {
+        forEachValue(rawModule.modules, function (rawChildModule, key) {
+          this$1$1.register(path.concat(key), rawChildModule, runtime);
+        });
+      }
+    };
+
+    ModuleCollection.prototype.unregister = function unregister (path) {
+      var parent = this.get(path.slice(0, -1));
+      var key = path[path.length - 1];
+      var child = parent.getChild(key);
+
+      if (!child) {
+        {
+          console.warn(
+            "[vuex] trying to unregister module '" + key + "', which is " +
+            "not registered"
+          );
+        }
+        return
+      }
+
+      if (!child.runtime) {
+        return
+      }
+
+      parent.removeChild(key);
+    };
+
+    ModuleCollection.prototype.isRegistered = function isRegistered (path) {
+      var parent = this.get(path.slice(0, -1));
+      var key = path[path.length - 1];
+
+      if (parent) {
+        return parent.hasChild(key)
+      }
+
+      return false
+    };
+
+    function update (path, targetModule, newModule) {
+      {
+        assertRawModule(path, newModule);
+      }
+
+      // update target module
+      targetModule.update(newModule);
+
+      // update nested modules
+      if (newModule.modules) {
+        for (var key in newModule.modules) {
+          if (!targetModule.getChild(key)) {
+            {
+              console.warn(
+                "[vuex] trying to add a new module '" + key + "' on hot reloading, " +
+                'manual reload is needed'
+              );
+            }
+            return
+          }
+          update(
+            path.concat(key),
+            targetModule.getChild(key),
+            newModule.modules[key]
+          );
+        }
+      }
+    }
+
+    var functionAssert = {
+      assert: function (value) { return typeof value === 'function'; },
+      expected: 'function'
+    };
+
+    var objectAssert = {
+      assert: function (value) { return typeof value === 'function' ||
+        (typeof value === 'object' && typeof value.handler === 'function'); },
+      expected: 'function or object with "handler" function'
+    };
+
+    var assertTypes = {
+      getters: functionAssert,
+      mutations: functionAssert,
+      actions: objectAssert
+    };
+
+    function assertRawModule (path, rawModule) {
+      Object.keys(assertTypes).forEach(function (key) {
+        if (!rawModule[key]) { return }
+
+        var assertOptions = assertTypes[key];
+
+        forEachValue(rawModule[key], function (value, type) {
+          assert(
+            assertOptions.assert(value),
+            makeAssertionMessage(path, key, type, value, assertOptions.expected)
+          );
+        });
+      });
+    }
+
+    function makeAssertionMessage (path, key, type, value, expected) {
+      var buf = key + " should be " + expected + " but \"" + key + "." + type + "\"";
+      if (path.length > 0) {
+        buf += " in module \"" + (path.join('.')) + "\"";
+      }
+      buf += " is " + (JSON.stringify(value)) + ".";
+      return buf
+    }
+
+    function createStore (options) {
+      return new Store(options)
+    }
+
+    var Store = function Store (options) {
+      var this$1$1 = this;
+      if ( options === void 0 ) options = {};
+
+      {
+        assert(typeof Promise !== 'undefined', "vuex requires a Promise polyfill in this browser.");
+        assert(this instanceof Store, "store must be called with the new operator.");
+      }
+
+      var plugins = options.plugins; if ( plugins === void 0 ) plugins = [];
+      var strict = options.strict; if ( strict === void 0 ) strict = false;
+      var devtools = options.devtools;
+
+      // store internal state
+      this._committing = false;
+      this._actions = Object.create(null);
+      this._actionSubscribers = [];
+      this._mutations = Object.create(null);
+      this._wrappedGetters = Object.create(null);
+      this._modules = new ModuleCollection(options);
+      this._modulesNamespaceMap = Object.create(null);
+      this._subscribers = [];
+      this._makeLocalGettersCache = Object.create(null);
+      this._devtools = devtools;
+
+      // bind commit and dispatch to self
+      var store = this;
+      var ref = this;
+      var dispatch = ref.dispatch;
+      var commit = ref.commit;
+      this.dispatch = function boundDispatch (type, payload) {
+        return dispatch.call(store, type, payload)
+      };
+      this.commit = function boundCommit (type, payload, options) {
+        return commit.call(store, type, payload, options)
+      };
+
+      // strict mode
+      this.strict = strict;
+
+      var state = this._modules.root.state;
+
+      // init root module.
+      // this also recursively registers all sub-modules
+      // and collects all module getters inside this._wrappedGetters
+      installModule(this, state, [], this._modules.root);
+
+      // initialize the store state, which is responsible for the reactivity
+      // (also registers _wrappedGetters as computed properties)
+      resetStoreState(this, state);
+
+      // apply plugins
+      plugins.forEach(function (plugin) { return plugin(this$1$1); });
+    };
+
+    var prototypeAccessors = { state: { configurable: true } };
+
+    Store.prototype.install = function install (app, injectKey) {
+      app.provide(injectKey || storeKey, this);
+      app.config.globalProperties.$store = this;
+
+      var useDevtools = this._devtools !== undefined
+        ? this._devtools
+        : ('development' !== 'production') ;
+
+      if (useDevtools) {
+        addDevtools(app, this);
+      }
+    };
+
+    prototypeAccessors.state.get = function () {
+      return this._state.data
+    };
+
+    prototypeAccessors.state.set = function (v) {
+      {
+        assert(false, "use store.replaceState() to explicit replace store state.");
+      }
+    };
+
+    Store.prototype.commit = function commit (_type, _payload, _options) {
+        var this$1$1 = this;
+
+      // check object-style commit
+      var ref = unifyObjectStyle(_type, _payload, _options);
+        var type = ref.type;
+        var payload = ref.payload;
+        var options = ref.options;
+
+      var mutation = { type: type, payload: payload };
+      var entry = this._mutations[type];
+      if (!entry) {
+        {
+          console.error(("[vuex] unknown mutation type: " + type));
+        }
+        return
+      }
+      this._withCommit(function () {
+        entry.forEach(function commitIterator (handler) {
+          handler(payload);
+        });
+      });
+
+      this._subscribers
+        .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
+        .forEach(function (sub) { return sub(mutation, this$1$1.state); });
+
+      if (
+        options && options.silent
+      ) {
+        console.warn(
+          "[vuex] mutation type: " + type + ". Silent option has been removed. " +
+          'Use the filter functionality in the vue-devtools'
+        );
+      }
+    };
+
+    Store.prototype.dispatch = function dispatch (_type, _payload) {
+        var this$1$1 = this;
+
+      // check object-style dispatch
+      var ref = unifyObjectStyle(_type, _payload);
+        var type = ref.type;
+        var payload = ref.payload;
+
+      var action = { type: type, payload: payload };
+      var entry = this._actions[type];
+      if (!entry) {
+        {
+          console.error(("[vuex] unknown action type: " + type));
+        }
+        return
+      }
+
+      try {
+        this._actionSubscribers
+          .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
+          .filter(function (sub) { return sub.before; })
+          .forEach(function (sub) { return sub.before(action, this$1$1.state); });
+      } catch (e) {
+        {
+          console.warn("[vuex] error in before action subscribers: ");
+          console.error(e);
+        }
+      }
+
+      var result = entry.length > 1
+        ? Promise.all(entry.map(function (handler) { return handler(payload); }))
+        : entry[0](payload);
+
+      return new Promise(function (resolve, reject) {
+        result.then(function (res) {
+          try {
+            this$1$1._actionSubscribers
+              .filter(function (sub) { return sub.after; })
+              .forEach(function (sub) { return sub.after(action, this$1$1.state); });
+          } catch (e) {
+            {
+              console.warn("[vuex] error in after action subscribers: ");
+              console.error(e);
+            }
+          }
+          resolve(res);
+        }, function (error) {
+          try {
+            this$1$1._actionSubscribers
+              .filter(function (sub) { return sub.error; })
+              .forEach(function (sub) { return sub.error(action, this$1$1.state, error); });
+          } catch (e) {
+            {
+              console.warn("[vuex] error in error action subscribers: ");
+              console.error(e);
+            }
+          }
+          reject(error);
+        });
+      })
+    };
+
+    Store.prototype.subscribe = function subscribe (fn, options) {
+      return genericSubscribe(fn, this._subscribers, options)
+    };
+
+    Store.prototype.subscribeAction = function subscribeAction (fn, options) {
+      var subs = typeof fn === 'function' ? { before: fn } : fn;
+      return genericSubscribe(subs, this._actionSubscribers, options)
+    };
+
+    Store.prototype.watch = function watch$1 (getter, cb, options) {
+        var this$1$1 = this;
+
+      {
+        assert(typeof getter === 'function', "store.watch only accepts a function.");
+      }
+      return watch(function () { return getter(this$1$1.state, this$1$1.getters); }, cb, Object.assign({}, options))
+    };
+
+    Store.prototype.replaceState = function replaceState (state) {
+        var this$1$1 = this;
+
+      this._withCommit(function () {
+        this$1$1._state.data = state;
+      });
+    };
+
+    Store.prototype.registerModule = function registerModule (path, rawModule, options) {
+        if ( options === void 0 ) options = {};
+
+      if (typeof path === 'string') { path = [path]; }
+
+      {
+        assert(Array.isArray(path), "module path must be a string or an Array.");
+        assert(path.length > 0, 'cannot register the root module by using registerModule.');
+      }
+
+      this._modules.register(path, rawModule);
+      installModule(this, this.state, path, this._modules.get(path), options.preserveState);
+      // reset store to update getters...
+      resetStoreState(this, this.state);
+    };
+
+    Store.prototype.unregisterModule = function unregisterModule (path) {
+        var this$1$1 = this;
+
+      if (typeof path === 'string') { path = [path]; }
+
+      {
+        assert(Array.isArray(path), "module path must be a string or an Array.");
+      }
+
+      this._modules.unregister(path);
+      this._withCommit(function () {
+        var parentState = getNestedState(this$1$1.state, path.slice(0, -1));
+        delete parentState[path[path.length - 1]];
+      });
+      resetStore(this);
+    };
+
+    Store.prototype.hasModule = function hasModule (path) {
+      if (typeof path === 'string') { path = [path]; }
+
+      {
+        assert(Array.isArray(path), "module path must be a string or an Array.");
+      }
+
+      return this._modules.isRegistered(path)
+    };
+
+    Store.prototype.hotUpdate = function hotUpdate (newOptions) {
+      this._modules.update(newOptions);
+      resetStore(this, true);
+    };
+
+    Store.prototype._withCommit = function _withCommit (fn) {
+      var committing = this._committing;
+      this._committing = true;
+      fn();
+      this._committing = committing;
+    };
+
+    Object.defineProperties( Store.prototype, prototypeAccessors );
+
+    const EditorMutation = {
+        CHANGE_DIMENSION: 'CHANGE_DIMENSION',
+        CHANGE_SELECT_BAR_TOOL_TYPE: 'CHANGE_SELECT_BAR_TOOL_TYPE',
+        CHANGE_ART_BOARD_SCALE: 'CHANGE_ART_BOARD_SCALE',
+        ADD_2D_TREE_NODE: 'ADD_2D_TREE_NODE',
+        SELECT_2D_TREE_NODE: 'SELECT_2D_TREE_NODE',
+        CANCEL_SELECT_2D_NODE: 'CANCEL_SELECT_2D_NODE',
+        CLEAR_SELECT_2D_NODES: 'CLEAR_SELECT_2D_NODES',
+        TOGGLE_NODE: 'TOGGLE_NODE',
+        ADD_EMITTER_TO_NODE: 'ADD_EMITTER_TO_NODE',
+        ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
+    };
+    var mutations2d = {
+        [EditorMutation.CHANGE_DIMENSION](state, payload) {
+            state.dimensionType = payload.dimensionType;
+        },
+        [EditorMutation.CHANGE_SELECT_BAR_TOOL_TYPE](state, payload) {
+            if (state.selectBarToolType === payload.selectBarToolType) {
+                state.selectBarToolType = null;
+                return;
+            }
+            state.selectBarToolType = payload.selectBarToolType;
+        },
+        [EditorMutation.CHANGE_ART_BOARD_SCALE](state, payload) {
+            state.artBoardConfig.artBoardScale = payload.artBoardScale;
+        },
+        [EditorMutation.ADD_2D_TREE_NODE](state, payload) {
+            state.selectedSceneTreeNode.trees.twoDimension.push(payload.node);
+        },
+        [EditorMutation.SELECT_2D_TREE_NODE](state, payload) {
+            console.log('select', this);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            payload.node.select = true;
+            state.select2dNodes.add(payload.node);
+        },
+        [EditorMutation.CANCEL_SELECT_2D_NODE](state, { node }) {
+            node.select = false;
+            if (node.contentEditable)
+                node.contentEditable = false;
+            state.select2dNodes.delete(node);
+        },
+        [EditorMutation.CLEAR_SELECT_2D_NODES](state) {
+            state.select2dNodes.forEach((node) => {
+                node.select = false;
+                if (node.contentEditable)
+                    node.contentEditable = false;
+            });
+            state.select2dNodes.clear();
+        },
+        [EditorMutation.TOGGLE_NODE](state, { node }) {
+            if (!node.select && node.show) {
+                this.commit(EditorMutation.SELECT_2D_TREE_NODE, { node });
+            }
+            else {
+                this.commit(EditorMutation.CANCEL_SELECT_2D_NODE, { node });
+            }
+        },
+        [EditorMutation.ADD_EMITTER_TO_NODE](state, { node, eventType, eventAction, effect }) {
+            node.option.emitters[eventType + ':' + eventAction] = { effect };
+        },
+        // 3d
+        [EditorMutation.ADD_3D_TREE_NODE](state, payload) {
+            state.layerTree3d.push(payload.node);
+        }
+    };
+
+    const EditorGetter = {
+        GET_CONFIGURATOR: 'GET_CONFIGURATOR',
+        GET_SELECT_STATUS: 'GET_SELECT_STATUS',
+        GET_SELECT_NODE: 'GET_SELECT_NODE'
+    };
+    var getters2d = {
+        [EditorGetter.GET_CONFIGURATOR](store) {
+            // 选择了多个
+            if (store.select2dNodes.size > 1) ;
+            else if (store.select2dNodes.size > 0) {
+                const iterator = store.select2dNodes.values();
+                const node = iterator.next();
+                switch (node.value.type) {
+                    case 'TriangleShape':
+                    case 'CircleShape':
+                    case 'RoundedRectShape':
+                    case 'RectShape':
+                        return 'ShapeConfigurator';
+                    case 'ImageMedia':
+                    case 'VideoMedia':
+                        return 'MediaConfigurator';
+                    case 'BigTitle':
+                    case 'SmallTitle':
+                    case 'BaseTitle':
+                    case 'TextContent':
+                        return 'TextConfigurator';
+                    case 'ChartBar':
+                    case 'ChartLine':
+                        return 'AxisLineChartConfigurator';
+                    case 'ChartPie':
+                    case 'ChartGauge':
+                        return 'PieChartConfigurator';
+                }
+            }
+            return '';
+        },
+        [EditorGetter.GET_SELECT_STATUS](store) {
+            return store.select2dNodes.size > 1
+                ? 'multiple'
+                : store.select2dNodes.size > 0
+                    ? 'single'
+                    : 'empty';
+        },
+        [EditorGetter.GET_SELECT_NODE](state) {
+            if (state.select2dNodes.size > 1) {
+                return [...state.select2dNodes];
+                // pass
+            }
+            else if (state.select2dNodes.size > 0) {
+                const iterator = state.select2dNodes.values();
+                const node = iterator.next();
+                return node.value;
+            }
+            else {
+                return null;
+            }
+        }
+    };
+
+    var store = createStore({
+        state: {
+            dimensionType: '3d',
+            selectBarToolType: '',
+            selectedSceneTreeNode: null,
+            selectedPageTreeNode: null,
+            pageTreeNodes: [
+                // 页面树
+                {
+                    name: '场景1',
+                    type: 'scene',
+                    selected: true,
+                    spread: true,
+                    uuid: '0',
+                    children: [
+                        {
+                            name: '页1',
+                            type: 'page',
+                            selected: true,
+                            parent: '0',
+                            uuid: '0-0',
+                            trees: {} // 见上方注释
+                        }
+                    ]
+                }
+            ],
+            layerTree2d: [],
+            select2dNodes: new Set(),
+            drawingBoard: {
+                // 中间画布宽高
+                width: 1920,
+                height: 1080,
+                scale: 0.65
+            },
+            template: {
+                // 模板缓存
+                threeDimension: [],
+                twoDimension: []
+            },
+            threeDimensionContainer: null,
+            // 导入配置监听变量
+            exportType: false,
+            exportContent: null,
+            //  添加元素变量
+            addElementType: null,
+            elementIcon: [],
+            elementText: [],
+            elementFlyLine: [] // 存储飞线数组
+        },
+        mutations: { ...mutations2d },
+        actions: {},
+        getters: { ...getters2d },
+        modules: {}
+    });
+
+    const importScene = (canvas, d) => {
+        const scene = d || store.state.exportContent[0].children[0].trees.threeDimension;
+        var Camera, AmbientLight, HemisphereLight, DirectionLights, SpotLights, PointLights, RectAreaLights, Shadow, Background, HDR, Fog, BloomPass, OutlinePass, DOFPass, GammaPass, MSAAPass;
+        var modelUrls = [], models = [], publicPath = location.origin;
+        scene.forEach((item) => {
+            if (item.uuid == -1) {
+                if (item.name == 'Camera') {
+                    Camera = item;
+                }
+                else if (item.name == 'AmbientLight') {
+                    AmbientLight = item;
+                }
+                else if (item.name == 'HemisphereLight') {
+                    HemisphereLight = item;
+                }
+                else if (item.name == 'DirectionLights') {
+                    DirectionLights = item;
+                }
+                else if (item.name == 'SpotLights') {
+                    SpotLights = item;
+                }
+                else if (item.name == 'PointLights') {
+                    PointLights = item;
+                }
+                else if (item.name == 'RectAreaLights') {
+                    RectAreaLights = item;
+                }
+                else if (item.name == 'Shadow') {
+                    Shadow = item;
+                }
+                else if (item.name == 'Background') {
+                    Background = item;
+                }
+                else if (item.name == 'HDR') {
+                    HDR = item;
+                }
+                else if (item.name == 'Fog') {
+                    Fog = item;
+                }
+                else if (item.name == 'BloomPass') {
+                    BloomPass = item;
+                }
+                else if (item.name == 'OutlinePass') {
+                    OutlinePass = item;
+                }
+                else if (item.name == 'DOFPass') {
+                    DOFPass = item;
+                }
+                else if (item.name == 'GammaPass') {
+                    GammaPass = item;
+                }
+                else if (item.name == 'MSAAPass') {
+                    MSAAPass = item;
+                }
+            }
+            else {
+                modelUrls.push(`/models/HangKong/ChangJing/${item.name}.glb`);
+                models.push(item);
+            }
+        });
+        new Bol3D.Container({
+            publicPath,
+            container: canvas,
+            viewState: 'orbit',
+            modelUrls,
+            cameras: {
+                orbitCamera: Camera.options
+            },
+            lights: {
+                ambientLight: AmbientLight.options,
+                hemisphereLight: HemisphereLight.options,
+                directionLights: DirectionLights.children,
+                spotLights: SpotLights.children,
+                pointLights: PointLights.children,
+                rectAreaLights: RectAreaLights.children
+            },
+            enableShadow: Shadow.options.enabled,
+            background: Background.options,
+            hdrUrls: HDR.options.value,
+            fog: Fog.options,
+            bloomEnabled: BloomPass.options.enabled,
+            bloom: BloomPass.options,
+            outlineEnabled: OutlinePass.options.enabled,
+            outline: OutlinePass.options,
+            dofEnabled: DOFPass.options.enabled,
+            dof: DOFPass.options,
+            gammaEnabled: GammaPass.options.enabled,
+            gamma: GammaPass.options,
+            msaa: MSAAPass.options,
+            stats: true,
+            onProgress: (model) => {
+                models.forEach((item) => {
+                    if (model.name == item.name) {
+                        model.position.set(parseFloat(item.options.position[0]), parseFloat(item.options.position[1]), parseFloat(item.options.position[2]));
+                        model.rotation.set((item.options.rotation[0] * Math.PI) / 180, (item.options.rotation[1] * Math.PI) / 180, (item.options.rotation[2] * Math.PI) / 180);
+                        model.scale.set(parseFloat(item.options.scale[0]), parseFloat(item.options.scale[1]), parseFloat(item.options.scale[2]));
+                        model.visible = item.visible;
+                        modelsRecursion(model.children, item.children);
+                    }
+                });
+            }
+        });
+    };
+    const modelsRecursion = (model, template) => {
+        const arrs = [];
+        findElement(arrs, template);
+        model.forEach((item) => {
+            arrs.forEach((dev) => {
+                if (item.isMesh) {
+                    if (item.name == dev.name && item.type == dev.type) {
+                        item.visible = dev.visible;
+                        item.position.set(parseFloat(dev.options.position[0]), parseFloat(dev.options.position[1]), parseFloat(dev.options.position[2]));
+                        item.rotation.set((dev.options.rotation[0] * Math.PI) / 180, (dev.options.rotation[1] * Math.PI) / 180, (dev.options.rotation[2] * Math.PI) / 180);
+                        item.scale.set(parseFloat(dev.options.scale[0]), parseFloat(dev.options.scale[1]), parseFloat(dev.options.scale[2]));
+                        item.castShadow = dev.options.castShadow;
+                        item.receiveShadow = dev.options.receiveShadow;
+                        item.material.color.set(dev.matOptions.color);
+                        item.material.depthTest = dev.matOptions.depthTest;
+                        item.material.depthWrite = dev.matOptions.depthWrite;
+                        item.material.opacity = dev.matOptions.opacity;
+                        item.material.transparent = dev.matOptions.transparent;
+                        item.material.wireframe = dev.matOptions.wireframe;
+                        item.material.emissive.set(dev.matOptions.extends.emissive);
+                        item.material.emissiveIntensity = dev.matOptions.extends.emissiveIntensity;
+                        item.material.envMapIntensity = dev.matOptions.extends.envMapIntensity;
+                        item.material.lightMapIntensity = dev.matOptions.extends.lightMapIntensity;
+                        item.material.metalness = dev.matOptions.extends.metalness;
+                        item.material.roughness = dev.matOptions.extends.roughness;
+                    }
+                }
+                else {
+                    item.traverse((child) => {
+                        if (child.name == dev.name && child.type == dev.type) {
+                            if (child.type == 'Group') {
+                                child.position.set(parseFloat(dev.options.position[0]), parseFloat(dev.options.position[1]), parseFloat(dev.options.position[2]));
+                                child.rotation.set((dev.options.rotation[0] * Math.PI) / 180, (dev.options.rotation[1] * Math.PI) / 180, (dev.options.rotation[2] * Math.PI) / 180);
+                                child.scale.set(parseFloat(dev.options.scale[0]), parseFloat(dev.options.scale[1]), parseFloat(dev.options.scale[2]));
+                                child.visible = dev.visible;
+                            }
+                            else if (child.type == 'Object3D') {
+                                child.position.set(parseFloat(dev.options.position[0]), parseFloat(dev.options.position[1]), parseFloat(dev.options.position[2]));
+                                child.rotation.set((dev.options.rotation[0] * Math.PI) / 180, (dev.options.rotation[1] * Math.PI) / 180, (dev.options.rotation[2] * Math.PI) / 180);
+                                child.scale.set(parseFloat(dev.options.scale[0]), parseFloat(dev.options.scale[1]), parseFloat(dev.options.scale[2]));
+                                child.visible = dev.visible;
+                            }
+                            else if (child.type == 'Mesh') {
+                                child.visible = dev.visible;
+                                child.position.set(parseFloat(dev.options.position[0]), parseFloat(dev.options.position[1]), parseFloat(dev.options.position[2]));
+                                child.rotation.set((dev.options.rotation[0] * Math.PI) / 180, (dev.options.rotation[1] * Math.PI) / 180, (dev.options.rotation[2] * Math.PI) / 180);
+                                child.scale.set(parseFloat(dev.options.scale[0]), parseFloat(dev.options.scale[1]), parseFloat(dev.options.scale[2]));
+                                child.castShadow = dev.options.castShadow;
+                                child.receiveShadow = dev.options.receiveShadow;
+                                child.material.color.set(dev.matOptions.color);
+                                child.material.depthTest = dev.matOptions.depthTest;
+                                child.material.depthWrite = dev.matOptions.depthWrite;
+                                child.material.opacity = dev.matOptions.opacity;
+                                child.material.transparent = dev.matOptions.transparent;
+                                child.material.wireframe = dev.matOptions.wireframe;
+                                child.material.emissive.set(dev.matOptions.extends.emissive);
+                                child.material.emissiveIntensity = dev.matOptions.extends.emissiveIntensity;
+                                child.material.envMapIntensity = dev.matOptions.extends.envMapIntensity;
+                                child.material.lightMapIntensity = dev.matOptions.extends.lightMapIntensity;
+                                child.material.metalness = dev.matOptions.extends.metalness;
+                                child.material.roughness = dev.matOptions.extends.roughness;
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    };
+    const findElement = (arrs, obj) => {
+        obj.forEach((item) => {
+            const str = {};
+            for (const k in item) {
+                if (k != 'children') {
+                    str[k] = item[k];
+                }
+            }
+            arrs.push(str);
+            if (item.children.length > 0) {
+                findElement(arrs, item.children);
+            }
+        });
+    };
+
     var script = {
       name: 'ElementParser',
       props: ['pageTreeNodes', 'drawingBoard'],
@@ -104301,28 +105921,42 @@
         const nodes = computed(() => {
           return props.pageTreeNodes[0].children[0]?.trees?.twoDimension || []
         });
-
-        console.log(props);
-        console.log('nodes', nodes.value);
-        return { nodes, toPx }
+        const canvasRenderer = ref(null);
+        onMounted(()=>{
+          importScene(canvasRenderer.value,props.pageTreeNodes[0].children[0].trees.threeDimension);
+        });
+        return { nodes, toPx,canvasRenderer}
       }
     };
+
+    const _hoisted_1 = ["width", "height"];
 
     function render(_ctx, _cache, $props, $setup, $data, $options) {
       return (openBlock(), createElementBlock("section", {
         id: "app",
         style: normalizeStyle$1({ height: $setup.toPx($props.drawingBoard.height), width: $setup.toPx($props.drawingBoard.width) })
       }, [
-        (openBlock(true), createElementBlock(Fragment, null, renderList($setup.nodes, (item) => {
-          return (openBlock(), createBlock(resolveDynamicComponent(item.type), {
-            key: item.id,
-            node: item
-          }, null, 8 /* PROPS */, ["node"]))
-        }), 128 /* KEYED_FRAGMENT */))
+        createBaseVNode("div", {
+          class: "box-2d",
+          style: normalizeStyle$1({ height: $setup.toPx($props.drawingBoard.height), width: $setup.toPx($props.drawingBoard.width) })
+        }, [
+          (openBlock(true), createElementBlock(Fragment, null, renderList($setup.nodes, (item) => {
+            return (openBlock(), createBlock(resolveDynamicComponent(item.type), {
+              key: item.id,
+              node: item
+            }, null, 8 /* PROPS */, ["node"]))
+          }), 128 /* KEYED_FRAGMENT */))
+        ], 4 /* STYLE */),
+        createBaseVNode("canvas", {
+          ref: "canvasRenderer",
+          class: "renderer",
+          width: $props.drawingBoard.width,
+          height: $props.drawingBoard.height
+        }, null, 8 /* PROPS */, _hoisted_1)
       ], 4 /* STYLE */))
     }
 
-    var css_248z = "\n#app[data-v-58db88bb] {\n  position: relative;\n}\n";
+    var css_248z = "\n#app[data-v-58db88bb] {\n  position: relative;\n}\n.box-2d[data-v-58db88bb]{\n  pointer-events: none;\n  position: absolute;\n  z-index: 10;\n}\n.renderer[data-v-58db88bb]{\n  position: absolute;\n}\n";
     styleInject(css_248z);
 
     script.render = render;

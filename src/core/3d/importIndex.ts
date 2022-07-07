@@ -9,8 +9,8 @@ import { render } from 'vue'
 
 declare const Bol3D: any
 
-export const importScene = (canvas: any) => {
-  const scene = store.state.exportContent[0].children[0].trees.threeDimension
+export const importScene = (canvas: any, d?:any) => {
+  const scene = d || store.state.exportContent[0].children[0].trees.threeDimension
   var Camera: any,
     AmbientLight: any,
     HemisphereLight: any,
@@ -30,7 +30,7 @@ export const importScene = (canvas: any) => {
 
   var modelUrls: any = [],
     models: any = [],
-    publicPath = './'
+    publicPath = location.origin
   scene.forEach((item: any) => {
     if (item.uuid == -1) {
       if (item.name == 'Camera') {
@@ -67,7 +67,7 @@ export const importScene = (canvas: any) => {
         MSAAPass = item
       }
     } else {
-      modelUrls.push(`models/HangKong/ChangJing/${item.name}.glb`)
+      modelUrls.push(`/models/HangKong/ChangJing/${item.name}.glb`)
       models.push(item)
     }
   })
