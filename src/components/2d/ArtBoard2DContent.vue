@@ -35,7 +35,7 @@
 import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { EditorStore, LayerTree2dNode } from '@/store/type'
-import ElementNode from '@/components/2d/elements/ElementNode.vue'
+import ElementNode from '@/components/2d/ElementNode.vue'
 import { computed } from 'vue'
 
 export default {

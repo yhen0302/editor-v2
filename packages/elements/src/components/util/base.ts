@@ -3,10 +3,15 @@ import { ECBasicOption } from 'echarts/types/dist/shared'
 
 const fillZero = (num = '', length = 0) => {
   const numStr: string = num.toString()
-  return numStr.length < length ? '0'.repeat(length - numStr.length) + numStr : numStr
+  return numStr.length < length
+    ? '0'.repeat(length - numStr.length) + numStr
+    : numStr
 }
 
-export function formatterDate(formatter = 'yyyy-MM-dd hh:mm:ss', date = new Date()) {
+export function formatterDate(
+  formatter = 'yyyy-MM-dd hh:mm:ss',
+  date = new Date()
+) {
   const formatterObj = {
     'y+': date.getFullYear(),
     'M+': date.getMonth() + 1,
@@ -55,7 +60,10 @@ export function toPx(target: number | PxTargetObject): string | PxTargetObject {
   }
 }
 
-export function getCss(el: HTMLElement | null, css: keyof CSSStyleDeclaration): CSSStyleDeclaration[keyof CSSStyleDeclaration] {
+export function getCss(
+  el: HTMLElement | null,
+  css: keyof CSSStyleDeclaration
+): CSSStyleDeclaration[keyof CSSStyleDeclaration] {
   return el && window.getComputedStyle(el)[css]
 }
 
@@ -100,23 +108,17 @@ export function debounce(fn: Function, delay: number, ctx: any = null) {
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export function clone<T extends Object>(object: T, deep = true, cacheMap?: WeakMap<any, any>): T {
-  if (!cacheMap) cacheMap = new WeakMap()
+export function clone<T extends Object>(object: T, deep = true): T {
   if (typeof object === 'object' && object !== null) {
     // 引用类型
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const newObj = new object.constructor()
 
-    cacheMap.set(object, newObj)
     for (const key of Object.keys(object)) {
-      // 防止重复引用导致的死循环
-      if (cacheMap.has(object[key as keyof typeof object])) {
-        newObj[key] = cacheMap.get(object[key as keyof typeof object])
-        continue
-      }
-
-      newObj[key] = deep ? clone(object[key as keyof typeof object], deep, cacheMap) : object[key as keyof typeof object]
+      newObj[key] = deep
+        ? clone(object[key as keyof typeof object], deep)
+        : object[key as keyof typeof object]
     }
 
     return newObj
@@ -127,7 +129,9 @@ export function hexColorToRgba(hexColor: string, opacity: number) {
   const hexColorReg = /^#([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})$/g
   const matchRes = hexColorReg.exec(hexColor) as RegExpExecArray
   if (!matchRes) return 'transparent'
-  return `rgba(${Number('0x' + matchRes[1])},${Number('0x' + matchRes[2])},${Number('0x' + matchRes[3])},${(opacity / 100).toFixed(2)})`
+  return `rgba(${Number('0x' + matchRes[1])},${Number(
+    '0x' + matchRes[2]
+  )},${Number('0x' + matchRes[3])},${(opacity / 100).toFixed(2)})`
 }
 
 export function fileToBlobUrl(file: File) {
@@ -160,9 +164,13 @@ export function valueHandle(obj: any, path: string): any {
     }
   }
 
-  function resolvePath(path: string, terminators: string[]): RegExpExecArray | null {
+  function resolvePath(
+    path: string,
+    terminators: string[]
+  ): RegExpExecArray | null {
     return new RegExp(`(.*?)${terminators.join()}`).exec(path)
   }
 
   return res
 }
+

@@ -4,7 +4,8 @@ import router from './router'
 import store from './store'
 import dragDropPlugin from './plugins/dragDropPlugin'
 import dragPlugin from '@/plugins/dragPlugin'
-import elementInstaller from '@/components/2d/elements/index'
+// @ts-ignore
+import elementInstaller from "@editor-v2/elements"
 import layerPlugin from '@/plugins/layerPlugin/index'
 
 // 导入element-plus

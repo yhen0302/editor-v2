@@ -15,7 +15,7 @@
       </div>
 
       <div class="content-right" v-once>
-        <TipButton :icon="require('@/assets/images/header/editor_preview_btn_dark.png')" name="1" tip-position="tb">
+        <TipButton :icon="require('@/assets/images/header/editor_preview_btn_dark.png')" name="1" tip-position="tb" @click="preview">
           <template v-slot:tip>
             <p>预览</p>
             <p>Ctrl+P</p>
@@ -49,11 +49,14 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref, toRaw } from 'vue'
 import Timer from '@/components/utils/common/Timer.vue'
 import TipButton from '@/components/utils/TipButton.vue'
 import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
+import createPreviewTemplate from '@/core/utils/createPreviewTemplate'
+import htmlToUrl from '@/core/utils/htmlToUrl'
+import { clone } from '@/core/2d/util/base'
 
 function saveJSON(data: any, filename: any) {
   if (!data) {
@@ -73,6 +76,7 @@ function saveJSON(data: any, filename: any) {
   e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
   a.dispatchEvent(e)
 }
+
 
 export default defineComponent({
   name: 'Header',
@@ -136,13 +140,43 @@ export default defineComponent({
       })
     }
 
+  
+    async function preview() {
+      const sdk = await (await fetch('/sdk/index.js')).text()
+      const html = createPreviewTemplate(sdk, `console.log(EDITOR_SDK(${JSON.stringify({ pageTreeNodes: getAvailablePageTreeNodes(), drawingBoard: store.state.drawingBoard })}))`)
+      console.log(window.open(htmlToUrl(html)))
+    }
+
+    function getAvailablePageTreeNodes() {
+      const pageTreeNodes = clone(toRaw(store.state.pageTreeNodes))
+      for (const scene of pageTreeNodes) {
+        for (const page of scene.children) {
+          deleteTreeParentQuote(page.trees.twoDimension)
+        }
+      }
+      return pageTreeNodes
+    }
+
+    function deleteTreeParentQuote(tree: any) {
+      let nodes = [...tree],
+        node = null
+
+      // eslint-disable-next-line no-cond-assign
+      while (node = nodes.pop()) {
+        node.parent = null
+        if (node?.children?.length > 0) {
+          nodes.unshift(...node?.children)
+        }
+      }
+    }
     return {
       store,
       scaleRatio,
       exportJSON,
       importJSON,
       loadJSON,
-      uploadJSON
+      uploadJSON,
+      preview
     }
   }
 })

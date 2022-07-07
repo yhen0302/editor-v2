@@ -11,6 +11,14 @@ module.exports = {
     }
   },
   configureWebpack:{
+/*    module:{
+      rules:[
+        {
+          test:/\.html$/,
+          use:['html-loader']
+        }
+      ]
+    },*/
     plugins:[  new webpack.DefinePlugin({
       IS_EDITOR:true
     })
