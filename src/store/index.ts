@@ -43,6 +43,10 @@ export default createStore({
     },
     threeDimensionContainer: null, // 3d container cache
 
+    // 导入配置监听变量
+    exportType: false,
+    exportContent: null,
+
     //  添加元素变量
     addElementType: null,
     elementIcon: [], // 存储图标数组

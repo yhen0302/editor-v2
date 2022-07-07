@@ -1,18 +1,21 @@
 <template>
-  <div class="drawing-borad-3d-main">
-    <canvas ref="scene" class="scene-3d"> </canvas>
+  <div class="drawing-borad-3d-main" v-if="domShow">
+    <canvas ref="scene" class="scene-3d"></canvas>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent, onMounted, ref, watch, nextTick } from 'vue'
 import { loadScene } from '@/core/3d'
+import { importScene } from '@/core/3d/importIndex'
+import store from '../../../store'
 
 export default defineComponent({
   name: 'DrawingBoard3D',
   components: {},
   setup() {
     const scene = ref(null)
+    const domShow = ref(true)
 
     onMounted(() => {
       const publicPath = './'
@@ -39,8 +42,23 @@ export default defineComponent({
       })
     })
 
+    watch(
+      () => store.state.exportType,
+      (v1, v2) => {
+        domShow.value = false
+        setTimeout(() => {
+          domShow.value = true
+          nextTick(() => {
+            importScene(scene.value)
+          })
+        }, 200)
+      },
+      { deep: true }
+    )
+
     return {
-      scene
+      scene,
+      domShow
     }
   }
 })

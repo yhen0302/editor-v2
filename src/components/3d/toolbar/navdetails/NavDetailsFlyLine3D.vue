@@ -66,14 +66,16 @@ onUnmounted(() => {
   document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseenter', mouseEnter)
   document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseleave', mouseLeave)
   document.onkeydown = null
-  if (store.state.addElementType.curveObj) {
-    store.state.addElementType.curveObj.visible = false
-  }
-  if (store.state.addElementType.basePoint) {
-    store.state.addElementType.basePoint.visible = false
-  }
-  if (store.state.addElementType.movePoint) {
-    store.state.addElementType.movePoint.visible = false
+  if (store.state.addElementType) {
+    if (store.state.addElementType.curveObj) {
+      store.state.addElementType.curveObj.visible = false
+    }
+    if (store.state.addElementType.basePoint) {
+      store.state.addElementType.basePoint.visible = false
+    }
+    if (store.state.addElementType.movePoint) {
+      store.state.addElementType.movePoint.visible = false
+    }
   }
   nextTick(() => {
     store.state.addElementType = null
