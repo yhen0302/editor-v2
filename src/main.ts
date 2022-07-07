@@ -8,7 +8,11 @@ import dragPlugin from '@/plugins/dragPlugin'
 import elementInstaller from "@editor-v2/elements"
 import layerPlugin from '@/plugins/layerPlugin/index'
 
+// 导入element-plus
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
 import './assets/css/tailwind.css'
 import './assets/css/base.css'
 
-createApp(App).use(store).use(router).use(dragDropPlugin).use(dragPlugin).use(elementInstaller).use(layerPlugin).mount('#app')
+createApp(App).use(store).use(ElementPlus).use(router).use(dragDropPlugin).use(dragPlugin).use(elementInstaller).use(layerPlugin).mount('#app')

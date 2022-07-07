@@ -27,14 +27,15 @@
             <p>Ctrl+S</p>
           </template>
         </TipButton>
-        <TipButton :icon="require('@/assets/images/header/editor_download_btn_dark.png')" name="1" tip-position="middle">
+        <TipButton :icon="require('@/assets/images/header/editor_download_btn_dark.png')" name="1" tip-position="middle" @click="exportJSON">
           <template v-slot:tip>
             <p>导出配置</p>
           </template>
         </TipButton>
-        <TipButton :icon="require('@/assets/images/header/editor_import_btn_dark.png')" name="1" tip-position="middle">
+        <TipButton :icon="require('@/assets/images/header/editor_import_btn_dark.png')" name="1" tip-position="middle" @click="importJSON">
           <template v-slot:tip>
             <p>导入配置</p>
+            <input type="file" ref="uploadJSON" multiple style="display: none" @change="loadJSON" />
           </template>
         </TipButton>
       </div>
@@ -52,9 +53,31 @@ import { computed, defineComponent, onMounted, ref, toRaw } from 'vue'
 import Timer from '@/components/utils/common/Timer.vue'
 import TipButton from '@/components/utils/TipButton.vue'
 import { useStore } from 'vuex'
+import { ElMessage } from 'element-plus'
 import createPreviewTemplate from '@/core/utils/createPreviewTemplate'
 import htmlToUrl from '@/core/utils/htmlToUrl'
 import { clone } from '@/core/2d/util/base'
+
+function saveJSON(data: any, filename: any) {
+  if (!data) {
+    alert('保存的数据为空')
+    return
+  }
+  if (!filename) filename = 'bol3d.json'
+  if (typeof data === 'object') {
+    data = JSON.stringify(data, undefined, 4)
+  }
+  var blob = new Blob([data], { type: 'text/json' }),
+    e = document.createEvent('MouseEvents'),
+    a = document.createElement('a')
+  a.download = filename
+  a.href = window.URL.createObjectURL(blob)
+  a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
+  e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+  a.dispatchEvent(e)
+}
+
+
 export default defineComponent({
   name: 'Header',
   components: {
@@ -62,11 +85,62 @@ export default defineComponent({
     TipButton
   },
   setup() {
+    const uploadJSON: any = ref(null)
+
     const store = useStore()
     const scaleRatio = computed(() => {
       return (store.state.drawingBoard.scale * 100).toFixed()
     })
 
+    //导出 bol3d.json
+    const exportJSON = () => {
+      let JSON_data = JSON.stringify(store.state.pageTreeNodes)
+      saveJSON(JSON_data, 'bol3d.json')
+    }
+
+    //导入 bol3d.json
+    const importJSON = () => {
+      uploadJSON.value.click()
+    }
+    const loadJSON = (e: any) => {
+      const fileList = e.target.files
+
+      if (fileList.length > 1) {
+        ElMessage({
+          message: '一次仅能上传一个配置文件。',
+          type: 'warning'
+        })
+        return false
+      }
+
+      let validateFlag = true
+      let validateTypes = ['json']
+      for (const i in fileList) {
+        const file = fileList[i]
+        if (file instanceof File) {
+          const nameArr = file.name.split('.')
+          const type = nameArr[nameArr.length - 1]
+          if (!validateTypes.includes(type.toLowerCase())) {
+            validateFlag = false
+            break
+          }
+        }
+      }
+      if (!validateFlag) {
+        ElMessage({
+          message: '请上传json配置文件。',
+          type: 'warning'
+        })
+        return false
+      }
+
+      fileList[0].text().then((res: any) => {
+        store.state.exportContent = JSON.parse(res)
+        store.state.exportType = !store.state.exportType
+      })
+    }
+
+  
     async function preview() {
       const sdk = await (await fetch('/sdk/index.js')).text()
       const html = createPreviewTemplate(sdk, `console.log(EDITOR_SDK(${JSON.stringify({ pageTreeNodes: getAvailablePageTreeNodes(), drawingBoard: store.state.drawingBoard })}))`)
@@ -98,6 +172,10 @@ export default defineComponent({
     return {
       store,
       scaleRatio,
+      exportJSON,
+      importJSON,
+      loadJSON,
+      uploadJSON,
       preview
     }
   }
