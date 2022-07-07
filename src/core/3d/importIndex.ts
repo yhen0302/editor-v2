@@ -1,11 +1,11 @@
-import { parseModelNode } from './util'
+// import { parseModelNode } from './util'
 import store from '../../store'
-import { EventsBus } from '../EventsBus'
-import { throttled } from '../utils/base'
-import { any } from 'underscore'
-import * as Text from '../utils/text3D'
-import * as Fly from '../utils/flyLine'
-import { render } from 'vue'
+// import { EventsBus } from '../EventsBus'
+// import { throttled } from '../utils/base'
+// import { any } from 'underscore'
+// import * as Text from '../utils/text3D'
+// import * as Fly from '../utils/flyLine'
+// import { render } from 'vue'
 
 declare const Bol3D: any
 

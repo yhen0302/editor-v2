@@ -48,8 +48,9 @@ export default defineComponent({
         domShow.value = false
         setTimeout(() => {
           domShow.value = true
+          const threeObjs = store.state.exportContent[0].children[0].trees.threeDimension
           nextTick(() => {
-            importScene(scene.value)
+            importScene(scene.value, threeObjs)
           })
         }, 200)
       },
