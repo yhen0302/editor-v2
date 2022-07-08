@@ -36,6 +36,10 @@ export default defineComponent({
         nodes.value[0].children[0].trees = JSON.parse(JSON.stringify(toRaw(store.state.template)))
         store.state.threeDimensionContainer = e.container
       }
+      if(e.isImport){
+        store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
+        console.log(store.state.pageTreeNodes[0].children[0].trees.twoDimension)
+      }
     })
 
     // 添加场景

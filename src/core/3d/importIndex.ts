@@ -568,7 +568,8 @@ export const importScene = (canvas: any, d?: any) => {
 
       EventsBus.emit('sceneLoaded', {
         type: '3d',
-        container: evt
+        container: evt,
+        isImport:true
       })
 
       // 相机事件

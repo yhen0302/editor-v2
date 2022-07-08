@@ -35,7 +35,7 @@
         <TipButton :icon="require('@/assets/images/header/editor_import_btn_dark.png')" name="1" tip-position="middle" @click="importJSON">
           <template v-slot:tip>
             <p>导入配置</p>
-            <input type="file" ref="uploadJSON" multiple style="display: none" @change="loadJSON" />
+            <input type="file" ref="uploadJSON" style="display: none" @change="loadJSON" />
           </template>
         </TipButton>
       </div>
@@ -95,7 +95,8 @@ export default defineComponent({
 
     //导出 bol3d.json
     const exportJSON = () => {
-      let JSON_data = JSON.stringify(store.state.pageTreeNodes)
+      // 导出
+      let JSON_data = JSON.stringify(getAvailablePageTreeNodes())
       saveJSON(JSON_data, 'bol3d.json')
     }
 
@@ -105,6 +106,7 @@ export default defineComponent({
     }
     const loadJSON = (e: any) => {
       const fileList = e.target.files
+      if (fileList.length === 0) return
 
       if (fileList.length > 1) {
         ElMessage({
@@ -138,7 +140,11 @@ export default defineComponent({
       remove3Dnodes()
 
       fileList[0].text().then((res: any) => {
+        // 接受
         store.state.exportContent = JSON.parse(res)
+        console.log(store.state.exportContent)
+        console.log(store.state.pageTreeNodes[0])
+        // store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
         store.state.exportType = !store.state.exportType
       })
     }
@@ -168,11 +174,11 @@ export default defineComponent({
       // eslint-disable-next-line no-cond-assign
       while ((node = nodes.pop())) {
         node.parent = null
+        node.select = false
         if (node?.children?.length > 0) {
           nodes.unshift(...node?.children)
         }
       }
-      console.log(tree)
     }
 
     function remove3Dnodes() {
