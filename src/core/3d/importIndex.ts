@@ -3,7 +3,6 @@ import store from '../../store'
 import { EventsBus } from '../EventsBus'
 import { throttled } from '../utils/base'
 import { clickFun } from './clickFun'
-import { outObjects } from './clickNeedObject'
 
 declare const Bol3D: any
 
@@ -28,7 +27,7 @@ export const importScene = (canvas: any, d?: any) => {
 
   var modelUrls: any = [],
     models: any = [],
-    publicPath =location.protocol==='blob:'?'https://www.kantu3d.com/demo/edit/': location.origin+location.pathname
+    publicPath = location.protocol === 'blob:' ? 'https://www.kantu3d.com/demo/edit/' : location.origin + location.pathname
   scene.forEach((item: any) => {
     if (item.uuid == -1) {
       if (item.name == 'Camera') {
@@ -570,7 +569,7 @@ export const importScene = (canvas: any, d?: any) => {
       EventsBus.emit('sceneLoaded', {
         type: '3d',
         container: evt,
-        isImport:true
+        isImport: true
       })
 
       // 相机事件
@@ -621,14 +620,7 @@ export const importScene = (canvas: any, d?: any) => {
   })
 
   // click event
-  const { lightPlane, curveSphere1, curveSphere2, line } = outObjects(container, publicPath)
-  store.state.elementUserMesh = {
-    lightPlane,
-    curveSphere1,
-    curveSphere2,
-    line
-  }
-  clickFun(container)
+  clickFun(container, publicPath)
 }
 
 const modelsRecursion = (model: any, template: any) => {

@@ -49,7 +49,6 @@ export default createStore({
 
     //  添加元素变量
     addElementType: null,
-    elementUserMesh: {}, // 添加元素标注物体
     elementIcon: [], // 存储图标数组
     elementText: [], // 存储文本数组
     elementFlyLine: [], // 存储飞线数组

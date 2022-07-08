@@ -261,7 +261,6 @@ export default defineComponent({
       store.state.elementClick.onhover = null
       // click object
       store.state.addElementType = null
-      store.state.elementUserMesh = {}
       store.state.elementIcon = []
       store.state.elementText = []
       store.state.elementFlyLine = []

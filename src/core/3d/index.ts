@@ -3,7 +3,6 @@ import store from '../../store'
 import { EventsBus } from '../EventsBus'
 import { throttled } from '../utils/base'
 import { clickFun } from './clickFun'
-import { outObjects } from './clickNeedObject'
 // import { any } from 'underscore'
 // import { render } from 'vue'
 
@@ -620,12 +619,5 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     // }
   })
 
-  const { lightPlane, curveSphere1, curveSphere2, line } = outObjects(container, publicPath)
-  store.state.elementUserMesh = {
-    lightPlane,
-    curveSphere1,
-    curveSphere2,
-    line
-  }
-  clickFun(container)
+  clickFun(container, publicPath)
 }
