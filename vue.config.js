@@ -1,5 +1,7 @@
 const webpack = require('webpack')
 
+const env = process.env.NODE_ENV
+console.log(env)
 module.exports = {
   publicPath: './',
 
@@ -20,8 +22,8 @@ module.exports = {
       ]
     },*/
     plugins:[  new webpack.DefinePlugin({
-      IS_EDITOR:true
-
+      IS_EDITOR:true,
+      'process.env.NODE_ENV':env
     })
     ]
   },

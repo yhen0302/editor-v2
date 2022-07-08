@@ -1,6 +1,7 @@
+const env = process.env.NODE_ENV
 module.exports = {
   globals: {
-    IS_EDITOR:true,
+    IS_EDITOR:true
   },
   root: true,
   env: {
