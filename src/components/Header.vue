@@ -57,6 +57,8 @@ import { ElMessage } from 'element-plus'
 import createPreviewTemplate from '@/core/utils/createPreviewTemplate'
 import htmlToUrl from '@/core/utils/htmlToUrl'
 import { clone } from '@/core/2d/util/base'
+import { parseModelNode } from '@/core/3d/util'
+import { EventsBus } from '@/core/EventsBus'
 
 function saveJSON(data: any, filename: any) {
   if (!data) {
@@ -76,7 +78,6 @@ function saveJSON(data: any, filename: any) {
   e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
   a.dispatchEvent(e)
 }
-
 
 export default defineComponent({
   name: 'Header',
@@ -134,18 +135,19 @@ export default defineComponent({
         return false
       }
 
+      remove3Dnodes()
+
       fileList[0].text().then((res: any) => {
         store.state.exportContent = JSON.parse(res)
         store.state.exportType = !store.state.exportType
       })
     }
 
-  
     async function preview() {
       // const sdk = await (await fetch('/sdk/index.js')).text()
       // const sdk3d = await (await fetch('/static/main.js')).text()
 
-      const html = createPreviewTemplate( `console.log(EDITOR_SDK(${JSON.stringify({ pageTreeNodes: getAvailablePageTreeNodes(), drawingBoard: store.state.drawingBoard })}))`)
+      const html = createPreviewTemplate(`console.log(EDITOR_SDK(${JSON.stringify({ pageTreeNodes: getAvailablePageTreeNodes(), drawingBoard: store.state.drawingBoard })}))`)
       console.log(window.open(htmlToUrl(html)))
     }
 
@@ -164,7 +166,7 @@ export default defineComponent({
         node = null
 
       // eslint-disable-next-line no-cond-assign
-      while (node = nodes.pop()) {
+      while ((node = nodes.pop())) {
         node.parent = null
         if (node?.children?.length > 0) {
           nodes.unshift(...node?.children)
@@ -172,6 +174,88 @@ export default defineComponent({
       }
       console.log(tree)
     }
+
+    function remove3Dnodes() {
+      const container = toRaw(store.state.threeDimensionContainer)
+      // 1.remove old node
+      const removedStoreNodeUUIDs: any = []
+      // 1).store:template
+      for (let i = store.state.template.threeDimension.length; i--; i >= 0) {
+        if (store.state.template.threeDimension[i].uuid !== -1) {
+          removedStoreNodeUUIDs.push(store.state.template.threeDimension[i].uuid)
+          store.state.template.threeDimension.splice(i, 1)
+        }
+      }
+      // 2).container:sceneModel,children,clickObjects,mixers,mixerActions,sceneAnimations,lights,outlineObjects,passes
+      // sceneModel
+      for (let i = container.sceneModels.length; i--; i >= 0) {
+        if (removedStoreNodeUUIDs.includes(container.sceneModels[i].uuid)) {
+          container.sceneModels[i].traverse((c: any) => {
+            container.scene.remove(c)
+
+            const childMesh = c
+            if (childMesh.material) {
+              if (childMesh.material.map) {
+                childMesh.material.map.dispose()
+                childMesh.material.map = null
+              }
+              childMesh.material.dispose()
+              childMesh.material = null
+            }
+            if (childMesh.geometry) {
+              childMesh.geometry.dispose()
+              childMesh.geometry = null
+            }
+            c = null
+          })
+          container.sceneModels.splice(i, 1)
+        }
+      }
+      // children
+      container.children.splice(0, container.children.length)
+      // clickObjects
+      container.clickObjects.splice(0, container.clickObjects.length)
+      // mixers
+      container.mixers.splice(0, container.mixers.length)
+      // mixerActions
+      container.mixerActions.splice(0, container.mixerActions.length)
+      // sceneAnimations
+      container.sceneAnimations = {}
+      // lights:directionLights,pointLights,spotLights,rectAreaLights
+      for (let i = container.directionLights.length; i--; i >= 0) {
+        container.scene.remove(i)
+        container.directionLights.splice(i, 1)
+      }
+      for (let i = container.pointLights.length; i--; i >= 0) {
+        container.scene.remove(i)
+        container.pointLights.splice(i, 1)
+      }
+      for (let i = container.spotLights.length; i--; i >= 0) {
+        container.scene.remove(i)
+        container.spotLights.splice(i, 1)
+      }
+      for (let i = container.rectAreaLights.length; i--; i >= 0) {
+        container.scene.remove(i)
+        container.rectAreaLights.splice(i, 1)
+      }
+      // outlineObjects
+      container.outlineObjects.splice(0, container.outlineObjects.length)
+      // scene clear
+      container.scene.children.forEach((item: any) => {
+        container.scene.remove(item)
+      })
+      // pass clear
+      store.state.template.threeDimension = []
+      // 3.reset sceneTree/pageTree/editform
+      EventsBus.emit('resetTemplate', {})
+
+      // click object
+      store.state.addElementType = null
+      store.state.elementIcon = []
+      store.state.elementText = []
+      store.state.elementFlyLine = []
+    }
+
     return {
       store,
       scaleRatio,
