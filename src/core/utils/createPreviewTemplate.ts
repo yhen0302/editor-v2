@@ -1,6 +1,6 @@
 // @ts-ignore
 import { html } from 'common-tags'
-const baseURL = location.origin + '/demo/edit'
+const baseURL =process.env.NODE_ENV==="production"? location.origin + '/demo/edit':location.origin
 export default function createPreviewTemplate(code: string) {
   return html`
     <!DOCTYPE html>
