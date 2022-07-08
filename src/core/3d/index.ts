@@ -621,5 +621,11 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
   })
 
   const { lightPlane, curveSphere1, curveSphere2, line } = outObjects(container, publicPath)
-  clickFun(container, { lightPlane, curveSphere1, curveSphere2, line })
+  store.state.elementUserMesh = {
+    lightPlane,
+    curveSphere1,
+    curveSphere2,
+    line
+  }
+  clickFun(container)
 }

@@ -5,8 +5,10 @@ import * as Fly from '../utils/flyLine'
 
 declare const Bol3D: any
 
-export const clickFun = (container: any, obj: any) => {
-  const { lightPlane, curveSphere1, curveSphere2, line } = obj
+export const clickFun = (container: any) => {
+  const { lightPlane, curveSphere1, curveSphere2, line } = store.state.elementUserMesh
+
+  store.state.elementClick = new Bol3D.Events(container)
 
   const clock = new Bol3D.Clock()
   const animation = () => {
@@ -124,8 +126,7 @@ export const clickFun = (container: any, obj: any) => {
   document.getElementsByClassName('scene-3d')[0].addEventListener('mousedown', newMoveDown)
   document.getElementsByClassName('scene-3d')[0].addEventListener('mouseup', newMoveUp)
 
-  const events = new Bol3D.Events(container)
-  events.onclick = (e: any) => {
+  store.state.elementClick.onclick = (e: any) => {
     const name = e.objects[0].object.name
     if (store.state.addElementType) {
       const element = store.state.addElementType
@@ -165,7 +166,7 @@ export const clickFun = (container: any, obj: any) => {
     }
   }
 
-  events.onhover = (e: any) => {
+  store.state.elementClick.onhover = (e: any) => {
     const name: any = e.objects[0].object.name
     const position = [e.objects[0].point.x, e.objects[0].point.y, e.objects[0].point.z]
     const element = store.state.addElementType
