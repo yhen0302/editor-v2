@@ -3,6 +3,7 @@ import store from '../../store'
 import { EventsBus } from '../EventsBus'
 import { throttled } from '../utils/base'
 import { clickFun } from './clickFun'
+import { outObjects } from './clickNeedObject'
 
 declare const Bol3D: any
 
@@ -616,11 +617,18 @@ export const importScene = (canvas: any, d?: any) => {
       controls.addEventListener('change', (event: any) => {
         updateFnCameraTd(event)
       })
-
-      // click event
-      // clickFun(container, publicPath)
     }
   })
+
+  // click event
+  const { lightPlane, curveSphere1, curveSphere2, line } = outObjects(container, publicPath)
+  store.state.elementUserMesh = {
+    lightPlane,
+    curveSphere1,
+    curveSphere2,
+    line
+  }
+  clickFun(container)
 }
 
 const modelsRecursion = (model: any, template: any) => {

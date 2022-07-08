@@ -9960,15 +9960,15 @@
     }());
     var Storage$1 = Storage;
 
-    var requestAnimationFrame;
-    requestAnimationFrame = (env$1.hasGlobalWindow
+    var requestAnimationFrame$1;
+    requestAnimationFrame$1 = (env$1.hasGlobalWindow
         && ((window.requestAnimationFrame && window.requestAnimationFrame.bind(window))
             || (window.msRequestAnimationFrame && window.msRequestAnimationFrame.bind(window))
             || window.mozRequestAnimationFrame
             || window.webkitRequestAnimationFrame)) || function (func) {
         return setTimeout(func, 16);
     };
-    var requestAnimationFrame$1 = requestAnimationFrame;
+    var requestAnimationFrame$2 = requestAnimationFrame$1;
 
     var easingFuncs = {
         linear: function (k) {
@@ -12056,11 +12056,11 @@
             this._running = true;
             function step() {
                 if (self._running) {
-                    requestAnimationFrame$1(step);
+                    requestAnimationFrame$2(step);
                     !self._paused && self.update();
                 }
             }
-            requestAnimationFrame$1(step);
+            requestAnimationFrame$2(step);
         };
         Animation.prototype.start = function () {
             if (this._running) {
@@ -47452,7 +47452,7 @@
             }
             if (!finished) {
                 var self_1 = this;
-                requestAnimationFrame$1(function () {
+                requestAnimationFrame$2(function () {
                     self_1._paintList(list, prevList, paintAll, redrawId);
                 });
             }
@@ -105718,9 +105718,11 @@
             exportContent: null,
             //  添加元素变量
             addElementType: null,
+            elementUserMesh: {},
             elementIcon: [],
             elementText: [],
-            elementFlyLine: [] // 存储飞线数组
+            elementFlyLine: [],
+            elementClick: null
         },
         mutations: { ...mutations2d },
         actions: {},
@@ -107896,6 +107898,422 @@
         };
     }
 
+    const addCanvas = (container, position, type) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 200;
+        canvas.height = 200;
+        const c = canvas.getContext('2d');
+        // 矩形区域填充背景
+        c.fillStyle = 'rgba(255, 255, 255, 0)';
+        c.fillRect(0, 0, 200, 200);
+        c.beginPath();
+        // 文字
+        c.beginPath();
+        c.fillStyle = '#ffffff'; //文本填充颜色
+        c.font = 'normal 30px SimSun'; //字体样式设置
+        c.textBaseline = 'top'; //文本与fillText定义的纵坐标            top  hanging  middle  ideographic  bottom
+        c.textAlign = 'left'; //文本居中(以fillText定义的横坐标)        start  end  center  left   right
+        c.fillText('新增文本', 0, 0);
+        var texture = new Bol3D.CanvasTexture(canvas);
+        var TextPlane;
+        if (type == 'RotateText') {
+            var material = new Bol3D.SpriteMaterial({ map: texture });
+            TextPlane = new Bol3D.Sprite(material);
+            TextPlane.userData.selected = type;
+        }
+        else {
+            var geometry = new Bol3D.PlaneGeometry(1, 1);
+            var material = new Bol3D.MeshPhongMaterial({
+                map: texture,
+                side: Bol3D.DoubleSide,
+                transparent: true
+            });
+            TextPlane = new Bol3D.Mesh(geometry, material);
+            TextPlane.userData.selected = type;
+        }
+        TextPlane.position.set(position[0], position[1], position[2]);
+        TextPlane.scale.set(50, 50, 1);
+        TextPlane.renderOrder = 500;
+        TextPlane.name = 'textSelf';
+        container.clickObjects.push(TextPlane);
+        container.attach(TextPlane);
+        store.state.addElementType.mesh = TextPlane;
+        store.state.elementText.push(TextPlane);
+        setTimeout(() => {
+            store.state.addElementType.moving = !store.state.addElementType.moving;
+        }, 100);
+        const node = { type: 'text3D', selected: type, name: TextPlane.name };
+        EventsBus.emit('toolBarSelected', { node });
+    };
+
+    const pointsArrs = (source, target, height) => {
+        const positions = [];
+        const attrPositions = [];
+        const attrCindex = [];
+        const attrCnumber = [];
+        const _source = new Bol3D.Vector3(source.x, source.y, source.z);
+        const _target = new Bol3D.Vector3(target.x, target.y, target.z);
+        const _center = _target.clone().lerp(_source, 0.5);
+        _center.y += height;
+        const number = parseInt(_source.distanceTo(_center) + _target.distanceTo(_center));
+        const curve = new Bol3D.QuadraticBezierCurve3(_source, _center, _target);
+        const points = curve.getPoints(number);
+        // 粒子位置计算
+        points.forEach((elem, i) => {
+            const index = i / (number - 1);
+            positions.push({
+                x: elem.x,
+                y: elem.y,
+                z: elem.z
+            });
+            attrCindex.push(index);
+            attrCnumber.push(i);
+        });
+        positions.forEach((p) => {
+            attrPositions.push(p.x, p.y, p.z);
+        });
+        return { attrPositions, attrCindex, attrCnumber, number };
+    };
+    const flyObj = (option) => {
+        const { source, target, height, size, color, range, speed } = option;
+        const { attrPositions, attrCindex, attrCnumber, number } = pointsArrs(source, target, height);
+        const geometry = new Bol3D.BufferGeometry();
+        geometry.setAttribute('position', new Bol3D.Float32BufferAttribute(attrPositions, 3));
+        // 传递当前所在位置
+        geometry.setAttribute('index', new Bol3D.Float32BufferAttribute(attrCindex, 1));
+        geometry.setAttribute('current', new Bol3D.Float32BufferAttribute(attrCnumber, 1));
+        const shader = new Bol3D.ShaderMaterial({
+            transparent: true,
+            depthWrite: true,
+            depthTest: true,
+            blending: Bol3D.AdditiveBlending,
+            uniforms: {
+                uColor: {
+                    value: new Bol3D.Color(color) // 颜色
+                },
+                uRange: {
+                    value: range || 100 // 显示当前范围的个数
+                },
+                uSize: {
+                    value: size // 粒子大小
+                },
+                uTotal: {
+                    value: number // 当前粒子的所有的总数
+                },
+                time: {
+                    value: 0 //
+                },
+                speed: {
+                    value: speed
+                }
+            },
+            vertexShader: `
+        attribute float index;
+        attribute float current;
+        uniform float time;
+        uniform float speed;
+        uniform float uSize;
+        uniform float uRange; // 展示区间
+        uniform float uTotal; // 粒子总数
+        uniform vec3 uColor; 
+        varying vec3 vColor;
+        varying float vOpacity;
+        void main() {
+            // 需要当前显示的索引
+            float size = uSize;
+            float showNumber = uTotal * mod(time * speed, 1.1);
+            if (showNumber > current && showNumber < current + uRange) {
+                float uIndex = ((current + uRange) - showNumber) / uRange;
+                size *= uIndex;
+                vOpacity = 1.0;
+            } else {
+                vOpacity = 0.0;
+            }
+
+            // 顶点着色器计算后的Position
+            vColor = uColor;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_Position = projectionMatrix * mvPosition; 
+            // 大小
+            gl_PointSize = size * 300.0 / (-mvPosition.z);
+        }`,
+            fragmentShader: `
+        varying vec3 vColor; 
+        varying float vOpacity;
+        void main() {
+            gl_FragColor = vec4(vColor, vOpacity);
+        }`
+        });
+        const point = new Bol3D.Points(geometry, shader);
+        return point;
+    };
+    const reviseCurveLine = (position, obj) => {
+        const position1 = store.state.addElementType.basePoint.position.clone();
+        const cx = (position1.x + position[0]) / 2;
+        const cy = position1.y > position[1] ? position1.y + 50 : position[1] + 50;
+        const cz = (position1.z + position[2]) / 2;
+        var curve = new Bol3D.CatmullRomCurve3([new Bol3D.Vector3(position1.x, position1.y, position1.z), new Bol3D.Vector3(cx, cy, cz), new Bol3D.Vector3(position[0], position[1], position[2])]);
+        curve.closed = false;
+        const ponits = curve.getPoints(100);
+        obj.visible = true;
+        obj.geometry = new Bol3D.BufferGeometry().setFromPoints(ponits);
+        store.state.addElementType.curveObj = obj;
+    };
+    const flyBasePoint = (container, position, curveSphere1, curveSphere2, obj) => {
+        if (!store.state.addElementType.painting) {
+            const node = {};
+            EventsBus.emit('toolBarSelected', { node });
+            arrayDel(container.clickObjects, curveSphere1);
+            arrayDel(container.clickObjects, curveSphere2);
+            curveSphere1.visible = true;
+            curveSphere2.visible = true;
+            curveSphere1.position.set(...position);
+            curveSphere2.position.set(...position);
+            store.state.addElementType.painting = true;
+        }
+        else {
+            store.state.addElementType.painting = false;
+            curveSphere2.position.set(...position);
+            obj.visible = false;
+            const line = flyObj({
+                source: curveSphere1.position.clone(),
+                target: curveSphere2.position.clone(),
+                height: 100,
+                size: 10,
+                color: '#fff000',
+                range: 100,
+                speed: 1
+            });
+            line.name = 'flyLineSelf';
+            line.userData.source = curveSphere1.position.clone();
+            line.userData.target = curveSphere2.position.clone();
+            line.userData.height = 100;
+            line.userData.size = 10;
+            line.userData.color = '#fff000';
+            line.userData.range = 100;
+            line.userData.speed = 1;
+            container.clickObjects.push(line, curveSphere1, curveSphere2);
+            store.state.elementFlyLine.push(line);
+            store.state.addElementType.mesh = line;
+            line.renderOrder = 500;
+            container.attach(line);
+            const node = { type: 'flyLine', selected: true, name: '' };
+            EventsBus.emit('toolBarSelected', { node });
+            setTimeout(() => {
+                store.state.addElementType.moving = !store.state.addElementType.moving;
+            }, 100);
+        }
+    };
+    const arrayDel = (arr, delObj) => {
+        arr.forEach((item, i) => {
+            if (item.uuid == delObj.uuid) {
+                arr.splice(i, 1);
+                return false;
+            }
+        });
+    };
+
+    const clickFun = (container) => {
+        const { lightPlane, curveSphere1, curveSphere2, line } = store.state.elementUserMesh;
+        store.state.elementClick = new Bol3D.Events(container);
+        const clock = new Bol3D.Clock();
+        const animation = () => {
+            requestAnimationFrame(animation);
+            if (store.state.elementFlyLine.length > 0) {
+                store.state.elementFlyLine.forEach((item) => {
+                    item.material.uniforms.time.value = clock.getElapsedTime();
+                });
+            }
+        };
+        animation();
+        var dragObj = null;
+        // 新增raycaster射线
+        const addRay = (e) => {
+            const mouse = new Bol3D.Vector2();
+            const domElement = document.getElementsByClassName('scene-3d')[0];
+            const getBoundingClientRect = domElement.getBoundingClientRect();
+            const raycaster = new Bol3D.Raycaster();
+            mouse.x = ((e.clientX - getBoundingClientRect.left) / (domElement.clientWidth * 0.65)) * 2 - 1;
+            mouse.y = -((e.clientY - getBoundingClientRect.top) / (domElement.clientHeight * 0.65)) * 2 + 1;
+            const camera = container.orbitCamera;
+            raycaster.setFromCamera(mouse, camera);
+            // 需要被监听的对象要存储在clickObjects中。
+            const intersects = raycaster.intersectObjects(container.clickObjects);
+            return intersects;
+        };
+        // 重写鼠标移动事件
+        const newMove = (e) => {
+            const intersects = addRay(e);
+            if (intersects.length > 0) {
+                const position = [intersects[0].point.x, intersects[0].point.y, intersects[0].point.z];
+                dragObj.position.set(position[0], position[1], position[2]);
+                lightPlane.material.color.set(0xffff00);
+                store.state.addElementType.moving = !store.state.addElementType.moving;
+            }
+        };
+        // 重写mousedown
+        const newMoveDown = (e) => {
+            if (e.button != 0)
+                return;
+            const intersects = addRay(e);
+            if (intersects.length > 0 && store.state.addElementType && intersects[0].object.visible) {
+                const object = intersects[0].object;
+                const name = intersects[0].object.name;
+                if (name.includes('iconSelf') || name.includes('textSelf')) {
+                    container.clickObjects.forEach((item, i) => {
+                        if (item.uuid == object.uuid) {
+                            container.clickObjects.splice(i, 1);
+                        }
+                    });
+                    container.orbitControls.enableRotate = false;
+                    store.state.addElementType.mesh = object;
+                    dragObj = object;
+                    document.getElementsByClassName('scene-3d')[0].addEventListener('mousemove', newMove);
+                    if (name.includes('iconSelf')) {
+                        lightPlane.visible = true;
+                        object.add(lightPlane);
+                        const node = { type: 'icon3D', selected: object.name, name: object.name, clickObj: true };
+                        EventsBus.emit('toolBarSelected', { node });
+                    }
+                    else if (name.includes('textSelf')) {
+                        const node = { type: 'text3D', selected: object.userData.selected, name: object.name, clickObj: true };
+                        EventsBus.emit('toolBarSelected', { node });
+                    }
+                }
+                else if (name.includes('flyLineSelf')) {
+                    if (name.includes('flyLineSelfSphere')) {
+                        container.clickObjects.forEach((item, i) => {
+                            if (item.uuid == object.uuid) {
+                                container.clickObjects.splice(i, 1);
+                            }
+                        });
+                        container.orbitControls.enableRotate = false;
+                        dragObj = object;
+                        document.getElementsByClassName('scene-3d')[0].addEventListener('mousemove', newMove);
+                    }
+                    else {
+                        store.state.addElementType.mesh = object;
+                        curveSphere1.position.copy(object.userData.source.clone());
+                        curveSphere2.position.copy(object.userData.target.clone());
+                        var havePoint = false;
+                        container.clickObjects.forEach((item) => {
+                            if (item.uuid == curveSphere1.uuid || item.uuid == curveSphere2.uuid) {
+                                havePoint = true;
+                            }
+                        });
+                        if (!havePoint) {
+                            container.clickObjects.push(curveSphere1, curveSphere2);
+                        }
+                        curveSphere1.visible = true;
+                        curveSphere2.visible = true;
+                        store.state.addElementType.basePoint = curveSphere1;
+                        store.state.addElementType.movePoint = curveSphere2;
+                        const node = { type: 'flyLine', selected: object.name, name: object.name, clickObj: true };
+                        EventsBus.emit('toolBarSelected', { node });
+                    }
+                }
+            }
+        };
+        // 重写mouseup
+        const newMoveUp = (e) => {
+            if (e.button != 0)
+                return;
+            const intersects = addRay(e);
+            if (intersects.length > 0) {
+                if (dragObj) {
+                    document.getElementsByClassName('scene-3d')[0].removeEventListener('mousemove', newMove);
+                    container.clickObjects.push(dragObj);
+                    lightPlane.material.color.set(0x16ddfa);
+                    container.orbitControls.enableRotate = true;
+                    dragObj = null;
+                }
+            }
+        };
+        document.getElementsByClassName('scene-3d')[0].addEventListener('mousedown', newMoveDown);
+        document.getElementsByClassName('scene-3d')[0].addEventListener('mouseup', newMoveUp);
+        store.state.elementClick.onclick = (e) => {
+            const name = e.objects[0].object.name;
+            if (store.state.addElementType) {
+                const element = store.state.addElementType;
+                const position = [e.objects[0].point.x, e.objects[0].point.y, e.objects[0].point.z];
+                if (element.type == 'icon' && !name.includes('iconSelf')) {
+                    const icon = new Bol3D.POI.Icon({
+                        position: position,
+                        url: element.icon,
+                        scale: [50, 50]
+                    });
+                    icon.material.transparent = true;
+                    icon.center.y = 0;
+                    icon.name = 'iconSelf' + element.type;
+                    container.clickObjects.push(icon);
+                    container.attach(icon);
+                    lightPlane.visible = true;
+                    icon.add(lightPlane);
+                    store.state.addElementType.mesh = icon;
+                    store.state.addElementType.lightMesh = lightPlane;
+                    store.state.elementIcon.push(icon);
+                    setTimeout(() => {
+                        store.state.addElementType.moving = !store.state.addElementType.moving;
+                    }, 100);
+                }
+                else if (element.type == 'text' && !name.includes('textSelf')) {
+                    EventsBus.emit('toolBarSelected', { node: {} });
+                    addCanvas(container, position, element.smallType);
+                }
+                else if (element.type == 'flyLine' && !name.includes('flyLineSelf')) {
+                    store.state.addElementType.basePoint = curveSphere1;
+                    store.state.addElementType.movePoint = curveSphere2;
+                    flyBasePoint(container, position, curveSphere1, curveSphere2, line);
+                }
+                else if (!name.includes('iconSelf') && !name.includes('textSelf') && !name.includes('flyLineSelf')) {
+                    EventsBus.emit('toolBarSelected', { node: {} });
+                    lightPlane.visible = false;
+                    curveSphere1.visible = false;
+                    curveSphere2.visible = false;
+                }
+            }
+        };
+        store.state.elementClick.onhover = (e) => {
+            e.objects[0].object.name;
+            const position = [e.objects[0].point.x, e.objects[0].point.y, e.objects[0].point.z];
+            const element = store.state.addElementType;
+            if (element && element.type == 'flyLine') {
+                if (store.state.addElementType.painting) {
+                    curveSphere2.position.set(...position);
+                    reviseCurveLine(position, line);
+                }
+            }
+        };
+    };
+
+    const outObjects = (container, publicPath) => {
+        // 添加图标自定义元素
+        const geometryPlane = new Bol3D.PlaneGeometry(1, 1);
+        const materialPlane = new Bol3D.MeshBasicMaterial({ color: 0x16ddfa, side: Bol3D.DoubleSide, map: new Bol3D.TextureLoader().load(publicPath + 'textures/circularPin.png'), transparent: true });
+        const lightPlane = new Bol3D.Mesh(geometryPlane, materialPlane);
+        lightPlane.rotation.x = -Math.PI / 2;
+        lightPlane.renderOrder = 1000;
+        lightPlane.position.y = 0.03;
+        // 飞线部分自定义元素
+        const geometry = new Bol3D.SphereGeometry(10, 32, 16);
+        const material = new Bol3D.MeshBasicMaterial({ color: 0xffff00 });
+        const curveSphere1 = new Bol3D.Mesh(geometry, material);
+        const curveSphere2 = new Bol3D.Mesh(geometry, material);
+        curveSphere1.visible = false;
+        curveSphere2.visible = false;
+        curveSphere1.name = 'flyLineSelfSphere1';
+        curveSphere2.name = 'flyLineSelfSphere2';
+        container.attach(curveSphere1);
+        container.attach(curveSphere2);
+        var curve = new Bol3D.CatmullRomCurve3([new Bol3D.Vector3(0, 0, 0), new Bol3D.Vector3(50, 100, 0), new Bol3D.Vector3(100, 0, 0)]);
+        curve.closed = false;
+        const ponits = curve.getPoints(100);
+        var line = new Bol3D.Line(new Bol3D.BufferGeometry().setFromPoints(ponits), new Bol3D.LineBasicMaterial({ color: 0xffff00 }));
+        line.visible = false;
+        container.attach(line);
+        return { lightPlane, curveSphere1, curveSphere2, line };
+    };
+
     const importScene = (canvas, d) => {
         const scene = d || store.state.exportContent[0].children[0].trees.threeDimension;
         var Camera, AmbientLight, HemisphereLight, DirectionLights, SpotLights, PointLights, RectAreaLights, Shadow, Background, HDR, Fog, BloomPass, OutlinePass, DOFPass, GammaPass, MSAAPass;
@@ -107956,7 +108374,7 @@
                 models.push(item);
             }
         });
-        new Bol3D.Container({
+        const container = new Bol3D.Container({
             publicPath,
             container: canvas,
             viewState: 'orbit',
@@ -108473,10 +108891,17 @@
                 controls.addEventListener('change', (event) => {
                     updateFnCameraTd(event);
                 });
-                // click event
-                // clickFun(container, publicPath)
             }
         });
+        // click event
+        const { lightPlane, curveSphere1, curveSphere2, line } = outObjects(container, publicPath);
+        store.state.elementUserMesh = {
+            lightPlane,
+            curveSphere1,
+            curveSphere2,
+            line
+        };
+        clickFun(container);
     };
     const modelsRecursion = (model, template) => {
         const arrs = [];

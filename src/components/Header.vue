@@ -183,6 +183,7 @@ export default defineComponent({
 
     function remove3Dnodes() {
       const container = toRaw(store.state.threeDimensionContainer)
+
       // 1.remove old node
       const removedStoreNodeUUIDs: any = []
       // 1).store:template
@@ -255,11 +256,16 @@ export default defineComponent({
       // 3.reset sceneTree/pageTree/editform
       EventsBus.emit('resetTemplate', {})
 
+      // clear event
+      store.state.elementClick.onclick = null
+      store.state.elementClick.onhover = null
       // click object
       store.state.addElementType = null
+      store.state.elementUserMesh = {}
       store.state.elementIcon = []
       store.state.elementText = []
       store.state.elementFlyLine = []
+      store.state.elementClick = null
     }
 
     return {
