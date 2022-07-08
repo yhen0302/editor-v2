@@ -108317,7 +108317,7 @@
     const importScene = (canvas, d) => {
         const scene = d || store.state.exportContent[0].children[0].trees.threeDimension;
         var Camera, AmbientLight, HemisphereLight, DirectionLights, SpotLights, PointLights, RectAreaLights, Shadow, Background, HDR, Fog, BloomPass, OutlinePass, DOFPass, GammaPass, MSAAPass;
-        var modelUrls = [], models = [], publicPath = location.origin;
+        var modelUrls = [], models = [], publicPath = location.protocol === 'blob:' ? 'https://www.kantu3d.com/demo/edit/' : location.origin + location.pathname;
         scene.forEach((item) => {
             if (item.uuid == -1) {
                 if (item.name == 'Camera') {

@@ -28,7 +28,7 @@ export const importScene = (canvas: any, d?: any) => {
 
   var modelUrls: any = [],
     models: any = [],
-    publicPath = location.origin
+    publicPath =location.protocol==='blob:'?'https://www.kantu3d.com/demo/edit/': location.origin+location.pathname
   scene.forEach((item: any) => {
     if (item.uuid == -1) {
       if (item.name == 'Camera') {

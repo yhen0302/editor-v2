@@ -18,7 +18,7 @@ export default defineComponent({
     const domShow = ref(true)
 
     onMounted(() => {
-      const publicPath = './'
+      const publicPath = location.origin + location.pathname
       const modelUrls = [
         'models/HangKong/ChangJing/CangFang.glb',
         'models/HangKong/ChangJing/Dimian_BOX.glb',
