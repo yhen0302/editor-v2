@@ -81,9 +81,9 @@ export default {
     node.option.emitters[eventType+':'+eventAction] = {effect}
   },
   [EditorMutation.DELETE_SELECT_NODE](state:EditorStore,{nodes}:{nodes:LayerTree2dNode[]}){
- /*   for(const node of nodes){
+    for(const node of nodes){
       console.log(node.parent)
-    }*/
+    }
   },
   // 3d
   [EditorMutation.ADD_3D_TREE_NODE](state: EditorStore, payload: { node: LayerTree3dNode }) {
