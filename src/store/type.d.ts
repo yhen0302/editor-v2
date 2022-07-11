@@ -25,6 +25,7 @@ export interface LayerTree2dNode extends TreeNode {
   subType?: selectItemType2d
   option: any
   contentEditable?: boolean
+  parent?: any
   select: boolean
   children?: LayerTree2dNode[]
 }
@@ -50,22 +51,13 @@ export declare interface EditorStore {
     height: number
     width: number
   }
-  addDragging:boolean
+  addDragging: boolean
   [key: string]: any
 }
 
-export declare type dimensionSelectBarType2d =
-  | 'text'
-  | 'shape'
-  | 'media'
-  | 'chart'
-export declare type dimensionSelectBarType3d =
-  | 'element'
-  | 'scenes'
-  | 'afterProcess'
-export declare type selectBarType =
-  | dimensionSelectBarType2d
-  | dimensionSelectBarType3d
+export declare type dimensionSelectBarType2d = 'text' | 'shape' | 'media' | 'chart'
+export declare type dimensionSelectBarType3d = 'element' | 'scenes' | 'afterProcess'
+export declare type selectBarType = dimensionSelectBarType2d | dimensionSelectBarType3d
 
 export declare interface SelectBarItem {
   icon: string
@@ -73,51 +65,17 @@ export declare interface SelectBarItem {
   type: selectBarType
 }
 
-export declare type selectItemTextType =
-  | 'title'
-  | 'bigTitle'
-  | 'smallTitle'
-  | 'content'
+export declare type selectItemTextType = 'title' | 'bigTitle' | 'smallTitle' | 'content'
 export declare type selectItemShapeType = 'base' | 'button' | 'icon'
 export declare type selectItemMediaType = 'video' | 'image'
-export declare type selectItemChartType =
-  | 'bar'
-  | 'line'
-  | 'pie'
-  | 'gauge'
-  | 'curve'
-export declare type selectItemType2d =
-  | selectItemTextType
-  | selectItemShapeType
-  | selectItemMediaType
-  | selectItemChartType
+export declare type selectItemChartType = 'bar' | 'line' | 'pie' | 'gauge' | 'curve'
+export declare type selectItemType2d = selectItemTextType | selectItemShapeType | selectItemMediaType | selectItemChartType
 
-export declare type selectItemElementType =
-  | 'model'
-  | '3dicon'
-  | 'text'
-  | 'mark'
-  | 'flyline'
-  | 'streamer'
-export declare type selectItemScreenType =
-  | 'light'
-  | 'shadow'
-  | 'camera'
-  | 'background'
-  | 'HDR'
-  | 'fog'
-export declare type switchItemAfterProcessType =
-  | 'outline'
-  | 'bloom'
-  | 'dof'
-  | 'gammaCorrection'
-  | 'ssaa'
-  | 'ssr'
-  | 'ssao'
+export declare type selectItemElementType = 'model' | '3dicon' | 'text' | 'mark' | 'flyline' | 'streamer'
+export declare type selectItemScreenType = 'light' | 'shadow' | 'camera' | 'background' | 'HDR' | 'fog'
+export declare type switchItemAfterProcessType = 'outline' | 'bloom' | 'dof' | 'gammaCorrection' | 'ssaa' | 'ssr' | 'ssao'
 
-export declare type selectItemType3d =
-  | selectItemElementType
-  | selectItemScreenType
+export declare type selectItemType3d = selectItemElementType | selectItemScreenType
 
 export declare interface SelectItem extends SelectBarItem {
   type: selectItemChartType2d | selectItemChartType3d

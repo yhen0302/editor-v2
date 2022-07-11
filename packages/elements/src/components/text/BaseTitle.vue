@@ -19,7 +19,7 @@
     @scroll.stop
     ref="el"
   >
-    <img src='~@/assets/images/lightning.png' class='emitter-icon absolute' draggable='false' @click='emitterEffect' v-show='Object.keys(node.option.emitters).length>0'>
+    <img src='' class='emitter-icon absolute' draggable='false' @click='emitterEffect' v-show='Object.keys(node.option.emitters).length>0'>
     <h3
       class="big-title flex-1"
       :class="fontStyle"

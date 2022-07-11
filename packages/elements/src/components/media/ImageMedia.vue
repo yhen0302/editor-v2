@@ -19,7 +19,9 @@
       :src="src"
       v-if="src"
     />
-    <div class="img-placeholder" v-else></div>
+    <div class="img-placeholder-box" v-else>
+      <img class='i-p' src='~@/assets/icon/clip-1406.svg' draggable='false'>
+    </div>
   </div>
 </template>
 
@@ -51,9 +53,14 @@ export default {
   height: 100%;
   object-fit: fill;
 }
-.img-placeholder {
+.img-placeholder-box {
   width: 100%;
   height: 100%;
-  background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;
+  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/
+}
+.i-p{
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
 }
 </style>

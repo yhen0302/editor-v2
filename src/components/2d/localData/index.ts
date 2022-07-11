@@ -188,7 +188,11 @@ export const selectData: Record<
             option.grid.bottom = '15%'
             option.grid.top = '15%'
             option.legend.show = false
-            option.series[0].label.show = false
+            for(let i = 0;i<option.series.length;i++){
+              if(option.series[i]?.label){
+                option.series[i].label.show = false
+              }
+            }
 
             item.icon = getChartUrl(option)
             return item

@@ -52,7 +52,11 @@ async function main() {
         }]
     })
     watcher.on('event',(event)=>{
+
       console.log('event.code',event.code)
+      if(event.code === 'ERROR'){
+        console.log(event.error)
+      }
     })
   }
 }
