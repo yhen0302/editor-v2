@@ -9,7 +9,7 @@ import elementInstaller from "@editor-v2/elements"
 import layerPlugin from '@/plugins/layerPlugin/index'
 
 // 快捷键
-// import '@/core/2d/features/keyboard'
+import '@/core/2d/features/keyboard'
 
 // 导入element-plus
 import ElementPlus from 'element-plus'
