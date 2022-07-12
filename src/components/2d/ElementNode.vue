@@ -5,6 +5,7 @@
          @click.stop
          v-show="node.show"
           >
+
       <component
         @select="selectNode(node)"
         @append="appendSelectNode(node)"
@@ -19,11 +20,13 @@
 import { useStore } from 'vuex'
 import { useMutation, useState ,useGetter} from '../../store/helper'
 import { EditorStore, LayerTree2dNode } from '../../store/type'
+import { getCurrentInstance } from 'vue'
 
 export default {
   name: 'ElementNode',
   props: ['node'],
   setup() {
+    console.log('elementNode',getCurrentInstance())
     const store = useStore()
     const editorStore = useState(store, 'global').state as EditorStore
     const mutation = useMutation(store, 'global', [

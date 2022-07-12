@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { computed, ref, toRaw, watch } from 'vue'
+import { computed, getCurrentInstance, ref, toRaw, watch } from 'vue'
 import { hexColorToRgba, toPx } from '../util/base'
 import matrixMixin from '../matrixMixin'
 

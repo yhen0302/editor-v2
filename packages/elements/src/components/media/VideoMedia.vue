@@ -22,7 +22,7 @@
       v-if="src"
     />
     <div class="img-placeholder" v-else>
-      <img class='i-p' src='~@/assets/icon/clip-1406.svg' draggable='false'>
+      <img class='i-p' src='' draggable='false'>
     </div>
   </div>
 </template>
