@@ -81,6 +81,7 @@ export default {
     node.option.emitters[eventType + ':' + eventAction] = { effect }
   },
   [EditorMutation.DELETE_SELECT_NODE](state: EditorStore, { nodes }: { nodes: LayerTree2dNode[] }) {
+    console.log('delete',nodes)
     for (const node of nodes) {
       const index = node.parent.indexOf(node)
       index !== -1 && node.parent.splice(index, 1)

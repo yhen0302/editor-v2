@@ -8,6 +8,7 @@ export default createStore({
     selectBarToolType: '', // 左边工具栏选择类型
     selectedSceneTreeNode: null, // 右边选中的scene tree node
     selectedPageTreeNode: null, // 右边选中的page tree node
+    addDragging:false, // 当前是否是处于添加二维元素状态
     pageTreeNodes: [
       // 页面树
       {

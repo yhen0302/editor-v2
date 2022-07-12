@@ -20,11 +20,11 @@ export default {
     })
 
     el.addEventListener('dragstart',function () {
-      editorStore.addDragging = true
+      editorStore.state.addDragging = true
     })
 
     el.addEventListener('dragend', function (ev: DragEvent) {
-      editorStore.addDragging = false
+      editorStore.state.addDragging = false
     })
 
     el.addEventListener('drag', function (ev: DragEvent) {

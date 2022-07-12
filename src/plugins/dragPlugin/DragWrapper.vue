@@ -1,12 +1,5 @@
 <template>
-  <section
-    id="drag-wrapper"
-    v-show="isActive"
-    dragType="DRAG_MOVE"
-    :style="toPx(rectProperties)"
-    ref="dragEl"
-    @click.stop.prevent
-  >
+  <section id="drag-wrapper" v-show="isActive&&!editorStore.addDragging" dragType="DRAG_MOVE" :style="{ ...toPx(rectProperties)}" ref="dragEl" @click.stop.prevent>
     <!--  控制顶点缩放的四个圆点  -->
     <div
       class="circle nw-resize drag-wrapper_left drag-wrapper_top"
@@ -14,9 +7,7 @@
       v-show="!isDrag"
       v-memo="[isDrag, editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${
-        1 / editorStore.drawingBoard.scale
-      });`"
+      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="circle ne-resize drag-wrapper_right drag-wrapper_top"
@@ -24,9 +15,7 @@
       v-show="!isDrag"
       v-memo="[isDrag, editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${
-        1 / editorStore.drawingBoard.scale
-      });`"
+      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="circle se-resize drag-wrapper_right drag-wrapper_bottom"
@@ -34,9 +23,7 @@
       v-show="!isDrag"
       v-memo="[isDrag, editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${
-        1 / editorStore.drawingBoard.scale
-      });`"
+      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="circle sw-resize drag-wrapper_left drag-wrapper_bottom"
@@ -44,9 +31,7 @@
       v-show="!isDrag"
       v-memo="[isDrag, editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${
-        1 / editorStore.drawingBoard.scale
-      });`"
+      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <!--  控制上下左右拖拽的四条边  -->
     <div
@@ -54,47 +39,35 @@
       dragType="DRAG_TOP"
       v-memo="[editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleY(${
-        1 / editorStore.drawingBoard.scale
-      });`"
+      :style="`transform:scaleY(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="border e-resize drag-wrapper_right"
       dragType="DRAG_RIGHT"
       v-memo="[editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleX(${
-        1 / editorStore.drawingBoard.scale
-      });`"
+      :style="`transform:scaleX(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="border n-resize drag-wrapper_bottom"
       dragType="DRAG_BOTTOM"
       v-memo="[editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleY(${
-        1 / editorStore.drawingBoard.scale
-      });`"
+      :style="`transform:scaleY(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="border e-resize drag-wrapper_left"
       dragType="DRAG_LEFT"
       v-memo="[editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleX(${
-        1 / editorStore.drawingBoard.scale
-      });`"
+      :style="`transform:scaleX(${1 / editorStore.drawingBoard.scale});`"
     ></div>
   </section>
 </template>
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance, ref, watch } from 'vue'
-import {
-  toPx,
-  findParentPathHasEl,
-  computedElementsRect
-} from '@/plugins/dragPlugin/util/util'
+import { toPx, findParentPathHasEl, computedElementsRect } from '@/plugins/dragPlugin/util/util'
 import { Ref } from '@vue/reactivity'
 import { activeEl, isCalculating } from './index'
 import { rectProperties } from '@/plugins/dragPlugin/convert'
@@ -146,9 +119,7 @@ export default defineComponent({
         function wrapperDragDown(ev: MouseEvent) {
           isDrag.value = false
           let target: HTMLElement = ev.target as HTMLElement
-          let dragType = target.getAttribute(
-            'dragType'
-          ) as keyof typeof DRAG_STATUS
+          let dragType = target.getAttribute('dragType') as keyof typeof DRAG_STATUS
 
           isRunning.value = verifyDragWrapperActive(target)
 

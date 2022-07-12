@@ -1,6 +1,6 @@
 <template>
   <div
-    class="text-wrapper pointer-events-auto absolute flex"
+    class="text-wrapper absolute flex"
     v-drag="{ rect: node.option.matrixOption, select: node.select }"
     draggable="false"
     :style="{

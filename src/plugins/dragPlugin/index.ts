@@ -20,7 +20,7 @@ import {registryDragDirective} from "@/plugins/dragPlugin/dragDirective";
 
 const activeEl: Ref<HTMLElement[]> = ref<HTMLElement[]>([])
 const effectTotalSet: Set<EffectScope> = new Set<EffectScope>()
-const isCalculating: Ref<boolean> = ref<boolean>(false)
+const isCalculating: Ref<boolean> = ref<boolean>(false) // 是否在计算中
 
 function listenClearEvent() {
   document.addEventListener('click', (ev) => {
@@ -67,7 +67,7 @@ function watchRect(
       watch(
         () => rectProperties[key],
         (newVal, oldVal) => {
-          // 如果当前变化是正在计算选择区域就不做计算。
+          // 如果当前变化是正在计算选择区域就不做计算，防止多选时rect值变化发送事件去修改元素的大小
           if (isCalculating.value) return
           input &&
             input({

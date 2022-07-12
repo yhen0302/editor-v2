@@ -69,12 +69,7 @@ class Curve extends BaseChart{
         ? option.echartsOption
         : this.merge(defaultEchartsOpt, option.echartsOption),
     }
-  }
-  merge(target: any = {}, custom: any = {}) {
-    for (const key of Object.keys(custom)) {
-      target[key] = custom[key]
-    }
-    return target
+    this.mergeLabel(this.option)
   }
 }
 

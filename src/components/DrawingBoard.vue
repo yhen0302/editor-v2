@@ -131,6 +131,7 @@ export default defineComponent({
     })
 
     function clean2dSelectedNode() {
+      console.log('global clean!')
       editorMutation['CLEAR_SELECT_2D_NODES']()
     }
     return {

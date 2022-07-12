@@ -57,12 +57,7 @@ class Pie extends BaseChart {
 
       dataType: 'table'
     }
-  }
-  merge(target: any = {}, custom: any = {}) {
-    for (const key of Object.keys(custom)) {
-      target[key] = custom[key]
-    }
-    return target
+    this.mergeLabel(this.option)
   }
 }
 
