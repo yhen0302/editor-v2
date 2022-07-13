@@ -6,7 +6,7 @@ import {
   selectItemType2d,
   selectItemType3d
 } from '../../../store/type'
-import { clone, getChartUrl } from '../../../core/2d/util/base'
+import { clone, getChartUrl } from '../../../share/util/base'
 import {
   baseTitle,
   bigTitle,

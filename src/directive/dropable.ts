@@ -1,10 +1,8 @@
-import { DirectiveBinding, h, markRaw, nextTick, reactive, ref } from 'vue'
-import { EditorStore, LayerTree2dNode } from '@/store/type'
+import { DirectiveBinding} from 'vue'
 import store from '@/store'
-import { useMutation, useState } from '@/store/helper'
-import { clone } from '@/core/2d/util/base'
+import { useMutation} from '@/store/helper'
+import { createNode } from '../../packages/elements/src/share'
 
-let id = 0
 export default {
   mounted: function (el: HTMLElement, binding: DirectiveBinding) {
     el.addEventListener('dragover', function (ev: DragEvent) {
@@ -39,14 +37,7 @@ export default {
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const node: LayerTree2dNode = {
-        name: data.name + String(id++),
-        id,
-        type: data.type,
-        option: reactive(clone(data.option)),
-        select: true,
-        show: true
-      }
+      const node = createNode(data)
 
       mutations['ADD_2D_TREE_NODE']({ node })
       mutations['CLEAR_SELECT_2D_NODES']()

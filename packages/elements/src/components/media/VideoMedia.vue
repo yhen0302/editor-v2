@@ -14,7 +14,7 @@
     draggable="false"
   >
     <video
-      class="video-media pointer-events-auto absolute"
+      class="video-media absolute"
       draggable="false"
       autoplay
       loop
@@ -48,7 +48,6 @@ export default {
 <style scoped>
 .video-media-wrap {
   position: absolute;
-  pointer-events: auto;
 }
 .video-media {
   width: 100%;

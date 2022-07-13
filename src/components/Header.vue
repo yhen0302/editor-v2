@@ -56,7 +56,7 @@ import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import createPreviewTemplate from '@/core/utils/createPreviewTemplate'
 import htmlToUrl from '@/core/utils/htmlToUrl'
-import { clone } from '@/core/2d/util/base'
+import { clone } from '@/share/util/base'
 import { parseModelNode } from '@/core/3d/util'
 import { EventsBus } from '@/core/EventsBus'
 

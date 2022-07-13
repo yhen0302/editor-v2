@@ -1,4 +1,4 @@
-import { clone } from '@/core/2d/util/base'
+import { clone } from '@/share/util/base'
 const axisLineChartTypes = ['ChartLine', 'ChartCurve', 'ChartBar']
 
 const defaultEchartsOpt = {

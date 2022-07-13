@@ -40,7 +40,7 @@
 <script>
 import {computed, nextTick, onMounted, onUpdated, ref, watch} from 'vue'
 import SliderEl from './SliderEl'
-import { toPx } from '@/core/2d/util/base'
+import { toPx } from '@/share/util/base'
 
 const letters = new Array(26)
   .fill()

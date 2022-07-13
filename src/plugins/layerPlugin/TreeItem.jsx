@@ -4,12 +4,12 @@ import store from '@/store'
 import { useMutation } from '../../store/helper'
 
 const editorStore = store.state
-const editorMutation = useMutation(store, 'global', ['TOGGLE_NODE', 'CLEAR_SELECT_2D_NODES'])
+const editorMutation = useMutation(store, 'global', ['SELECT_2D_TREE_NODE', 'CLEAR_SELECT_2D_NODES'])
 export default (node, prefix, suffix, placeholder) => {
   function selectNode(ev) {
     if (!node.show) return
     !ev.shiftKey && (!editorStore.select2dNodes.has(node) || editorStore.select2dNodes.size > 1) && editorMutation['CLEAR_SELECT_2D_NODES']()
-    editorMutation['TOGGLE_NODE']({ node })
+    editorMutation['SELECT_2D_TREE_NODE']({ node })
   }
   return (
     <li
@@ -30,7 +30,6 @@ export default (node, prefix, suffix, placeholder) => {
       <div className="item-name-wrapper">
         <span
           className="item-name"
-          onClick={preventEventFn}
           ondblclick={(ev) => editElNameEventFn(ev, node)}
           onKeyDown={(ev) => {
             // 点击回撤

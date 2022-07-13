@@ -166,7 +166,7 @@ export default {
   white-space: nowrap;
   text-overflow: clip;
   overflow: hidden;
-  cursor: text;
+  cursor:default;
 }
 
 .item-name:focus {

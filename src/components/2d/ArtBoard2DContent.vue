@@ -4,14 +4,14 @@
   >
     <drag-wrapper></drag-wrapper>
     <element-node
-      v-for="item in nodes"
+      v-for="item in [...nodes].reverse()"
       :key="item.id"
       :node="item"
     >
       <template #default v-if="item.type === 'group'">
         <div class="group absolute">
           <element-node
-            v-for="child in item.children"
+            v-for="child in [item.children].reverse()"
             :key="child.key"
             :node="child"
           ></element-node>
@@ -42,6 +42,7 @@ export default {
   name: 'ArtBoard2DContent',
   components: { ElementNode },
   setup() {
+
     const store = useStore()
     const editorStore = useState(store, 'global').state as EditorStore
     const mutation = useMutation(store, 'global', [

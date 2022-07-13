@@ -14,7 +14,7 @@
     draggable="false"
   >
     <img
-      class="image-media pointer-events-auto absolute"
+      class="image-media absolute"
       draggable="false"
       :src="src"
       v-if="src"
@@ -46,7 +46,6 @@ export default {
 <style scoped>
 .image-media-wrap {
   position: absolute;
-  pointer-events: auto;
 }
 .image-media{
   width: 100%;

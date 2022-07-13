@@ -1,4 +1,4 @@
-import { clone, valueHandle } from '../util/base'
+import { clone, valueHandle } from '../../../../../src/share/util/base'
 
 export default {
   methods: {

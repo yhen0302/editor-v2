@@ -16,7 +16,6 @@ export default {
   name: 'ElementNode',
   props: ['node'],
   setup() {
-    console.log('elementNode', getCurrentInstance())
     const store = useStore()
     const editorStore = useState(store, 'global').state as EditorStore
     const mutation = useMutation(store, 'global', ['SELECT_2D_TREE_NODE', 'CLEAR_SELECT_2D_NODES'])
@@ -28,12 +27,6 @@ export default {
     function appendSelectNode(node: LayerTree2dNode) {
       mutation['SELECT_2D_TREE_NODE']({ node })
     }
-    watch(
-      () => editorStore.addDragging,
-      (newVal) => {
-        console.log('addDragging',newVal)
-      }
-    )
     return {
       editorStore,
       selectNode,

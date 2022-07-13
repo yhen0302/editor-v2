@@ -35,7 +35,7 @@
 </template>
 
 <script lang="jsx">
-import { clone, toPx } from '@/core/2d/util/base'
+import { clone, toPx } from '@/share/util/base'
 import {
   getCurrentInstance,
   h,

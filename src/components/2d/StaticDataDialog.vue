@@ -37,7 +37,7 @@ import ExcelTable from '@/components/2d/common/ExcelTable.vue'
 import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
 import { computed, ref } from 'vue'
-import { clone } from '@/core/2d/util/base'
+import { clone } from '@/share/util/base'
 
 export default {
   name: 'StaticDataDialog',

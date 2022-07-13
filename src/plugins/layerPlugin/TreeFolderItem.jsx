@@ -53,7 +53,6 @@ export default (node, Children, prefix, suffix) => {
         <div className="item-name-wrapper">
           <span
             className="item-name"
-            onClick={preventEventFn}
             ondblclick={(ev) => editElNameEventFn(ev, node)}
             onKeyDown={(ev) => {
               // 按回撤

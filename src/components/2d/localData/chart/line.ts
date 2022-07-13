@@ -1,5 +1,5 @@
 import { BaseChart } from './base'
-import { clone } from '@/core/2d/util/base'
+import { clone } from '@/share/util/base'
 
 let i = 1
 class Line extends BaseChart {

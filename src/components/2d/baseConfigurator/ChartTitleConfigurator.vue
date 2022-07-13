@@ -161,7 +161,7 @@ import {
 } from '@editor-v2/elements/src/components/constant'
 import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
-import { clone } from '@/core/2d/util/base'
+import { clone } from '@/share/util/base'
 
 export default {
   name: 'ChartTitleConfigurator',

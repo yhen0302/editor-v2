@@ -112,7 +112,7 @@ import { computed, ref } from 'vue'
 import TableEl from '@/components/2d/common/tableEl/TableEl'
 import ColumnEl from '@/components/2d/common/tableEl/ColumnEl'
 import InputEl from '@/components/2d/common/InputEl'
-import { valueHandle } from '@/core/2d/util/base'
+import { valueHandle } from '@/share/util/base'
 
 export default {
   name: 'ApiDataDialog',

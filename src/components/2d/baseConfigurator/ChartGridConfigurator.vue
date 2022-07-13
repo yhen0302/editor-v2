@@ -112,7 +112,7 @@ import { computed, markRaw, SetupContext } from 'vue'
 import CheckEl from '@/components/2d/common/CheckEl.vue'
 import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
-import { clone } from '@/core/2d/util/base'
+import { clone } from '@/share/util/base'
 
 export default {
   name: 'ChartGridConfigurator',

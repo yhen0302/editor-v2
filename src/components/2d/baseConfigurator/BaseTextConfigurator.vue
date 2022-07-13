@@ -108,7 +108,6 @@ export default {
     })
     const fontStyle = computed({
       get() {
-        console.log('font Style', editorGetter['GET_SELECT_NODE'].value.option.textOption.fontStyle)
         return editorGetter['GET_SELECT_NODE'].value.option.textOption.fontStyle
       },
       set(newVal) {

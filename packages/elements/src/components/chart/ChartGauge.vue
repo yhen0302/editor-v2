@@ -1,6 +1,6 @@
 <template>
   <div
-    class="chart-bar pointer-events-auto absolute"
+    class="chart-bar absolute"
     @click.stop
     draggable="false"
     @mousedown="onMouseDown"
@@ -22,7 +22,7 @@
 <script>
 import matrixMixin from '../matrixMixin'
 import * as echarts from 'echarts'
-import { debounce } from '../util/base'
+import { debounce } from '../../../../../src/share/util/base'
 import { getCurrentInstance, watch } from 'vue'
 import chartMixin from "./chartMixin";
 

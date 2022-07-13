@@ -24,7 +24,7 @@ import UploadEl from '@/components/2d/common/UploadEl'
 import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
 import { computed } from 'vue'
-import { fileToBlobUrl } from '@/core/2d/util/base'
+import { fileToBlobUrl } from '@/share/util/base'
 
 export default {
   name: 'BaseUploadConfigurator',

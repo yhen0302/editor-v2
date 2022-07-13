@@ -29,7 +29,6 @@ export default createStore({
         ]
       }
     ],
-    layerTree2d: [],
     select2dNodes: new Set(),
     drawingBoard: {
       // 中间画布宽高

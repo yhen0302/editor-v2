@@ -33,7 +33,7 @@
 <script>
 import { computed, nextTick, ref, watch } from 'vue'
 import LineEl from './LineEl'
-import { cssUnitToNumber } from '@/core/2d/util/base'
+import { cssUnitToNumber } from '@/share/util/base'
 
 export default {
   name: 'FoldEl',

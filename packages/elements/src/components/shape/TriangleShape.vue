@@ -1,6 +1,6 @@
 <template>
   <div
-    class="triangle-shape pointer-events-auto absolute"
+    class="triangle-shape absolute"
     @click.stop
     draggable="false"
     v-drag="{ rect: node.option.matrixOption, select: node.select }"
@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { hexColorToRgba, toPx } from '../util/base'
+import { hexColorToRgba, toPx } from '../../../../../src/share/util/base'
 import { computed} from 'vue'
 import matrixMixin from "../matrixMixin";
 
