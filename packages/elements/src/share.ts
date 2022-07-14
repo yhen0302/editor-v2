@@ -4,13 +4,15 @@ import { clone } from '../../../src/share/util/base'
 
 let id = 0
 export function createNode(data: any) {
+  const { select = true } = data
   const node: LayerTree2dNode = {
     name: data.name + String(id++),
     id,
     type: data.type,
     option: reactive(clone(data.option || {})),
-    select: true,
+    select: select,
     show: true
   }
+  if (data.children) node.children = data.children
   return node
 }

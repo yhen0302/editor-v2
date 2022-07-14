@@ -1,21 +1,27 @@
 <template>
   <slot>
-    <div class="ele-node absolute" :style="{ pointerEvents: editorStore.addDragging ? 'none' : 'auto' }" @click.stop v-show="node.show">
+
+      <group-node  v-if="node.type === 'group'" :group-node='node'></group-node>
+
+    <div class="ele-node absolute" :style="{ pointerEvents: editorStore.addDragging ? 'none' : 'auto' }" @click.stop v-show="node.show" v-else>
       <component @select="selectNode(node)" @append="appendSelectNode(node)" :is="node.type" :node="node"></component>
     </div>
   </slot>
+
 </template>
 
 <script lang="ts">
 import { useStore } from 'vuex'
 import { useMutation, useState, useGetter } from '../../store/helper'
 import { EditorStore, LayerTree2dNode } from '../../store/type'
-import { getCurrentInstance, watch } from 'vue'
+import GroupNode from '@/components/2d/GroupNode.vue'
 
 export default {
   name: 'ElementNode',
+  components: { GroupNode },
   props: ['node'],
-  setup() {
+  setup(props:any) {
+    console.log('node',props.node)
     const store = useStore()
     const editorStore = useState(store, 'global').state as EditorStore
     const mutation = useMutation(store, 'global', ['SELECT_2D_TREE_NODE', 'CLEAR_SELECT_2D_NODES'])
