@@ -31,7 +31,6 @@ export default {
           // 如果children的长度大于 0
           path[path.length - 1]--
           node.parent = parentNode[parentNode.length - 1]
-          debugger
           if (node.children.length) {
             path.push(node.children.length)
             // debugger

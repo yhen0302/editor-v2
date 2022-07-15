@@ -10,7 +10,7 @@
           </li>
         </ul>
         <ul class="select-detail-list-l grid grid-cols-1 box-border p-16" v-once v-else-if="select.viewType === 'list'">
-          <li class="select-detail-list-l-item w-full" v-for="item in select.list" :key="item.name">
+          <li class="select-detail-list-l-item w-full " v-for="item in select.list" :key="item.name">
             <img :src="item.icon" v-dragable="item" />
           </li>
         </ul>
@@ -177,6 +177,7 @@ export default {
 }
 
 .select-detail-list-l-item {
+  overflow: hidden;
   height: 160px;
   background: #31333d;
   border-radius: 4px;

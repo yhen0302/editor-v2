@@ -1,25 +1,13 @@
-import {
-  dimensionSelectBarType2d,
-  dimensionSelectBarType3d,
-  dimensionType,
-  SelectBarItem,
-  selectItemType2d,
-  selectItemType3d
-} from '../../../store/type'
+import { dimensionSelectBarType2d, dimensionSelectBarType3d, dimensionType, SelectBarItem, selectItemType2d, selectItemType3d } from '../../../store/type'
 import { clone, getChartUrl } from '../../../share/util/base'
-import {
-  baseTitle,
-  bigTitle,
-  smallTitle,
-  textContent
-} from './text'
+import { baseTitle, bigTitle, smallTitle, textContent } from './text'
 import { baseShapeList } from './shape'
 import { imageOption, videoOption } from './media'
 import { lineChartList } from './chart/line'
 import { barChartList } from './chart/bar'
-import {pieChartList} from "./chart/pie";
-import {gaugeChartList} from "./chart/gauge";
-import {curveChartList} from "./chart/curve";
+import { pieChartList } from './chart/pie'
+import { gaugeChartList } from './chart/gauge'
+import { curveChartList } from './chart/curve'
 
 export const selectBarList2d: Array<SelectBarItem> = [
   {
@@ -41,6 +29,11 @@ export const selectBarList2d: Array<SelectBarItem> = [
     icon: require('../../../assets/images/editor_chart_btn_dark.png'),
     name: '图表',
     type: 'chart'
+  },
+  {
+    icon: require('../../../assets/images/table.png'),
+    name: '表格',
+    type: 'table'
   }
 ]
 export const selectBarList3d: Array<SelectBarItem> = [
@@ -83,10 +76,7 @@ interface ViewSelectItem {
   key?: string
 }
 
-export const selectData: Record<
-  dimensionSelectBarType2d | dimensionSelectBarType3d,
-  ViewSelectItem
-> = {
+export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
   text: {
     list: [
       {
@@ -188,8 +178,8 @@ export const selectData: Record<
             option.grid.bottom = '15%'
             option.grid.top = '15%'
             option.legend.show = false
-            for(let i = 0;i<option.series.length;i++){
-              if(option.series[i]?.label){
+            for (let i = 0; i < option.series.length; i++) {
+              if (option.series[i]?.label) {
                 option.series[i].label.show = false
               }
             }
@@ -221,9 +211,9 @@ export const selectData: Record<
         icon: require('../../../assets/images/editor_chart_dashboard_btn_dark.png'),
         name: '仪表盘',
         type: 'gauge',
-        children:{
+        children: {
           viewType: 'list',
-          list:gaugeChartList.map((item: SelectItem): SelectItem => {
+          list: gaugeChartList.map((item: SelectItem): SelectItem => {
             const option = clone(item.option.echartsOption, true)
             option.grid.bottom = '15%'
             option.grid.top = '15%'
@@ -238,9 +228,9 @@ export const selectData: Record<
         icon: require('../../../assets/images/editor_chart_curvelinechart_btn_dark.png'),
         name: '曲线图',
         type: 'curve',
-        children:{
-          viewType:'list',
-          list:curveChartList.map((item: SelectItem): SelectItem => {
+        children: {
+          viewType: 'list',
+          list: curveChartList.map((item: SelectItem): SelectItem => {
             const option = clone(item.option.echartsOption, true)
             option.grid.bottom = '15%'
             option.grid.top = '15%'
@@ -255,87 +245,18 @@ export const selectData: Record<
     ],
     viewType: 'block'
   },
-  // 3d
-  element: {
-    list: [
+  table: { viewType: 'list', list: [
       {
-        icon: require('../../../assets/images/editor_element_model_btn_dark.png'),
-        name: '模型',
-        type: 'model'
-      },
-      {
-        icon: require('../../../assets/images/editor_element_icon_btn_dark.png'),
-        name: '图标',
-        type: '3dicon'
-      },
-      {
-        icon: require('../../../assets/images/editor_element_text_btn_dark.png'),
-        name: '文本',
-        type: 'text'
-      },
-      {
-        icon: require('../../../assets/images/editor_element_mark_btn_dark.png'),
-        name: '自由标记',
-        type: 'mark'
-      },
-      {
-        icon: require('../../../assets/images/editor_element_flyline_btn_dark.png'),
-        name: '飞线',
-        type: 'flyline'
-      },
-      {
-        icon: require('../../../assets/images/editor_element_streamer_btn_dark.png'),
-        name: '道路流光',
-        type: 'streamer'
+        icon:require('../../../assets/images/table-style1.png'),
+        name:'表格样式-001-',
       }
-    ],
-    viewType: 'block'
-  },
-  scenes: {
-    list: [
-      {
-        icon: require('../../../assets/images/editor_sceneeffect_light_btn_dark.png'),
-        name: '光照',
-        type: 'light'
-      },
-      {
-        icon: require('../../../assets/images/editor_sceneeffect_shadow_btn_dark.png'),
-        name: '阴影',
-        type: 'shadow',
-        children: { list: [], viewType: 'switch', key: 'shadowSwitch' }
-      },
-      {
-        icon: require('../../../assets/images/editor_sceneeffect_camea_btn_dark.png'),
-        name: '相机/控制器',
-        type: 'camera'
-      },
-      {
-        icon: require('../../../assets/images/editor_sceneeffect_background_btn_dark.png'),
-        name: '背景',
-        type: 'background'
-      },
-      {
-        icon: require('../../../assets/images/editor_sceneeffect_hdr_btn_dark.png'),
-        name: 'HDR',
-        type: 'HDR'
-      },
-      {
-        icon: require('../../../assets/images/editor_sceneeffect_fog_btn_dark.png'),
-        name: '雾',
-        type: 'fog'
-      }
-    ],
-    viewType: 'block'
-  },
-  afterProcess: {
-    list: [],
-    viewType: 'switch'
-  }
+    ] }
 }
 
 export const layerIcon: { [key in dimensionSelectBarType2d]: string } = {
   shape: require('../../../assets/images/editor_roundedrectangle_icn_dark.png'),
   chart: require('../../../assets/images/editor_chart_icn_dark.png'),
   media: require('../../../assets/images/editor_scene_icn_dark.png'), // 暂无图片
-  text: require('../../../assets/images/editor_title_icon_dark.png')
+  text: require('../../../assets/images/editor_title_icon_dark.png'),
+  table: ''
 }

@@ -63,21 +63,41 @@ export default {
     state.selectedSceneTreeNode.trees.twoDimension.unshift(payload.node)
   },
   [EditorMutation.SELECT_2D_TREE_NODE](state: EditorStore, payload: { node: LayerTree2dNode }) {
-    console.log('select', this)
+    console.log('select', payload.node.type)
+    if (payload.node.type === 'group') {
+      const children = [...payload.node.children!]
+      let node:any
+      // 如果选中的时group类型的话, 遍历所有的子元素为select
+      // eslint-disable-next-line no-cond-assign
+      while(node = children.shift()){
+        node.select = true
+        if(node.children)children.unshift(...node.children!)
+      }
+    }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     payload.node.select = true
     state.select2dNodes.add(payload.node)
   },
   [EditorMutation.CANCEL_SELECT_2D_NODE](state: EditorStore, { node }: { node: LayerTree2dNode }) {
+    if (node.type === 'group') {
+      const children = [...node.children!]
+      let child:any
+      // 如果选中的时group类型的话, 遍历所有的子元素为select
+      // eslint-disable-next-line no-cond-assign
+      while(child = children.shift()){
+        child.select = false
+        if(child.children)children.unshift(...child.children!)
+      }
+    }
     node.select = false
     if (node.contentEditable) node.contentEditable = false
     state.select2dNodes.delete(node)
   },
 
-  [EditorMutation.CLEAR_SELECT_2D_NODES](state: EditorStore) {
+  [EditorMutation.CLEAR_SELECT_2D_NODES](this:any,state: EditorStore) {
     state.select2dNodes.forEach((node) => {
-      node.select = false
+      this.commit(EditorMutation.CANCEL_SELECT_2D_NODE,{node})
       if (node.contentEditable) node.contentEditable = false
     })
     state.select2dNodes.clear()

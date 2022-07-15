@@ -1,5 +1,5 @@
 <template>
-  <div class="main">
+  <main class="main">
     <!--左侧工具栏-->
     <section class="left">
       <ToolBar />
@@ -9,14 +9,20 @@
       <DrawingBoard />
     </section>
     <!--右侧操作菜单-->
-    <section class="right">
-      <EditMenu />
+    <section class="right relative" :class="{ 'is-right-fold': !isRightFold }">
+      <!-- 折叠 -->
+      <div class="fold-strip" :class="{ 'is-right-fold': !isRightFold }">
+        <img src="~@/assets/images/fold-arrow.png" @click="isRightFold = !isRightFold" />
+      </div>
+      <transition name="right-fold">
+        <EditMenu v-if="isRightFold" class="edit-menu-wrap" />
+      </transition>
     </section>
-  </div>
+  </main>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import ToolBar from './ToolBar.vue'
 import DrawingBoard from './DrawingBoard.vue'
 import EditMenu from './EditMenu.vue'
@@ -30,6 +36,11 @@ export default defineComponent({
   },
   setup() {
     //
+    const isRightFold = ref(true)
+
+    return {
+      isRightFold
+    }
   }
 })
 </script>
@@ -52,5 +63,48 @@ export default defineComponent({
   background-color: transparent;
   @apply flex flex-col h-full;
   width: 272px;
+  overflow: hidden;
+}
+.right.is-right-fold {
+  width: 10px;
+  overflow: visible;
+}
+
+.edit-menu-wrap {
+  transition: transform 0.18s ease-out;
+}
+.right-fold-enter-to,
+.right-fold-leave-from {
+  display: block;
+  transform: matrix(1, 0, 0, 1, 272, 0);
+}
+
+.right-fold-enter-from,
+.right-fold-leave-to {
+  display: none;
+  transform: matrix(1, 0, 0, 1, 0, 0);
+}
+.fold-strip.is-right-fold{
+  transform: matrix(1, 0, 0, 1, -10, 0);
+}
+.fold-strip.is-right-fold > img {
+  transform: rotate(180deg);
+}
+.fold-strip {
+  display: grid;
+  place-content: center;
+  position: absolute;
+  @apply h-full;
+  width: 40px;
+  padding-right: 10px;
+  transform: matrix(1, 0, 0, 1, -30, 0);
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  background: red;
+  transition: transform 0.18s ease-out;
+}
+.fold-strip:hover {
+  transform: matrix(1, 0, 0, 1, 0, 0);
 }
 </style>
