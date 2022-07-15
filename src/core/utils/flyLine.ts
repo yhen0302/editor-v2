@@ -49,8 +49,8 @@ const flyObj = (option: any) => {
 
   const shader = new Bol3D.ShaderMaterial({
     transparent: true,
-    depthWrite: true,
-    depthTest: true,
+    depthWrite: false,
+    depthTest: false,
     blending: Bol3D.AdditiveBlending,
     uniforms: {
       uColor: {

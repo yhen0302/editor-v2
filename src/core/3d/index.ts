@@ -542,6 +542,56 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
 
       ;(store as any).state.template.threeDimension.unshift(cameraNode)
 
+      const IconGroup = new Bol3D.Group()
+      IconGroup.name = 'Icon'
+      container.attach(IconGroup)
+      const TextGroup = new Bol3D.Group()
+      TextGroup.name = 'Text'
+      container.attach(TextGroup)
+      const FlyLineGroup = new Bol3D.Group()
+      FlyLineGroup.name = 'FlyLine'
+      container.attach(FlyLineGroup)
+
+      const IconGroupNode = {
+        uuid: IconGroup.uuid,
+        name: 'Icon',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'Group',
+        show: true,
+        children: [],
+        visible: true,
+        isEdit: true
+      }
+      ;(store as any).state.template.threeDimension.unshift(IconGroupNode)
+      const TextGroupNode = {
+        uuid: TextGroup.uuid,
+        name: 'Text',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'Group',
+        show: true,
+        children: [],
+        visible: true,
+        isEdit: true
+      }
+      ;(store as any).state.template.threeDimension.unshift(TextGroupNode)
+      const FlyLineNode = {
+        uuid: FlyLineGroup.uuid,
+        name: 'FlyLine',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'Group',
+        show: true,
+        children: [],
+        visible: true,
+        isEdit: true
+      }
+      ;(store as any).state.template.threeDimension.unshift(FlyLineNode)
+
       EventsBus.emit('sceneLoaded', {
         type: '3d',
         container: evt
