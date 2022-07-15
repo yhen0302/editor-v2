@@ -169,7 +169,7 @@ export default defineComponent({
 
     function deleteTreeParentQuote(tree: any) {
       let nodes = [...tree],
-        node = null
+        node:any = null
 
       // eslint-disable-next-line no-cond-assign
       while ((node = nodes.pop())) {

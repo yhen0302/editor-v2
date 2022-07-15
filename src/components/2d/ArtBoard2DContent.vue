@@ -8,15 +8,7 @@
       :key="item.id"
       :node="item"
     >
-      <template #default v-if="item.type === 'group'">
-        <div class="group absolute">
-          <element-node
-            v-for="child in [item.children].reverse()"
-            :key="child.key"
-            :node="child"
-          ></element-node>
-        </div>
-      </template>
+
     </element-node>
     <!--    <component
       :style="{ pointerEvents: editorStore.addDragging ? 'none' : 'auto' }"
@@ -37,10 +29,11 @@ import { useMutation, useState } from '@/store/helper'
 import { EditorStore, LayerTree2dNode } from '@/store/type'
 import ElementNode from '@/components/2d/ElementNode.vue'
 import { computed } from 'vue'
+import GroupNode from '@/components/2d/GroupNode.vue'
 
 export default {
   name: 'ArtBoard2DContent',
-  components: { ElementNode },
+  components: { GroupNode, ElementNode },
   setup() {
 
     const store = useStore()

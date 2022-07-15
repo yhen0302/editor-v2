@@ -16,7 +16,6 @@ export const hotKeyMap: hotKeyMap = {
 document.addEventListener('keydown', (ev) => {
   const specialKeySign: SpecialKeySign = { ctrl: ev.ctrlKey, alt: ev.altKey, shift: ev.shiftKey }
   const verifyRes = verifyClashHotKeyWithBrowser(ev, specialKeySign)
-  console.log('vvv', verifyRes)
   if (verifyRes) {
     currentHotKey = verifyRes as hotKeyMap[keyof hotKeyMap]
     ev.preventDefault()
@@ -48,3 +47,4 @@ function verifyClashHotKeyWithBrowser(ev: KeyboardEvent, specialKeySign: Special
   }
   return false
 }
+

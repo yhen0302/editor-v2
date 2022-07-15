@@ -25,7 +25,7 @@ const inputConf = {
       ]
     }),
     replace({
-      'process.env.NODE_ENV': `'${process.env.NODE_ENV}'`,
+      'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
       IS_EDITOR: true
     }),
     typescript({ allowJs: true })

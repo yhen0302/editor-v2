@@ -1,29 +1,40 @@
 <template>
   <section id="app" :style="{ height: toPx(drawingBoard.height), width: toPx(drawingBoard.width) }">
-    <div class='box-2d' :style="{ height: toPx(drawingBoard.height), width: toPx(drawingBoard.width) }">
+    <div class="box-2d" :style="{ height: toPx(drawingBoard.height), width: toPx(drawingBoard.width) }">
       <component v-for="item in nodes" :key="item.id" :node="item" :is="item.type"></component>
     </div>
-    <canvas  ref='canvasRenderer' class='renderer' :width='drawingBoard.width' :height='drawingBoard.height'></canvas>
+    <canvas ref="canvasRenderer" class="renderer" :width="drawingBoard.width" :height="drawingBoard.height"></canvas>
   </section>
 </template>
 
 <script>
 import { computed, onMounted, ref } from 'vue'
-import { toPx } from './util/base'
+import { toPx } from '../../../../src/share/util/base'
 import { importScene } from '../../../../src/core/3d/importIndex'
 
 export default {
   name: 'ElementParser',
   props: ['pageTreeNodes', 'drawingBoard'],
   setup(props, ctx) {
+    function flatTree(tree) {
+      const arr = [],
+        nodes = [...tree]
+      let node
+      // eslint-disable-next-line no-cond-assign
+      while ((node = nodes.shift())) {
+        if(node.children)nodes.unshift(...node.children)
+        else{arr.push(node)}
+      }
+      return arr
+    }
     const nodes = computed(() => {
-      return props.pageTreeNodes[0].children[0]?.trees?.twoDimension || []
+      return flatTree(props.pageTreeNodes[0].children[0]?.trees?.twoDimension) || []
     })
     const canvasRenderer = ref(null)
-    onMounted(()=>{
-      importScene(canvasRenderer.value,props.pageTreeNodes[0].children[0].trees.threeDimension)
+    onMounted(() => {
+      importScene(canvasRenderer.value, props.pageTreeNodes[0].children[0].trees.threeDimension)
     })
-    return { nodes, toPx,canvasRenderer}
+    return { nodes, toPx, canvasRenderer }
   }
 }
 </script>
@@ -32,12 +43,12 @@ export default {
 #app {
   position: relative;
 }
-.box-2d{
+.box-2d {
   pointer-events: none;
   position: absolute;
   z-index: 10;
 }
-.renderer{
+.renderer {
   position: absolute;
 }
 </style>

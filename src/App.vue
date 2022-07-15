@@ -1,5 +1,6 @@
 <template>
   <router-view />
+  <context-menu></context-menu>
 </template>
 
 <style>
@@ -14,3 +15,9 @@
   display: none;
 }
 </style>
+<script>
+import ContextMenu from '@/components/2d/ContextMenu'
+export default {
+  components: { ContextMenu }
+}
+</script>

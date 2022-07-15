@@ -33,8 +33,13 @@ export default {
           node.parent = parentNode[parentNode.length - 1]
           if (node.children.length) {
             path.push(node.children.length)
+            // debugger
             parentNode.push(node)
             depth++
+          }
+          while (path[path.length - 1] === 0) {
+            path.pop()
+            depth--
           }
         } else {
           arr.push(node)
@@ -52,6 +57,7 @@ export default {
       }
       creatJsxTree(arr)
 
+      // console.log(treeRoot)
       function creatJsxTree(arr) {
         for (let i = arr.length - 1; i >= 0; i--) {
           let node = arr[i]

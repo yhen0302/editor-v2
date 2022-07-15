@@ -27,7 +27,9 @@ export const importScene = (canvas: any, d?: any) => {
 
   var modelUrls: any = [],
     models: any = [],
-    publicPath = process.env.NODE_ENV === 'production' ? (location.protocol === 'blob:' ? 'https://www.kantu3d.com/demo/edit/' : location.origin + location.pathname) : location.origin
+    production = 'production', // 不提出来过不了编译 semantic error TS2367
+    publicPath = process.env.NODE_ENV === production ? (location.protocol === 'blob:' ? 'https://www.kantu3d.com/demo/edit/' : location.origin + location.pathname) : location.origin
+
   scene.forEach((item: any) => {
     if (item.uuid == -1) {
       if (item.name == 'Camera') {

@@ -55,7 +55,7 @@ export declare interface EditorStore {
   [key: string]: any
 }
 
-export declare type dimensionSelectBarType2d = 'text' | 'shape' | 'media' | 'chart'
+export declare type dimensionSelectBarType2d = 'text' | 'shape' | 'media' | 'chart'|'table'
 export declare type dimensionSelectBarType3d = 'element' | 'scenes' | 'afterProcess'
 export declare type selectBarType = dimensionSelectBarType2d | dimensionSelectBarType3d
 
