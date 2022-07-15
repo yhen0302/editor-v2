@@ -14,9 +14,9 @@
       <div class="fold-strip" :class="{ 'is-right-fold': !isRightFold }">
         <img src="~@/assets/images/fold-arrow.png" @click="isRightFold = !isRightFold" />
       </div>
-      <transition name="right-fold">
+<!--      <transition name="right-fold">-->
         <EditMenu v-if="isRightFold" class="edit-menu-wrap" />
-      </transition>
+<!--      </transition>-->
     </section>
   </main>
 </template>
@@ -60,11 +60,14 @@ export default defineComponent({
   @apply z-10;
 }
 .right {
+  will-change: width;
   background-color: transparent;
   @apply flex flex-col h-full;
   width: 272px;
+  transition: width 0.18s ease-out;
   overflow: hidden;
 }
+
 .right.is-right-fold {
   width: 10px;
   overflow: visible;
@@ -73,6 +76,7 @@ export default defineComponent({
 .edit-menu-wrap {
   transition: transform 0.18s ease-out;
 }
+
 .right-fold-enter-to,
 .right-fold-leave-from {
   display: block;
@@ -84,12 +88,19 @@ export default defineComponent({
   display: none;
   transform: matrix(1, 0, 0, 1, 0, 0);
 }
-.fold-strip.is-right-fold{
-  transform: matrix(1, 0, 0, 1, -10, 0);
+
+.fold-strip.is-right-fold {
+  transform: matrix(1, 0, 0, 1, 10px, 0);
 }
+
 .fold-strip.is-right-fold > img {
   transform: rotate(180deg);
 }
+
+.fold-strip.is-right-fold:hover {
+  transform: matrix(1, 0, 0, 1, -30, 0);
+}
+
 .fold-strip {
   display: grid;
   place-content: center;
@@ -101,9 +112,9 @@ export default defineComponent({
   left: 0;
   top: 0;
   z-index: 1000;
-  background: red;
   transition: transform 0.18s ease-out;
 }
+
 .fold-strip:hover {
   transform: matrix(1, 0, 0, 1, 0, 0);
 }

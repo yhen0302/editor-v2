@@ -51,7 +51,7 @@ export default (node, Children, prefix, suffix) => {
           className={node.open ? 'active arrow-icon' : 'arrow-icon'}
           src={arrowIcon}
           style="font-size:10px;"
-          onClick={(ev) => (node.open = !node.open)}
+          onClick={(ev) => {node.open = !node.open;ev.stopPropagation()}}
         />
         <div className="layer-item-prefix">
           {(prefix && prefix(node)) || (

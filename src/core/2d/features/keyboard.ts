@@ -47,3 +47,4 @@ function verifyClashHotKeyWithBrowser(ev: KeyboardEvent, specialKeySign: Special
   }
   return false
 }
+
