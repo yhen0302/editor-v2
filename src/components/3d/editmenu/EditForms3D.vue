@@ -105,6 +105,10 @@ export default defineComponent({
           type.value = 'ObjectForms3D'
           node.value = e.node
           break
+        case 'None':
+          type.value = ''
+          node.value = ''
+          break
       }
     })
 

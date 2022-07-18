@@ -37,7 +37,7 @@ export const clickFun = (container: any, publicPath: any) => {
   const clock = new Bol3D.Clock()
   const animation = () => {
     requestAnimationFrame(animation)
-
+    
     if (store.state.elementFlyLine.length > 0) {
       store.state.elementFlyLine.forEach((item: any) => {
         item.material.uniforms.time.value = clock.getElapsedTime()
@@ -173,6 +173,14 @@ export const clickFun = (container: any, publicPath: any) => {
         store.state.elementIcon.push(icon)
         setTimeout(() => {
           store.state.addElementType.moving = !store.state.addElementType.moving
+          store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item: any) => {
+            if (item.name == 'Icon') {
+              const obj = meshBasicMsg(icon, item)
+              item.children.push(obj)
+              item.show = true
+            }
+          })
+          console.log(store.state.pageTreeNodes[0].children[0].trees.threeDimension)
         }, 100)
       } else if (element.type == 'text' && !name.includes('textSelf')) {
         EventsBus.emit('toolBarSelected', { node: {} })
@@ -201,4 +209,45 @@ export const clickFun = (container: any, publicPath: any) => {
       }
     }
   }
+}
+
+const meshBasicMsg = (mesh: any, item: any) => {
+  var index = item.index
+  const obj = {
+    children: [],
+    index: index + 1,
+    name: mesh.name,
+    options: {
+      castShadow: mesh.castShadow,
+      position: [mesh.position.x, mesh.position.y, mesh.position.z],
+      receiveShadow: mesh.receiveShadow,
+      rotation: [mesh.rotation.x, mesh.rotation.y, mesh.rotation.z],
+      scale: [mesh.scale.x, mesh.scale.y, mesh.scale.z]
+    },
+    matOptions: {
+      color: '#' + mesh.material.color.getHexString(),
+      depthTest: mesh.material.depthTest,
+      depthWrite: mesh.material.depthWrite,
+      name: mesh.material.name,
+      opacity: mesh.material.opacity,
+      transparent: mesh.material.transparent,
+      type: mesh.material.type,
+      wireframe: mesh.material.wireframe,
+      extends: {
+        emissive: mesh.material.emissive ? '#' + mesh.material.emissive.getHexString() : '#ffffff',
+        emissiveIntensity: mesh.material.emissiveIntensity,
+        envMapIntensity: mesh.material.envMapIntensity,
+        lightMapIntensity: mesh.material.lightMapIntensity,
+        metalness: mesh.material.metalness,
+        roughness: mesh.material.roughness
+      }
+    },
+    selected: false,
+    show: true,
+    spread: false,
+    type: 'Mesh',
+    uuid: mesh.uuid,
+    visible: mesh.visible
+  }
+  return obj
 }
