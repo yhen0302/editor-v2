@@ -24,6 +24,7 @@ export default (node, prefix, suffix, placeholder) => {
       onDragendCapture={(ev) => dragEndEventFn(ev, node)}
       treenode={true}
       onClick={selectNode}
+      onContextmenu={node.select ||selectNode}
     >
       <div className="layer-item-prefix">{(prefix && prefix(node)) || (prefix && prefix(node)) || <svg-icon class="layer-item-prefix-icon" url={require('@/assets/icon/show.svg')}></svg-icon>}</div>
       {(placeholder && placeholder(node)) || <div className="placeholder-box"></div>}

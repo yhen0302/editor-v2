@@ -9,7 +9,7 @@
         </ul>
       </template>
       <nav-tab-item class="pb-16px" style="height: calc(100% - 65px); overflow: auto">
-        <component :is="GET_CONFIGURATOR"></component>
+        <component :is="GET_CONFIGURATOR?GET_CONFIGURATOR:'i'"></component>
         <!--<axis-line-chart-configurator></axis-line-chart-configurator>-->
         <!--<text-configurator></text-configurator> -->
         <!--<shape-configurator></shape-configurator>-->
