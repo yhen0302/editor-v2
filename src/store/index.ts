@@ -42,7 +42,11 @@ export default createStore({
       twoDimension: []
     },
     threeDimensionContainer: null, // 3d container cache
-    contextmenu: false, // 判断菜单的显示隐藏
+    contextmenu:{
+      show:false,
+      x:0,
+      y:0
+    }, // 判断菜单的显示隐藏
     // 导入配置监听变量
     exportType: false,
     exportContent: null,

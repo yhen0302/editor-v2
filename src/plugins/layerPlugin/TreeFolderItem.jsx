@@ -1,11 +1,5 @@
 import { editElNameEventFn, enterOkEventFn, preventEventFn } from './edit'
-import {
-  dragEndEventFn,
-  dragEnterEventFn,
-  dragLeaveEventFn,
-  dragOverEventFn,
-  dragStartEventFn
-} from './drag'
+import { dragEndEventFn, dragEnterEventFn, dragLeaveEventFn, dragOverEventFn, dragStartEventFn } from './drag'
 import store from '@/store'
 import { useMutation } from '@/store/helper'
 
@@ -34,8 +28,7 @@ export default (node, Children, prefix, suffix) => {
     editorMutation['SELECT_2D_TREE_NODE']({ node })
   }
   return (
-    <li className="layer-item_list" style={`--level:${node.depth + 1};`}
-    >
+    <li className="layer-item_list" style={`--level:${node.depth + 1};`}>
       <div
         className={`layer-folder-item  ${node.select ? 'select' : ''}`}
         draggable="true"
@@ -46,21 +39,19 @@ export default (node, Children, prefix, suffix) => {
         onDragendCapture={(ev) => dragEndEventFn(ev, node)}
         onDragleaveCapture={(ev) => dragLeaveEventFn(ev, node)}
         onClick={selectNode}
+        onContextmenu={node.select ||selectNode}
       >
         <img
           className={node.open ? 'active arrow-icon' : 'arrow-icon'}
           src={arrowIcon}
           style="font-size:10px;"
-          onClick={(ev) => {node.open = !node.open;ev.stopPropagation()}}
+          onClick={(ev) => {
+            node.open = !node.open
+            console.log(node.open)
+            ev.stopPropagation()
+          }}
         />
-        <div className="layer-item-prefix">
-          {(prefix && prefix(node)) || (
-            <svg-icon
-              class="layer-item-prefix-icon"
-              url={require('@/assets/icon/show.svg')}
-            ></svg-icon>
-          )}
-        </div>
+        <div className="layer-item-prefix">{(prefix && prefix(node)) || <svg-icon class="layer-item-prefix-icon" url={require('@/assets/icon/show.svg')}></svg-icon>}</div>
         <div className="item-name-wrapper">
           <span
             className="item-name"

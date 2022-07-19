@@ -4,12 +4,12 @@ import store from '@/store'
 import { useMutation } from '../../store/helper'
 
 const editorStore = store.state
-const editorMutation = useMutation(store, 'global', ['SELECT_2D_TREE_NODE', 'CLEAR_SELECT_2D_NODES'])
+const editorMutation = useMutation(store, 'global', ['SELECT_2D_TREE_NODE', 'CLEAR_SELECT_2D_NODES','TOGGLE_NODE'])
 export default (node, prefix, suffix, placeholder) => {
   function selectNode(ev) {
     if (!node.show) return
     !ev.shiftKey && (!editorStore.select2dNodes.has(node) || editorStore.select2dNodes.size > 1) && editorMutation['CLEAR_SELECT_2D_NODES']()
-    editorMutation['SELECT_2D_TREE_NODE']({ node })
+    editorMutation['TOGGLE_NODE']({ node })
   }
   return (
     <li
@@ -24,6 +24,7 @@ export default (node, prefix, suffix, placeholder) => {
       onDragendCapture={(ev) => dragEndEventFn(ev, node)}
       treenode={true}
       onClick={selectNode}
+      onContextmenu={node.select ||selectNode}
     >
       <div className="layer-item-prefix">{(prefix && prefix(node)) || (prefix && prefix(node)) || <svg-icon class="layer-item-prefix-icon" url={require('@/assets/icon/show.svg')}></svg-icon>}</div>
       {(placeholder && placeholder(node)) || <div className="placeholder-box"></div>}
