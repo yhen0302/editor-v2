@@ -58,16 +58,35 @@ export default defineComponent({
       })
     }
 
-    const selectItem = (node: any) => {
+    const selectItem = (nodes: any) => {
       const e = event as any
       if (e.button != 0) return
 
-      if (node.isEdit) {
+      if (nodes.isEdit) {
         EventsBus.emit('treeSelected', { node: { selected: true, type: 'None' } })
         EventsBus.emit('navDetailsValidate', {})
       } else {
-        EventsBus.emit('treeSelected', { node })
-        EventsBus.emit('navDetailsValidate', {})
+        if (nodes.addMeshType) {
+          store.state.addElementType = {
+            mesh: null,
+            moving: true,
+            lightMesh: null
+          }
+          if (nodes.addMeshType == 'Text') {
+            const node = { type: 'text3D', selected: nodes.options.type, name: nodes.name, clickObj: nodes }
+            EventsBus.emit('toolBarSelected', { node })
+          } else if (nodes.addMeshType == 'Icon') {
+            const node = { type: 'icon3D', selected: nodes.name, name: nodes.name, clickObj: nodes }
+            EventsBus.emit('toolBarSelected', { node })
+          } else if (nodes.addMeshType == 'FlyLine') {
+            const node = { type: 'flyLine', selected: nodes.name, name: nodes.name, clickObj: nodes }
+            EventsBus.emit('toolBarSelected', { node })
+          }
+        } else {
+          const node = nodes
+          EventsBus.emit('treeSelected', { node })
+          EventsBus.emit('navDetailsValidate', {})
+        }
       }
     }
 

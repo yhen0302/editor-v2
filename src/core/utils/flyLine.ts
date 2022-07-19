@@ -191,9 +191,20 @@ export const flyBasePoint = (container: any, position: Array<number>, curveSpher
     ;(store as any).state.elementFlyLine.push(line)
     ;(store as any).state.addElementType.mesh = line
     line.renderOrder = 500
-    container.attach(line)
+    // container.attach(line)
     const node = { type: 'flyLine', selected: true, name: '' }
     EventsBus.emit('toolBarSelected', { node })
+    store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item: any) => {
+      if (item.name == 'FlyLine') {
+        const obj = meshBasicMsg(line, item)
+        item.children.push(obj)
+      }
+    })
+    store.state.threeDimensionContainer.scene.children.forEach((item) => {
+      if (item.name == 'FlyLine') {
+        item.add(line)
+      }
+    })
     setTimeout(() => {
       ;(store as any).state.addElementType.moving = !(store as any).state.addElementType.moving
     }, 100)
@@ -207,4 +218,57 @@ const arrayDel = (arr: Array<any>, delObj: any) => {
       return false
     }
   })
+}
+
+export const addFlyLine = (container: any, parentMesh: any, node: any) => {
+  const { color, height, range, size, source, speed, target } = node.options
+  const line = flyObj({
+    source: new Bol3D.Vector3(source.x, source.y, source.z),
+    target: new Bol3D.Vector3(target.x, target.y, target.z),
+    height: height,
+    size: size,
+    color: color,
+    range: range,
+    speed: speed
+  })
+  line.name = 'flyLineSelf'
+  line.userData.source = new Bol3D.Vector3(source.x, source.y, source.z)
+  line.userData.target = new Bol3D.Vector3(target.x, target.y, target.z)
+  line.userData.height = height
+  line.userData.size = size
+  line.userData.color = color
+  line.userData.range = range
+  line.userData.speed = speed
+  container.clickObjects.push(line)
+  line.renderOrder = 500
+  line.visible = node.visible
+  node.uuid = line.uuid
+  ;(store as any).state.elementFlyLine.push(line)
+  parentMesh.add(line)
+}
+
+const meshBasicMsg = (mesh: any, item: any) => {
+  var index = item.index
+  const obj = {
+    children: [],
+    index: index + 1,
+    name: mesh.name,
+    options: {
+      source: null,
+      target: null,
+      height: null,
+      speed: null,
+      size: null,
+      color: null,
+      range: null
+    },
+    addMeshType: 'FlyLine',
+    selected: false,
+    show: true,
+    spread: false,
+    type: 'Mesh',
+    uuid: mesh.uuid,
+    visible: mesh.visible
+  }
+  return obj
 }

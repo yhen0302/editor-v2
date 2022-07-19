@@ -408,6 +408,8 @@ export function reloadThreeDimensionScene(pageNode: any) {
       container.orbitControls.object.updateProjectionMatrix()
       container.orbitControls.update()
     } else if (n.type === 'Group') {
+      if (n.isEdit) return false
+
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
       if (resultNode.length === 0) {

@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps } from 'vue'
+import { ref, watch, defineProps, onUnmounted, onMounted } from 'vue'
 import store from '../../../store'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
@@ -133,6 +133,22 @@ watch(
       color,
       range
     })
+
+    store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+      if (item.name == 'FlyLine') {
+        item.children.forEach((dev) => {
+          if (dev.uuid == store.state.addElementType.mesh.uuid) {
+            dev.options.source = source.clone()
+            dev.options.target = target.clone()
+            dev.options.height = height
+            dev.options.speed = speed
+            dev.options.size = size
+            dev.options.color = color
+            dev.options.range = range
+          }
+        })
+      }
+    })
   },
   {
     deep: true
@@ -167,14 +183,68 @@ watch(
           item.content[0].value = size
         }
       })
+
+      store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+        if (item.name == 'FlyLine') {
+          item.children.forEach((dev) => {
+            if (dev.uuid == store.state.addElementType.mesh.uuid) {
+              dev.options.source = source.clone()
+              dev.options.target = target.clone()
+              dev.options.height = height
+              dev.options.speed = speed
+              dev.options.size = size
+              dev.options.color = color
+              dev.options.range = range
+            }
+          })
+        }
+      })
     }
   },
   { deep: true }
 )
 
-if (props.node.clickObj) {
-  store.state.addElementType.moving = !store.state.addElementType.moving
-}
+onMounted(() => {
+  if (props.node.clickObj) {
+    if (props.node.clickObj == true) {
+      store.state.addElementType.moving = !store.state.addElementType.moving
+    } else {
+      store.state.threeDimensionContainer.scene.children.forEach((item) => {
+        if (item.name == 'FlyLine') {
+          item.traverse((child) => {
+            if (child.uuid == props.node.clickObj.uuid) {
+              store.state.addElementType.mesh = child
+            }
+          })
+        }
+      })
+      store.state.elementFlyLine.forEach((item) => {
+        if (item.name == 'flyLineSelfSphere1') {
+          item.position.copy(store.state.addElementType.mesh.userData.source.clone())
+          item.visible = true
+          store.state.addElementType.basePoint = item
+        } else if (item.name == 'flyLineSelfSphere2') {
+          item.position.copy(store.state.addElementType.mesh.userData.target.clone())
+          item.visible = true
+          store.state.addElementType.movePoint = item
+        }
+      })
+      store.state.addElementType.moving = !store.state.addElementType.moving
+    }
+  }
+})
+
+onUnmounted(() => {
+  if (!store.state.addElementType.painting) {
+    store.state.elementFlyLine.forEach((item) => {
+      if (item.name == 'flyLineSelfSphere1') {
+        item.visible = false
+      } else if (item.name == 'flyLineSelfSphere2') {
+        item.visible = false
+      }
+    })
+  }
+})
 </script>
 
 <style lang="postcss" scoped>
