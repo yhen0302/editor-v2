@@ -1,9 +1,9 @@
 <template>
   <section class="context-menu-wrap" v-show="editorStore.contextmenu.show" :style="{ left: toPx(editorStore.contextmenu.x), top: toPx(editorStore.contextmenu.y) }">
     <ul class="context-menu-list">
-      <li>移动到底层(Ctrl+alt+[)</li>
-      <li>移动到顶层(Ctrl+alt+])</li>
-      <li>移动到下一层(Ctrl+[)</li>
+      <li @click='layerMoveToBottomHandle'>移动到底层(Ctrl+alt+[)</li>
+      <li @click='layerMoveToTopHandle'>移动到顶层(Ctrl+alt+])</li>
+      <li @click='layerMoveDownward'>移动到下一层(Ctrl+[)</li>
       <li @click='layerMoveUp'>移动到上一层(Ctrl+])</li>
       <li @click='cancelMarshalling2dNodesHandle'>取消分组(Ctrl+Shift+g)</li>
       <li @click='marshalling2dNodesHandle'>分组(Ctrl+g)</li>
@@ -17,7 +17,7 @@ import { useStore } from 'vuex'
 import { toPx } from '@/share/util/base'
 import {
   cancelMarshalling2dNodesHandle,
-  deleteNodeHandle, layerMoveUp,
+  deleteNodeHandle, layerMoveDownward, layerMoveToBottomHandle, layerMoveToTopHandle, layerMoveUp,
   marshalling2dNodesHandle
 } from '@/core/2d/features/hotKeyHandle'
 
@@ -33,7 +33,10 @@ export default {
       deleteNodeHandle,
       marshalling2dNodesHandle,
       cancelMarshalling2dNodesHandle,
-      layerMoveUp
+      layerMoveUp,
+      layerMoveDownward,
+      layerMoveToTopHandle,
+      layerMoveToBottomHandle
     }
   }
 }

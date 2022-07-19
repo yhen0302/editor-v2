@@ -9,14 +9,17 @@ const mutations = useMutation(store, 'global', [
   EditorMutation.DELETE_SELECT_NODES,
   EditorMutation.MARSHALLING_SELECT_NODES,
   EditorMutation.CANCEL_MARSHALLING_SELECT_NODES,
-  EditorMutation.MOVE_TOP_OF_NODES
+  EditorMutation.MOVE_UP_OF_NODES,
+  EditorMutation.MOVE_DOWNWARD_OF_NODES,
+  EditorMutation.MOVE_TO_TOP_OF_NODES,
+  EditorMutation.MOVE_TO_BOTTOM_OF_NODES
 ])
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function keyboardHandle(hotKeyMap: hotKeyMap[keyof hotKeyMap]) {
   hotKeyMap.effect()
 }
-function multiNodeHandle(mutation:keyof typeof EditorMutation) {
+function multiNodeHandle(mutation: keyof typeof EditorMutation) {
   const selectNodes = getters[EditorGetter.GET_SELECT_NODE].value
   if (!selectNodes) return
   mutations[EditorMutation[mutation]]({
@@ -40,19 +43,17 @@ export function cancelMarshalling2dNodesHandle() {
 
 // 图层向上向下移动一层
 export function layerMoveUp() {
-  multiNodeHandle(EditorMutation.MOVE_TOP_OF_NODES)
+  multiNodeHandle(EditorMutation.MOVE_UP_OF_NODES)
 }
 export function layerMoveDownward() {
-  console.log('layerMoveDownward')
+  multiNodeHandle(EditorMutation.MOVE_DOWNWARD_OF_NODES)
 }
 
 // 图层移动到最上(下)一层
 export function layerMoveToTopHandle() {
-  console.log('layerMoveToTopHandle')
+  multiNodeHandle(EditorMutation.MOVE_TO_TOP_OF_NODES)
 
 }
 export function layerMoveToBottomHandle() {
-  console.log('layerMoveToBottomHandle')
+  multiNodeHandle(EditorMutation.MOVE_TO_BOTTOM_OF_NODES)
 }
-
-

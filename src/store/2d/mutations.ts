@@ -23,7 +23,10 @@ export interface EditorMutationI {
   DELETE_SELECT_NODES: 'DELETE_SELECT_NODES'
   MARSHALLING_SELECT_NODES: 'MARSHALLING_SELECT_NODES'
   CANCEL_MARSHALLING_SELECT_NODES: 'CANCEL_MARSHALLING_SELECT_NODES'
-  MOVE_TOP_OF_NODES: 'MOVE_TOP_OF_NODES'
+  MOVE_UP_OF_NODES: 'MOVE_UP_OF_NODES'
+  MOVE_DOWNWARD_OF_NODES: 'MOVE_DOWNWARD_OF_NODES'
+  MOVE_TO_TOP_OF_NODES: 'MOVE_TO_TOP_OF_NODES'
+  MOVE_TO_BOTTOM_OF_NODES: 'MOVE_TO_BOTTOM_OF_NODES'
 
   // 3d
   ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
@@ -42,20 +45,30 @@ export const EditorMutation: EditorMutationI = {
   ADD_EMITTER_TO_NODE: 'ADD_EMITTER_TO_NODE',
   MARSHALLING_SELECT_NODES: 'MARSHALLING_SELECT_NODES',
   CANCEL_MARSHALLING_SELECT_NODES: 'CANCEL_MARSHALLING_SELECT_NODES',
-  MOVE_TOP_OF_NODES: 'MOVE_TOP_OF_NODES',
+  MOVE_UP_OF_NODES: 'MOVE_UP_OF_NODES',
+  MOVE_DOWNWARD_OF_NODES: 'MOVE_DOWNWARD_OF_NODES',
+  MOVE_TO_TOP_OF_NODES: 'MOVE_TO_TOP_OF_NODES',
+  MOVE_TO_BOTTOM_OF_NODES: 'MOVE_TO_BOTTOM_OF_NODES',
   ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
 }
 
-function findFirstSelectNode(tree: Array<any>) {
+function findFirstSelectNode(tree: Array<any>, reverse = false) {
+  const out = reverse ? Array.prototype.pop : Array.prototype.shift
+  const enter = reverse ? Array.prototype.push : Array.prototype.unshift
+
   const nodes = [...tree]
   let node
   // eslint-disable-next-line no-cond-assign
-  while ((node = nodes.shift())) {
+  while ((node = out.call(nodes))) {
     if (node.select) return node
-    if (node.children) nodes.unshift(...node.children)
+    if (node.children) enter.apply(nodes, node.children)
   }
   return null
 }
+function negativeIndex(index: number, length) {
+  return ~(length - 1 - index)
+}
+
 export default {
   [EditorMutation.CHANGE_DIMENSION](state: EditorStore, payload: { dimensionType: dimensionType }) {
     state.dimensionType = payload.dimensionType
@@ -199,7 +212,7 @@ export default {
       for (const child of children) state.select2dNodes.add(child)
     }
   },
-  [EditorMutation.MOVE_TOP_OF_NODES](
+  [EditorMutation.MOVE_UP_OF_NODES](
     this: any,
     state: EditorStore,
     { nodes }: { nodes: LayerTree2dNode[] }
@@ -208,28 +221,160 @@ export default {
     let firstNodeParent = firstNode.parent
     let spliceIndex
     // 如果父元素是一个组
-    if (firstNodeParent.type === 'group') {
-      if (firstNodeParent.children[0] === firstNode) {
-        spliceIndex =
-          (firstNodeParent.parent.indexOf
-            ? firstNodeParent.parent.indexOf(firstNodeParent)
-            : firstNodeParent.parent.children.indexOf(firstNodeParent)) + 1
-        firstNodeParent = firstNodeParent.parent
-        // 将元素出组
-      } else {
-        spliceIndex = firstNodeParent.children.indexOf(firstNode)
-      }
+    if (firstNodeParent.type === 'group' && firstNodeParent.children[0] === firstNode) {
+      spliceIndex =
+        (firstNodeParent.parent.indexOf
+          ? firstNodeParent.parent.indexOf(firstNodeParent)
+          : firstNodeParent.parent.children.indexOf(firstNodeParent)) + 1
+      firstNodeParent = firstNodeParent.parent
+      // 将元素出组
     } else {
-      spliceIndex = firstNodeParent.indexOf(firstNode)
+      spliceIndex = Array.prototype.indexOf.call(
+        firstNodeParent.children || firstNodeParent,
+        firstNode
+      )
     }
     this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes })
 
     for (const node of nodes) state.select2dNodes.add(node)
     spliceIndex = spliceIndex - 1 < 0 ? 0 : spliceIndex - 1
 
-    firstNodeParent.splice
-      ? firstNodeParent.splice(spliceIndex, 0, ...nodes)
-      : firstNodeParent.children.splice(spliceIndex, 0, ...nodes)
+    Array.prototype.splice.call(
+      firstNodeParent.children || firstNodeParent,
+      spliceIndex,
+      0,
+      ...nodes
+    )
+  },
+  [EditorMutation.MOVE_DOWNWARD_OF_NODES](
+    this: any,
+    state: EditorStore,
+    { nodes }: { nodes: LayerTree2dNode[] }
+  ) {
+    let firstNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension, true)
+    let firstNodeParent = firstNode.parent
+    let spliceIndex
+    // 如果父元素是一个组
+    if (
+      firstNodeParent.type === 'group' &&
+      firstNodeParent.children[firstNodeParent.children.length - 1] === firstNode
+    ) {
+      // 将元素出组
+      spliceIndex =
+        Array.prototype.indexOf.call(
+          firstNodeParent.parent.children || firstNodeParent.parent,
+          firstNodeParent
+        ) - 1
+      firstNodeParent = firstNodeParent.parent
+    } else {
+      spliceIndex = Array.prototype.indexOf.call(
+        firstNodeParent.children || firstNodeParent,
+        firstNode
+      )
+    }
+    spliceIndex += 2
+    const len = (firstNodeParent.children || firstNodeParent).length // 记录一下之前的length
+    spliceIndex = negativeIndex(spliceIndex, len)
+    this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes })
+    Array.prototype.splice.call(
+      firstNodeParent.children || firstNodeParent,
+      spliceIndex >= 0 ? (firstNodeParent.children || firstNodeParent).length : spliceIndex,
+      0,
+      ...nodes
+    )
+    for (const node of nodes) state.select2dNodes.add(node)
+  },
+  [EditorMutation.MOVE_TO_TOP_OF_NODES](
+    this: any,
+    state: EditorStore,
+    { nodes }: { nodes: LayerTree2dNode[] }
+  ) {
+    let firstNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension)
+    let parent = firstNode.parent
+    let parentChildren = parent.children || parent
+    let inSameGroup = false,
+      isNodesFirstBeginContinuous = true,
+      isFirstInGroupTop = parentChildren[0] === firstNode
+    if (nodes.length <= parentChildren.length) {
+      const nodesSet = new Set([...nodes])
+      // 验证是否再同一个数组
+      for (const node of parentChildren) {
+        if (nodesSet.has(node)) {
+          nodesSet.delete(node)
+        } else {
+          isNodesFirstBeginContinuous = false
+        }
+        if (!nodesSet.size) {
+          inSameGroup = true
+          break
+        }
+      }
+    }
+    isNodesFirstBeginContinuous = isNodesFirstBeginContinuous && inSameGroup
+
+    if (inSameGroup) {
+      if (isNodesFirstBeginContinuous && isFirstInGroupTop) {
+        parent = parent.parent || parent
+        parentChildren = parent.children || parent
+      }
+    } else {
+      while (parent.parent) {
+        parent = parent.parent
+      }
+      parentChildren = parent
+    }
+    // delete
+    this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes })
+    // do
+    parentChildren.splice(0, 0, ...nodes)
+    // select
+    for (const node of nodes) state.select2dNodes.add(node)
+  },
+  [EditorMutation.MOVE_TO_BOTTOM_OF_NODES](
+    this: any,
+    state: EditorStore,
+    { nodes }: { nodes: LayerTree2dNode[] }
+  ) {
+    let firstNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension, true)
+    let parent = firstNode.parent
+    let parentChildren = parent.children || parent
+    let inSameGroup = false,
+      isNodesFirstBeginContinuous = true,
+      isLastInGroupTop = parentChildren[parentChildren.length - 1] === firstNode
+    if (nodes.length <= parentChildren.length) {
+      const nodesSet = new Set([...nodes])
+      // 验证是否再同一个数组
+      for (const node of [...parentChildren].reverse()) {
+        if (nodesSet.has(node)) {
+          nodesSet.delete(node)
+        } else {
+          isNodesFirstBeginContinuous = false
+        }
+        if (!nodesSet.size) {
+          inSameGroup = true
+          break
+        }
+      }
+    }
+    isNodesFirstBeginContinuous = isNodesFirstBeginContinuous && inSameGroup
+
+    if (inSameGroup) {
+      if (isNodesFirstBeginContinuous && isLastInGroupTop) {
+        parent = parent.parent || parent
+        parentChildren = parent.children || parent
+      }
+    } else {
+      while (parent.parent) {
+        parent = parent.parent
+      }
+      parentChildren = parent
+    }
+    // delete
+    this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes })
+    // do
+    parentChildren.splice(parentChildren.length, 0, ...nodes)
+    // select
+    for (const node of nodes) state.select2dNodes.add(node)
   },
   // 3d
   [EditorMutation.ADD_3D_TREE_NODE](state: EditorStore, payload: { node: LayerTree3dNode }) {
