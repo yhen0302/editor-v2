@@ -49,7 +49,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, toRaw } from 'vue'
+import { computed, defineComponent, onMounted, ref, toRaw, nextTick } from 'vue'
 import Timer from '@/components/utils/common/Timer.vue'
 import TipButton from '@/components/utils/TipButton.vue'
 import { useStore } from 'vuex'
@@ -137,15 +137,15 @@ export default defineComponent({
         return false
       }
 
-      remove3Dnodes()
-
-      fileList[0].text().then((res: any) => {
-        // 接受
-        store.state.exportContent = JSON.parse(res)
-        console.log(store.state.exportContent)
-        console.log(store.state.pageTreeNodes[0])
-        // store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
-        store.state.exportType = !store.state.exportType
+      EventsBus.emit('toolBarSelected', { node: {} })
+      nextTick(() => {
+        remove3Dnodes()
+        fileList[0].text().then((res: any) => {
+          // 接受
+          store.state.exportContent = JSON.parse(res)
+          // store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
+          store.state.exportType = !store.state.exportType
+        })
       })
     }
 
@@ -169,7 +169,7 @@ export default defineComponent({
 
     function deleteTreeParentQuote(tree: any) {
       let nodes = [...tree],
-        node:any = null
+        node: any = null
 
       // eslint-disable-next-line no-cond-assign
       while ((node = nodes.pop())) {
@@ -261,8 +261,6 @@ export default defineComponent({
       store.state.elementClick.onhover = null
       // click object
       store.state.addElementType = null
-      store.state.elementIcon = []
-      store.state.elementText = []
       store.state.elementFlyLine = []
       store.state.elementClick = null
     }

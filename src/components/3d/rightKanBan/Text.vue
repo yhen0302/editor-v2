@@ -104,7 +104,7 @@ let arrs = [
             type: 'colorOpacity',
             value: {
               color: {
-                value: ''
+                value: '#000000'
               },
               opacity: {
                 value: 100,
@@ -332,49 +332,106 @@ if (props.node.selected == 'RotateText') {
 }
 
 if (props.node.clickObj) {
-  let data = store.state.addElementType.mesh.userData.editDate
-  formSettings.value.forEach((dev) => {
-    dev.content.forEach((item) => {
-      if (item.name == '字体') {
-        item.content[0].value.color.value = data.color
-        item.content[0].value.fontFamily.value = data.fontFamily
-        item.content[0].value.fontSize.value = data.fontSize
-        item.content[0].value.fontWeight.value = data.fontWeight
-      } else if (item.name == '内容') {
-        item.content[0].value = data.text
-      } else if (item.name == '尺寸') {
-        item.content[0].value = data.textScale[0]
-        item.content[1].value = data.textScale[1]
-      } else if (item.name == '填充') {
-        let rgb = data.bgColor == '' ? '' : 'rgb(' + data.bgColor + ')'
-        item.content[0].value.color.value = rgb.colorHex()
-        item.content[0].value.opacity.value = data.bgOpcity
-        item.content[0].value.loadPicture.value = data.bgImage
-      } else if (item.name == '偏移') {
-        item.content[0].value = data.textOffset[0]
-        item.content[1].value = data.textOffset[1]
-      } else if (item.name == '对齐') {
-        item.content[0].value.textAlign.value[0] = data.textAlign
-        item.content[0].value.lineAlign.value[0] = data.lineAlign
-      } else if (item.name == 'position') {
-        item.content[0].value = data.position[0]
-        item.content[1].value = data.position[1]
-        item.content[2].value = data.position[2]
-      } else if (item.name == 'scale') {
-        item.content[0].value = data.scale[0]
-        item.content[1].value = data.scale[1]
-      } else if (item.name == 'opacity') {
-        item.content[0].value = data.opacity
-      } else if (item.name == 'rotation' && props.node.selected == 'FixedText') {
-        item.content[0].value = data.rotation[0]
-        item.content[1].value = data.rotation[1]
-        item.content[2].value = data.rotation[2]
-      } else if (item.name == 'center' && props.node.selected == 'RotateText') {
-        item.content[0].value = data.center[0]
-        item.content[1].value = data.center[1]
+  if (props.node.clickObj == true) {
+    let data = store.state.addElementType.mesh.userData.editDate
+    formSettings.value.forEach((dev) => {
+      dev.content.forEach((item) => {
+        if (item.name == '字体') {
+          item.content[0].value.color.value = data.color
+          item.content[0].value.fontFamily.value = data.fontFamily
+          item.content[0].value.fontSize.value = data.fontSize
+          item.content[0].value.fontWeight.value = data.fontWeight
+        } else if (item.name == '内容') {
+          item.content[0].value = data.text
+        } else if (item.name == '尺寸') {
+          item.content[0].value = data.textScale[0]
+          item.content[1].value = data.textScale[1]
+        } else if (item.name == '填充') {
+          let rgb = data.bgColor == '' ? '' : 'rgb(' + data.bgColor + ')'
+          item.content[0].value.color.value = rgb.colorHex()
+          item.content[0].value.opacity.value = data.bgOpcity
+          item.content[0].value.loadPicture.value = data.bgImage
+        } else if (item.name == '偏移') {
+          item.content[0].value = data.textOffset[0]
+          item.content[1].value = data.textOffset[1]
+        } else if (item.name == '对齐') {
+          item.content[0].value.textAlign.value[0] = data.textAlign
+          item.content[0].value.lineAlign.value[0] = data.lineAlign
+        } else if (item.name == 'position') {
+          item.content[0].value = data.position[0]
+          item.content[1].value = data.position[1]
+          item.content[2].value = data.position[2]
+        } else if (item.name == 'scale') {
+          item.content[0].value = data.scale[0]
+          item.content[1].value = data.scale[1]
+        } else if (item.name == 'opacity') {
+          item.content[0].value = data.opacity
+        } else if (item.name == 'rotation' && props.node.selected == 'FixedText') {
+          item.content[0].value = data.rotation[0]
+          item.content[1].value = data.rotation[1]
+          item.content[2].value = data.rotation[2]
+        } else if (item.name == 'center' && props.node.selected == 'RotateText') {
+          item.content[0].value = data.center[0]
+          item.content[1].value = data.center[1]
+        }
+      })
+    })
+  } else {
+    formSettings.value.forEach((dev) => {
+      dev.content.forEach((item) => {
+        if (item.name == '字体') {
+          item.content[0].value.color.value = props.node.clickObj.options.textColor
+          item.content[0].value.fontFamily.value = props.node.clickObj.options.textFontFamily
+          item.content[0].value.fontSize.value = props.node.clickObj.options.textFontSize
+          item.content[0].value.fontWeight.value = props.node.clickObj.options.textFontWeight
+        } else if (item.name == '内容') {
+          item.content[0].value = props.node.clickObj.options.textText
+        } else if (item.name == '尺寸') {
+          item.content[0].value = props.node.clickObj.options.textTextScale[0]
+          item.content[1].value = props.node.clickObj.options.textTextScale[1]
+        } else if (item.name == '填充') {
+          let rgb = props.node.clickObj.options.textBGColor == '' ? '' : 'rgb(' + props.node.clickObj.options.textBGColor + ')'
+          item.content[0].value.color.value = rgb.colorHex()
+          item.content[0].value.opacity.value = props.node.clickObj.options.textBGOpacity
+          item.content[0].value.loadPicture.value = props.node.clickObj.options.textBGImage
+        } else if (item.name == '偏移') {
+          item.content[0].value = props.node.clickObj.options.textTextOffset[0]
+          item.content[1].value = props.node.clickObj.options.textTextOffset[1]
+        } else if (item.name == '对齐') {
+          item.content[0].value.textAlign.value[0] = props.node.clickObj.options.textTextAlign
+          item.content[0].value.lineAlign.value[0] = props.node.clickObj.options.textLineAlign
+        } else if (item.name == 'position') {
+          item.content[0].value = props.node.clickObj.options.meshPosition[0]
+          item.content[1].value = props.node.clickObj.options.meshPosition[1]
+          item.content[2].value = props.node.clickObj.options.meshPosition[2]
+        } else if (item.name == 'scale') {
+          item.content[0].value = props.node.clickObj.options.meshScale[0]
+          item.content[1].value = props.node.clickObj.options.meshScale[1]
+        } else if (item.name == 'opacity') {
+          item.content[0].value = props.node.clickObj.options.meshOpacity
+        } else if (item.name == 'rotation' && props.node.selected == 'FixedText') {
+          item.content[0].value = props.node.clickObj.options.meshRotation[0]
+          item.content[1].value = props.node.clickObj.options.meshRotation[1]
+          item.content[2].value = props.node.clickObj.options.meshRotation[2]
+        } else if (item.name == 'center' && props.node.selected == 'RotateText') {
+          item.content[0].value = props.node.clickObj.options.meshCenter[0]
+          item.content[1].value = props.node.clickObj.options.meshCenter[1]
+        }
+      })
+    })
+    store.state.threeDimensionContainer.scene.children.forEach((item) => {
+      if (item.name == 'Text') {
+        item.traverse((child) => {
+          if (child.uuid == props.node.clickObj.uuid) {
+            store.state.addElementType = {
+              mesh: child,
+              moving: true
+            }
+          }
+        })
       }
     })
-  })
+  }
 }
 
 const movingType = ref(false),
@@ -417,7 +474,33 @@ watch(
         }
       })
     })
-    upDateText3D(obj, movingType.value)
+
+    upDateText3D(obj, movingType.value, props.node.selected)
+    store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+      if (item.name == 'Text') {
+        item.children.forEach((dev) => {
+          if (dev.uuid == store.state.addElementType.mesh.uuid) {
+            dev.options.textColor = obj.color
+            dev.options.textFontFamily = obj.fontFamily
+            dev.options.textFontSize = obj.fontSize
+            dev.options.textFontWeight = obj.fontWeight
+            dev.options.textText = obj.text
+            dev.options.textTextScale = obj.textScale
+            dev.options.textBGColor = obj.bgColor
+            dev.options.textBGOpacity = obj.bgOpcity
+            dev.options.textBGImage = obj.bgImage
+            dev.options.textTextOffset = obj.textOffset
+            dev.options.textTextAlign = obj.textAlign
+            dev.options.textLineAlign = obj.lineAlign
+            dev.options.meshPosition = obj.position
+            dev.options.meshScale = obj.scale
+            dev.options.meshOpacity = obj.opacity
+            dev.options.meshRotation = obj.rotation
+            dev.options.meshCenter = obj.center
+          }
+        })
+      }
+    })
     movingTimeout.value = setTimeout(() => {
       movingType.value = false
     }, 200)
@@ -453,6 +536,30 @@ watch(
             item.content[1].value = store.state.addElementType.mesh.center.y
           }
         })
+      })
+      store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+        if (item.name == 'Text') {
+          item.children.forEach((dev) => {
+            if (dev.uuid == store.state.addElementType.mesh.uuid) {
+              dev.options.meshPosition = [
+                parseInt(store.state.addElementType.mesh.position.x),
+                parseInt(store.state.addElementType.mesh.position.y),
+                parseInt(store.state.addElementType.mesh.position.z)
+              ]
+              dev.options.meshScale = [store.state.addElementType.mesh.scale.x, store.state.addElementType.mesh.scale.y]
+              dev.options.meshOpacity = store.state.addElementType.mesh.material.opacity * 100
+              if (props.node.selected == 'FixedText') {
+                dev.options.meshRotation = [
+                  (store.state.addElementType.mesh.rotation.x * 180) / Math.PI,
+                  (store.state.addElementType.mesh.rotation.y * 180) / Math.PI,
+                  (store.state.addElementType.mesh.rotation.z * 180) / Math.PI
+                ]
+              } else {
+                dev.options.meshCenter = [store.state.addElementType.mesh.center.x, store.state.addElementType.mesh.center.y]
+              }
+            }
+          })
+        }
       })
     }
   }

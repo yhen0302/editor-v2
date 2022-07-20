@@ -2,45 +2,24 @@ import store from '../../store'
 import { EventsBus } from '../EventsBus'
 import * as Text from '../utils/text3D'
 import * as Fly from '../utils/flyLine'
+import * as Icon from '../utils/Icon'
 
 declare const Bol3D: any
 
-export const clickFun = (container: any, publicPath: any) => {
-  // 添加图标自定义元素
-  const geometryPlane = new Bol3D.PlaneGeometry(1, 1)
-  const materialPlane = new Bol3D.MeshBasicMaterial({ color: 0x16ddfa, side: Bol3D.DoubleSide, map: new Bol3D.TextureLoader().load(publicPath + 'textures/circularPin.png'), transparent: true })
-  const lightPlane = new Bol3D.Mesh(geometryPlane, materialPlane)
-  lightPlane.rotation.x = -Math.PI / 2
-  lightPlane.renderOrder = 1000
-  lightPlane.position.y = 0.03
-
-  // 飞线部分自定义元素
-  const geometry = new Bol3D.SphereGeometry(10, 32, 16)
-  const material = new Bol3D.MeshBasicMaterial({ color: 0xffff00 })
-  const curveSphere1 = new Bol3D.Mesh(geometry, material)
-  const curveSphere2 = new Bol3D.Mesh(geometry, material)
-  curveSphere1.visible = false
-  curveSphere2.visible = false
-  curveSphere1.name = 'flyLineSelfSphere1'
-  curveSphere2.name = 'flyLineSelfSphere2'
-  container.attach(curveSphere1)
-  container.attach(curveSphere2)
-  var curve = new Bol3D.CatmullRomCurve3([new Bol3D.Vector3(0, 0, 0), new Bol3D.Vector3(50, 100, 0), new Bol3D.Vector3(100, 0, 0)])
-  curve.closed = false
-  const ponits = curve.getPoints(100)
-  var line = new Bol3D.Line(new Bol3D.BufferGeometry().setFromPoints(ponits), new Bol3D.LineBasicMaterial({ color: 0xffff00 }))
-  line.visible = false
-  container.attach(line)
+export const clickFun = (container: any, publicPath: any, selfMesh: any) => {
+  const { lightPlane, curveSphere1, curveSphere2, line } = selfMesh
 
   store.state.elementClick = new Bol3D.Events(container)
 
   const clock = new Bol3D.Clock()
   const animation = () => {
     requestAnimationFrame(animation)
-    
+
     if (store.state.elementFlyLine.length > 0) {
       store.state.elementFlyLine.forEach((item: any) => {
-        item.material.uniforms.time.value = clock.getElapsedTime()
+        if (!item.name.includes('flyLineSelfSphere')) {
+          item.material.uniforms.time.value = clock.getElapsedTime()
+        }
       })
     }
   }
@@ -156,32 +135,12 @@ export const clickFun = (container: any, publicPath: any) => {
       const element = store.state.addElementType
       const position = [e.objects[0].point.x, e.objects[0].point.y, e.objects[0].point.z]
       if (element.type == 'icon' && !name.includes('iconSelf')) {
-        const icon = new Bol3D.POI.Icon({
-          position: position,
-          url: element.icon,
-          scale: [50, 50]
+        Icon.addIcon(container, {
+          position,
+          urlIcon: element.icon,
+          name: element.type,
+          lightPlane
         })
-        icon.material.transparent = true
-        icon.center.y = 0
-        icon.name = 'iconSelf' + element.type
-        container.clickObjects.push(icon)
-        container.attach(icon)
-        lightPlane.visible = true
-        icon.add(lightPlane)
-        store.state.addElementType.mesh = icon
-        store.state.addElementType.lightMesh = lightPlane
-        store.state.elementIcon.push(icon)
-        setTimeout(() => {
-          store.state.addElementType.moving = !store.state.addElementType.moving
-          store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item: any) => {
-            if (item.name == 'Icon') {
-              const obj = meshBasicMsg(icon, item)
-              item.children.push(obj)
-              item.show = true
-            }
-          })
-          console.log(store.state.pageTreeNodes[0].children[0].trees.threeDimension)
-        }, 100)
       } else if (element.type == 'text' && !name.includes('textSelf')) {
         EventsBus.emit('toolBarSelected', { node: {} })
         Text.addCanvas(container, position, element.smallType)
@@ -209,45 +168,4 @@ export const clickFun = (container: any, publicPath: any) => {
       }
     }
   }
-}
-
-const meshBasicMsg = (mesh: any, item: any) => {
-  var index = item.index
-  const obj = {
-    children: [],
-    index: index + 1,
-    name: mesh.name,
-    options: {
-      castShadow: mesh.castShadow,
-      position: [mesh.position.x, mesh.position.y, mesh.position.z],
-      receiveShadow: mesh.receiveShadow,
-      rotation: [mesh.rotation.x, mesh.rotation.y, mesh.rotation.z],
-      scale: [mesh.scale.x, mesh.scale.y, mesh.scale.z]
-    },
-    matOptions: {
-      color: '#' + mesh.material.color.getHexString(),
-      depthTest: mesh.material.depthTest,
-      depthWrite: mesh.material.depthWrite,
-      name: mesh.material.name,
-      opacity: mesh.material.opacity,
-      transparent: mesh.material.transparent,
-      type: mesh.material.type,
-      wireframe: mesh.material.wireframe,
-      extends: {
-        emissive: mesh.material.emissive ? '#' + mesh.material.emissive.getHexString() : '#ffffff',
-        emissiveIntensity: mesh.material.emissiveIntensity,
-        envMapIntensity: mesh.material.envMapIntensity,
-        lightMapIntensity: mesh.material.lightMapIntensity,
-        metalness: mesh.material.metalness,
-        roughness: mesh.material.roughness
-      }
-    },
-    selected: false,
-    show: true,
-    spread: false,
-    type: 'Mesh',
-    uuid: mesh.uuid,
-    visible: mesh.visible
-  }
-  return obj
 }
