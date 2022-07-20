@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@editor-v2/elements": "1.0.0",
-    "@vue/babel-plugin-jsx": "^1.1.1",
     "common-tags": "^1.8.2",
     "core-js": "^3.8.3",
     "echarts": "^5.3.3",
@@ -20,6 +19,7 @@
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {
+    "@vue/babel-plugin-jsx": "^1.1.1",
     "@types/chai": "^4.2.11",
     "@types/mocha": "^5.2.4",
     "@types/underscore": "^1.11.4",

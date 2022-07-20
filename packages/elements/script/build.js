@@ -8,6 +8,7 @@ const pImport = require('postcss-import')
 const typescript = require('rollup-plugin-typescript2')
 const {nodeResolve } = require('@rollup/plugin-node-resolve')
 const replace = require('rollup-plugin-replace')
+// const {getBabelOutputPlugin,babel} = require('@rollup/plugin-babel')
 
 
 const env = process.env.NODE_ENV

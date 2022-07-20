@@ -2989,6 +2989,12 @@
 
     const COMPONENTS = 'components';
     const DIRECTIVES = 'directives';
+    /**
+     * @private
+     */
+    function resolveComponent(name, maybeSelfReference) {
+        return resolveAsset(COMPONENTS, name, true, maybeSelfReference) || name;
+    }
     const NULL_DYNAMIC_COMPONENT = Symbol();
     /**
      * @private
@@ -8481,12 +8487,12 @@
         out[1] = m[1] * x + m[3] * y + m[5];
         return out;
     }
-    function min$2(out, v1, v2) {
+    function min$3(out, v1, v2) {
         out[0] = Math.min(v1[0], v2[0]);
         out[1] = Math.min(v1[1], v2[1]);
         return out;
     }
-    function max$2(out, v1, v2) {
+    function max$3(out, v1, v2) {
         out[0] = Math.max(v1[0], v2[0]);
         out[1] = Math.max(v1[1], v2[1]);
         return out;
@@ -17356,8 +17362,8 @@
         max[1] = mathMax$9(y0, y2, y);
     }
     function fromArc(x, y, rx, ry, startAngle, endAngle, anticlockwise, min, max) {
-        var vec2Min = min$2;
-        var vec2Max = max$2;
+        var vec2Min = min$3;
+        var vec2Max = max$3;
         var diff = Math.abs(startAngle - endAngle);
         if (diff % PI2$8 < 1e-4 && diff > 1e-4) {
             min[0] = x - rx;
@@ -17412,8 +17418,8 @@
     };
     var tmpOutX = [];
     var tmpOutY = [];
-    var min$1 = [];
-    var max$1 = [];
+    var min$2 = [];
+    var max$2 = [];
     var min2 = [];
     var max2 = [];
     var mathMin$8 = Math.min;
@@ -17681,8 +17687,8 @@
             }
         };
         PathProxy.prototype.getBoundingRect = function () {
-            min$1[0] = min$1[1] = min2[0] = min2[1] = Number.MAX_VALUE;
-            max$1[0] = max$1[1] = max2[0] = max2[1] = -Number.MAX_VALUE;
+            min$2[0] = min$2[1] = min2[0] = min2[1] = Number.MAX_VALUE;
+            max$2[0] = max$2[1] = max2[0] = max2[1] = -Number.MAX_VALUE;
             var data = this.data;
             var xi = 0;
             var yi = 0;
@@ -17751,13 +17757,13 @@
                         yi = y0;
                         break;
                 }
-                min$2(min$1, min$1, min2);
-                max$2(max$1, max$1, max2);
+                min$3(min$2, min$2, min2);
+                max$3(max$2, max$2, max2);
             }
             if (i === 0) {
-                min$1[0] = min$1[1] = max$1[0] = max$1[1] = 0;
+                min$2[0] = min$2[1] = max$2[0] = max$2[1] = 0;
             }
-            return new BoundingRect$1(min$1[0], min$1[1], max$1[0] - min$1[0], max$1[1] - min$1[1]);
+            return new BoundingRect$1(min$2[0], min$2[1], max$2[0] - min$2[0], max$2[1] - min$2[1]);
         };
         PathProxy.prototype._calculateLength = function () {
             var data = this.data;
@@ -21340,11 +21346,11 @@
             min = [Infinity, Infinity];
             max = [-Infinity, -Infinity];
             for (var i = 0, len = points.length; i < len; i++) {
-                min$2(min, min, points[i]);
-                max$2(max, max, points[i]);
+                min$3(min, min, points[i]);
+                max$3(max, max, points[i]);
             }
-            min$2(min, min, constraint[0]);
-            max$2(max, max, constraint[1]);
+            min$3(min, min, constraint[0]);
+            max$3(max, max, constraint[1]);
         }
         for (var i = 0, len = points.length; i < len; i++) {
             var point = points[i];
@@ -21376,10 +21382,10 @@
             var cp0 = add([], point, v1);
             var cp1 = add([], point, v2);
             if (constraint) {
-                max$2(cp0, cp0, min);
-                min$2(cp0, cp0, max);
-                max$2(cp1, cp1, min);
-                min$2(cp1, cp1, max);
+                max$3(cp0, cp0, min);
+                min$3(cp0, cp0, max);
+                max$3(cp1, cp1, min);
+                min$3(cp1, cp1, max);
             }
             cps.push(cp0);
             cps.push(cp1);
@@ -35760,7 +35766,7 @@
     var triggerUpdatedEvent;
     var bindRenderedEvent;
     var bindMouseEvent;
-    var render$g;
+    var render$h;
     var renderComponents;
     var renderSeries;
     var createExtensionAPI;
@@ -36900,7 +36906,7 @@
             coordSysMgr.update(ecModel, api);
             clearColorPalette(ecModel);
             scheduler.performVisualTasks(ecModel, payload);
-            render$g(this, ecModel, api, payload, updateParams); // Set background
+            render$h(this, ecModel, api, payload, updateParams); // Set background
 
             var backgroundColor = ecModel.get('backgroundColor') || 'transparent';
             var darkMode = ecModel.get('darkMode');
@@ -36980,7 +36986,7 @@
               setDirty: true
             });
 
-            render$g(this, ecModel, this._api, payload, {});
+            render$h(this, ecModel, this._api, payload, {});
             lifecycle$1.trigger('afterupdate', ecModel, this._api);
           },
           updateVisual: function (payload) {
@@ -37312,7 +37318,7 @@
           }
         }
 
-        render$g = function (ecIns, ecModel, api, payload, updateParams) {
+        render$h = function (ecIns, ecModel, api, payload, updateParams) {
           allocateZlevels(ecModel);
           renderComponents(ecIns, ecModel, api, payload, updateParams);
           each$g(ecIns._chartsViews, function (chart) {
@@ -43228,8 +43234,8 @@
         }
 
         if (p && isFinite(p[0]) && isFinite(p[1])) {
-          min$2(min, min, p);
-          max$2(max, max, p);
+          min$3(min, min, p);
+          max$3(max, max, p);
         }
       }
     }
@@ -60841,8 +60847,8 @@
               for (var i = 0; i <= 100; i++) {
                 var p = i / 100;
                 var pt = projection_1.project([x0 + dx * p, y0 + dy * p]);
-                min$2(leftTop_1, leftTop_1, pt);
-                max$2(rightBottom_1, rightBottom_1, pt);
+                min$3(leftTop_1, leftTop_1, pt);
+                max$3(rightBottom_1, rightBottom_1, pt);
               }
             }; // Top
 
@@ -102877,7 +102883,7 @@
         }
     };
 
-    var script$f = {
+    var script$g = {
         name: 'RectShape',
         props: ['node'],
         emits: ['select', 'append'],
@@ -102896,7 +102902,7 @@
         },
     };
 
-    function render$f(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$g(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -102918,10 +102924,10 @@
       ])
     }
 
-    script$f.render = render$f;
-    script$f.__file = "src/components/shape/RectShape.vue";
+    script$g.render = render$g;
+    script$g.__file = "src/components/shape/RectShape.vue";
 
-    var script$e = {
+    var script$f = {
         name: 'RoundedRectShape',
         props: ['node'],
         emits: ['select', 'append'],
@@ -102940,7 +102946,7 @@
         },
     };
 
-    function render$e(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$f(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -102965,11 +102971,11 @@
     var css_248z$9 = "\n.rounded-rect-shape[data-v-c59a2864]{\r\n  border-radius: 10%;\n}\r\n";
     styleInject(css_248z$9);
 
-    script$e.render = render$e;
-    script$e.__scopeId = "data-v-c59a2864";
-    script$e.__file = "src/components/shape/RoundedRectShape.vue";
+    script$f.render = render$f;
+    script$f.__scopeId = "data-v-c59a2864";
+    script$f.__file = "src/components/shape/RoundedRectShape.vue";
 
-    var script$d = {
+    var script$e = {
         name: 'CircleShape',
         props: ['node'],
         emits: ['select', 'append'],
@@ -102988,7 +102994,7 @@
         },
     };
 
-    function render$d(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$e(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -103013,11 +103019,11 @@
     var css_248z$8 = "\n.circle-rect-shape[data-v-d550f47a]{\r\n  border-radius: 50%;\n}\r\n";
     styleInject(css_248z$8);
 
-    script$d.render = render$d;
-    script$d.__scopeId = "data-v-d550f47a";
-    script$d.__file = "src/components/shape/CircleShape.vue";
+    script$e.render = render$e;
+    script$e.__scopeId = "data-v-d550f47a";
+    script$e.__file = "src/components/shape/CircleShape.vue";
 
-    var script$c = {
+    var script$d = {
         name: 'TriangleShape',
         props: ['node'],
         emits: ['select', 'append'],
@@ -103037,7 +103043,7 @@
         },
     };
 
-    function render$c(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$d(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -103061,11 +103067,11 @@
     var css_248z$7 = "\n.triangle-shape[data-v-54d47dea] {\r\n  clip-path: polygon(0 0, 0% 100%, 100% 100%);\n}\r\n";
     styleInject(css_248z$7);
 
-    script$c.render = render$c;
-    script$c.__scopeId = "data-v-54d47dea";
-    script$c.__file = "src/components/shape/TriangleShape.vue";
+    script$d.render = render$d;
+    script$d.__scopeId = "data-v-54d47dea";
+    script$d.__file = "src/components/shape/TriangleShape.vue";
 
-    var script$b = {
+    var script$c = {
         name: 'ImageMedia',
         props: ['node'],
         mixins: [matrixMixin],
@@ -103093,7 +103099,7 @@
       _hoisted_3$1
     ];
 
-    function render$b(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$c(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -103125,11 +103131,11 @@
     var css_248z$6 = "\n.image-media-wrap[data-v-dcb9cef8] {\n  position: absolute;\n}\n.image-media[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n.img-placeholder-box[data-v-dcb9cef8] {\n  width: 100%;\n  height: 100%;\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n";
     styleInject(css_248z$6);
 
-    script$b.render = render$b;
-    script$b.__scopeId = "data-v-dcb9cef8";
-    script$b.__file = "src/components/media/ImageMedia.vue";
+    script$c.render = render$c;
+    script$c.__scopeId = "data-v-dcb9cef8";
+    script$c.__file = "src/components/media/ImageMedia.vue";
 
-    var script$a = {
+    var script$b = {
         name: 'VideoMedia',
         props: ['node'],
         emits: ['select', 'append'],
@@ -103157,7 +103163,7 @@
       _hoisted_3
     ];
 
-    function render$a(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$b(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -103191,11 +103197,11 @@
     var css_248z$5 = "\n.video-media-wrap[data-v-6ff79d38] {\r\n  position: absolute;\n}\n.video-media[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\n.img-placeholder[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-6ff79d38]{\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\r\n";
     styleInject(css_248z$5);
 
-    script$a.render = render$a;
-    script$a.__scopeId = "data-v-6ff79d38";
-    script$a.__file = "src/components/media/VideoMedia.vue";
+    script$b.render = render$b;
+    script$b.__scopeId = "data-v-6ff79d38";
+    script$b.__file = "src/components/media/VideoMedia.vue";
 
-    var script$9 = {
+    var script$a = {
         name: 'BigTitle',
         props: ['node'],
         emits: ['select', 'append'],
@@ -103266,7 +103272,7 @@
         }
     };
 
-    function render$9(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$a(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -103310,15 +103316,149 @@
     var css_248z$4 = "\n.text-wrapper[data-v-5c83e1cc] {\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y: contain;\n}\n.weight[data-v-5c83e1cc] {\r\n  font-weight: bold;\n}\n.underline[data-v-5c83e1cc] {\r\n  text-decoration: underline;\n}\n.italic[data-v-5c83e1cc] {\r\n  font-style: oblique;\n}\n.big-title[data-v-5c83e1cc] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
     styleInject(css_248z$4);
 
-    script$9.render = render$9;
-    script$9.__scopeId = "data-v-5c83e1cc";
-    script$9.__file = "src/components/text/BigTitle.vue";
+    script$a.render = render$a;
+    script$a.__scopeId = "data-v-5c83e1cc";
+    script$a.__file = "src/components/text/BigTitle.vue";
 
-    var script$8 = {
+    var script$9 = {
         name: 'SmallTitle',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin],
+        setup(props) {
+            const h1 = ref();
+            // exterior
+            const color = computed(() => {
+                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            });
+            const opacity = computed(() => {
+                return (props.node.option.transparency / 100).toFixed(2);
+            });
+            // font
+            const fontColor = computed(() => {
+                return props.node.option.textOption.color;
+            });
+            const fontSize = computed(() => {
+                return toPx(props.node.option.textOption.fontSize);
+            });
+            const fontFamily = computed(() => {
+                return props.node.option.textOption.fontFamily;
+            });
+            const fontStyle = computed(() => {
+                return props.node.option.textOption.fontStyle;
+            });
+            const align = computed(() => {
+                return props.node.option.textOption.align;
+            });
+            const verticalAlign = computed(() => {
+                return props.node.option.textOption.verticalAlign;
+            });
+            // value
+            const value = computed(() => {
+                return props.node.option.value;
+            });
+            let dbClickText;
+            let textElInput;
+            // editor
+            {
+                dbClickText = (ev) => {
+                    ev.target;
+                    props.node.contentEditable = true;
+                };
+                watch(() => props.node.contentEditable, (newVal, oldVal) => {
+                    h1.value.contentEditable = String(newVal);
+                    if (newVal)
+                        h1.value?.focus();
+                });
+                textElInput = (ev) => {
+                    props.node.option.value = ev.target.innerText;
+                };
+            }
+            return {
+                color,
+                opacity,
+                value,
+                fontColor,
+                fontSize,
+                fontFamily,
+                fontStyle,
+                align,
+                verticalAlign,
+                dbClickText,
+                h1,
+                textElInput
+            };
+        },
+    };
+
+    function render$9(_ctx, _cache, $props, $setup, $data, $options) {
+      const _directive_drag = resolveDirective("drag");
+
+      return withDirectives((openBlock(), createElementBlock("div", {
+        class: "text-wrapper absolute flex",
+        draggable: "false",
+        style: normalizeStyle$1({
+          width: _ctx.width,
+          height: _ctx.height,
+          left: _ctx.left,
+          top: _ctx.top,
+          backgroundColor: $setup.color,
+          opacity: $setup.opacity,
+          textAlign: $setup.align,
+          alignItems: $setup.verticalAlign
+        }),
+        onClick: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"])),
+        onMousedown: _cache[6] || (_cache[6] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onWheelPassive: _cache[7] || (_cache[7] = withModifiers(() => {}, ["stop"])),
+        onScroll: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
+        ref: "el"
+      }, [
+        createBaseVNode("h6", {
+          class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
+          style: normalizeStyle$1({
+            color: $setup.fontColor,
+            fontSize: $setup.fontSize,
+            fontFamily: $setup.fontFamily
+          }),
+          onDblclick: _cache[0] || (_cache[0] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
+          ref: "h1",
+          onInput: _cache[1] || (_cache[1] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
+          onKeydown: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
+          onKeyup: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
+          onKeypress: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"]))
+        }, toDisplayString($setup.value), 39 /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */)
+      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
+        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
+      ])
+    }
+
+    var css_248z$3 = "\n.text-wrapper[data-v-7a696473]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-7a696473] {\r\n  font-weight: bold;\n}\n.underline[data-v-7a696473] {\r\n  text-decoration: underline;\n}\n.italic[data-v-7a696473] {\r\n  font-style: oblique;\n}\n.big-title[data-v-7a696473] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
+    styleInject(css_248z$3);
+
+    script$9.render = render$9;
+    script$9.__scopeId = "data-v-7a696473";
+    script$9.__file = "src/components/text/SmallTitle.vue";
+
+    //@ts-nocheck
+    var emitterMixin = {
+        methods: {
+            emitterEffect(ev) {
+                for (const key of Object.keys(this.node.option.emitters)) {
+                    const s = key.split(':');
+                    const eventType = s[0];
+                    const eventAction = s[1];
+                    const effect = this.node.option.emitters[key];
+                    console.log(ev.type, eventType, eventAction, effect);
+                }
+            }
+        }
+    };
+
+    var script$8 = {
+        name: 'BaseTitle',
+        props: ['node'],
+        emits: ['select', 'append'],
+        mixins: [matrixMixin, emitterMixin],
         setup(props) {
             const h1 = ref();
             // exterior
@@ -103401,58 +103541,51 @@
           textAlign: $setup.align,
           alignItems: $setup.verticalAlign
         }),
-        onClick: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"])),
-        onMousedown: _cache[6] || (_cache[6] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        onWheelPassive: _cache[7] || (_cache[7] = withModifiers(() => {}, ["stop"])),
-        onScroll: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[6] || (_cache[6] = withModifiers(() => {}, ["stop"])),
+        onMousedown: _cache[7] || (_cache[7] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onWheelPassive: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
+        onScroll: _cache[9] || (_cache[9] = withModifiers(() => {}, ["stop"])),
         ref: "el"
       }, [
-        createBaseVNode("h6", {
+        withDirectives(createBaseVNode("img", {
+          src: "",
+          class: "emitter-icon absolute",
+          draggable: "false",
+          onClick: _cache[0] || (_cache[0] = (...args) => (_ctx.emitterEffect && _ctx.emitterEffect(...args)))
+        }, null, 512 /* NEED_PATCH */), [
+          [vShow, Object.keys($props.node.option.emitters).length>0]
+        ]),
+        createBaseVNode("h3", {
           class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
           style: normalizeStyle$1({
             color: $setup.fontColor,
             fontSize: $setup.fontSize,
             fontFamily: $setup.fontFamily
           }),
-          onDblclick: _cache[0] || (_cache[0] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
+          onDblclick: _cache[1] || (_cache[1] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
           ref: "h1",
-          onInput: _cache[1] || (_cache[1] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
-          onKeydown: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
-          onKeyup: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
-          onKeypress: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"]))
+          onInput: _cache[2] || (_cache[2] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
+          onKeydown: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
+          onKeyup: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"])),
+          onKeypress: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"]))
         }, toDisplayString($setup.value), 39 /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */)
       ], 36 /* STYLE, HYDRATE_EVENTS */)), [
         [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
       ])
     }
 
-    var css_248z$3 = "\n.text-wrapper[data-v-7a696473]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-7a696473] {\r\n  font-weight: bold;\n}\n.underline[data-v-7a696473] {\r\n  text-decoration: underline;\n}\n.italic[data-v-7a696473] {\r\n  font-style: oblique;\n}\n.big-title[data-v-7a696473] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
-    styleInject(css_248z$3);
+    var css_248z$2 = "\n.text-wrapper[data-v-71cfa315]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-71cfa315] {\r\n  font-weight: bold;\n}\n.underline[data-v-71cfa315] {\r\n  text-decoration: underline;\n}\n.italic[data-v-71cfa315] {\r\n  font-style: oblique;\n}\n.big-title[data-v-71cfa315] {\r\n  outline: none;\r\n  word-break: break-all;\n}\n.emitter-icon[data-v-71cfa315]{\r\n  right: 0;\r\n  top: 0;\r\n  width: 50px;\n}\r\n";
+    styleInject(css_248z$2);
 
     script$8.render = render$8;
-    script$8.__scopeId = "data-v-7a696473";
-    script$8.__file = "src/components/text/SmallTitle.vue";
-
-    //@ts-nocheck
-    var emitterMixin = {
-        methods: {
-            emitterEffect(ev) {
-                for (const key of Object.keys(this.node.option.emitters)) {
-                    const s = key.split(':');
-                    const eventType = s[0];
-                    const eventAction = s[1];
-                    const effect = this.node.option.emitters[key];
-                    console.log(ev.type, eventType, eventAction, effect);
-                }
-            }
-        }
-    };
+    script$8.__scopeId = "data-v-71cfa315";
+    script$8.__file = "src/components/text/BaseTitle.vue";
 
     var script$7 = {
-        name: 'BaseTitle',
+        name: 'TextContent',
         props: ['node'],
         emits: ['select', 'append'],
-        mixins: [matrixMixin, emitterMixin],
+        mixins: [matrixMixin],
         setup(props) {
             const h1 = ref();
             // exterior
@@ -103535,133 +103668,6 @@
           textAlign: $setup.align,
           alignItems: $setup.verticalAlign
         }),
-        onClick: _cache[6] || (_cache[6] = withModifiers(() => {}, ["stop"])),
-        onMousedown: _cache[7] || (_cache[7] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        onWheelPassive: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
-        onScroll: _cache[9] || (_cache[9] = withModifiers(() => {}, ["stop"])),
-        ref: "el"
-      }, [
-        withDirectives(createBaseVNode("img", {
-          src: "",
-          class: "emitter-icon absolute",
-          draggable: "false",
-          onClick: _cache[0] || (_cache[0] = (...args) => (_ctx.emitterEffect && _ctx.emitterEffect(...args)))
-        }, null, 512 /* NEED_PATCH */), [
-          [vShow, Object.keys($props.node.option.emitters).length>0]
-        ]),
-        createBaseVNode("h3", {
-          class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
-          style: normalizeStyle$1({
-            color: $setup.fontColor,
-            fontSize: $setup.fontSize,
-            fontFamily: $setup.fontFamily
-          }),
-          onDblclick: _cache[1] || (_cache[1] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
-          ref: "h1",
-          onInput: _cache[2] || (_cache[2] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
-          onKeydown: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
-          onKeyup: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"])),
-          onKeypress: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"]))
-        }, toDisplayString($setup.value), 39 /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */)
-      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
-    }
-
-    var css_248z$2 = "\n.text-wrapper[data-v-71cfa315]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-71cfa315] {\r\n  font-weight: bold;\n}\n.underline[data-v-71cfa315] {\r\n  text-decoration: underline;\n}\n.italic[data-v-71cfa315] {\r\n  font-style: oblique;\n}\n.big-title[data-v-71cfa315] {\r\n  outline: none;\r\n  word-break: break-all;\n}\n.emitter-icon[data-v-71cfa315]{\r\n  right: 0;\r\n  top: 0;\r\n  width: 50px;\n}\r\n";
-    styleInject(css_248z$2);
-
-    script$7.render = render$7;
-    script$7.__scopeId = "data-v-71cfa315";
-    script$7.__file = "src/components/text/BaseTitle.vue";
-
-    var script$6 = {
-        name: 'TextContent',
-        props: ['node'],
-        emits: ['select', 'append'],
-        mixins: [matrixMixin],
-        setup(props) {
-            const h1 = ref();
-            // exterior
-            const color = computed(() => {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
-            });
-            const opacity = computed(() => {
-                return (props.node.option.transparency / 100).toFixed(2);
-            });
-            // font
-            const fontColor = computed(() => {
-                return props.node.option.textOption.color;
-            });
-            const fontSize = computed(() => {
-                return toPx(props.node.option.textOption.fontSize);
-            });
-            const fontFamily = computed(() => {
-                return props.node.option.textOption.fontFamily;
-            });
-            const fontStyle = computed(() => {
-                return props.node.option.textOption.fontStyle;
-            });
-            const align = computed(() => {
-                return props.node.option.textOption.align;
-            });
-            const verticalAlign = computed(() => {
-                return props.node.option.textOption.verticalAlign;
-            });
-            // value
-            const value = computed(() => {
-                return props.node.option.value;
-            });
-            let dbClickText;
-            let textElInput;
-            // editor
-            {
-                dbClickText = (ev) => {
-                    ev.target;
-                    props.node.contentEditable = true;
-                };
-                watch(() => props.node.contentEditable, (newVal, oldVal) => {
-                    h1.value.contentEditable = String(newVal);
-                    if (newVal)
-                        h1.value?.focus();
-                });
-                textElInput = (ev) => {
-                    props.node.option.value = ev.target.innerText;
-                };
-            }
-            return {
-                color,
-                opacity,
-                value,
-                fontColor,
-                fontSize,
-                fontFamily,
-                fontStyle,
-                align,
-                verticalAlign,
-                dbClickText,
-                h1,
-                textElInput
-            };
-        },
-    };
-
-    function render$6(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
-
-      return withDirectives((openBlock(), createElementBlock("div", {
-        class: "text-wrapper absolute flex",
-        draggable: "false",
-        style: normalizeStyle$1({
-          width: _ctx.width,
-          height: _ctx.height,
-          left: _ctx.left,
-          top: _ctx.top,
-          backgroundColor: $setup.color,
-          opacity: $setup.opacity,
-          textAlign: $setup.align,
-          alignItems: $setup.verticalAlign
-        }),
         onClick: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"])),
         onMousedown: _cache[6] || (_cache[6] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
         onWheelPassive: _cache[7] || (_cache[7] = withModifiers(() => {}, ["stop"])),
@@ -103690,9 +103696,9 @@
     var css_248z$1 = "\n.text-wrapper[data-v-3a41379a]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-3a41379a] {\r\n  font-weight: bold;\n}\n.underline[data-v-3a41379a] {\r\n  text-decoration: underline;\n}\n.italic[data-v-3a41379a] {\r\n  font-style: oblique;\n}\n.big-title[data-v-3a41379a] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
     styleInject(css_248z$1);
 
-    script$6.render = render$6;
-    script$6.__scopeId = "data-v-3a41379a";
-    script$6.__file = "src/components/text/TextContent.vue";
+    script$7.render = render$7;
+    script$7.__scopeId = "data-v-3a41379a";
+    script$7.__file = "src/components/text/TextContent.vue";
 
     var chartMixin = {
       methods: {
@@ -103740,7 +103746,7 @@
       }
     };
 
-    var script$5 = {
+    var script$6 = {
       name: 'ChartBar',
       mixins: [matrixMixin,chartMixin],
       props: ['node'],
@@ -103830,7 +103836,7 @@
       }
     };
 
-    function render$5(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$6(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -103854,10 +103860,10 @@
       ])
     }
 
-    script$5.render = render$5;
-    script$5.__file = "src/components/chart/ChartBar.vue";
+    script$6.render = render$6;
+    script$6.__file = "src/components/chart/ChartBar.vue";
 
-    var script$4 = {
+    var script$5 = {
       name: 'ChartLine',
       mixins: [matrixMixin,chartMixin],
       props: ['node'],
@@ -103947,7 +103953,7 @@
       },
     };
 
-    function render$4(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$5(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -103971,10 +103977,10 @@
       ])
     }
 
-    script$4.render = render$4;
-    script$4.__file = "src/components/chart/ChartLine.vue";
+    script$5.render = render$5;
+    script$5.__file = "src/components/chart/ChartLine.vue";
 
-    var script$3 = {
+    var script$4 = {
       name: 'ChartPie',
       mixins: [matrixMixin, chartMixin],
       props: ['node'],
@@ -104060,7 +104066,7 @@
       }
     };
 
-    function render$3(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$4(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -104084,10 +104090,10 @@
       ])
     }
 
-    script$3.render = render$3;
-    script$3.__file = "src/components/chart/ChartPie.vue";
+    script$4.render = render$4;
+    script$4.__file = "src/components/chart/ChartPie.vue";
 
-    var script$2 = {
+    var script$3 = {
       name: 'ChartGauge',
       mixins: [matrixMixin,chartMixin],
       props: ['node'],
@@ -104169,7 +104175,7 @@
       }
     };
 
-    function render$2(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$3(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -104193,10 +104199,10 @@
       ])
     }
 
-    script$2.render = render$2;
-    script$2.__file = "src/components/chart/ChartGauge.vue";
+    script$3.render = render$3;
+    script$3.__file = "src/components/chart/ChartGauge.vue";
 
-    var script$1 = {
+    var script$2 = {
       name: 'ChartCurve',
       mixins: [matrixMixin,chartMixin],
       props: ['node'],
@@ -104286,7 +104292,7 @@
       }
     };
 
-    function render$1(_ctx, _cache, $props, $setup, $data, $options) {
+    function render$2(_ctx, _cache, $props, $setup, $data, $options) {
       const _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
@@ -104310,11 +104316,49 @@
       ])
     }
 
+    script$2.render = render$2;
+    script$2.__file = "src/components/chart/ChartCurve.vue";
+
+    var script$1 = {
+      name: 'BaseTable',
+      mixins:[matrixMixin],
+      props:['node'],
+      setup(){
+        console.log();
+      }
+    };
+
+    function render$1(_ctx, _cache, $props, $setup, $data, $options) {
+      const _component_table_el = resolveComponent("table-el");
+      const _directive_drag = resolveDirective("drag");
+
+      return withDirectives((openBlock(), createElementBlock("div", {
+        class: "table-wrapper absolute",
+        draggable: "false",
+        style: normalizeStyle$1({
+          width: _ctx.width,
+          height: _ctx.height,
+          left: _ctx.left,
+          top: _ctx.top,
+        }),
+        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
+        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onWheelPassive: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
+        onScroll: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
+        ref: "el"
+      }, [
+        createVNode$1(_component_table_el)
+      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
+        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
+      ])
+    }
+
     script$1.render = render$1;
-    script$1.__file = "src/components/chart/ChartCurve.vue";
+    script$1.__file = "src/components/table/BaseTable.vue";
 
     var elementInstaller = {
         install(app) {
+            app.component(script$g.name, script$g);
             app.component(script$f.name, script$f);
             app.component(script$e.name, script$e);
             app.component(script$d.name, script$d);
@@ -105614,19 +105658,29 @@
         DELETE_SELECT_NODES: 'DELETE_SELECT_NODES',
         ADD_EMITTER_TO_NODE: 'ADD_EMITTER_TO_NODE',
         MARSHALLING_SELECT_NODES: 'MARSHALLING_SELECT_NODES',
+        CANCEL_MARSHALLING_SELECT_NODES: 'CANCEL_MARSHALLING_SELECT_NODES',
+        MOVE_UP_OF_NODES: 'MOVE_UP_OF_NODES',
+        MOVE_DOWNWARD_OF_NODES: 'MOVE_DOWNWARD_OF_NODES',
+        MOVE_TO_TOP_OF_NODES: 'MOVE_TO_TOP_OF_NODES',
+        MOVE_TO_BOTTOM_OF_NODES: 'MOVE_TO_BOTTOM_OF_NODES',
         ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
     };
-    function findFirstSelectNode(tree) {
+    function findFirstSelectNode(tree, reverse = false) {
+        const out = reverse ? Array.prototype.pop : Array.prototype.shift;
+        const enter = reverse ? Array.prototype.push : Array.prototype.unshift;
         const nodes = [...tree];
         let node;
         // eslint-disable-next-line no-cond-assign
-        while ((node = nodes.shift())) {
+        while ((node = out.call(nodes))) {
             if (node.select)
                 return node;
             if (node.children)
-                nodes.unshift(...node.children);
+                enter.apply(nodes, node.children);
         }
         return null;
+    }
+    function negativeIndex(index, length) {
+        return ~(length - 1 - index);
     }
     var mutations2d = {
         [EditorMutation.CHANGE_DIMENSION](state, payload) {
@@ -105646,13 +105700,35 @@
             state.selectedSceneTreeNode.trees.twoDimension.unshift(payload.node);
         },
         [EditorMutation.SELECT_2D_TREE_NODE](state, payload) {
-            console.log('select', this);
+            console.log('select', payload.node.type);
+            if (payload.node.type === 'group') {
+                const children = [...payload.node.children];
+                let node;
+                // 如果选中的时group类型的话, 遍历所有的子元素为select
+                // eslint-disable-next-line no-cond-assign
+                while ((node = children.shift())) {
+                    node.select = true;
+                    if (node.children)
+                        children.unshift(...node.children);
+                }
+            }
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             payload.node.select = true;
             state.select2dNodes.add(payload.node);
         },
         [EditorMutation.CANCEL_SELECT_2D_NODE](state, { node }) {
+            if (node.type === 'group') {
+                const children = [...node.children];
+                let child;
+                // 如果选中的时group类型的话, 遍历所有的子元素为select
+                // eslint-disable-next-line no-cond-assign
+                while ((child = children.shift())) {
+                    child.select = false;
+                    if (child.children)
+                        children.unshift(...child.children);
+                }
+            }
             node.select = false;
             if (node.contentEditable)
                 node.contentEditable = false;
@@ -105660,7 +105736,7 @@
         },
         [EditorMutation.CLEAR_SELECT_2D_NODES](state) {
             state.select2dNodes.forEach((node) => {
-                node.select = false;
+                this.commit(EditorMutation.CANCEL_SELECT_2D_NODE, { node });
                 if (node.contentEditable)
                     node.contentEditable = false;
             });
@@ -105682,7 +105758,9 @@
                 node.parent;
                 const isChildrenTree = !!node.parent.children;
                 const index = isChildrenTree ? node.parent.children.indexOf(node) : node.parent.indexOf(node);
-                index !== -1 && (isChildrenTree ? node.parent.children.splice(index, 1) : node.parent.splice(index, 1));
+                index !== -1 &&
+                    (isChildrenTree ? node.parent.children.splice(index, 1) : node.parent.splice(index, 1));
+                state.select2dNodes.delete(node);
             }
         },
         [EditorMutation.MARSHALLING_SELECT_NODES](state, { nodes }) {
@@ -105698,14 +105776,164 @@
                 children: [...nodes]
             });
             const replaceNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension);
-            console.log('children', replaceNode.parent.children);
-            const replaceIndex = replaceNode.parent.children ? replaceNode.parent.children.indexOf(replaceNode) : replaceNode.parent.indexOf(replaceNode);
+            const replaceIndex = replaceNode.parent.children
+                ? replaceNode.parent.children.indexOf(replaceNode)
+                : replaceNode.parent.indexOf(replaceNode);
             // 删除节点
             for (const node of nodes) {
                 this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes });
             }
-            replaceNode.parent.children ? replaceNode.parent.children.splice(replaceIndex, 0, group) : replaceNode.parent.splice(replaceIndex, 0, group);
+            replaceNode.parent.children
+                ? replaceNode.parent.children.splice(replaceIndex, 0, group)
+                : replaceNode.parent.splice(replaceIndex, 0, group);
             this.commit(EditorMutation.SELECT_2D_TREE_NODE, { node: group });
+        },
+        [EditorMutation.CANCEL_MARSHALLING_SELECT_NODES](state, { nodes }) {
+            // 取消分组只对组元素有效,并将组进行depth排序
+            //@ts-ignore
+            const groups = nodes.filter((item) => item.type === 'group').sort((a, b) => b.depth - a.depth);
+            for (const group of groups) {
+                const children = [...group.children];
+                const parent = group.parent;
+                const insertIndex = parent.indexOf
+                    ? parent.indexOf(group)
+                    : parent.children.indexOf(group);
+                parent.splice
+                    ? parent.splice(insertIndex, 1, ...children)
+                    : parent.children.splice(insertIndex, 1, ...children);
+                // 取消编组后将原来所有在组中的元素添加到selectSet中
+                for (const child of children)
+                    state.select2dNodes.add(child);
+            }
+        },
+        [EditorMutation.MOVE_UP_OF_NODES](state, { nodes }) {
+            let firstNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension);
+            let firstNodeParent = firstNode.parent;
+            let spliceIndex;
+            // 如果父元素是一个组
+            if (firstNodeParent.type === 'group' && firstNodeParent.children[0] === firstNode) {
+                spliceIndex =
+                    (firstNodeParent.parent.indexOf
+                        ? firstNodeParent.parent.indexOf(firstNodeParent)
+                        : firstNodeParent.parent.children.indexOf(firstNodeParent)) + 1;
+                firstNodeParent = firstNodeParent.parent;
+                // 将元素出组
+            }
+            else {
+                spliceIndex = Array.prototype.indexOf.call(firstNodeParent.children || firstNodeParent, firstNode);
+            }
+            this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes });
+            for (const node of nodes)
+                state.select2dNodes.add(node);
+            spliceIndex = spliceIndex - 1 < 0 ? 0 : spliceIndex - 1;
+            Array.prototype.splice.call(firstNodeParent.children || firstNodeParent, spliceIndex, 0, ...nodes);
+        },
+        [EditorMutation.MOVE_DOWNWARD_OF_NODES](state, { nodes }) {
+            let firstNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension, true);
+            let firstNodeParent = firstNode.parent;
+            let spliceIndex;
+            // 如果父元素是一个组
+            if (firstNodeParent.type === 'group' &&
+                firstNodeParent.children[firstNodeParent.children.length - 1] === firstNode) {
+                // 将元素出组
+                spliceIndex =
+                    Array.prototype.indexOf.call(firstNodeParent.parent.children || firstNodeParent.parent, firstNodeParent) - 1;
+                firstNodeParent = firstNodeParent.parent;
+            }
+            else {
+                spliceIndex = Array.prototype.indexOf.call(firstNodeParent.children || firstNodeParent, firstNode);
+            }
+            spliceIndex += 2;
+            const len = (firstNodeParent.children || firstNodeParent).length; // 记录一下之前的length
+            spliceIndex = negativeIndex(spliceIndex, len);
+            this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes });
+            Array.prototype.splice.call(firstNodeParent.children || firstNodeParent, spliceIndex >= 0 ? (firstNodeParent.children || firstNodeParent).length : spliceIndex, 0, ...nodes);
+            for (const node of nodes)
+                state.select2dNodes.add(node);
+        },
+        [EditorMutation.MOVE_TO_TOP_OF_NODES](state, { nodes }) {
+            let firstNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension);
+            let parent = firstNode.parent;
+            let parentChildren = parent.children || parent;
+            let inSameGroup = false, isNodesFirstBeginContinuous = true, isFirstInGroupTop = parentChildren[0] === firstNode;
+            if (nodes.length <= parentChildren.length) {
+                const nodesSet = new Set([...nodes]);
+                // 验证是否再同一个数组
+                for (const node of parentChildren) {
+                    if (nodesSet.has(node)) {
+                        nodesSet.delete(node);
+                    }
+                    else {
+                        isNodesFirstBeginContinuous = false;
+                    }
+                    if (!nodesSet.size) {
+                        inSameGroup = true;
+                        break;
+                    }
+                }
+            }
+            isNodesFirstBeginContinuous = isNodesFirstBeginContinuous && inSameGroup;
+            if (inSameGroup) {
+                if (isNodesFirstBeginContinuous && isFirstInGroupTop) {
+                    parent = parent.parent || parent;
+                    parentChildren = parent.children || parent;
+                }
+            }
+            else {
+                while (parent.parent) {
+                    parent = parent.parent;
+                }
+                parentChildren = parent;
+            }
+            // delete
+            this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes });
+            // do
+            parentChildren.splice(0, 0, ...nodes);
+            // select
+            for (const node of nodes)
+                state.select2dNodes.add(node);
+        },
+        [EditorMutation.MOVE_TO_BOTTOM_OF_NODES](state, { nodes }) {
+            let firstNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension, true);
+            let parent = firstNode.parent;
+            let parentChildren = parent.children || parent;
+            let inSameGroup = false, isNodesFirstBeginContinuous = true, isLastInGroupTop = parentChildren[parentChildren.length - 1] === firstNode;
+            if (nodes.length <= parentChildren.length) {
+                const nodesSet = new Set([...nodes]);
+                // 验证是否再同一个数组
+                for (const node of [...parentChildren].reverse()) {
+                    if (nodesSet.has(node)) {
+                        nodesSet.delete(node);
+                    }
+                    else {
+                        isNodesFirstBeginContinuous = false;
+                    }
+                    if (!nodesSet.size) {
+                        inSameGroup = true;
+                        break;
+                    }
+                }
+            }
+            isNodesFirstBeginContinuous = isNodesFirstBeginContinuous && inSameGroup;
+            if (inSameGroup) {
+                if (isNodesFirstBeginContinuous && isLastInGroupTop) {
+                    parent = parent.parent || parent;
+                    parentChildren = parent.children || parent;
+                }
+            }
+            else {
+                while (parent.parent) {
+                    parent = parent.parent;
+                }
+                parentChildren = parent;
+            }
+            // delete
+            this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes });
+            // do
+            parentChildren.splice(parentChildren.length, 0, ...nodes);
+            // select
+            for (const node of nodes)
+                state.select2dNodes.add(node);
         },
         // 3d
         [EditorMutation.ADD_3D_TREE_NODE](state, payload) {
@@ -105812,13 +106040,17 @@
                 twoDimension: []
             },
             threeDimensionContainer: null,
+            contextmenu: {
+                show: false,
+                x: 0,
+                y: 0
+            },
             // 导入配置监听变量
             exportType: false,
             exportContent: null,
             //  添加元素变量
             addElementType: null,
-            elementIcon: [],
-            elementText: [],
+            elementScaleInterval: {},
             elementFlyLine: [],
             elementClick: null
         },
@@ -107280,7 +107512,7 @@
     }
 
     // Return the maximum element (or element-based computation).
-    function max(obj, iteratee, context) {
+    function max$1(obj, iteratee, context) {
       var result = -Infinity, lastComputed = -Infinity,
           value, computed;
       if (iteratee == null || (typeof iteratee == 'number' && typeof obj[0] != 'object' && obj != null)) {
@@ -107305,7 +107537,7 @@
     }
 
     // Return the minimum element (or element-based computation).
-    function min(obj, iteratee, context) {
+    function min$1(obj, iteratee, context) {
       var result = Infinity, lastComputed = Infinity,
           value, computed;
       if (iteratee == null || (typeof iteratee == 'number' && typeof obj[0] != 'object' && obj != null)) {
@@ -107588,7 +107820,7 @@
     // Complement of zip. Unzip accepts an array of arrays and groups
     // each array's elements on shared indices.
     function unzip(array) {
-      var length = (array && max(array, getLength).length) || 0;
+      var length = (array && max$1(array, getLength).length) || 0;
       var result = Array(length);
 
       for (var index = 0; index < length; index++) {
@@ -107806,8 +108038,8 @@
         invoke: invoke,
         pluck: pluck,
         where: where,
-        max: max,
-        min: min,
+        max: max$1,
+        min: min$1,
         shuffle: shuffle,
         sample: sample,
         sortBy: sortBy,
@@ -107976,33 +108208,16 @@
     }
     const EventsBus = new EventBus();
 
-    // 节流
-    function throttled(fn, delay) {
-        let timer = null;
-        let starttime = Date.now();
-        return function () {
-            const curTime = Date.now(); // 当前时间
-            const remaining = delay - (curTime - starttime); // 从上一次到现在，还剩下多少多余时间
-            clearTimeout(timer);
-            if (remaining <= 0) {
-                // eslint-disable-next-line prefer-rest-params
-                fn.apply(this, arguments);
-                starttime = Date.now();
-            }
-            else {
-                // eslint-disable-next-line prefer-rest-params
-                timer = setTimeout(fn, remaining);
-            }
-        };
-    }
-
     const addCanvas = (container, position, type) => {
+        const scaleMax = store.state.elementScaleInterval.x > store.state.elementScaleInterval.z
+            ? (store.state.elementScaleInterval.x / 1000).toFixed(4)
+            : (store.state.elementScaleInterval.z / 1000).toFixed(4);
         const canvas = document.createElement('canvas');
         canvas.width = 200;
         canvas.height = 200;
         const c = canvas.getContext('2d');
         // 矩形区域填充背景
-        c.fillStyle = 'rgba(255, 255, 255, 0)';
+        c.fillStyle = 'rgba(0,0,0,1)';
         c.fillRect(0, 0, 200, 200);
         c.beginPath();
         // 文字
@@ -108030,18 +108245,175 @@
             TextPlane.userData.selected = type;
         }
         TextPlane.position.set(position[0], position[1], position[2]);
-        TextPlane.scale.set(50, 50, 1);
+        TextPlane.scale.set(scaleMax, scaleMax, 1);
         TextPlane.renderOrder = 500;
         TextPlane.name = 'textSelf';
         container.clickObjects.push(TextPlane);
-        container.attach(TextPlane);
         store.state.addElementType.mesh = TextPlane;
-        store.state.elementText.push(TextPlane);
+        store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+            if (item.name == 'Text') {
+                const obj = meshBasicMsg$2(TextPlane, item, type);
+                item.children.push(obj);
+            }
+        });
+        store.state.threeDimensionContainer.scene.children.forEach((item) => {
+            if (item.name == 'Text') {
+                item.add(TextPlane);
+            }
+        });
         setTimeout(() => {
             store.state.addElementType.moving = !store.state.addElementType.moving;
         }, 100);
         const node = { type: 'text3D', selected: type, name: TextPlane.name };
         EventsBus.emit('toolBarSelected', { node });
+    };
+    const loadTextPlane = (container, parentObj, node) => {
+        var { type, meshOpacity, meshPosition, meshScale, textBGColor, textBGImage, textBGOpacity, textColor, textFontFamily, textFontSize, textFontWeight, textLineAlign, textText, textTextAlign, textTextOffset, textTextScale } = node.options;
+        var meshRotation, meshCenter;
+        if (type == 'RotateText') {
+            meshCenter = node.options.meshCenter;
+        }
+        else {
+            meshRotation = node.options.meshRotation;
+        }
+        var obj = {
+            text: textText,
+            color: textColor,
+            fontFamily: textFontFamily,
+            fontSize: textFontSize,
+            fontWeight: textFontWeight,
+            textScale: textTextScale,
+            bgColor: textBGColor,
+            bgOpcity: textBGOpacity,
+            bgImage: textBGImage,
+            textOffset: textTextOffset,
+            textAlign: textTextAlign,
+            lineAlign: textLineAlign,
+            position: meshPosition,
+            scale: meshScale,
+            opacity: meshOpacity,
+            rotation: meshRotation,
+            center: meshCenter
+        };
+        const addPlane = (texture) => {
+            var TextPlane;
+            if (type == 'RotateText') {
+                var material = new Bol3D.SpriteMaterial({
+                    map: texture,
+                    side: Bol3D.DoubleSide,
+                    transparent: true,
+                    opacity: meshOpacity / 100
+                });
+                TextPlane = new Bol3D.Sprite(material);
+                TextPlane.center.set(meshCenter[0], meshCenter[1]);
+                TextPlane.userData.selected = type;
+            }
+            else {
+                var geometry = new Bol3D.PlaneGeometry(1, 1);
+                var material = new Bol3D.MeshPhongMaterial({
+                    map: texture,
+                    side: Bol3D.DoubleSide,
+                    transparent: true,
+                    opacity: meshOpacity / 100
+                });
+                TextPlane = new Bol3D.Mesh(geometry, material);
+                TextPlane.rotation.set(meshRotation[0], meshRotation[1], meshRotation[2]);
+                TextPlane.userData.selected = type;
+            }
+            TextPlane.position.set(meshPosition[0], meshPosition[1], meshPosition[2]);
+            TextPlane.scale.set(meshScale[0], meshScale[1], 1);
+            TextPlane.renderOrder = 500;
+            TextPlane.name = node.name;
+            TextPlane.visible = node.visible;
+            node.uuid = TextPlane.uuid;
+            parentObj.add(TextPlane);
+            container.clickObjects.push(TextPlane);
+            TextPlane.userData.editDate = obj;
+        };
+        const canvas = document.createElement('canvas');
+        canvas.width = textTextScale[0];
+        canvas.height = textTextScale[1];
+        const c = canvas.getContext('2d');
+        // 矩形区域填充背景
+        c.fillStyle = textBGColor == '' ? 'rgba(0,0,0,1)' : `rgba(${textBGColor}, ${textBGOpacity / 100})`;
+        c.fillRect(0, 0, textTextScale[0], textTextScale[1]);
+        c.beginPath();
+        var textWidth = (c.measureText(textText).width * textFontSize) / 10;
+        var wOffset = 0, hOffset = 0;
+        textTextAlign == 'left'
+            ? (wOffset = 0 + textTextOffset[0])
+            : textTextAlign == 'center'
+                ? (wOffset = textTextScale[0] / 2 - textWidth / 2 + textTextOffset[0])
+                : (wOffset = textTextScale[0] - textWidth + textTextOffset[0]);
+        textLineAlign == 'top'
+            ? (hOffset = 0 + textTextOffset[1])
+            : textLineAlign == 'center'
+                ? (hOffset = textTextScale[1] / 2 - textFontSize / 2 + textTextOffset[1])
+                : (hOffset = textTextScale[1] - textFontSize + textTextOffset[1]);
+        if (textBGImage) {
+            const image = new Image();
+            image.src = textBGImage;
+            image.onload = function () {
+                c.drawImage(this, 0, 0, textTextScale[0], textTextScale[1]);
+                // 文字
+                c.beginPath();
+                c.fillStyle = textColor; //文本填充颜色
+                c.font = `${textFontWeight} ${textFontSize}px ${textFontFamily}`; //字体样式设置
+                c.textBaseline = 'top'; //文本与fillText定义的纵坐标            top  hanging  middle  ideographic  bottom
+                c.textAlign = 'left'; //文本居中(以fillText定义的横坐标)        start  end  center  left   right
+                c.fillText(textText, wOffset, hOffset);
+                var texture = new Bol3D.CanvasTexture(canvas);
+                texture.needsUpdate = true;
+                addPlane(texture);
+            };
+        }
+        else {
+            // 文字
+            c.beginPath();
+            c.fillStyle = textColor; //文本填充颜色
+            c.font = `${textFontWeight} ${textFontSize}px ${textFontFamily}`; //字体样式设置
+            c.textBaseline = 'top'; //文本与fillText定义的纵坐标            top  hanging  middle  ideographic  bottom
+            c.textAlign = 'left'; //文本居中(以fillText定义的横坐标)        start  end  center  left   right
+            c.fillText(textText, wOffset, hOffset);
+            var texture = new Bol3D.CanvasTexture(canvas);
+            addPlane(texture);
+        }
+    };
+    const meshBasicMsg$2 = (mesh, item, type) => {
+        var index = item.index;
+        const obj = {
+            children: [],
+            index: index + 1,
+            name: mesh.name,
+            options: {
+                type: type,
+                textColor: '',
+                textFontFamily: '',
+                textFontSize: '',
+                textFontWeight: '',
+                textText: '',
+                textTextScale: [],
+                textBGColor: '',
+                textBGOpacity: '',
+                textBGImage: '',
+                textTextOffset: [],
+                textTextAlign: '',
+                textLineAlign: '',
+                meshPosition: [],
+                meshScale: [],
+                meshOpacity: '',
+                meshRotation: [],
+                meshCenter: ''
+            },
+            addMeshType: 'Text',
+            selected: false,
+            show: true,
+            spread: false,
+            type: 'Mesh',
+            uuid: mesh.uuid,
+            visible: mesh.visible
+        };
+        return obj;
     };
 
     const pointsArrs = (source, target, height) => {
@@ -108082,8 +108454,8 @@
         geometry.setAttribute('current', new Bol3D.Float32BufferAttribute(attrCnumber, 1));
         const shader = new Bol3D.ShaderMaterial({
             transparent: true,
-            depthWrite: true,
-            depthTest: true,
+            depthWrite: false,
+            depthTest: false,
             blending: Bol3D.AdditiveBlending,
             uniforms: {
                 uColor: {
@@ -108150,7 +108522,11 @@
         const cx = (position1.x + position[0]) / 2;
         const cy = position1.y > position[1] ? position1.y + 50 : position[1] + 50;
         const cz = (position1.z + position[2]) / 2;
-        var curve = new Bol3D.CatmullRomCurve3([new Bol3D.Vector3(position1.x, position1.y, position1.z), new Bol3D.Vector3(cx, cy, cz), new Bol3D.Vector3(position[0], position[1], position[2])]);
+        var curve = new Bol3D.CatmullRomCurve3([
+            new Bol3D.Vector3(position1.x, position1.y, position1.z),
+            new Bol3D.Vector3(cx, cy, cz),
+            new Bol3D.Vector3(position[0], position[1], position[2])
+        ]);
         curve.closed = false;
         const ponits = curve.getPoints(100);
         obj.visible = true;
@@ -108158,6 +108534,10 @@
         store.state.addElementType.curveObj = obj;
     };
     const flyBasePoint = (container, position, curveSphere1, curveSphere2, obj) => {
+        const scaleMax = store.state.elementScaleInterval.x > store.state.elementScaleInterval.z
+            ? (store.state.elementScaleInterval.x / 5000).toFixed(4)
+            : (store.state.elementScaleInterval.z / 5000).toFixed(4);
+        const heightMax = (store.state.elementScaleInterval.y / 20).toFixed(0);
         if (!store.state.addElementType.painting) {
             const node = {};
             EventsBus.emit('toolBarSelected', { node });
@@ -108165,6 +108545,8 @@
             arrayDel(container.clickObjects, curveSphere2);
             curveSphere1.visible = true;
             curveSphere2.visible = true;
+            curveSphere1.scale.set(scaleMax, scaleMax, scaleMax);
+            curveSphere2.scale.set(scaleMax, scaleMax, scaleMax);
             curveSphere1.position.set(...position);
             curveSphere2.position.set(...position);
             store.state.addElementType.painting = true;
@@ -108176,8 +108558,8 @@
             const line = flyObj({
                 source: curveSphere1.position.clone(),
                 target: curveSphere2.position.clone(),
-                height: 100,
-                size: 10,
+                height: heightMax < 1 ? 1 : heightMax,
+                size: scaleMax < 1 ? 1 : scaleMax,
                 color: '#fff000',
                 range: 100,
                 speed: 1
@@ -108185,8 +108567,8 @@
             line.name = 'flyLineSelf';
             line.userData.source = curveSphere1.position.clone();
             line.userData.target = curveSphere2.position.clone();
-            line.userData.height = 100;
-            line.userData.size = 10;
+            line.userData.height = heightMax < 1 ? 1 : heightMax;
+            line.userData.size = scaleMax < 1 ? 1 : scaleMax;
             line.userData.color = '#fff000';
             line.userData.range = 100;
             line.userData.speed = 1;
@@ -108194,9 +108576,20 @@
             store.state.elementFlyLine.push(line);
             store.state.addElementType.mesh = line;
             line.renderOrder = 500;
-            container.attach(line);
+            // container.attach(line)
             const node = { type: 'flyLine', selected: true, name: '' };
             EventsBus.emit('toolBarSelected', { node });
+            store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+                if (item.name == 'FlyLine') {
+                    const obj = meshBasicMsg$1(line, item);
+                    item.children.push(obj);
+                }
+            });
+            store.state.threeDimensionContainer.scene.children.forEach((item) => {
+                if (item.name == 'FlyLine') {
+                    item.add(line);
+                }
+            });
             setTimeout(() => {
                 store.state.addElementType.moving = !store.state.addElementType.moving;
             }, 100);
@@ -108210,39 +108603,145 @@
             }
         });
     };
+    const addFlyLine = (container, parentMesh, node) => {
+        const { color, height, range, size, source, speed, target } = node.options;
+        const line = flyObj({
+            source: new Bol3D.Vector3(source.x, source.y, source.z),
+            target: new Bol3D.Vector3(target.x, target.y, target.z),
+            height: height,
+            size: size,
+            color: color,
+            range: range,
+            speed: speed
+        });
+        line.name = 'flyLineSelf';
+        line.userData.source = new Bol3D.Vector3(source.x, source.y, source.z);
+        line.userData.target = new Bol3D.Vector3(target.x, target.y, target.z);
+        line.userData.height = height;
+        line.userData.size = size;
+        line.userData.color = color;
+        line.userData.range = range;
+        line.userData.speed = speed;
+        container.clickObjects.push(line);
+        line.renderOrder = 500;
+        line.visible = node.visible;
+        node.uuid = line.uuid;
+        store.state.elementFlyLine.push(line);
+        parentMesh.add(line);
+    };
+    const meshBasicMsg$1 = (mesh, item) => {
+        var index = item.index;
+        const obj = {
+            children: [],
+            index: index + 1,
+            name: mesh.name,
+            options: {
+                source: null,
+                target: null,
+                height: null,
+                speed: null,
+                size: null,
+                color: null,
+                range: null
+            },
+            addMeshType: 'FlyLine',
+            selected: false,
+            show: true,
+            spread: false,
+            type: 'Mesh',
+            uuid: mesh.uuid,
+            visible: mesh.visible
+        };
+        return obj;
+    };
 
-    const clickFun = (container, publicPath) => {
-        // 添加图标自定义元素
-        const geometryPlane = new Bol3D.PlaneGeometry(1, 1);
-        const materialPlane = new Bol3D.MeshBasicMaterial({ color: 0x16ddfa, side: Bol3D.DoubleSide, map: new Bol3D.TextureLoader().load(publicPath + 'textures/circularPin.png'), transparent: true });
-        const lightPlane = new Bol3D.Mesh(geometryPlane, materialPlane);
-        lightPlane.rotation.x = -Math.PI / 2;
-        lightPlane.renderOrder = 1000;
-        lightPlane.position.y = 0.03;
-        // 飞线部分自定义元素
-        const geometry = new Bol3D.SphereGeometry(10, 32, 16);
-        const material = new Bol3D.MeshBasicMaterial({ color: 0xffff00 });
-        const curveSphere1 = new Bol3D.Mesh(geometry, material);
-        const curveSphere2 = new Bol3D.Mesh(geometry, material);
-        curveSphere1.visible = false;
-        curveSphere2.visible = false;
-        curveSphere1.name = 'flyLineSelfSphere1';
-        curveSphere2.name = 'flyLineSelfSphere2';
-        container.attach(curveSphere1);
-        container.attach(curveSphere2);
-        var curve = new Bol3D.CatmullRomCurve3([new Bol3D.Vector3(0, 0, 0), new Bol3D.Vector3(50, 100, 0), new Bol3D.Vector3(100, 0, 0)]);
-        curve.closed = false;
-        const ponits = curve.getPoints(100);
-        var line = new Bol3D.Line(new Bol3D.BufferGeometry().setFromPoints(ponits), new Bol3D.LineBasicMaterial({ color: 0xffff00 }));
-        line.visible = false;
-        container.attach(line);
+    const addIcon = (container, obj) => {
+        const scaleMax = store.state.elementScaleInterval.x > store.state.elementScaleInterval.z
+            ? (store.state.elementScaleInterval.x / 1000).toFixed(4)
+            : (store.state.elementScaleInterval.z / 1000).toFixed(4);
+        const { position, urlIcon, name, lightPlane } = obj;
+        const icon = new Bol3D.POI.Icon({
+            position: position,
+            url: urlIcon,
+            scale: [scaleMax, scaleMax]
+        });
+        icon.scale.z = scaleMax;
+        icon.material.transparent = true;
+        icon.center.y = 0;
+        icon.name = 'iconSelf' + name;
+        container.clickObjects.push(icon);
+        lightPlane.visible = true;
+        icon.add(lightPlane);
+        store.state.addElementType.mesh = icon;
+        store.state.addElementType.lightMesh = lightPlane;
+        store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+            if (item.name == 'Icon') {
+                const obj = meshBasicMsg(icon, item, urlIcon);
+                item.children.push(obj);
+            }
+        });
+        store.state.threeDimensionContainer.scene.children.forEach((item) => {
+            if (item.name == 'Icon') {
+                item.add(icon);
+            }
+        });
+        setTimeout(() => {
+            store.state.addElementType.moving = !store.state.addElementType.moving;
+        }, 100);
+    };
+    const addIconToJson = (container, node, callback) => {
+        const { meshPosition, urlIcon, meshScale, meshOpacity } = node.options;
+        const icon = new Bol3D.POI.Icon({
+            position: meshPosition,
+            url: urlIcon,
+            scale: [meshScale, meshScale],
+            cb: () => {
+                icon.material.transparent = true;
+                icon.material.opacity = meshOpacity / 100;
+                icon.scale.z = meshScale;
+                icon.center.y = 0;
+                icon.visible = node.visible;
+                container.clickObjects.push(icon);
+                icon.name = node.name;
+                callback && callback(icon);
+            }
+        });
+        node.uuid = icon.uuid;
+    };
+    const meshBasicMsg = (mesh, item, urlIcon) => {
+        var index = item.index;
+        const obj = {
+            children: [],
+            index: index + 1,
+            name: mesh.name,
+            options: {
+                urlIcon: urlIcon,
+                meshPosition: [],
+                meshScale: '',
+                meshOpacity: ''
+            },
+            addMeshType: 'Icon',
+            selected: false,
+            show: true,
+            spread: false,
+            type: 'Mesh',
+            uuid: mesh.uuid,
+            visible: mesh.visible
+        };
+        return obj;
+    };
+
+    const clickFun = (container, publicPath, selfMesh) => {
+        const { lightPlane, curveSphere1, curveSphere2, line } = selfMesh;
         store.state.elementClick = new Bol3D.Events(container);
         const clock = new Bol3D.Clock();
         const animation = () => {
             requestAnimationFrame(animation);
             if (store.state.elementFlyLine.length > 0) {
                 store.state.elementFlyLine.forEach((item) => {
-                    item.material.uniforms.time.value = clock.getElapsedTime();
+                    if (!item.name.includes('flyLineSelfSphere')) {
+                        item.material.uniforms.time.value = clock.getElapsedTime();
+                    }
                 });
             }
         };
@@ -108297,7 +108796,12 @@
                         EventsBus.emit('toolBarSelected', { node });
                     }
                     else if (name.includes('textSelf')) {
-                        const node = { type: 'text3D', selected: object.userData.selected, name: object.name, clickObj: true };
+                        const node = {
+                            type: 'text3D',
+                            selected: object.userData.selected,
+                            name: object.name,
+                            clickObj: true
+                        };
                         EventsBus.emit('toolBarSelected', { node });
                     }
                 }
@@ -108358,24 +108862,12 @@
                 const element = store.state.addElementType;
                 const position = [e.objects[0].point.x, e.objects[0].point.y, e.objects[0].point.z];
                 if (element.type == 'icon' && !name.includes('iconSelf')) {
-                    const icon = new Bol3D.POI.Icon({
-                        position: position,
-                        url: element.icon,
-                        scale: [50, 50]
+                    addIcon(container, {
+                        position,
+                        urlIcon: element.icon,
+                        name: element.type,
+                        lightPlane
                     });
-                    icon.material.transparent = true;
-                    icon.center.y = 0;
-                    icon.name = 'iconSelf' + element.type;
-                    container.clickObjects.push(icon);
-                    container.attach(icon);
-                    lightPlane.visible = true;
-                    icon.add(lightPlane);
-                    store.state.addElementType.mesh = icon;
-                    store.state.addElementType.lightMesh = lightPlane;
-                    store.state.elementIcon.push(icon);
-                    setTimeout(() => {
-                        store.state.addElementType.moving = !store.state.addElementType.moving;
-                    }, 100);
                 }
                 else if (element.type == 'text' && !name.includes('textSelf')) {
                     EventsBus.emit('toolBarSelected', { node: {} });
@@ -108386,7 +108878,9 @@
                     store.state.addElementType.movePoint = curveSphere2;
                     flyBasePoint(container, position, curveSphere1, curveSphere2, line);
                 }
-                else if (!name.includes('iconSelf') && !name.includes('textSelf') && !name.includes('flyLineSelf')) {
+                else if (!name.includes('iconSelf') &&
+                    !name.includes('textSelf') &&
+                    !name.includes('flyLineSelf')) {
                     EventsBus.emit('toolBarSelected', { node: {} });
                     lightPlane.visible = false;
                     curveSphere1.visible = false;
@@ -108407,10 +108901,699 @@
         };
     };
 
+    // 节流
+    function throttled(fn, delay) {
+        let timer = null;
+        let starttime = Date.now();
+        return function () {
+            const curTime = Date.now(); // 当前时间
+            const remaining = delay - (curTime - starttime); // 从上一次到现在，还剩下多少多余时间
+            clearTimeout(timer);
+            if (remaining <= 0) {
+                // eslint-disable-next-line prefer-rest-params
+                fn.apply(this, arguments);
+                starttime = Date.now();
+            }
+            else {
+                // eslint-disable-next-line prefer-rest-params
+                timer = setTimeout(fn, remaining);
+            }
+        };
+    }
+
+    const onloadFun = (evt, container, publicPath, addMeshObj = {}) => {
+        // console.log('loaded')
+        const scaleMax = store.state.elementScaleInterval.x > store.state.elementScaleInterval.z
+            ? (store.state.elementScaleInterval.x / 5000).toFixed(4)
+            : (store.state.elementScaleInterval.z / 5000).toFixed(4);
+        // 添加图标自定义元素
+        var lightPlane;
+        const geometryPlane = new Bol3D.PlaneGeometry(1, 1);
+        const textIconPic = new Bol3D.TextureLoader().load(publicPath + 'textures/circularPin.png');
+        const materialPlane = new Bol3D.MeshBasicMaterial({
+            color: 0x16ddfa,
+            side: Bol3D.DoubleSide,
+            map: textIconPic,
+            transparent: true
+        });
+        lightPlane = new Bol3D.Mesh(geometryPlane, materialPlane);
+        lightPlane.rotation.x = -Math.PI / 2;
+        lightPlane.renderOrder = 1000;
+        lightPlane.position.y = 0.03;
+        lightPlane.visible = false;
+        // 飞线部分自定义元素
+        const geometry = new Bol3D.SphereGeometry(1, 32, 16);
+        const material = new Bol3D.MeshBasicMaterial({ color: 0xffff00 });
+        const curveSphere1 = new Bol3D.Mesh(geometry, material);
+        curveSphere1.scale.set(scaleMax, scaleMax, scaleMax);
+        const curveSphere2 = new Bol3D.Mesh(geometry, material);
+        curveSphere2.scale.set(scaleMax, scaleMax, scaleMax);
+        curveSphere1.visible = false;
+        curveSphere2.visible = false;
+        curveSphere1.name = 'flyLineSelfSphere1';
+        curveSphere2.name = 'flyLineSelfSphere2';
+        container.attach(curveSphere1);
+        container.attach(curveSphere2);
+        container.clickObjects.push(curveSphere1, curveSphere2);
+        store.state.elementFlyLine.push(curveSphere1, curveSphere2);
+        var curve = new Bol3D.CatmullRomCurve3([
+            new Bol3D.Vector3(0, 0, 0),
+            new Bol3D.Vector3(50, 100, 0),
+            new Bol3D.Vector3(100, 0, 0)
+        ]);
+        curve.closed = false;
+        const ponits = curve.getPoints(100);
+        var line = new Bol3D.Line(new Bol3D.BufferGeometry().setFromPoints(ponits), new Bol3D.LineBasicMaterial({ color: 0xffff00 }));
+        line.visible = false;
+        container.attach(line);
+        // msaaPass(单个)
+        const msaaPassOptions = {
+            supersampling: evt.supersampling
+        };
+        const msaaPassNode = {
+            uuid: -1,
+            name: 'MSAAPass',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'MSAAPass',
+            children: [],
+            show: false,
+            options: msaaPassOptions
+        };
+        store.state.template.threeDimension.unshift(msaaPassNode);
+        // gammaPass(单个)
+        const gammaPassOptions = {
+            enabled: evt.gammaPass.enabled,
+            factor: evt.gammaPass.uniforms.factor.value
+        };
+        const gammaPassNode = {
+            uuid: -1,
+            name: 'GammaPass',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'GammaPass',
+            children: [],
+            show: false,
+            options: gammaPassOptions
+        };
+        store.state.template.threeDimension.unshift(gammaPassNode);
+        // dofPass(单个)
+        const dofPassOptions = {
+            enabled: evt.bokehPass.enabled,
+            focus: evt.bokehPass.uniforms.focus.value,
+            aperture: evt.bokehPass.uniforms.aperture.value,
+            maxblur: evt.bokehPass.uniforms.maxblur.value
+        };
+        const dofPassNode = {
+            uuid: -1,
+            name: 'DOFPass',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'DOFPass',
+            children: [],
+            show: false,
+            options: dofPassOptions
+        };
+        store.state.template.threeDimension.unshift(dofPassNode);
+        // outlinePass(单个)
+        const outlinePassOptions = {
+            enabled: evt.outlinePass.enabled,
+            edgeStrength: evt.outlinePass.edgeStrength,
+            edgeGlow: evt.outlinePass.edgeGlow,
+            edgeThickness: evt.outlinePass.edgeThickness,
+            pulsePeriod: evt.outlinePass.pulsePeriod,
+            visibleEdgeColor: '#' + evt.outlinePass.visibleEdgeColor.getHexString(),
+            hiddenEdgeColor: '#' + evt.outlinePass.hiddenEdgeColor.getHexString()
+        };
+        const outlinePassNode = {
+            uuid: -1,
+            name: 'OutlinePass',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'OutlinePass',
+            children: [],
+            show: false,
+            options: outlinePassOptions
+        };
+        store.state.template.threeDimension.unshift(outlinePassNode);
+        // bloomPass(单个)
+        const bloomPassOptions = {
+            enabled: evt.bloomPass.enabled,
+            strength: evt.bloomPass.strength,
+            radius: evt.bloomPass.radius,
+            threshold: evt.bloomPass.threshold
+        };
+        const bloomPassNode = {
+            uuid: -1,
+            name: 'BloomPass',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'BloomPass',
+            children: [],
+            show: false,
+            options: bloomPassOptions
+        };
+        store.state.template.threeDimension.unshift(bloomPassNode);
+        // 雾节点(单个)
+        const fogOptions = {
+            intensity: evt.fog.density,
+            color: '#' + evt.fog.color.getHexString()
+        };
+        const fogNode = {
+            uuid: -1,
+            name: 'Fog',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'Fog',
+            children: [],
+            show: false,
+            options: fogOptions
+        };
+        store.state.template.threeDimension.unshift(fogNode);
+        // HDR节点(单个)
+        const hdrOptions = {
+            value: evt.hdrUrls
+        };
+        const hdrNode = {
+            uuid: -1,
+            name: 'HDR',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'HDR',
+            children: [],
+            show: false,
+            options: hdrOptions
+        };
+        store.state.template.threeDimension.unshift(hdrNode);
+        // 背景节点(单个)
+        let bgGroundVal;
+        let bgGroundOpts = {};
+        if (evt.bgType === 'color') {
+            const bgColor = '#' + new Bol3D.Color(evt.bgColor).getHexString();
+            bgGroundVal = bgColor;
+        }
+        else if (evt.bgType === 'texture') {
+            const valArr = evt.scene.background.image.src.split('//');
+            bgGroundVal = '/' + valArr[valArr.length - 1];
+            bgGroundOpts = {
+                encoding: evt.scene.background.encoding,
+                wrapping: evt.scene.background.wrapS,
+                repeat: [evt.scene.background.repeat.x, evt.scene.background.repeat.y]
+            };
+        }
+        else if (evt.bgType === 'panorama') {
+            bgGroundVal = evt.sky.userData.value;
+            bgGroundOpts = {
+                scale: evt.sky.scale.x,
+                rotation: [
+                    parseFloat(((evt.sky.rotation.x * 180) / Math.PI).toFixed(4)),
+                    parseFloat(((evt.sky.rotation.y * 180) / Math.PI).toFixed(4)),
+                    parseFloat(((evt.sky.rotation.z * 180) / Math.PI).toFixed(4))
+                ]
+            };
+        }
+        const backgroundOptions = {
+            type: evt.bgType,
+            value: bgGroundVal,
+            opts: bgGroundOpts
+        };
+        const backgroundNode = {
+            uuid: -1,
+            name: 'Background',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'Background',
+            children: [],
+            show: false,
+            options: backgroundOptions
+        };
+        store.state.template.threeDimension.unshift(backgroundNode);
+        // 阴影节点(单个)
+        const shadowOptions = {
+            enabled: evt.renderer.shadowMap.enabled,
+            type: evt.renderer.shadowMap.type
+        };
+        const shadowNode = {
+            uuid: -1,
+            name: 'Shadow',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'Shadow',
+            children: [],
+            show: false,
+            options: shadowOptions
+        };
+        store.state.template.threeDimension.unshift(shadowNode);
+        // 面光源节点(多个)
+        const rectAreaLights = evt.rectAreaLights;
+        const rectAreaLightNodes = {
+            uuid: -1,
+            name: 'RectAreaLights',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'RectAreaLights',
+            children: [],
+            show: false,
+            options: {}
+        };
+        rectAreaLights.forEach((rectAreaLight) => {
+            const rectAreaLightOptions = {
+                color: [
+                    rectAreaLight.color.r * 255,
+                    rectAreaLight.color.g * 255,
+                    rectAreaLight.color.b * 255
+                ],
+                intensity: rectAreaLight.intensity,
+                width: rectAreaLight.width,
+                height: rectAreaLight.height,
+                position: [
+                    parseFloat(rectAreaLight.position.x.toFixed(4)),
+                    parseFloat(rectAreaLight.position.y.toFixed(4)),
+                    parseFloat(rectAreaLight.position.z.toFixed(4))
+                ],
+                target: [
+                    parseFloat(rectAreaLight.userData.target[0].toFixed(4)),
+                    parseFloat(rectAreaLight.userData.target[1].toFixed(4)),
+                    parseFloat(rectAreaLight.userData.target[2].toFixed(4))
+                ]
+            };
+            const rectAreaLightNode = {
+                uuid: rectAreaLight.uuid,
+                name: 'RectAreaLight',
+                selected: false,
+                index: 1,
+                spread: false,
+                type: 'RectAreaLight',
+                children: [],
+                show: false,
+                options: rectAreaLightOptions
+            };
+            rectAreaLightNodes.children.push(rectAreaLightNode);
+        });
+        store.state.template.threeDimension.unshift(rectAreaLightNodes);
+        // 点光源节点(多个)
+        const pointLights = evt.pointLights;
+        const pointLightNodes = {
+            uuid: -1,
+            name: 'PointLights',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'PointLights',
+            children: [],
+            show: false,
+            options: {}
+        };
+        pointLights.forEach((pointLight) => {
+            const pointLightOptions = {
+                color: [pointLight.color.r * 255, pointLight.color.g * 255, pointLight.color.b * 255],
+                intensity: pointLight.intensity,
+                decay: pointLight.decay,
+                distance: pointLight.distance,
+                position: [
+                    parseFloat(pointLight.position.x.toFixed(4)),
+                    parseFloat(pointLight.position.y.toFixed(4)),
+                    parseFloat(pointLight.position.z.toFixed(4))
+                ],
+                castShadow: pointLight.castShadow,
+                near: pointLight.shadow.camera.near,
+                far: pointLight.shadow.camera.far,
+                bias: pointLight.shadow.bias,
+                size: pointLight.shadow.mapSize.x
+            };
+            const pointLightNode = {
+                uuid: pointLight.uuid,
+                name: 'PointLight',
+                selected: false,
+                index: 1,
+                spread: false,
+                type: 'PointLight',
+                children: [],
+                show: false,
+                options: pointLightOptions
+            };
+            pointLightNodes.children.push(pointLightNode);
+        });
+        store.state.template.threeDimension.unshift(pointLightNodes);
+        // 聚光灯节点(多个)
+        const spotLights = evt.spotLights;
+        const spotLightNodes = {
+            uuid: -1,
+            name: 'SpotLights',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'SpotLights',
+            children: [],
+            show: false,
+            options: {}
+        };
+        spotLights.forEach((spotLight) => {
+            const spotLightOptions = {
+                color: [spotLight.color.r * 255, spotLight.color.g * 255, spotLight.color.b * 255],
+                intensity: spotLight.intensity,
+                decay: spotLight.decay,
+                distance: spotLight.distance,
+                penumbra: spotLight.penumbra,
+                position: [
+                    parseFloat(spotLight.position.x.toFixed(4)),
+                    parseFloat(spotLight.position.y.toFixed(4)),
+                    parseFloat(spotLight.position.z.toFixed(4))
+                ],
+                target: [
+                    parseFloat(spotLight.target.position.x.toFixed(4)),
+                    parseFloat(spotLight.target.position.y.toFixed(4)),
+                    parseFloat(spotLight.target.position.z.toFixed(4))
+                ],
+                castShadow: spotLight.castShadow,
+                angle: spotLight.angle,
+                near: spotLight.shadow.camera.near,
+                far: spotLight.shadow.camera.far,
+                focus: spotLight.shadow.focus,
+                bias: spotLight.shadow.bias,
+                size: spotLight.shadow.mapSize.x
+            };
+            const spotLightNode = {
+                uuid: spotLight.uuid,
+                name: 'SpotLight',
+                selected: false,
+                index: 1,
+                spread: false,
+                type: 'SpotLight',
+                children: [],
+                show: false,
+                options: spotLightOptions
+            };
+            spotLightNodes.children.push(spotLightNode);
+        });
+        store.state.template.threeDimension.unshift(spotLightNodes);
+        // 平行光节点(多个)
+        const directionLights = evt.directionLights;
+        const directionLightNodes = {
+            uuid: -1,
+            name: 'DirectionLights',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'DirectionLights',
+            children: [],
+            show: false,
+            options: {}
+        };
+        directionLights.forEach((directionLight) => {
+            const directionLightOptions = {
+                color: [
+                    directionLight.color.r * 255,
+                    directionLight.color.g * 255,
+                    directionLight.color.b * 255
+                ],
+                intensity: directionLight.intensity,
+                position: [
+                    parseFloat(directionLight.position.x.toFixed(4)),
+                    parseFloat(directionLight.position.y.toFixed(4)),
+                    parseFloat(directionLight.position.z.toFixed(4))
+                ],
+                // shadow options
+                near: directionLight.shadow.camera.near,
+                far: directionLight.shadow.camera.far,
+                bias: directionLight.shadow.bias,
+                distance: directionLight.shadow.camera.top,
+                size: directionLight.shadow.mapSize.width,
+                castShadow: directionLight.castShadow,
+                // target options
+                target: [
+                    parseFloat(directionLight.target.position.x.toFixed(4)),
+                    parseFloat(directionLight.target.position.y.toFixed(4)),
+                    parseFloat(directionLight.target.position.z.toFixed(4))
+                ]
+            };
+            const directionLightNode = {
+                uuid: directionLight.uuid,
+                name: 'DirectionLight',
+                selected: false,
+                index: 1,
+                spread: false,
+                type: 'DirectionLight',
+                children: [],
+                show: false,
+                options: directionLightOptions
+            };
+            directionLightNodes.children.push(directionLightNode);
+        });
+        store.state.template.threeDimension.unshift(directionLightNodes);
+        // 半球光节点(单个)
+        const hemisphereLight = evt.hemiLight;
+        const hemisphereLightOptions = {
+            color: [
+                hemisphereLight.color.r * 255,
+                hemisphereLight.color.g * 255,
+                hemisphereLight.color.b * 255
+            ],
+            groundColor: [
+                hemisphereLight.groundColor.r * 255,
+                hemisphereLight.groundColor.g * 255,
+                hemisphereLight.groundColor.b * 255
+            ],
+            intensity: hemisphereLight.intensity,
+            position: [
+                parseFloat(hemisphereLight.position.x.toFixed(4)),
+                parseFloat(hemisphereLight.position.y.toFixed(4)),
+                parseFloat(hemisphereLight.position.z.toFixed(4))
+            ]
+        };
+        const hemisphereLightNode = {
+            uuid: -1,
+            name: 'HemisphereLight',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: hemisphereLight.type,
+            children: [],
+            show: false,
+            options: hemisphereLightOptions
+        };
+        store.state.template.threeDimension.unshift(hemisphereLightNode);
+        // 环境光节点(单个)
+        const ambientLight = evt.ambientLight;
+        const ambientLightOptions = {
+            color: [ambientLight.color.r * 255, ambientLight.color.g * 255, ambientLight.color.b * 255],
+            intensity: ambientLight.intensity
+        };
+        const ambientLightNode = {
+            uuid: -1,
+            name: 'AmbientLight',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: ambientLight.type,
+            children: [],
+            show: false,
+            options: ambientLightOptions
+        };
+        store.state.template.threeDimension.unshift(ambientLightNode);
+        // 相机节点(单个)
+        let camera;
+        let controls;
+        let cameraOptions = {};
+        if (evt.viewState === 'orbit') {
+            camera = evt.orbitCamera;
+            controls = evt.orbitControls;
+            cameraOptions = {
+                position: [
+                    parseFloat(camera.position.x.toFixed(4)),
+                    parseFloat(camera.position.y.toFixed(4)),
+                    parseFloat(camera.position.z.toFixed(4))
+                ],
+                near: camera.near,
+                far: camera.far,
+                fov: camera.fov,
+                minDistance: controls.minDistance,
+                maxDistance: controls.maxDistance,
+                minPolarAngle: (controls.minPolarAngle * 180) / Math.PI,
+                maxPolarAngle: (controls.maxPolarAngle * 180) / Math.PI
+            };
+        }
+        else if (evt.viewState === 'firstPerson') {
+            camera = evt.firstPersonCamera;
+            controls = evt.firstPersonControls;
+        }
+        else if (evt.viewState === 'map') {
+            camera = evt.mapCamera;
+            controls = evt.mapControls;
+        }
+        const cameraNode = {
+            uuid: -1,
+            name: 'Camera',
+            selected: false,
+            index: 0,
+            spread: false,
+            type: 'Camera',
+            children: [],
+            show: false,
+            options: cameraOptions
+        };
+        store.state.template.threeDimension.unshift(cameraNode);
+        const IconGroup = new Bol3D.Group();
+        IconGroup.name = 'Icon';
+        container.attach(IconGroup);
+        const TextGroup = new Bol3D.Group();
+        TextGroup.name = 'Text';
+        container.attach(TextGroup);
+        const FlyLineGroup = new Bol3D.Group();
+        FlyLineGroup.name = 'FlyLine';
+        container.attach(FlyLineGroup);
+        const IconGroupNode = {
+            uuid: IconGroup.uuid,
+            name: 'Icon',
+            selected: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.selected : false,
+            index: 0,
+            spread: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.spread : false,
+            type: 'Group',
+            show: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.show : true,
+            children: [],
+            visible: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.visible : true,
+            isEdit: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.isEdit : true
+        };
+        if (addMeshObj.iconMeshGroup) {
+            IconGroup.visible = addMeshObj.iconMeshGroup.visible;
+            if (addMeshObj.iconMeshGroup.children.length > 0) {
+                addMeshObj.iconMeshGroup.children.forEach((item, i) => {
+                    addIconToJson(container, item, (dev) => {
+                        if (i == 0) {
+                            dev.add(lightPlane);
+                        }
+                        IconGroup.add(dev);
+                    });
+                    IconGroupNode.children.push(item);
+                });
+            }
+        }
+        store.state.template.threeDimension.unshift(IconGroupNode);
+        const TextGroupNode = {
+            uuid: TextGroup.uuid,
+            name: 'Text',
+            selected: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.selected : false,
+            index: 0,
+            spread: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.spread : false,
+            type: 'Group',
+            show: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.show : true,
+            children: [],
+            visible: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.visible : true,
+            isEdit: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.isEdit : true
+        };
+        if (addMeshObj.textMeshGroup) {
+            TextGroup.visible = addMeshObj.textMeshGroup.visible;
+            if (addMeshObj.textMeshGroup.children.length > 0) {
+                addMeshObj.textMeshGroup.children.forEach((item) => {
+                    loadTextPlane(container, TextGroup, item);
+                    TextGroupNode.children.push(item);
+                });
+            }
+        }
+        store.state.template.threeDimension.unshift(TextGroupNode);
+        const FlyLineNode = {
+            uuid: FlyLineGroup.uuid,
+            name: 'FlyLine',
+            selected: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.selected : false,
+            index: 0,
+            spread: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.spread : false,
+            type: 'Group',
+            show: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.show : true,
+            children: [],
+            visible: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.visible : true,
+            isEdit: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.isEdit : true
+        };
+        if (addMeshObj.flyLineMeshGroup) {
+            FlyLineGroup.visible = addMeshObj.flyLineMeshGroup.visible;
+            if (addMeshObj.flyLineMeshGroup.children.length > 0) {
+                addMeshObj.flyLineMeshGroup.children.forEach((item) => {
+                    addFlyLine(container, FlyLineGroup, item);
+                    FlyLineNode.children.push(item);
+                });
+            }
+        }
+        store.state.template.threeDimension.unshift(FlyLineNode);
+        EventsBus.emit('sceneLoaded', {
+            type: '3d',
+            container: evt
+        });
+        // 相机事件
+        let controlsFlag = false;
+        controls.addEventListener('start', () => {
+            controlsFlag = true;
+        });
+        controls.addEventListener('end', () => {
+            controlsFlag = false;
+        });
+        const updateFnCamera = (event) => {
+            if (controlsFlag && event && event.target) {
+                const t = event.target;
+                const { object } = t;
+                const { position, uuid } = object;
+                // update editForms
+                EventsBus.emit('pageTreeNodeUpdate', {
+                    type: '3d',
+                    options: {
+                        position: [
+                            parseFloat(position.x.toFixed(4)),
+                            parseFloat(position.y.toFixed(4)),
+                            parseFloat(position.z.toFixed(4))
+                        ]
+                    },
+                    uuid
+                });
+                // update pageTreeNode
+                if (store.state.selectedPageTreeNode &&
+                    store.state.selectedPageTreeNode.type === 'Camera') {
+                    Object.assign(store.state.selectedPageTreeNode.options, {
+                        position: [
+                            parseFloat(position.x.toFixed(4)),
+                            parseFloat(position.y.toFixed(4)),
+                            parseFloat(position.z.toFixed(4))
+                        ]
+                    });
+                }
+                // update sceneTreeNode
+                if (store.state.selectedSceneTreeNode) {
+                    store.state.selectedSceneTreeNode.trees.threeDimension.forEach((c) => {
+                        if (c.type === 'Camera')
+                            Object.assign(c.options, {
+                                position: [
+                                    parseFloat(position.x.toFixed(4)),
+                                    parseFloat(position.y.toFixed(4)),
+                                    parseFloat(position.z.toFixed(4))
+                                ]
+                            });
+                    });
+                }
+            }
+        };
+        // 节流 change频率太高
+        // const updateFnCameraTd = throttled(updateFnCamera, 60)
+        const updateFnCameraTd = throttled(updateFnCamera, 0);
+        controls.addEventListener('change', (event) => {
+            updateFnCameraTd(event);
+        });
+        return { lightPlane, curveSphere1, curveSphere2, line };
+    };
+
+    var max = new Bol3D.Vector3();
+    var min = new Bol3D.Vector3();
     const importScene = (canvas, d) => {
         const scene = d || store.state.exportContent[0].children[0].trees.threeDimension;
         var Camera, AmbientLight, HemisphereLight, DirectionLights, SpotLights, PointLights, RectAreaLights, Shadow, Background, HDR, Fog, BloomPass, OutlinePass, DOFPass, GammaPass, MSAAPass;
-        var modelUrls = [], models = [], publicPath = location.origin;
+        var modelUrls = [], models = [], publicPath = location.origin + location.pathname;
+        var textMeshGroup, iconMeshGroup, flyLineMeshGroup;
         scene.forEach((item) => {
             if (item.uuid == -1) {
                 if (item.name == 'Camera') {
@@ -108463,8 +109646,21 @@
                 }
             }
             else {
-                modelUrls.push(`/models/HangKong/ChangJing/${item.name}.glb`);
-                models.push(item);
+                if (item.isEdit) {
+                    if (item.name == 'Text') {
+                        textMeshGroup = item;
+                    }
+                    else if (item.name == 'Icon') {
+                        iconMeshGroup = item;
+                    }
+                    else if (item.name == 'FlyLine') {
+                        flyLineMeshGroup = item;
+                    }
+                }
+                else {
+                    modelUrls.push(`/models/HangKong/ChangJing/${item.name}.glb`);
+                    models.push(item);
+                }
             }
         });
         const container = new Bol3D.Container({
@@ -108498,6 +109694,24 @@
             msaa: MSAAPass.options,
             stats: true,
             onProgress: (model) => {
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        const v = new Bol3D.Vector3();
+                        child.geometry.boundingBox.getCenter(v);
+                        const _v = v.clone();
+                        recursiveCalParentsMat(child, _v, new Bol3D.Matrix4());
+                        const _max = child.geometry.boundingBox.max.clone();
+                        recursiveCalParentsMat(child, _max, new Bol3D.Matrix4());
+                        const _min = child.geometry.boundingBox.min.clone();
+                        recursiveCalParentsMat(child, _min, new Bol3D.Matrix4());
+                        const __max = new Bol3D.Vector3().subVectors(_v, _max);
+                        const __min = new Bol3D.Vector3().subVectors(_v, _min);
+                        if (__max.lengthSq() > max.lengthSq())
+                            max.copy(__max);
+                        if (__min.lengthSq() > min.lengthSq())
+                            min.copy(__min);
+                    }
+                });
                 models.forEach((item) => {
                     if (model.name == item.name) {
                         model.position.set(parseFloat(item.options.position[0]), parseFloat(item.options.position[1]), parseFloat(item.options.position[2]));
@@ -108514,480 +109728,18 @@
                 store.state.template.threeDimension.push(node);
             },
             onLoad: (evt) => {
-                // msaaPass(单个)
-                const msaaPassOptions = {
-                    supersampling: evt.supersampling
-                };
-                const msaaPassNode = {
-                    uuid: -1,
-                    name: 'MSAAPass',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'MSAAPass',
-                    children: [],
-                    show: false,
-                    options: msaaPassOptions
-                };
-                store.state.template.threeDimension.unshift(msaaPassNode);
-                // gammaPass(单个)
-                const gammaPassOptions = {
-                    enabled: evt.gammaPass.enabled,
-                    factor: evt.gammaPass.uniforms.factor.value
-                };
-                const gammaPassNode = {
-                    uuid: -1,
-                    name: 'GammaPass',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'GammaPass',
-                    children: [],
-                    show: false,
-                    options: gammaPassOptions
-                };
-                store.state.template.threeDimension.unshift(gammaPassNode);
-                // dofPass(单个)
-                const dofPassOptions = {
-                    enabled: evt.bokehPass.enabled,
-                    focus: evt.bokehPass.uniforms.focus.value,
-                    aperture: evt.bokehPass.uniforms.aperture.value,
-                    maxblur: evt.bokehPass.uniforms.maxblur.value
-                };
-                const dofPassNode = {
-                    uuid: -1,
-                    name: 'DOFPass',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'DOFPass',
-                    children: [],
-                    show: false,
-                    options: dofPassOptions
-                };
-                store.state.template.threeDimension.unshift(dofPassNode);
-                // outlinePass(单个)
-                const outlinePassOptions = {
-                    enabled: evt.outlinePass.enabled,
-                    edgeStrength: evt.outlinePass.edgeStrength,
-                    edgeGlow: evt.outlinePass.edgeGlow,
-                    edgeThickness: evt.outlinePass.edgeThickness,
-                    pulsePeriod: evt.outlinePass.pulsePeriod,
-                    visibleEdgeColor: '#' + evt.outlinePass.visibleEdgeColor.getHexString(),
-                    hiddenEdgeColor: '#' + evt.outlinePass.hiddenEdgeColor.getHexString()
-                };
-                const outlinePassNode = {
-                    uuid: -1,
-                    name: 'OutlinePass',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'OutlinePass',
-                    children: [],
-                    show: false,
-                    options: outlinePassOptions
-                };
-                store.state.template.threeDimension.unshift(outlinePassNode);
-                // bloomPass(单个)
-                const bloomPassOptions = {
-                    enabled: evt.bloomPass.enabled,
-                    strength: evt.bloomPass.strength,
-                    radius: evt.bloomPass.radius,
-                    threshold: evt.bloomPass.threshold
-                };
-                const bloomPassNode = {
-                    uuid: -1,
-                    name: 'BloomPass',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'BloomPass',
-                    children: [],
-                    show: false,
-                    options: bloomPassOptions
-                };
-                store.state.template.threeDimension.unshift(bloomPassNode);
-                // 雾节点(单个)
-                const fogOptions = {
-                    intensity: evt.fog.density,
-                    color: '#' + evt.fog.color.getHexString()
-                };
-                const fogNode = {
-                    uuid: -1,
-                    name: 'Fog',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'Fog',
-                    children: [],
-                    show: false,
-                    options: fogOptions
-                };
-                store.state.template.threeDimension.unshift(fogNode);
-                // HDR节点(单个)
-                const hdrOptions = {
-                    value: evt.hdrUrls
-                };
-                const hdrNode = {
-                    uuid: -1,
-                    name: 'HDR',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'HDR',
-                    children: [],
-                    show: false,
-                    options: hdrOptions
-                };
-                store.state.template.threeDimension.unshift(hdrNode);
-                // 背景节点(单个)
-                let bgGroundVal;
-                let bgGroundOpts = {};
-                if (evt.bgType === 'color') {
-                    const bgColor = '#' + new Bol3D.Color(evt.bgColor).getHexString();
-                    bgGroundVal = bgColor;
-                }
-                else if (evt.bgType === 'texture') {
-                    const valArr = evt.scene.background.image.src.split('//');
-                    bgGroundVal = '/' + valArr[valArr.length - 1];
-                    bgGroundOpts = {
-                        encoding: evt.scene.background.encoding,
-                        wrapping: evt.scene.background.wrapS,
-                        repeat: [evt.scene.background.repeat.x, evt.scene.background.repeat.y]
-                    };
-                }
-                else if (evt.bgType === 'panorama') {
-                    bgGroundVal = evt.sky.userData.value;
-                    bgGroundOpts = {
-                        scale: evt.sky.scale.x,
-                        rotation: [
-                            parseFloat(((evt.sky.rotation.x * 180) / Math.PI).toFixed(4)),
-                            parseFloat(((evt.sky.rotation.y * 180) / Math.PI).toFixed(4)),
-                            parseFloat(((evt.sky.rotation.z * 180) / Math.PI).toFixed(4))
-                        ]
-                    };
-                }
-                const backgroundOptions = {
-                    type: evt.bgType,
-                    value: bgGroundVal,
-                    opts: bgGroundOpts
-                };
-                const backgroundNode = {
-                    uuid: -1,
-                    name: 'Background',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'Background',
-                    children: [],
-                    show: false,
-                    options: backgroundOptions
-                };
-                store.state.template.threeDimension.unshift(backgroundNode);
-                // 阴影节点(单个)
-                const shadowOptions = {
-                    enabled: evt.renderer.shadowMap.enabled,
-                    type: evt.renderer.shadowMap.type
-                };
-                const shadowNode = {
-                    uuid: -1,
-                    name: 'Shadow',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'Shadow',
-                    children: [],
-                    show: false,
-                    options: shadowOptions
-                };
-                store.state.template.threeDimension.unshift(shadowNode);
-                // 面光源节点(多个)
-                const rectAreaLights = evt.rectAreaLights;
-                const rectAreaLightNodes = {
-                    uuid: -1,
-                    name: 'RectAreaLights',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'RectAreaLights',
-                    children: [],
-                    show: false,
-                    options: {}
-                };
-                rectAreaLights.forEach((rectAreaLight) => {
-                    const rectAreaLightOptions = {
-                        color: [rectAreaLight.color.r * 255, rectAreaLight.color.g * 255, rectAreaLight.color.b * 255],
-                        intensity: rectAreaLight.intensity,
-                        width: rectAreaLight.width,
-                        height: rectAreaLight.height,
-                        position: [parseFloat(rectAreaLight.position.x.toFixed(4)), parseFloat(rectAreaLight.position.y.toFixed(4)), parseFloat(rectAreaLight.position.z.toFixed(4))],
-                        target: [parseFloat(rectAreaLight.userData.target[0].toFixed(4)), parseFloat(rectAreaLight.userData.target[1].toFixed(4)), parseFloat(rectAreaLight.userData.target[2].toFixed(4))]
-                    };
-                    const rectAreaLightNode = {
-                        uuid: rectAreaLight.uuid,
-                        name: 'RectAreaLight',
-                        selected: false,
-                        index: 1,
-                        spread: false,
-                        type: 'RectAreaLight',
-                        children: [],
-                        show: false,
-                        options: rectAreaLightOptions
-                    };
-                    rectAreaLightNodes.children.push(rectAreaLightNode);
+                store.state.elementScaleInterval.x = max.x - min.x;
+                store.state.elementScaleInterval.y = max.y - min.y;
+                store.state.elementScaleInterval.z = max.z - min.z;
+                const obj = onloadFun(evt, container, publicPath, {
+                    textMeshGroup,
+                    iconMeshGroup,
+                    flyLineMeshGroup
                 });
-                store.state.template.threeDimension.unshift(rectAreaLightNodes);
-                // 点光源节点(多个)
-                const pointLights = evt.pointLights;
-                const pointLightNodes = {
-                    uuid: -1,
-                    name: 'PointLights',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'PointLights',
-                    children: [],
-                    show: false,
-                    options: {}
-                };
-                pointLights.forEach((pointLight) => {
-                    const pointLightOptions = {
-                        color: [pointLight.color.r * 255, pointLight.color.g * 255, pointLight.color.b * 255],
-                        intensity: pointLight.intensity,
-                        decay: pointLight.decay,
-                        distance: pointLight.distance,
-                        position: [parseFloat(pointLight.position.x.toFixed(4)), parseFloat(pointLight.position.y.toFixed(4)), parseFloat(pointLight.position.z.toFixed(4))],
-                        castShadow: pointLight.castShadow,
-                        near: pointLight.shadow.camera.near,
-                        far: pointLight.shadow.camera.far,
-                        bias: pointLight.shadow.bias,
-                        size: pointLight.shadow.mapSize.x
-                    };
-                    const pointLightNode = {
-                        uuid: pointLight.uuid,
-                        name: 'PointLight',
-                        selected: false,
-                        index: 1,
-                        spread: false,
-                        type: 'PointLight',
-                        children: [],
-                        show: false,
-                        options: pointLightOptions
-                    };
-                    pointLightNodes.children.push(pointLightNode);
-                });
-                store.state.template.threeDimension.unshift(pointLightNodes);
-                // 聚光灯节点(多个)
-                const spotLights = evt.spotLights;
-                const spotLightNodes = {
-                    uuid: -1,
-                    name: 'SpotLights',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'SpotLights',
-                    children: [],
-                    show: false,
-                    options: {}
-                };
-                spotLights.forEach((spotLight) => {
-                    const spotLightOptions = {
-                        color: [spotLight.color.r * 255, spotLight.color.g * 255, spotLight.color.b * 255],
-                        intensity: spotLight.intensity,
-                        decay: spotLight.decay,
-                        distance: spotLight.distance,
-                        penumbra: spotLight.penumbra,
-                        position: [parseFloat(spotLight.position.x.toFixed(4)), parseFloat(spotLight.position.y.toFixed(4)), parseFloat(spotLight.position.z.toFixed(4))],
-                        target: [parseFloat(spotLight.target.position.x.toFixed(4)), parseFloat(spotLight.target.position.y.toFixed(4)), parseFloat(spotLight.target.position.z.toFixed(4))],
-                        castShadow: spotLight.castShadow,
-                        angle: spotLight.angle,
-                        near: spotLight.shadow.camera.near,
-                        far: spotLight.shadow.camera.far,
-                        focus: spotLight.shadow.focus,
-                        bias: spotLight.shadow.bias,
-                        size: spotLight.shadow.mapSize.x
-                    };
-                    const spotLightNode = {
-                        uuid: spotLight.uuid,
-                        name: 'SpotLight',
-                        selected: false,
-                        index: 1,
-                        spread: false,
-                        type: 'SpotLight',
-                        children: [],
-                        show: false,
-                        options: spotLightOptions
-                    };
-                    spotLightNodes.children.push(spotLightNode);
-                });
-                store.state.template.threeDimension.unshift(spotLightNodes);
-                // 平行光节点(多个)
-                const directionLights = evt.directionLights;
-                const directionLightNodes = {
-                    uuid: -1,
-                    name: 'DirectionLights',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'DirectionLights',
-                    children: [],
-                    show: false,
-                    options: {}
-                };
-                directionLights.forEach((directionLight) => {
-                    const directionLightOptions = {
-                        color: [directionLight.color.r * 255, directionLight.color.g * 255, directionLight.color.b * 255],
-                        intensity: directionLight.intensity,
-                        position: [parseFloat(directionLight.position.x.toFixed(4)), parseFloat(directionLight.position.y.toFixed(4)), parseFloat(directionLight.position.z.toFixed(4))],
-                        // shadow options
-                        near: directionLight.shadow.camera.near,
-                        far: directionLight.shadow.camera.far,
-                        bias: directionLight.shadow.bias,
-                        distance: directionLight.shadow.camera.top,
-                        size: directionLight.shadow.mapSize.width,
-                        castShadow: directionLight.castShadow,
-                        // target options
-                        target: [parseFloat(directionLight.target.position.x.toFixed(4)), parseFloat(directionLight.target.position.y.toFixed(4)), parseFloat(directionLight.target.position.z.toFixed(4))]
-                    };
-                    const directionLightNode = {
-                        uuid: directionLight.uuid,
-                        name: 'DirectionLight',
-                        selected: false,
-                        index: 1,
-                        spread: false,
-                        type: 'DirectionLight',
-                        children: [],
-                        show: false,
-                        options: directionLightOptions
-                    };
-                    directionLightNodes.children.push(directionLightNode);
-                });
-                store.state.template.threeDimension.unshift(directionLightNodes);
-                // 半球光节点(单个)
-                const hemisphereLight = evt.hemiLight;
-                const hemisphereLightOptions = {
-                    color: [hemisphereLight.color.r * 255, hemisphereLight.color.g * 255, hemisphereLight.color.b * 255],
-                    groundColor: [hemisphereLight.groundColor.r * 255, hemisphereLight.groundColor.g * 255, hemisphereLight.groundColor.b * 255],
-                    intensity: hemisphereLight.intensity,
-                    position: [parseFloat(hemisphereLight.position.x.toFixed(4)), parseFloat(hemisphereLight.position.y.toFixed(4)), parseFloat(hemisphereLight.position.z.toFixed(4))]
-                };
-                const hemisphereLightNode = {
-                    uuid: -1,
-                    name: 'HemisphereLight',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: hemisphereLight.type,
-                    children: [],
-                    show: false,
-                    options: hemisphereLightOptions
-                };
-                store.state.template.threeDimension.unshift(hemisphereLightNode);
-                // 环境光节点(单个)
-                const ambientLight = evt.ambientLight;
-                const ambientLightOptions = {
-                    color: [ambientLight.color.r * 255, ambientLight.color.g * 255, ambientLight.color.b * 255],
-                    intensity: ambientLight.intensity
-                };
-                const ambientLightNode = {
-                    uuid: -1,
-                    name: 'AmbientLight',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: ambientLight.type,
-                    children: [],
-                    show: false,
-                    options: ambientLightOptions
-                };
-                store.state.template.threeDimension.unshift(ambientLightNode);
-                // 相机节点(单个)
-                let camera;
-                let controls;
-                let cameraOptions = {};
-                if (evt.viewState === 'orbit') {
-                    camera = evt.orbitCamera;
-                    controls = evt.orbitControls;
-                    cameraOptions = {
-                        position: [parseFloat(camera.position.x.toFixed(4)), parseFloat(camera.position.y.toFixed(4)), parseFloat(camera.position.z.toFixed(4))],
-                        near: camera.near,
-                        far: camera.far,
-                        fov: camera.fov,
-                        minDistance: controls.minDistance,
-                        maxDistance: controls.maxDistance,
-                        minPolarAngle: (controls.minPolarAngle * 180) / Math.PI,
-                        maxPolarAngle: (controls.maxPolarAngle * 180) / Math.PI
-                    };
-                }
-                else if (evt.viewState === 'firstPerson') {
-                    camera = evt.firstPersonCamera;
-                    controls = evt.firstPersonControls;
-                }
-                else if (evt.viewState === 'map') {
-                    camera = evt.mapCamera;
-                    controls = evt.mapControls;
-                }
-                const cameraNode = {
-                    uuid: -1,
-                    name: 'Camera',
-                    selected: false,
-                    index: 0,
-                    spread: false,
-                    type: 'Camera',
-                    children: [],
-                    show: false,
-                    options: cameraOptions
-                };
-                store.state.template.threeDimension.unshift(cameraNode);
-                EventsBus.emit('sceneLoaded', {
-                    type: '3d',
-                    container: evt,
-                    isImport: true
-                });
-                // 相机事件
-                let controlsFlag = false;
-                controls.addEventListener('start', () => {
-                    controlsFlag = true;
-                });
-                controls.addEventListener('end', () => {
-                    controlsFlag = false;
-                });
-                const updateFnCamera = (event) => {
-                    if (controlsFlag && event && event.target) {
-                        const t = event.target;
-                        const { object } = t;
-                        const { position, uuid } = object;
-                        // update editForms
-                        EventsBus.emit('pageTreeNodeUpdate', {
-                            type: '3d',
-                            options: {
-                                position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))]
-                            },
-                            uuid
-                        });
-                        // update pageTreeNode
-                        if (store.state.selectedPageTreeNode && store.state.selectedPageTreeNode.type === 'Camera') {
-                            Object.assign(store.state.selectedPageTreeNode.options, { position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))] });
-                        }
-                        // update sceneTreeNode
-                        if (store.state.selectedSceneTreeNode) {
-                            store.state.selectedSceneTreeNode.trees.threeDimension.forEach((c) => {
-                                if (c.type === 'Camera')
-                                    Object.assign(c.options, { position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))] });
-                            });
-                        }
-                    }
-                };
-                // 节流 change频率太高
-                // const updateFnCameraTd = throttled(updateFnCamera, 60)
-                const updateFnCameraTd = throttled(updateFnCamera, 0);
-                controls.addEventListener('change', (event) => {
-                    updateFnCameraTd(event);
-                });
+                // click event
+                clickFun(container, publicPath, obj);
             }
         });
-        // click event
-        clickFun(container, publicPath);
     };
     const modelsRecursion = (model, template) => {
         const arrs = [];
@@ -109071,6 +109823,14 @@
             }
         });
     };
+    // 递归找出上面所有父级元素 并乘以相应矩阵
+    function recursiveCalParentsMat(obj, v, mat) {
+        mat.compose(obj.position, new Bol3D.Quaternion().setFromEuler(new Bol3D.Euler().setFromVector3(obj.rotation)), obj.scale);
+        v.applyMatrix4(mat);
+        if (!obj.parent || obj.parent.type == 'Scene')
+            return;
+        recursiveCalParentsMat(obj.parent, v, mat);
+    }
 
     var script = {
       name: 'ElementParser',

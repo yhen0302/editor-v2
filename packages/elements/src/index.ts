@@ -13,6 +13,7 @@ import ChartLine from './components/chart/ChartLine.vue'
 import ChartPie from './components/chart/ChartPie.vue'
 import ChartGauge from './components/chart/ChartGauge.vue'
 import ChartCurve from './components/chart/ChartCurve.vue'
+import BaseTable from './components/table/BaseTable.vue'
 
 import { App } from 'vue'
 
@@ -33,6 +34,7 @@ export default {
     app.component(ChartPie.name, ChartPie)
     app.component(ChartGauge.name, ChartGauge)
     app.component(ChartCurve.name, ChartCurve)
+    app.component(BaseTable.name, BaseTable)
   }
 }
 
@@ -51,3 +53,4 @@ export { ChartLine }
 export { ChartPie }
 export { ChartGauge }
 export { ChartCurve }
+export { BaseTable }
