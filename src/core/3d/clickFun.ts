@@ -74,7 +74,12 @@ export const clickFun = (container: any, publicPath: any, selfMesh: any) => {
           const node = { type: 'icon3D', selected: object.name, name: object.name, clickObj: true }
           EventsBus.emit('toolBarSelected', { node })
         } else if (name.includes('textSelf')) {
-          const node = { type: 'text3D', selected: object.userData.selected, name: object.name, clickObj: true }
+          const node = {
+            type: 'text3D',
+            selected: object.userData.selected,
+            name: object.name,
+            clickObj: true
+          }
           EventsBus.emit('toolBarSelected', { node })
         }
       } else if (name.includes('flyLineSelf')) {
@@ -148,7 +153,11 @@ export const clickFun = (container: any, publicPath: any, selfMesh: any) => {
         store.state.addElementType.basePoint = curveSphere1
         store.state.addElementType.movePoint = curveSphere2
         Fly.flyBasePoint(container, position, curveSphere1, curveSphere2, line)
-      } else if (!name.includes('iconSelf') && !name.includes('textSelf') && !name.includes('flyLineSelf')) {
+      } else if (
+        !name.includes('iconSelf') &&
+        !name.includes('textSelf') &&
+        !name.includes('flyLineSelf')
+      ) {
         EventsBus.emit('toolBarSelected', { node: {} })
         lightPlane.visible = false
         curveSphere1.visible = false

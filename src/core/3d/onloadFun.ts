@@ -8,12 +8,21 @@ declare const Bol3D: any
 
 export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj: any = {}) => {
   // console.log('loaded')
+  const scaleMax =
+    store.state.elementScaleInterval.x > store.state.elementScaleInterval.z
+      ? (store.state.elementScaleInterval.x / 5000).toFixed(4)
+      : (store.state.elementScaleInterval.z / 5000).toFixed(4)
 
   // 添加图标自定义元素
   var lightPlane: any
   const geometryPlane = new Bol3D.PlaneGeometry(1, 1)
   const textIconPic = new Bol3D.TextureLoader().load(publicPath + 'textures/circularPin.png')
-  const materialPlane = new Bol3D.MeshBasicMaterial({ color: 0x16ddfa, side: Bol3D.DoubleSide, map: textIconPic, transparent: true })
+  const materialPlane = new Bol3D.MeshBasicMaterial({
+    color: 0x16ddfa,
+    side: Bol3D.DoubleSide,
+    map: textIconPic,
+    transparent: true
+  })
   lightPlane = new Bol3D.Mesh(geometryPlane, materialPlane)
   lightPlane.rotation.x = -Math.PI / 2
   lightPlane.renderOrder = 1000
@@ -21,10 +30,12 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
   lightPlane.visible = false
 
   // 飞线部分自定义元素
-  const geometry = new Bol3D.SphereGeometry(10, 32, 16)
+  const geometry = new Bol3D.SphereGeometry(1, 32, 16)
   const material = new Bol3D.MeshBasicMaterial({ color: 0xffff00 })
   const curveSphere1 = new Bol3D.Mesh(geometry, material)
+  curveSphere1.scale.set(scaleMax, scaleMax, scaleMax)
   const curveSphere2 = new Bol3D.Mesh(geometry, material)
+  curveSphere2.scale.set(scaleMax, scaleMax, scaleMax)
   curveSphere1.visible = false
   curveSphere2.visible = false
   curveSphere1.name = 'flyLineSelfSphere1'
@@ -34,10 +45,17 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
   container.clickObjects.push(curveSphere1, curveSphere2)
   ;(store as any).state.elementFlyLine.push(curveSphere1, curveSphere2)
 
-  var curve = new Bol3D.CatmullRomCurve3([new Bol3D.Vector3(0, 0, 0), new Bol3D.Vector3(50, 100, 0), new Bol3D.Vector3(100, 0, 0)])
+  var curve = new Bol3D.CatmullRomCurve3([
+    new Bol3D.Vector3(0, 0, 0),
+    new Bol3D.Vector3(50, 100, 0),
+    new Bol3D.Vector3(100, 0, 0)
+  ])
   curve.closed = false
   const ponits = curve.getPoints(100)
-  var line = new Bol3D.Line(new Bol3D.BufferGeometry().setFromPoints(ponits), new Bol3D.LineBasicMaterial({ color: 0xffff00 }))
+  var line = new Bol3D.Line(
+    new Bol3D.BufferGeometry().setFromPoints(ponits),
+    new Bol3D.LineBasicMaterial({ color: 0xffff00 })
+  )
   line.visible = false
   container.attach(line)
 
@@ -251,12 +269,24 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
   }
   rectAreaLights.forEach((rectAreaLight: any) => {
     const rectAreaLightOptions = {
-      color: [rectAreaLight.color.r * 255, rectAreaLight.color.g * 255, rectAreaLight.color.b * 255],
+      color: [
+        rectAreaLight.color.r * 255,
+        rectAreaLight.color.g * 255,
+        rectAreaLight.color.b * 255
+      ],
       intensity: rectAreaLight.intensity,
       width: rectAreaLight.width,
       height: rectAreaLight.height,
-      position: [parseFloat(rectAreaLight.position.x.toFixed(4)), parseFloat(rectAreaLight.position.y.toFixed(4)), parseFloat(rectAreaLight.position.z.toFixed(4))],
-      target: [parseFloat(rectAreaLight.userData.target[0].toFixed(4)), parseFloat(rectAreaLight.userData.target[1].toFixed(4)), parseFloat(rectAreaLight.userData.target[2].toFixed(4))]
+      position: [
+        parseFloat(rectAreaLight.position.x.toFixed(4)),
+        parseFloat(rectAreaLight.position.y.toFixed(4)),
+        parseFloat(rectAreaLight.position.z.toFixed(4))
+      ],
+      target: [
+        parseFloat(rectAreaLight.userData.target[0].toFixed(4)),
+        parseFloat(rectAreaLight.userData.target[1].toFixed(4)),
+        parseFloat(rectAreaLight.userData.target[2].toFixed(4))
+      ]
     }
 
     const rectAreaLightNode = {
@@ -294,7 +324,11 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
       intensity: pointLight.intensity,
       decay: pointLight.decay,
       distance: pointLight.distance,
-      position: [parseFloat(pointLight.position.x.toFixed(4)), parseFloat(pointLight.position.y.toFixed(4)), parseFloat(pointLight.position.z.toFixed(4))],
+      position: [
+        parseFloat(pointLight.position.x.toFixed(4)),
+        parseFloat(pointLight.position.y.toFixed(4)),
+        parseFloat(pointLight.position.z.toFixed(4))
+      ],
       castShadow: pointLight.castShadow,
       near: pointLight.shadow.camera.near,
       far: pointLight.shadow.camera.far,
@@ -338,8 +372,16 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
       decay: spotLight.decay,
       distance: spotLight.distance,
       penumbra: spotLight.penumbra,
-      position: [parseFloat(spotLight.position.x.toFixed(4)), parseFloat(spotLight.position.y.toFixed(4)), parseFloat(spotLight.position.z.toFixed(4))],
-      target: [parseFloat(spotLight.target.position.x.toFixed(4)), parseFloat(spotLight.target.position.y.toFixed(4)), parseFloat(spotLight.target.position.z.toFixed(4))],
+      position: [
+        parseFloat(spotLight.position.x.toFixed(4)),
+        parseFloat(spotLight.position.y.toFixed(4)),
+        parseFloat(spotLight.position.z.toFixed(4))
+      ],
+      target: [
+        parseFloat(spotLight.target.position.x.toFixed(4)),
+        parseFloat(spotLight.target.position.y.toFixed(4)),
+        parseFloat(spotLight.target.position.z.toFixed(4))
+      ],
       castShadow: spotLight.castShadow,
       angle: spotLight.angle,
       near: spotLight.shadow.camera.near,
@@ -380,9 +422,17 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
   }
   directionLights.forEach((directionLight: any) => {
     const directionLightOptions = {
-      color: [directionLight.color.r * 255, directionLight.color.g * 255, directionLight.color.b * 255],
+      color: [
+        directionLight.color.r * 255,
+        directionLight.color.g * 255,
+        directionLight.color.b * 255
+      ],
       intensity: directionLight.intensity,
-      position: [parseFloat(directionLight.position.x.toFixed(4)), parseFloat(directionLight.position.y.toFixed(4)), parseFloat(directionLight.position.z.toFixed(4))],
+      position: [
+        parseFloat(directionLight.position.x.toFixed(4)),
+        parseFloat(directionLight.position.y.toFixed(4)),
+        parseFloat(directionLight.position.z.toFixed(4))
+      ],
       // shadow options
       near: directionLight.shadow.camera.near,
       far: directionLight.shadow.camera.far,
@@ -391,7 +441,11 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
       size: directionLight.shadow.mapSize.width,
       castShadow: directionLight.castShadow,
       // target options
-      target: [parseFloat(directionLight.target.position.x.toFixed(4)), parseFloat(directionLight.target.position.y.toFixed(4)), parseFloat(directionLight.target.position.z.toFixed(4))]
+      target: [
+        parseFloat(directionLight.target.position.x.toFixed(4)),
+        parseFloat(directionLight.target.position.y.toFixed(4)),
+        parseFloat(directionLight.target.position.z.toFixed(4))
+      ]
     }
 
     const directionLightNode = {
@@ -413,10 +467,22 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
   // 半球光节点(单个)
   const hemisphereLight = evt.hemiLight
   const hemisphereLightOptions = {
-    color: [hemisphereLight.color.r * 255, hemisphereLight.color.g * 255, hemisphereLight.color.b * 255],
-    groundColor: [hemisphereLight.groundColor.r * 255, hemisphereLight.groundColor.g * 255, hemisphereLight.groundColor.b * 255],
+    color: [
+      hemisphereLight.color.r * 255,
+      hemisphereLight.color.g * 255,
+      hemisphereLight.color.b * 255
+    ],
+    groundColor: [
+      hemisphereLight.groundColor.r * 255,
+      hemisphereLight.groundColor.g * 255,
+      hemisphereLight.groundColor.b * 255
+    ],
     intensity: hemisphereLight.intensity,
-    position: [parseFloat(hemisphereLight.position.x.toFixed(4)), parseFloat(hemisphereLight.position.y.toFixed(4)), parseFloat(hemisphereLight.position.z.toFixed(4))]
+    position: [
+      parseFloat(hemisphereLight.position.x.toFixed(4)),
+      parseFloat(hemisphereLight.position.y.toFixed(4)),
+      parseFloat(hemisphereLight.position.z.toFixed(4))
+    ]
   }
 
   const hemisphereLightNode = {
@@ -462,7 +528,11 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
     camera = evt.orbitCamera
     controls = evt.orbitControls
     cameraOptions = {
-      position: [parseFloat(camera.position.x.toFixed(4)), parseFloat(camera.position.y.toFixed(4)), parseFloat(camera.position.z.toFixed(4))],
+      position: [
+        parseFloat(camera.position.x.toFixed(4)),
+        parseFloat(camera.position.y.toFixed(4)),
+        parseFloat(camera.position.z.toFixed(4))
+      ],
       near: camera.near,
       far: camera.far,
       fov: camera.fov,
@@ -603,20 +673,40 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
       EventsBus.emit('pageTreeNodeUpdate', {
         type: '3d',
         options: {
-          position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))]
+          position: [
+            parseFloat(position.x.toFixed(4)),
+            parseFloat(position.y.toFixed(4)),
+            parseFloat(position.z.toFixed(4))
+          ]
         },
         uuid
       })
 
       // update pageTreeNode
-      if ((store as any).state.selectedPageTreeNode && (store as any).state.selectedPageTreeNode.type === 'Camera') {
-        Object.assign((store as any).state.selectedPageTreeNode.options, { position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))] })
+      if (
+        (store as any).state.selectedPageTreeNode &&
+        (store as any).state.selectedPageTreeNode.type === 'Camera'
+      ) {
+        Object.assign((store as any).state.selectedPageTreeNode.options, {
+          position: [
+            parseFloat(position.x.toFixed(4)),
+            parseFloat(position.y.toFixed(4)),
+            parseFloat(position.z.toFixed(4))
+          ]
+        })
       }
 
       // update sceneTreeNode
       if ((store as any).state.selectedSceneTreeNode) {
         ;(store as any).state.selectedSceneTreeNode.trees.threeDimension.forEach((c: any) => {
-          if (c.type === 'Camera') Object.assign(c.options, { position: [parseFloat(position.x.toFixed(4)), parseFloat(position.y.toFixed(4)), parseFloat(position.z.toFixed(4))] })
+          if (c.type === 'Camera')
+            Object.assign(c.options, {
+              position: [
+                parseFloat(position.x.toFixed(4)),
+                parseFloat(position.y.toFixed(4)),
+                parseFloat(position.z.toFixed(4))
+              ]
+            })
         })
       }
     }

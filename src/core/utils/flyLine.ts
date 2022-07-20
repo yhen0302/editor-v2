@@ -147,7 +147,11 @@ export const reviseCurveLine = (position: Array<number>, obj: any) => {
   const cy = position1.y > position[1] ? position1.y + 50 : position[1] + 50
   const cz = (position1.z + position[2]) / 2
 
-  var curve = new Bol3D.CatmullRomCurve3([new Bol3D.Vector3(position1.x, position1.y, position1.z), new Bol3D.Vector3(cx, cy, cz), new Bol3D.Vector3(position[0], position[1], position[2])])
+  var curve = new Bol3D.CatmullRomCurve3([
+    new Bol3D.Vector3(position1.x, position1.y, position1.z),
+    new Bol3D.Vector3(cx, cy, cz),
+    new Bol3D.Vector3(position[0], position[1], position[2])
+  ])
   curve.closed = false
   const ponits = curve.getPoints(100)
   obj.visible = true
@@ -155,7 +159,19 @@ export const reviseCurveLine = (position: Array<number>, obj: any) => {
   ;(store as any).state.addElementType.curveObj = obj
 }
 
-export const flyBasePoint = (container: any, position: Array<number>, curveSphere1: any, curveSphere2: any, obj: any) => {
+export const flyBasePoint = (
+  container: any,
+  position: Array<number>,
+  curveSphere1: any,
+  curveSphere2: any,
+  obj: any
+) => {
+  const scaleMax: any =
+    store.state.elementScaleInterval.x > store.state.elementScaleInterval.z
+      ? (store.state.elementScaleInterval.x / 5000).toFixed(4)
+      : (store.state.elementScaleInterval.z / 5000).toFixed(4)
+  const heightMax: any = (store.state.elementScaleInterval.y / 20).toFixed(0)
+
   if (!(store as any).state.addElementType.painting) {
     const node: any = {}
     EventsBus.emit('toolBarSelected', { node })
@@ -163,6 +179,8 @@ export const flyBasePoint = (container: any, position: Array<number>, curveSpher
     arrayDel(container.clickObjects, curveSphere2)
     curveSphere1.visible = true
     curveSphere2.visible = true
+    curveSphere1.scale.set(scaleMax, scaleMax, scaleMax)
+    curveSphere2.scale.set(scaleMax, scaleMax, scaleMax)
     curveSphere1.position.set(...position)
     curveSphere2.position.set(...position)
     ;(store as any).state.addElementType.painting = true
@@ -173,8 +191,8 @@ export const flyBasePoint = (container: any, position: Array<number>, curveSpher
     const line = flyObj({
       source: curveSphere1.position.clone(),
       target: curveSphere2.position.clone(),
-      height: 100,
-      size: 10,
+      height: heightMax < 1 ? 1 : heightMax,
+      size: scaleMax < 1 ? 1 : scaleMax,
       color: '#fff000',
       range: 100,
       speed: 1
@@ -182,8 +200,8 @@ export const flyBasePoint = (container: any, position: Array<number>, curveSpher
     line.name = 'flyLineSelf'
     line.userData.source = curveSphere1.position.clone()
     line.userData.target = curveSphere2.position.clone()
-    line.userData.height = 100
-    line.userData.size = 10
+    line.userData.height = heightMax < 1 ? 1 : heightMax
+    line.userData.size = scaleMax < 1 ? 1 : scaleMax
     line.userData.color = '#fff000'
     line.userData.range = 100
     line.userData.speed = 1

@@ -115,8 +115,10 @@ watch(
   () => store.state.addElementType.moving,
   (v1, v2) => {
     if (store.state.addElementType.mesh) {
+      store.state.addElementType.mesh.children[0].visible = true
       formSettings.value[1].content[0].value = store.state.addElementType.mesh.scale.x
-      formSettings.value[2].content[0].value = store.state.addElementType.mesh.material.opacity * 100
+      formSettings.value[2].content[0].value =
+        store.state.addElementType.mesh.material.opacity * 100
       formSettings.value[0].content[0].value = parseInt(store.state.addElementType.mesh.position.x)
       formSettings.value[0].content[1].value = parseInt(store.state.addElementType.mesh.position.y)
       formSettings.value[0].content[2].value = parseInt(store.state.addElementType.mesh.position.z)
@@ -146,7 +148,11 @@ watch(
     store.state.addElementType.mesh.position.x = formSettings.value[0].content[0].value
     store.state.addElementType.mesh.position.y = formSettings.value[0].content[1].value
     store.state.addElementType.mesh.position.z = formSettings.value[0].content[2].value
-    store.state.addElementType.mesh.scale.set(formSettings.value[1].content[0].value, formSettings.value[1].content[0].value, formSettings.value[1].content[0].value)
+    store.state.addElementType.mesh.scale.set(
+      formSettings.value[1].content[0].value,
+      formSettings.value[1].content[0].value,
+      formSettings.value[1].content[0].value
+    )
     store.state.addElementType.mesh.material.opacity = formSettings.value[2].content[0].value / 100
 
     store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {

@@ -4,6 +4,11 @@ import { EventsBus } from '../EventsBus'
 declare const Bol3D: any
 
 export const addCanvas = (container: any, position: Array<number>, type: string) => {
+  const scaleMax =
+    store.state.elementScaleInterval.x > store.state.elementScaleInterval.z
+      ? (store.state.elementScaleInterval.x / 1000).toFixed(4)
+      : (store.state.elementScaleInterval.z / 1000).toFixed(4)
+
   const canvas: any = document.createElement('canvas')
   canvas.width = 200
   canvas.height = 200
@@ -37,7 +42,7 @@ export const addCanvas = (container: any, position: Array<number>, type: string)
     TextPlane.userData.selected = type
   }
   TextPlane.position.set(position[0], position[1], position[2])
-  TextPlane.scale.set(50, 50, 1)
+  TextPlane.scale.set(scaleMax, scaleMax, 1)
   TextPlane.renderOrder = 500
   TextPlane.name = 'textSelf'
   container.clickObjects.push(TextPlane)
@@ -62,7 +67,20 @@ export const addCanvas = (container: any, position: Array<number>, type: string)
 }
 
 export const upDateText3D = (obj: any, bool: boolean, type: any) => {
-  const { text, color, fontFamily, fontSize, fontWeight, textScale, bgColor, bgOpcity, bgImage, textOffset, textAlign, lineAlign } = obj
+  const {
+    text,
+    color,
+    fontFamily,
+    fontSize,
+    fontWeight,
+    textScale,
+    bgColor,
+    bgOpcity,
+    bgImage,
+    textOffset,
+    textAlign,
+    lineAlign
+  } = obj
   const { position, scale, opacity, rotation, center } = obj
   if (!bool) {
     const canvas: any = document.createElement('canvas')
@@ -78,8 +96,16 @@ export const upDateText3D = (obj: any, bool: boolean, type: any) => {
     var textWidth = (c.measureText(text).width * fontSize) / 10
     var wOffset: any = 0,
       hOffset: any = 0
-    textAlign == 'left' ? (wOffset = 0 + textOffset[0]) : textAlign == 'center' ? (wOffset = textScale[0] / 2 - textWidth / 2 + textOffset[0]) : (wOffset = textScale[0] - textWidth + textOffset[0])
-    lineAlign == 'top' ? (hOffset = 0 + textOffset[1]) : lineAlign == 'center' ? (hOffset = textScale[1] / 2 - fontSize / 2 + textOffset[1]) : (hOffset = textScale[1] - fontSize + textOffset[1])
+    textAlign == 'left'
+      ? (wOffset = 0 + textOffset[0])
+      : textAlign == 'center'
+      ? (wOffset = textScale[0] / 2 - textWidth / 2 + textOffset[0])
+      : (wOffset = textScale[0] - textWidth + textOffset[0])
+    lineAlign == 'top'
+      ? (hOffset = 0 + textOffset[1])
+      : lineAlign == 'center'
+      ? (hOffset = textScale[1] / 2 - fontSize / 2 + textOffset[1])
+      : (hOffset = textScale[1] - fontSize + textOffset[1])
 
     if (bgImage) {
       const image = new Image()
@@ -119,7 +145,11 @@ export const upDateText3D = (obj: any, bool: boolean, type: any) => {
   if (type == 'RotateText') {
     ;(store as any).state.addElementType.mesh.center.set(center[0], center[1])
   } else {
-    ;(store as any).state.addElementType.mesh.rotation.set((rotation[0] * Math.PI) / 180, (rotation[1] * Math.PI) / 180, (rotation[2] * Math.PI) / 180)
+    ;(store as any).state.addElementType.mesh.rotation.set(
+      (rotation[0] * Math.PI) / 180,
+      (rotation[1] * Math.PI) / 180,
+      (rotation[2] * Math.PI) / 180
+    )
   }
   ;(store as any).state.addElementType.mesh.userData.editDate = obj
 }
@@ -173,7 +203,12 @@ export const loadTextPlane = (container: any, parentObj: any, node: any) => {
   const addPlane = (texture: any) => {
     var TextPlane: any
     if (type == 'RotateText') {
-      var material = new Bol3D.SpriteMaterial({ map: texture, side: Bol3D.DoubleSide, transparent: true, opacity: meshOpacity / 100 })
+      var material = new Bol3D.SpriteMaterial({
+        map: texture,
+        side: Bol3D.DoubleSide,
+        transparent: true,
+        opacity: meshOpacity / 100
+      })
       TextPlane = new Bol3D.Sprite(material)
       TextPlane.center.set(meshCenter[0], meshCenter[1])
       TextPlane.userData.selected = type
