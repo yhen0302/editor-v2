@@ -4,13 +4,18 @@ import { EventsBus } from '../EventsBus'
 declare const Bol3D: any
 
 export const addIcon = (container: any, obj: any) => {
+  const scaleMax =
+    store.state.elementScaleInterval.x > store.state.elementScaleInterval.z
+      ? (store.state.elementScaleInterval.x / 1000).toFixed(4)
+      : (store.state.elementScaleInterval.z / 1000).toFixed(4)
+
   const { position, urlIcon, name, lightPlane } = obj
   const icon = new Bol3D.POI.Icon({
     position: position,
     url: urlIcon,
-    scale: [50, 50]
+    scale: [scaleMax, scaleMax]
   })
-  icon.scale.z = 50
+  icon.scale.z = scaleMax
   icon.material.transparent = true
   icon.center.y = 0
   icon.name = 'iconSelf' + name

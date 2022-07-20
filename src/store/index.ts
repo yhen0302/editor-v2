@@ -42,10 +42,10 @@ export default createStore({
       twoDimension: []
     },
     threeDimensionContainer: null, // 3d container cache
-    contextmenu:{
-      show:false,
-      x:0,
-      y:0
+    contextmenu: {
+      show: false,
+      x: 0,
+      y: 0
     }, // 判断菜单的显示隐藏
     // 导入配置监听变量
     exportType: false,
@@ -53,6 +53,7 @@ export default createStore({
 
     //  添加元素变量
     addElementType: null,
+    elementScaleInterval: {}, // 存储模型包围盒尺寸
     elementFlyLine: [], // 存储飞线数组
     elementClick: null
   } as any,

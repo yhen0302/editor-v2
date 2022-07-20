@@ -8,31 +8,56 @@
     <section class="content">
       <div class="content-left">
         <div class="back-front-btn-box">
-          <img src="~@/assets/images/header/editor_nav_revocation_btn_dark.png" class="cursor-pointer" />
-          <img src="~@/assets/images/header/editor_nav_remake_btn_dark.png" class="cursor-pointer" />
+          <img
+            src="~@/assets/images/header/editor_nav_revocation_btn_dark.png"
+            class="cursor-pointer"
+          />
+          <img
+            src="~@/assets/images/header/editor_nav_remake_btn_dark.png"
+            class="cursor-pointer"
+          />
         </div>
         <div class="select-box">{{ scaleRatio }}%</div>
       </div>
 
       <div class="content-right" v-once>
-        <TipButton :icon="require('@/assets/images/header/editor_preview_btn_dark.png')" name="1" tip-position="tb" @click="preview">
+        <TipButton
+          :icon="require('@/assets/images/header/editor_preview_btn_dark.png')"
+          name="1"
+          tip-position="tb"
+          @click="preview"
+        >
           <template v-slot:tip>
             <p>预览</p>
             <p>Ctrl+P</p>
           </template>
         </TipButton>
-        <TipButton :icon="require('@/assets/images/header/editor_save_btn_dark.png')" name="1" tip-position="tb">
+        <TipButton
+          :icon="require('@/assets/images/header/editor_save_btn_dark.png')"
+          name="1"
+          tip-position="tb"
+        >
           <template v-slot:tip>
             <p>保存</p>
             <p>Ctrl+S</p>
           </template>
         </TipButton>
-        <TipButton :icon="require('@/assets/images/header/editor_download_btn_dark.png')" name="1" tip-position="middle" @click="exportJSON">
+        <TipButton
+          :icon="require('@/assets/images/header/editor_download_btn_dark.png')"
+          name="1"
+          tip-position="middle"
+          @click="exportJSON"
+        >
           <template v-slot:tip>
             <p>导出配置</p>
           </template>
         </TipButton>
-        <TipButton :icon="require('@/assets/images/header/editor_import_btn_dark.png')" name="1" tip-position="middle" @click="importJSON">
+        <TipButton
+          :icon="require('@/assets/images/header/editor_import_btn_dark.png')"
+          name="1"
+          tip-position="middle"
+          @click="importJSON"
+        >
           <template v-slot:tip>
             <p>导入配置</p>
             <input type="file" ref="uploadJSON" style="display: none" @change="loadJSON" />
@@ -42,7 +67,10 @@
     </section>
 
     <aside class="auto-save">
-      <img class="save-icon cursor-pointer" src="~@/assets/images/header/editor_savetime_icn_dark.png" />
+      <img
+        class="save-icon cursor-pointer"
+        src="~@/assets/images/header/editor_savetime_icn_dark.png"
+      />
       <span class="text-gray-800 text-14">上次保存时间：<Timer formatter="hh:mm" /></span>
     </aside>
   </div>
@@ -153,7 +181,12 @@ export default defineComponent({
       // const sdk = await (await fetch('/sdk/index.js')).text()
       // const sdk3d = await (await fetch('/static/main.js')).text()
 
-      const html = createPreviewTemplate(`console.log(EDITOR_SDK(${JSON.stringify({ pageTreeNodes: getAvailablePageTreeNodes(), drawingBoard: store.state.drawingBoard })}))`)
+      const html = createPreviewTemplate(
+        `console.log(EDITOR_SDK(${JSON.stringify({
+          pageTreeNodes: getAvailablePageTreeNodes(),
+          drawingBoard: store.state.drawingBoard
+        })}))`
+      )
       console.log(window.open(htmlToUrl(html)))
     }
 
@@ -261,6 +294,7 @@ export default defineComponent({
       store.state.elementClick.onhover = null
       // click object
       store.state.addElementType = null
+      store.state.elementScaleInterval = {}
       store.state.elementFlyLine = []
       store.state.elementClick = null
     }

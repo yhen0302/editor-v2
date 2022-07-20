@@ -7,6 +7,9 @@ import { onloadFun } from './onloadFun'
 
 declare const Bol3D: any
 
+var max = new Bol3D.Vector3()
+var min = new Bol3D.Vector3()
+
 export const importScene = (canvas: any, d?: any) => {
   const scene = d || store.state.exportContent[0].children[0].trees.threeDimension
   var Camera: any,
@@ -30,7 +33,11 @@ export const importScene = (canvas: any, d?: any) => {
     models: any = [],
     production = 'production', // 不提出来过不了编译 semantic error TS2367
     publicPath =
-      process.env.NODE_ENV === production ? (location.protocol === 'blob:' ? 'https://www.kantu3d.com/demo/edit/' : location.origin + location.pathname) : location.origin + location.pathname
+      process.env.NODE_ENV === production
+        ? location.protocol === 'blob:'
+          ? 'https://www.kantu3d.com/demo/edit/'
+          : location.origin + location.pathname
+        : location.origin + location.pathname
 
   var textMeshGroup: any, iconMeshGroup: any, flyLineMeshGroup: any
 
@@ -116,11 +123,40 @@ export const importScene = (canvas: any, d?: any) => {
     msaa: MSAAPass.options,
     stats: true,
     onProgress: (model: any) => {
+      model.traverse((child: any) => {
+        if (child.isMesh) {
+          const v = new Bol3D.Vector3()
+          child.geometry.boundingBox.getCenter(v)
+          const _v = v.clone()
+          recursiveCalParentsMat(child, _v, new Bol3D.Matrix4())
+          const _max = child.geometry.boundingBox.max.clone()
+          recursiveCalParentsMat(child, _max, new Bol3D.Matrix4())
+          const _min = child.geometry.boundingBox.min.clone()
+          recursiveCalParentsMat(child, _min, new Bol3D.Matrix4())
+          const __max = new Bol3D.Vector3().subVectors(_v, _max)
+          const __min = new Bol3D.Vector3().subVectors(_v, _min)
+          if (__max.lengthSq() > max.lengthSq()) max.copy(__max)
+          if (__min.lengthSq() > min.lengthSq()) min.copy(__min)
+        }
+      })
+
       models.forEach((item: any) => {
         if (model.name == item.name) {
-          model.position.set(parseFloat(item.options.position[0]), parseFloat(item.options.position[1]), parseFloat(item.options.position[2]))
-          model.rotation.set((item.options.rotation[0] * Math.PI) / 180, (item.options.rotation[1] * Math.PI) / 180, (item.options.rotation[2] * Math.PI) / 180)
-          model.scale.set(parseFloat(item.options.scale[0]), parseFloat(item.options.scale[1]), parseFloat(item.options.scale[2]))
+          model.position.set(
+            parseFloat(item.options.position[0]),
+            parseFloat(item.options.position[1]),
+            parseFloat(item.options.position[2])
+          )
+          model.rotation.set(
+            (item.options.rotation[0] * Math.PI) / 180,
+            (item.options.rotation[1] * Math.PI) / 180,
+            (item.options.rotation[2] * Math.PI) / 180
+          )
+          model.scale.set(
+            parseFloat(item.options.scale[0]),
+            parseFloat(item.options.scale[1]),
+            parseFloat(item.options.scale[2])
+          )
           model.visible = item.visible
           modelsRecursion(model.children, item.children)
         }
@@ -132,6 +168,10 @@ export const importScene = (canvas: any, d?: any) => {
       store.state.template.threeDimension.push(node)
     },
     onLoad: (evt: any) => {
+      ;(store as any).state.elementScaleInterval.x = max.x - min.x
+      ;(store as any).state.elementScaleInterval.y = max.y - min.y
+      ;(store as any).state.elementScaleInterval.z = max.z - min.z
+
       const obj = onloadFun(evt, container, publicPath, {
         textMeshGroup,
         iconMeshGroup,
@@ -152,9 +192,21 @@ const modelsRecursion = (model: any, template: any) => {
       if (item.isMesh) {
         if (item.name == dev.name && item.type == dev.type) {
           item.visible = dev.visible
-          item.position.set(parseFloat(dev.options.position[0]), parseFloat(dev.options.position[1]), parseFloat(dev.options.position[2]))
-          item.rotation.set((dev.options.rotation[0] * Math.PI) / 180, (dev.options.rotation[1] * Math.PI) / 180, (dev.options.rotation[2] * Math.PI) / 180)
-          item.scale.set(parseFloat(dev.options.scale[0]), parseFloat(dev.options.scale[1]), parseFloat(dev.options.scale[2]))
+          item.position.set(
+            parseFloat(dev.options.position[0]),
+            parseFloat(dev.options.position[1]),
+            parseFloat(dev.options.position[2])
+          )
+          item.rotation.set(
+            (dev.options.rotation[0] * Math.PI) / 180,
+            (dev.options.rotation[1] * Math.PI) / 180,
+            (dev.options.rotation[2] * Math.PI) / 180
+          )
+          item.scale.set(
+            parseFloat(dev.options.scale[0]),
+            parseFloat(dev.options.scale[1]),
+            parseFloat(dev.options.scale[2])
+          )
           item.castShadow = dev.options.castShadow
           item.receiveShadow = dev.options.receiveShadow
           item.material.color.set(dev.matOptions.color)
@@ -174,20 +226,56 @@ const modelsRecursion = (model: any, template: any) => {
         item.traverse((child: any) => {
           if (child.name == dev.name && child.type == dev.type) {
             if (child.type == 'Group') {
-              child.position.set(parseFloat(dev.options.position[0]), parseFloat(dev.options.position[1]), parseFloat(dev.options.position[2]))
-              child.rotation.set((dev.options.rotation[0] * Math.PI) / 180, (dev.options.rotation[1] * Math.PI) / 180, (dev.options.rotation[2] * Math.PI) / 180)
-              child.scale.set(parseFloat(dev.options.scale[0]), parseFloat(dev.options.scale[1]), parseFloat(dev.options.scale[2]))
+              child.position.set(
+                parseFloat(dev.options.position[0]),
+                parseFloat(dev.options.position[1]),
+                parseFloat(dev.options.position[2])
+              )
+              child.rotation.set(
+                (dev.options.rotation[0] * Math.PI) / 180,
+                (dev.options.rotation[1] * Math.PI) / 180,
+                (dev.options.rotation[2] * Math.PI) / 180
+              )
+              child.scale.set(
+                parseFloat(dev.options.scale[0]),
+                parseFloat(dev.options.scale[1]),
+                parseFloat(dev.options.scale[2])
+              )
               child.visible = dev.visible
             } else if (child.type == 'Object3D') {
-              child.position.set(parseFloat(dev.options.position[0]), parseFloat(dev.options.position[1]), parseFloat(dev.options.position[2]))
-              child.rotation.set((dev.options.rotation[0] * Math.PI) / 180, (dev.options.rotation[1] * Math.PI) / 180, (dev.options.rotation[2] * Math.PI) / 180)
-              child.scale.set(parseFloat(dev.options.scale[0]), parseFloat(dev.options.scale[1]), parseFloat(dev.options.scale[2]))
+              child.position.set(
+                parseFloat(dev.options.position[0]),
+                parseFloat(dev.options.position[1]),
+                parseFloat(dev.options.position[2])
+              )
+              child.rotation.set(
+                (dev.options.rotation[0] * Math.PI) / 180,
+                (dev.options.rotation[1] * Math.PI) / 180,
+                (dev.options.rotation[2] * Math.PI) / 180
+              )
+              child.scale.set(
+                parseFloat(dev.options.scale[0]),
+                parseFloat(dev.options.scale[1]),
+                parseFloat(dev.options.scale[2])
+              )
               child.visible = dev.visible
             } else if (child.type == 'Mesh') {
               child.visible = dev.visible
-              child.position.set(parseFloat(dev.options.position[0]), parseFloat(dev.options.position[1]), parseFloat(dev.options.position[2]))
-              child.rotation.set((dev.options.rotation[0] * Math.PI) / 180, (dev.options.rotation[1] * Math.PI) / 180, (dev.options.rotation[2] * Math.PI) / 180)
-              child.scale.set(parseFloat(dev.options.scale[0]), parseFloat(dev.options.scale[1]), parseFloat(dev.options.scale[2]))
+              child.position.set(
+                parseFloat(dev.options.position[0]),
+                parseFloat(dev.options.position[1]),
+                parseFloat(dev.options.position[2])
+              )
+              child.rotation.set(
+                (dev.options.rotation[0] * Math.PI) / 180,
+                (dev.options.rotation[1] * Math.PI) / 180,
+                (dev.options.rotation[2] * Math.PI) / 180
+              )
+              child.scale.set(
+                parseFloat(dev.options.scale[0]),
+                parseFloat(dev.options.scale[1]),
+                parseFloat(dev.options.scale[2])
+              )
               child.castShadow = dev.options.castShadow
               child.receiveShadow = dev.options.receiveShadow
               child.material.color.set(dev.matOptions.color)
@@ -224,4 +312,16 @@ const findElement = (arrs: any, obj: any) => {
       findElement(arrs, item.children)
     }
   })
+}
+
+// 递归找出上面所有父级元素 并乘以相应矩阵
+function recursiveCalParentsMat(obj, v, mat) {
+  mat.compose(
+    obj.position,
+    new Bol3D.Quaternion().setFromEuler(new Bol3D.Euler().setFromVector3(obj.rotation)),
+    obj.scale
+  )
+  v.applyMatrix4(mat)
+  if (!obj.parent || obj.parent.type == 'Scene') return
+  recursiveCalParentsMat(obj.parent, v, mat)
 }
