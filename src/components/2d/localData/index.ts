@@ -249,6 +249,17 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
       {
         icon:require('../../../assets/images/table-style1.png'),
         name:'表格样式-001-',
+        type:"EditorTable",
+        option:{
+          emitters:{},
+          matrixOption: {
+            left: 0,
+            top: 0,
+            height: 100,
+            width: 200,
+            angle: 0
+          },
+        }
       }
     ] }
 }
