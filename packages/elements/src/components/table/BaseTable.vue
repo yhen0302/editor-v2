@@ -15,7 +15,11 @@
     @scroll.stop
     ref="el"
   >
-    <table-el></table-el>
+    <table-el>
+      <template #default>
+        <column-el></column-el>
+      </template>
+    </table-el>
   </div>
 </template>
 

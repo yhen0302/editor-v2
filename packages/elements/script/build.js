@@ -8,7 +8,8 @@ const pImport = require('postcss-import')
 const typescript = require('rollup-plugin-typescript2')
 const {nodeResolve } = require('@rollup/plugin-node-resolve')
 const replace = require('rollup-plugin-replace')
-// const {getBabelOutputPlugin,babel} = require('@rollup/plugin-babel')
+// import postcss from 'rollup-plugin-postcss'
+const {getBabelOutputPlugin,babel} = require('@rollup/plugin-babel')
 
 
 const env = process.env.NODE_ENV
@@ -17,13 +18,21 @@ const inputConf = {
 
   plugins: [
     nodeResolve({extensions:['.js','.ts','.vue']}),
-    vue(),
+    vue({
+      target:'browser',
+      preprocessStyles:true,
+      postcssPlugins:[
+        pImport(),
+      ]
+    }),
     postcss({
       extensions: [".css"],
       plugins: [
         pImport(),
       ]
     }),
+    babel({presets:['@babel/preset-env','@babel/preset-typescript'],plugins:['@vue/babel-plugin-jsx'],extensions:['.vue']}),
+
     replace({
       'process.env.NODE_ENV':`'${process.env.NODE_ENV}'`,
       'IS_EDITOR':true
