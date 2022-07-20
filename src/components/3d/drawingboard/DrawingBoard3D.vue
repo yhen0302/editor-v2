@@ -1,6 +1,6 @@
 <template>
   <div class="drawing-borad-3d-main" v-if="domShow">
-    <canvas ref="scene" class="scene-3d"></canvas>
+    <canvas ref="scene" class="scene-3d" @contextmenu.stop></canvas>
   </div>
 </template>
 
