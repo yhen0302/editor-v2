@@ -52,8 +52,8 @@ export function layerMoveDownward() {
 // 图层移动到最上(下)一层
 export function layerMoveToTopHandle() {
   multiNodeHandle(EditorMutation.MOVE_TO_TOP_OF_NODES)
-
 }
+
 export function layerMoveToBottomHandle() {
   multiNodeHandle(EditorMutation.MOVE_TO_BOTTOM_OF_NODES)
 }

@@ -249,7 +249,7 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
       {
         icon:require('../../../assets/images/table-style1.png'),
         name:'表格样式-001-',
-        type:"EditorTable",
+        type:"BaseTable",
         option:{
           emitters:{},
           matrixOption: {
