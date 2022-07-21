@@ -10,8 +10,64 @@ declare const Bol3D: any
 var max = new Bol3D.Vector3()
 var min = new Bol3D.Vector3()
 
+const distinct: any = (arr) => {
+  for (let i = 0, len = arr.length; i < len - 1; i++) {
+    for (let j = i + 1; j < len; j++) {
+      if (arr[i].uuid === arr[j].uuid) {
+        arr.splice(j, 1)
+        // splic数组会改变数组长度，所以要将数组长度len和下标j减一
+        j--
+        len--
+      }
+    }
+  }
+  return arr
+}
+
 export const importScene = (canvas: any, d?: any) => {
-  const scene = d || store.state.exportContent[0].children[0].trees.threeDimension
+  var textMeshGroup: any, iconMeshGroup: any, flyLineMeshGroup: any
+
+  var textMeshGroupFoo: any = [],
+    iconMeshGroupFoo: any = [],
+    flyLineMeshGroupFoo: any = [],
+    textMeshGroupDepu: any,
+    iconMeshGroupDepu: any,
+    flyLineMeshGroupDepu: any
+  if (d) {
+    d.children.forEach((item: any, b: any) => {
+      item.trees.threeDimension.forEach((dev: any, i: any) => {
+        if (dev.uuid == 'IconIndex-uuid-2CC79AFB') {
+          if (b == 0) {
+            iconMeshGroup = JSON.parse(JSON.stringify(dev))
+          }
+          dev.children.forEach((i: any) => {
+            iconMeshGroupFoo.push(JSON.parse(JSON.stringify(i)))
+          })
+        } else if (dev.uuid == 'TextIndex-uuid-F4763805') {
+          if (b == 0) {
+            textMeshGroup = JSON.parse(JSON.stringify(dev))
+          }
+          dev.children.forEach((i: any) => {
+            textMeshGroupFoo.push(JSON.parse(JSON.stringify(i)))
+          })
+        } else if (dev.uuid == 'FlyLineIndex-uuid-352BF4EA') {
+          if (b == 0) {
+            flyLineMeshGroup = JSON.parse(JSON.stringify(dev))
+          }
+          dev.children.forEach((i: any) => {
+            flyLineMeshGroupFoo.push(JSON.parse(JSON.stringify(i)))
+          })
+        }
+      })
+    })
+  }
+  textMeshGroupDepu = distinct(textMeshGroupFoo)
+  iconMeshGroupDepu = distinct(iconMeshGroupFoo)
+  flyLineMeshGroupDepu = distinct(flyLineMeshGroupFoo)
+
+  const scene =
+    (d && d.children[0].trees.threeDimension) ||
+    store.state.exportContent[0].children[0].trees.threeDimension
   var Camera: any,
     AmbientLight: any,
     HemisphereLight: any,
@@ -38,8 +94,6 @@ export const importScene = (canvas: any, d?: any) => {
           ? 'https://www.kantu3d.com/demo/edit/'
           : location.origin + location.pathname
         : location.origin + location.pathname
-
-  var textMeshGroup: any, iconMeshGroup: any, flyLineMeshGroup: any
 
   scene.forEach((item: any) => {
     if (item.uuid == -1) {
@@ -77,17 +131,11 @@ export const importScene = (canvas: any, d?: any) => {
         MSAAPass = item
       }
     } else {
-      if (item.isEdit) {
-        if (item.name == 'Text') {
-          textMeshGroup = item
-        } else if (item.name == 'Icon') {
-          iconMeshGroup = item
-        } else if (item.name == 'FlyLine') {
-          flyLineMeshGroup = item
-        }
-      } else {
+      if (!item.isEdit) {
         modelUrls.push(`/models/HangKong/ChangJing/${item.name}.glb`)
-        models.push(item)
+        const arrs: any = []
+        findAllChildren(arrs, item)
+        models.push(arrs)
       }
     }
   })
@@ -140,31 +188,16 @@ export const importScene = (canvas: any, d?: any) => {
         }
       })
 
-      models.forEach((item: any) => {
-        if (model.name == item.name) {
-          model.position.set(
-            parseFloat(item.options.position[0]),
-            parseFloat(item.options.position[1]),
-            parseFloat(item.options.position[2])
-          )
-          model.rotation.set(
-            (item.options.rotation[0] * Math.PI) / 180,
-            (item.options.rotation[1] * Math.PI) / 180,
-            (item.options.rotation[2] * Math.PI) / 180
-          )
-          model.scale.set(
-            parseFloat(item.options.scale[0]),
-            parseFloat(item.options.scale[1]),
-            parseFloat(item.options.scale[2])
-          )
-          model.visible = item.visible
-          modelsRecursion(model.children, item.children)
-        }
-      })
       const node: any = {}
       const index = 0
       // 3d模板 存入缓存
-      parseModelNode(model, index, node)
+      parseModelNode({ name: model.name, sql: 0 }, model, index, node)
+
+      models.forEach((crv: any) => {
+        if (crv[0].uuid == model.uuid) {
+          modelGiveRecursion(model, crv, node)
+        }
+      })
       store.state.template.threeDimension.push(node)
     },
     onLoad: (evt: any) => {
@@ -175,8 +208,20 @@ export const importScene = (canvas: any, d?: any) => {
       const obj = onloadFun(evt, container, publicPath, {
         textMeshGroup,
         iconMeshGroup,
-        flyLineMeshGroup
+        flyLineMeshGroup,
+        textMeshGroupDepu,
+        iconMeshGroupDepu,
+        flyLineMeshGroupDepu
       })
+
+      if (store.state.exportContent[0].children.length > 1) {
+        store.state.exportContent[0].children.forEach((item: any, i: any) => {
+          if (i != 0) {
+            item.selected = false
+            store.state.pageTreeNodes[0].children.push(JSON.parse(JSON.stringify(item)))
+          }
+        })
+      }
 
       // click event
       clickFun(container, publicPath, obj)
@@ -184,134 +229,96 @@ export const importScene = (canvas: any, d?: any) => {
   })
 }
 
-const modelsRecursion = (model: any, template: any) => {
-  const arrs: any = []
-  findElement(arrs, template)
-  model.forEach((item: any) => {
+const modelGiveRecursion = (gourp: any, arrs: any, node: any) => {
+  gourp.traverse((child: any) => {
     arrs.forEach((dev: any) => {
-      if (item.isMesh) {
-        if (item.name == dev.name && item.type == dev.type) {
-          item.visible = dev.visible
-          item.position.set(
+      if (child.uuid == dev.uuid) {
+        if (child.type == 'Object3D' || child.type == 'Group') {
+          child.position.set(
             parseFloat(dev.options.position[0]),
             parseFloat(dev.options.position[1]),
             parseFloat(dev.options.position[2])
           )
-          item.rotation.set(
+          child.rotation.set(
             (dev.options.rotation[0] * Math.PI) / 180,
             (dev.options.rotation[1] * Math.PI) / 180,
             (dev.options.rotation[2] * Math.PI) / 180
           )
-          item.scale.set(
+          child.scale.set(
             parseFloat(dev.options.scale[0]),
             parseFloat(dev.options.scale[1]),
             parseFloat(dev.options.scale[2])
           )
-          item.castShadow = dev.options.castShadow
-          item.receiveShadow = dev.options.receiveShadow
-          item.material.color.set(dev.matOptions.color)
-          item.material.depthTest = dev.matOptions.depthTest
-          item.material.depthWrite = dev.matOptions.depthWrite
-          item.material.opacity = dev.matOptions.opacity
-          item.material.transparent = dev.matOptions.transparent
-          item.material.wireframe = dev.matOptions.wireframe
-          item.material.emissive.set(dev.matOptions.extends.emissive)
-          item.material.emissiveIntensity = dev.matOptions.extends.emissiveIntensity
-          item.material.envMapIntensity = dev.matOptions.extends.envMapIntensity
-          item.material.lightMapIntensity = dev.matOptions.extends.lightMapIntensity
-          item.material.metalness = dev.matOptions.extends.metalness
-          item.material.roughness = dev.matOptions.extends.roughness
+          child.visible = dev.visible
+        } else if (child.type == 'Mesh') {
+          child.visible = dev.visible
+          child.position.set(
+            parseFloat(dev.options.position[0]),
+            parseFloat(dev.options.position[1]),
+            parseFloat(dev.options.position[2])
+          )
+          child.rotation.set(
+            (dev.options.rotation[0] * Math.PI) / 180,
+            (dev.options.rotation[1] * Math.PI) / 180,
+            (dev.options.rotation[2] * Math.PI) / 180
+          )
+          child.scale.set(
+            parseFloat(dev.options.scale[0]),
+            parseFloat(dev.options.scale[1]),
+            parseFloat(dev.options.scale[2])
+          )
+          child.castShadow = dev.options.castShadow
+          child.receiveShadow = dev.options.receiveShadow
+          child.material.color.set(dev.matOptions.color)
+          child.material.depthTest = dev.matOptions.depthTest
+          child.material.depthWrite = dev.matOptions.depthWrite
+          child.material.opacity = dev.matOptions.opacity
+          child.material.transparent = dev.matOptions.transparent
+          child.material.wireframe = dev.matOptions.wireframe
+          child.material.emissive.set(dev.matOptions.extends.emissive)
+          child.material.emissiveIntensity = dev.matOptions.extends.emissiveIntensity
+          child.material.envMapIntensity = dev.matOptions.extends.envMapIntensity
+          child.material.lightMapIntensity = dev.matOptions.extends.lightMapIntensity
+          child.material.metalness = dev.matOptions.extends.metalness
+          child.material.roughness = dev.matOptions.extends.roughness
         }
-      } else {
-        item.traverse((child: any) => {
-          if (child.name == dev.name && child.type == dev.type) {
-            if (child.type == 'Group') {
-              child.position.set(
-                parseFloat(dev.options.position[0]),
-                parseFloat(dev.options.position[1]),
-                parseFloat(dev.options.position[2])
-              )
-              child.rotation.set(
-                (dev.options.rotation[0] * Math.PI) / 180,
-                (dev.options.rotation[1] * Math.PI) / 180,
-                (dev.options.rotation[2] * Math.PI) / 180
-              )
-              child.scale.set(
-                parseFloat(dev.options.scale[0]),
-                parseFloat(dev.options.scale[1]),
-                parseFloat(dev.options.scale[2])
-              )
-              child.visible = dev.visible
-            } else if (child.type == 'Object3D') {
-              child.position.set(
-                parseFloat(dev.options.position[0]),
-                parseFloat(dev.options.position[1]),
-                parseFloat(dev.options.position[2])
-              )
-              child.rotation.set(
-                (dev.options.rotation[0] * Math.PI) / 180,
-                (dev.options.rotation[1] * Math.PI) / 180,
-                (dev.options.rotation[2] * Math.PI) / 180
-              )
-              child.scale.set(
-                parseFloat(dev.options.scale[0]),
-                parseFloat(dev.options.scale[1]),
-                parseFloat(dev.options.scale[2])
-              )
-              child.visible = dev.visible
-            } else if (child.type == 'Mesh') {
-              child.visible = dev.visible
-              child.position.set(
-                parseFloat(dev.options.position[0]),
-                parseFloat(dev.options.position[1]),
-                parseFloat(dev.options.position[2])
-              )
-              child.rotation.set(
-                (dev.options.rotation[0] * Math.PI) / 180,
-                (dev.options.rotation[1] * Math.PI) / 180,
-                (dev.options.rotation[2] * Math.PI) / 180
-              )
-              child.scale.set(
-                parseFloat(dev.options.scale[0]),
-                parseFloat(dev.options.scale[1]),
-                parseFloat(dev.options.scale[2])
-              )
-              child.castShadow = dev.options.castShadow
-              child.receiveShadow = dev.options.receiveShadow
-              child.material.color.set(dev.matOptions.color)
-              child.material.depthTest = dev.matOptions.depthTest
-              child.material.depthWrite = dev.matOptions.depthWrite
-              child.material.opacity = dev.matOptions.opacity
-              child.material.transparent = dev.matOptions.transparent
-              child.material.wireframe = dev.matOptions.wireframe
-              child.material.emissive.set(dev.matOptions.extends.emissive)
-              child.material.emissiveIntensity = dev.matOptions.extends.emissiveIntensity
-              child.material.envMapIntensity = dev.matOptions.extends.envMapIntensity
-              child.material.lightMapIntensity = dev.matOptions.extends.lightMapIntensity
-              child.material.metalness = dev.matOptions.extends.metalness
-              child.material.roughness = dev.matOptions.extends.roughness
-            }
-          }
-        })
       }
     })
   })
+  const ars: any = []
+  findAllChildren(ars, node)
+
+  const selfChange = (item: any) => {
+    arrs.forEach((dev: any) => {
+      if (item.uuid == dev.uuid) {
+        item.selected = dev.selected
+        item.show = dev.show
+        item.spread = dev.spread
+        item.visible = dev.visible
+      }
+    })
+    if (item.children.length > 0) {
+      item.children.forEach((sr: any) => {
+        selfChange(sr)
+      })
+    }
+  }
+  selfChange(node)
 }
 
-const findElement = (arrs: any, obj: any) => {
-  obj.forEach((item: any) => {
-    const str: any = {}
-    for (const k in item) {
-      if (k != 'children') {
-        str[k] = item[k]
-      }
+const findAllChildren = (arrs: any, obj: any) => {
+  const str: any = {}
+  for (const k in obj) {
+    if (k != 'children') {
+      str[k] = obj[k]
     }
-    arrs.push(str)
-
-    if (item.children.length > 0) {
-      findElement(arrs, item.children)
-    }
-  })
+  }
+  arrs.push(str)
+  if (obj.children.length > 0) {
+    obj.children.forEach((item: any) => {
+      findAllChildren(arrs, item)
+    })
+  }
 }
 
 // 递归找出上面所有父级元素 并乘以相应矩阵

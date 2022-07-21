@@ -166,7 +166,10 @@ export default defineComponent({
       }
 
       EventsBus.emit('toolBarSelected', { node: {} })
+      store.state.dimensionType = null
+      store.state.selectBarToolType = ''
       nextTick(() => {
+        store.state.dimensionType = '3d'
         remove3Dnodes()
         fileList[0].text().then((res: any) => {
           // 接受

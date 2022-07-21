@@ -123,7 +123,7 @@ watch(
       formSettings.value[0].content[1].value = parseInt(store.state.addElementType.mesh.position.y)
       formSettings.value[0].content[2].value = parseInt(store.state.addElementType.mesh.position.z)
 
-      store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((item) => {
         if (item.name == 'Icon') {
           item.children.forEach((dev) => {
             if (dev.uuid == store.state.addElementType.mesh.uuid) {
@@ -155,7 +155,7 @@ watch(
     )
     store.state.addElementType.mesh.material.opacity = formSettings.value[2].content[0].value / 100
 
-    store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+    store.state.selectedSceneTreeNode.trees.threeDimension.forEach((item) => {
       if (item.name == 'Icon') {
         item.children.forEach((dev) => {
           if (dev.uuid == store.state.addElementType.mesh.uuid) {

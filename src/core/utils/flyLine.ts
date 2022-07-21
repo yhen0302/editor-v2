@@ -115,7 +115,7 @@ const flyObj = (option: any) => {
   return point
 }
 
-export const reviseFlyLine = (option: any) => {
+export const reviseFlyLine = (option: any, mesh: any) => {
   const { source, target, height, size, color, range, speed } = option
   const { attrPositions, attrCindex, attrCnumber, number } = pointsArrs(source, target, height)
 
@@ -124,21 +124,25 @@ export const reviseFlyLine = (option: any) => {
   // 传递当前所在位置
   geometry.setAttribute('index', new Bol3D.Float32BufferAttribute(attrCindex, 1))
   geometry.setAttribute('current', new Bol3D.Float32BufferAttribute(attrCnumber, 1))
-  ;(store as any).state.addElementType.mesh.geometry = geometry
-  ;(store as any).state.addElementType.mesh.material.uniforms.uTotal.value = number
-  ;(store as any).state.addElementType.mesh.material.uniforms.uColor.value = new Bol3D.Color(color)
-  ;(store as any).state.addElementType.mesh.material.uniforms.uRange.value = range
-  ;(store as any).state.addElementType.mesh.material.uniforms.uSize.value = size
-  ;(store as any).state.addElementType.mesh.material.uniforms.speed.value = speed
-  ;(store as any).state.addElementType.basePoint.position.copy(source.clone())
-  ;(store as any).state.addElementType.movePoint.position.copy(target.clone())
-  ;(store as any).state.addElementType.mesh.userData.source = source.clone()
-  ;(store as any).state.addElementType.mesh.userData.target = target.clone()
-  ;(store as any).state.addElementType.mesh.userData.height = height
-  ;(store as any).state.addElementType.mesh.userData.size = size
-  ;(store as any).state.addElementType.mesh.userData.color = color
-  ;(store as any).state.addElementType.mesh.userData.range = range
-  ;(store as any).state.addElementType.mesh.userData.speed = speed
+  mesh.geometry = geometry
+  mesh.material.uniforms.uTotal.value = number
+  mesh.material.uniforms.uColor.value = new Bol3D.Color(color)
+  mesh.material.uniforms.uRange.value = range
+  mesh.material.uniforms.uSize.value = size
+  mesh.material.uniforms.speed.value = speed
+  store.state.addElementType &&
+    store.state.addElementType.basePoint &&
+    store.state.addElementType.basePoint.position.copy(source.clone())
+  store.state.addElementType &&
+    store.state.addElementType.basePoint &&
+    store.state.addElementType.movePoint.position.copy(target.clone())
+  mesh.userData.source = source.clone()
+  mesh.userData.target = target.clone()
+  mesh.userData.height = height
+  mesh.userData.size = size
+  mesh.userData.color = color
+  mesh.userData.range = range
+  mesh.userData.speed = speed
 }
 
 export const reviseCurveLine = (position: Array<number>, obj: any) => {
@@ -170,7 +174,6 @@ export const flyBasePoint = (
     store.state.elementScaleInterval.x > store.state.elementScaleInterval.z
       ? (store.state.elementScaleInterval.x / 5000).toFixed(4)
       : (store.state.elementScaleInterval.z / 5000).toFixed(4)
-  const heightMax: any = (store.state.elementScaleInterval.y / 20).toFixed(0)
 
   if (!(store as any).state.addElementType.painting) {
     const node: any = {}
@@ -191,7 +194,7 @@ export const flyBasePoint = (
     const line = flyObj({
       source: curveSphere1.position.clone(),
       target: curveSphere2.position.clone(),
-      height: heightMax < 1 ? 1 : heightMax,
+      height: 1,
       size: scaleMax < 1 ? 1 : scaleMax,
       color: '#fff000',
       range: 100,
@@ -200,7 +203,7 @@ export const flyBasePoint = (
     line.name = 'flyLineSelf'
     line.userData.source = curveSphere1.position.clone()
     line.userData.target = curveSphere2.position.clone()
-    line.userData.height = heightMax < 1 ? 1 : heightMax
+    line.userData.height = 1
     line.userData.size = scaleMax < 1 ? 1 : scaleMax
     line.userData.color = '#fff000'
     line.userData.range = 100
@@ -210,14 +213,44 @@ export const flyBasePoint = (
     ;(store as any).state.addElementType.mesh = line
     line.renderOrder = 500
     // container.attach(line)
+
     const node = { type: 'flyLine', selected: true, name: '' }
     EventsBus.emit('toolBarSelected', { node })
-    store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item: any) => {
+    const modelType = store.state.addElementType.modelType
+    store.state.selectedSceneTreeNode.trees.threeDimension.forEach((item: any) => {
       if (item.name == 'FlyLine') {
-        const obj = meshBasicMsg(line, item)
+        item.childIndex++
+        line.uuid = `flyLineSelfIndex${item.childIndex}-${store.state.selectedSceneTreeNode.uuid}`
+        const obj = meshBasicMsg(line, item, {
+          source: curveSphere1.position.clone(),
+          target: curveSphere2.position.clone(),
+          height: 1,
+          size: scaleMax < 1 ? 1 : scaleMax,
+          color: '#fff000',
+          range: 100,
+          speed: 1,
+          modelType
+        })
         item.children.push(obj)
       }
     })
+    if (!modelType) {
+      store.state.template.threeDimension.forEach((item: any) => {
+        if (item.name == 'FlyLine') {
+          const obj = meshBasicMsg(line, item, {
+            source: curveSphere1.position.clone(),
+            target: curveSphere2.position.clone(),
+            height: 1,
+            size: scaleMax < 1 ? 1 : scaleMax,
+            color: '#fff000',
+            range: 100,
+            speed: 1,
+            modelType
+          })
+          item.children.push(obj)
+        }
+      })
+    }
     store.state.threeDimensionContainer.scene.children.forEach((item) => {
       if (item.name == 'FlyLine') {
         item.add(line)
@@ -238,7 +271,7 @@ const arrayDel = (arr: Array<any>, delObj: any) => {
   })
 }
 
-export const addFlyLine = (container: any, parentMesh: any, node: any) => {
+export const addFlyLine = (container: any, parentMesh: any, visible: any, node: any) => {
   const { color, height, range, size, source, speed, target } = node.options
   const line = flyObj({
     source: new Bol3D.Vector3(source.x, source.y, source.z),
@@ -259,34 +292,35 @@ export const addFlyLine = (container: any, parentMesh: any, node: any) => {
   line.userData.speed = speed
   container.clickObjects.push(line)
   line.renderOrder = 500
-  line.visible = node.visible
-  node.uuid = line.uuid
+  line.visible = visible
+  line.uuid = node.uuid
   ;(store as any).state.elementFlyLine.push(line)
   parentMesh.add(line)
 }
 
-const meshBasicMsg = (mesh: any, item: any) => {
+const meshBasicMsg = (mesh: any, item: any, options: any) => {
   var index = item.index
   const obj = {
     children: [],
     index: index + 1,
     name: mesh.name,
     options: {
-      source: null,
-      target: null,
-      height: null,
-      speed: null,
-      size: null,
-      color: null,
-      range: null
+      source: options.source,
+      target: options.target,
+      height: options.height,
+      speed: options.speed,
+      size: options.size,
+      color: options.color,
+      range: options.range
     },
     addMeshType: 'FlyLine',
     selected: false,
     show: true,
     spread: false,
-    type: 'Mesh',
+    type: 'FlyLine',
     uuid: mesh.uuid,
-    visible: mesh.visible
+    visible: mesh.visible,
+    modelType: options.modelType
   }
   return obj
 }

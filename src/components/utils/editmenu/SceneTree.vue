@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, toRaw } from 'vue'
+import { computed, defineComponent, nextTick, onMounted, ref, toRaw } from 'vue'
 import SceneTreeNode from './SceneTreeNode.vue'
 
 import { EventsBus } from '@/core/EventsBus'
@@ -24,11 +24,14 @@ export default defineComponent({
     const store = useStore()
 
     // trees: {threeDimension, twoDimension}
-    const nodes = computed<any>({get(){
-      return store.state.pageTreeNodes
-      },set(val){
-        return store.state.pageTreeNodes = val
-      }})
+    const nodes = computed<any>({
+      get() {
+        return store.state.pageTreeNodes
+      },
+      set(val) {
+        return (store.state.pageTreeNodes = val)
+      }
+    })
 
     // 初始化场景/页
     EventsBus.on('sceneLoaded', (e: any) => {
@@ -36,8 +39,9 @@ export default defineComponent({
         nodes.value[0].children[0].trees = JSON.parse(JSON.stringify(toRaw(store.state.template)))
         store.state.threeDimensionContainer = e.container
       }
-      if(e.isImport){
-        store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
+      if (e.isImport) {
+        store.state.pageTreeNodes[0].children[0].trees.twoDimension =
+          store.state.exportContent[0].children[0].trees.twoDimension
         console.log(store.state.pageTreeNodes[0].children[0].trees.twoDimension)
       }
     })

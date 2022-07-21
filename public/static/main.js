@@ -93455,7 +93455,7 @@ void main() {
 					this.pmremGenerator.dispose();
 					this.envMap = envMap;
 					this.scene.traverse((c) => {
-						if (c.isMesh) {
+						if (c.type == "Mesh") {
 							c.material.envMap = envMap;
 						}
 					});

@@ -28,6 +28,7 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
   lightPlane.renderOrder = 1000
   lightPlane.position.y = 0.03
   lightPlane.visible = false
+  lightPlane.type = 'IconBottomLight'
 
   // 飞线部分自定义元素
   const geometry = new Bol3D.SphereGeometry(1, 32, 16)
@@ -40,6 +41,8 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
   curveSphere2.visible = false
   curveSphere1.name = 'flyLineSelfSphere1'
   curveSphere2.name = 'flyLineSelfSphere2'
+  curveSphere1.type = 'flyLineBasicPoint'
+  curveSphere2.type = 'flyLineBasicPoint'
   container.attach(curveSphere1)
   container.attach(curveSphere2)
   container.clickObjects.push(curveSphere1, curveSphere2)
@@ -57,6 +60,7 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
     new Bol3D.LineBasicMaterial({ color: 0xffff00 })
   )
   line.visible = false
+  line.type = 'flyLineAuxiliaryLine'
   container.attach(line)
 
   // msaaPass(单个)
@@ -565,14 +569,17 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
 
   const IconGroup = new Bol3D.Group()
   IconGroup.name = 'Icon'
+  IconGroup.uuid = 'IconIndex-uuid-2CC79AFB'
   container.attach(IconGroup)
 
   const TextGroup = new Bol3D.Group()
   TextGroup.name = 'Text'
+  TextGroup.uuid = 'TextIndex-uuid-F4763805'
   container.attach(TextGroup)
 
   const FlyLineGroup = new Bol3D.Group()
   FlyLineGroup.name = 'FlyLine'
+  FlyLineGroup.uuid = 'FlyLineIndex-uuid-352BF4EA'
   container.attach(FlyLineGroup)
 
   const IconGroupNode: any = {
@@ -585,19 +592,46 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
     show: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.show : true,
     children: [],
     visible: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.visible : true,
-    isEdit: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.isEdit : true
+    isEdit: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.isEdit : true,
+    childIndex: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.childIndex : 0
   }
   if (addMeshObj.iconMeshGroup) {
     IconGroup.visible = addMeshObj.iconMeshGroup.visible
-    if (addMeshObj.iconMeshGroup.children.length > 0) {
-      addMeshObj.iconMeshGroup.children.forEach((item: any, i: any) => {
-        addIconToJson(container, item, (dev) => {
-          if (i == 0) {
-            dev.add(lightPlane)
+    if (addMeshObj.iconMeshGroupDepu.length > 0) {
+      addMeshObj.iconMeshGroupDepu.forEach((item: any, i: any) => {
+        var status: any = true
+        addMeshObj.iconMeshGroup.children.forEach((dev: any) => {
+          if (item.uuid == dev.uuid) {
+            status = false
+            addIconToJson(container, item, item.visible, (srrs) => {
+              if (i == 0) {
+                srrs.add(lightPlane)
+              }
+              IconGroup.add(srrs)
+            })
+            if (!item.modelType) {
+              IconGroupNode.children.push(item)
+            }
           }
-          IconGroup.add(dev)
         })
-        IconGroupNode.children.push(item)
+        if (status) {
+          if (!item.modelType) {
+            addIconToJson(container, item, true, (srrs) => {
+              if (i == 0) {
+                srrs.add(lightPlane)
+              }
+              IconGroup.add(srrs)
+            })
+            IconGroupNode.children.push(item)
+          } else {
+            addIconToJson(container, item, false, (srrs) => {
+              if (i == 0) {
+                srrs.add(lightPlane)
+              }
+              IconGroup.add(srrs)
+            })
+          }
+        }
       })
     }
   }
@@ -613,14 +647,31 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
     show: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.show : true,
     children: [],
     visible: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.visible : true,
-    isEdit: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.isEdit : true
+    isEdit: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.isEdit : true,
+    childIndex: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.childIndex : 0
   }
   if (addMeshObj.textMeshGroup) {
     TextGroup.visible = addMeshObj.textMeshGroup.visible
-    if (addMeshObj.textMeshGroup.children.length > 0) {
-      addMeshObj.textMeshGroup.children.forEach((item: any) => {
-        loadTextPlane(container, TextGroup, item)
-        TextGroupNode.children.push(item)
+    if (addMeshObj.textMeshGroupDepu.length > 0) {
+      addMeshObj.textMeshGroupDepu.forEach((item: any, i: any) => {
+        var status: any = true
+        addMeshObj.textMeshGroup.children.forEach((dev: any) => {
+          if (item.uuid == dev.uuid) {
+            status = false
+            loadTextPlane(container, TextGroup, item.visible, item)
+            if (!item.modelType) {
+              TextGroupNode.children.push(item)
+            }
+          }
+        })
+        if (status) {
+          if (!item.modelType) {
+            loadTextPlane(container, TextGroup, true, item)
+            TextGroupNode.children.push(item)
+          } else {
+            loadTextPlane(container, TextGroup, false, item)
+          }
+        }
       })
     }
   }
@@ -636,14 +687,31 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
     show: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.show : true,
     children: [],
     visible: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.visible : true,
-    isEdit: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.isEdit : true
+    isEdit: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.isEdit : true,
+    childIndex: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.childIndex : 0
   }
   if (addMeshObj.flyLineMeshGroup) {
     FlyLineGroup.visible = addMeshObj.flyLineMeshGroup.visible
-    if (addMeshObj.flyLineMeshGroup.children.length > 0) {
-      addMeshObj.flyLineMeshGroup.children.forEach((item: any) => {
-        addFlyLine(container, FlyLineGroup, item)
-        FlyLineNode.children.push(item)
+    if (addMeshObj.flyLineMeshGroupDepu.length > 0) {
+      addMeshObj.flyLineMeshGroupDepu.forEach((item: any, i: any) => {
+        var status: any = true
+        addMeshObj.flyLineMeshGroup.children.forEach((dev: any) => {
+          if (item.uuid == dev.uuid) {
+            status = false
+            addFlyLine(container, FlyLineGroup, item.visible, item)
+            if (!item.modelType) {
+              FlyLineNode.children.push(item)
+            }
+          }
+        })
+        if (status) {
+          if (!item.modelType) {
+            addFlyLine(container, FlyLineGroup, true, item)
+            FlyLineNode.children.push(item)
+          } else {
+            addFlyLine(container, FlyLineGroup, false, item)
+          }
+        }
       })
     }
   }

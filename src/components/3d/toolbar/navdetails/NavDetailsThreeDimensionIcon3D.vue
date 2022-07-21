@@ -1,28 +1,73 @@
 <template>
   <div class="nav-details-ThreeDimensionIcon-3d-main">
-    <ToolBarItem :class="{ hightButton: isVisited == item.name }" class="hightOutLine" v-for="item in dataList" :key="item.type" :icon="item.icon" :name="item.name" @click="choosePicture(item)" />
+    <ToolBarItem
+      :class="{ hightButton: isVisited == item.name }"
+      class="hightOutLine"
+      v-for="item in dataList"
+      :key="item.type"
+      :icon="item.icon"
+      :name="item.name"
+      @click="choosePicture(item)"
+    />
     <div class="escButton" v-if="visible" @click="escOut">Esc退出图标模式</div>
+    <div class="escButton1" v-if="visible" @click="changeInModel">{{ addModeText }}</div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onUnmounted, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import ToolBarItem from '@/components/utils/toolbar/ToolBarItem.vue'
 import { EventsBus } from '@/core/EventsBus'
 
 const store = useStore()
-let isVisited = ref('')
-let visible = ref(false)
+const isVisited = ref('')
+const visible = ref(false)
+const addModeType = ref(true)
+const addModeText = ref('添加至当前页')
 const intervalPlane = setInterval(() => {
-  store.state.addElementType && store.state.addElementType.lightMesh && store.state.addElementType.lightMesh.rotateOnAxis(store.state.addElementType.lightMesh.position.clone().set(0, 0, 1), -0.03)
+  store.state.addElementType &&
+    store.state.addElementType.lightMesh &&
+    store.state.addElementType.lightMesh.rotateOnAxis(
+      store.state.addElementType.lightMesh.position.clone().set(0, 0, 1),
+      -0.03
+    )
 }, 10)
 
+const changeInModel = () => {
+  if (addModeType.value) {
+    addModeText.value = '添加至全局'
+  } else {
+    addModeText.value = '添加至当前页'
+  }
+  addModeType.value = !addModeType.value
+
+  if (store.state.addElementType) {
+    store.state.addElementType.modelType = addModeType.value
+  }
+}
+
 const dataList = ref([
-  { icon: require('@/assets/images/threeDimensionIcon/Camera.png'), name: '摄像头', type: 'threeCamera' },
-  { icon: require('@/assets/images/threeDimensionIcon/IsolatingSwitch.png'), name: '火警', type: 'threeIsolatingSwitch' },
-  { icon: require('@/assets/images/threeDimensionIcon/LightningRod.png'), name: '消防', type: 'threeLightningRod' },
-  { icon: require('@/assets/images/threeDimensionIcon/WindowPos.png'), name: '风扇', type: 'threeWindowPos' }
+  {
+    icon: require('@/assets/images/threeDimensionIcon/Camera.png'),
+    name: '摄像头',
+    type: 'threeCamera'
+  },
+  {
+    icon: require('@/assets/images/threeDimensionIcon/IsolatingSwitch.png'),
+    name: '火警',
+    type: 'threeIsolatingSwitch'
+  },
+  {
+    icon: require('@/assets/images/threeDimensionIcon/LightningRod.png'),
+    name: '消防',
+    type: 'threeLightningRod'
+  },
+  {
+    icon: require('@/assets/images/threeDimensionIcon/WindowPos.png'),
+    name: '风扇',
+    type: 'threeWindowPos'
+  }
 ])
 
 const mouseEnter = () => {
@@ -78,9 +123,10 @@ const choosePicture = (item) => {
     smallType: item.type,
     mesh: null,
     moving: false,
-    lightMesh: null
+    lightMesh: null,
+    modelType: addModeType.value
   }
-  let node = { type: 'icon3D', selected: item.type, name: item.name }
+  const node = { type: 'icon3D', selected: item.type, name: item.name }
   EventsBus.emit('toolBarSelected', { node })
 }
 </script>
@@ -107,6 +153,25 @@ const choosePicture = (item) => {
   text-align: center;
   top: 10px;
   left: 290px;
+  border-radius: 2px;
+  background: #5475ff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  word-break: keep-all;
+  white-space: nowrap;
+}
+
+.escButton1 {
+  position: absolute;
+  width: 90px;
+  padding: 0 10px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  top: 10px;
+  left: 410px;
   border-radius: 2px;
   background: #5475ff;
   cursor: pointer;
