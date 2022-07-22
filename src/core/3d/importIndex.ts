@@ -37,8 +37,9 @@ export const importScene = (canvas: any, d?: any) => {
         ? location.protocol === 'blob:'
           ? 'https://www.kantu3d.com/demo/edit/'
           : location.origin + location.pathname
+        : location.protocol === 'blob:'
+        ? location.origin + '/'
         : location.origin + location.pathname
-
   var textMeshGroup: any, iconMeshGroup: any, flyLineMeshGroup: any
 
   scene.forEach((item: any) => {

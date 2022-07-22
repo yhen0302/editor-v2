@@ -7,6 +7,7 @@ const pImport = require('postcss-import')
 const typescript = require('rollup-plugin-typescript2')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
 const replace = require('rollup-plugin-replace')
+const {getBabelOutputPlugin,babel} = require('@rollup/plugin-babel')
 const path = require('path')
 
 const env = process.env.NODE_ENV
@@ -15,22 +16,27 @@ const inputConf = {
 
   plugins: [
     nodeResolve({ extensions: ['.js', '.ts', '.vue'] }),
-    vue(),
+    vue({
+      target:'browser',
+      preprocessStyles:true,
+      postcssPlugins:[
+        pImport(),
+      ]
+    }),
     postcss({
       extensions: ['.css'],
       plugins: [
         pImport()
-        // tailwindcss({}),
-        // autoprefixer({}),
       ]
     }),
+    babel({presets:['@babel/preset-env','@babel/preset-typescript'],plugins:['@vue/babel-plugin-jsx'],extensions:['.vue']}),
     replace({
       'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
       IS_EDITOR: true
     }),
     typescript({ allowJs: true })
-  ]
-  // external: ["vue"]
+  ],
+  external: ['@/assets/icon/clip-1406.svg']
 }
 const outputConf = {
   file: './sdk/index.js',

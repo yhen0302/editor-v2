@@ -12,7 +12,7 @@
 
     <transition name="bounceInLeft">
       <NavMenu2D v-if="store.state.dimensionType === '2d' && store.state.selectBarToolType" />
-      <div class="left2" v-else-if="store.state.dimensionType === '3d' && store.state.selectBarToolType != ''">
+      <div class="left2" v-else-if="store.state.dimensionType === '3d' && store.state.selectBarToolType !== ''">
         <NavMenu3D />
       </div>
     </transition>

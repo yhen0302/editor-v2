@@ -6340,6 +6340,17 @@
     function createTextVNode(text = ' ', flag = 0) {
         return createVNode$1(Text, null, text, flag);
     }
+    /**
+     * @private
+     */
+    function createCommentVNode(text = '', 
+    // when used as the v-else branch, the comment node must be created as a
+    // block to ensure correct updates.
+    asBlock = false) {
+        return asBlock
+            ? (openBlock(), createBlock(Comment, null, text))
+            : createVNode$1(Comment, null, text);
+    }
     function normalizeVNode(child) {
         if (child == null || typeof child === 'boolean') {
             // empty placeholder
@@ -7697,8 +7708,8 @@
       }
     }
 
-    var css_248z$a = "@tailwind base;\r\n@tailwind utilities;\r\n*{\r\n    margin: 0;\r\n    padding: 0;\r\n}\r\n.absolute{\r\n  position: absolute;\r\n}\r\nimg {\r\n    height: initial;\r\n}\r\ninput:focus {\r\n    outline: none;\r\n}\r\ninput::-webkit-inner-spin-button {\r\n    -webkit-appearance: none;\r\n}\r\n.property-box {\r\n    max-height: 48vh;\r\n    min-height: 38vh;\r\n    overflow-y: scroll;\r\n}\r\n*::-webkit-scrollbar {\r\n    background: transparent;\r\n    width: 5px;\r\n    height: 5px;\r\n}\r\n*::-webkit-scrollbar-thumb {\r\n    background: #c2c2c2;\r\n    border-radius: 10px;\r\n    width: 10px;\r\n}\r\n*::-webkit-scrollbar-corner {\r\n    background: transparent;\r\n}\r\n.modal {\r\n    position: fixed;\r\n    top: 0;\r\n    left: 0;\r\n    width: 100vw;\r\n    height: 100vh;\r\n    z-index: 2017;\r\n    background: rgba(0, 0, 0, 0.7);\r\n}\r\n";
-    styleInject(css_248z$a);
+    var css_248z$b = "@tailwind base;\r\n@tailwind utilities;\r\n*{\r\n    margin: 0;\r\n    padding: 0;\r\n}\r\n.absolute{\r\n  position: absolute;\r\n}\r\nimg {\r\n    height: initial;\r\n}\r\ninput:focus {\r\n    outline: none;\r\n}\r\ninput::-webkit-inner-spin-button {\r\n    -webkit-appearance: none;\r\n}\r\n.property-box {\r\n    max-height: 48vh;\r\n    min-height: 38vh;\r\n    overflow-y: scroll;\r\n}\r\n*::-webkit-scrollbar {\r\n    background: transparent;\r\n    width: 5px;\r\n    height: 5px;\r\n}\r\n*::-webkit-scrollbar-thumb {\r\n    background: #c2c2c2;\r\n    border-radius: 10px;\r\n    width: 10px;\r\n}\r\n*::-webkit-scrollbar-corner {\r\n    background: transparent;\r\n}\r\n.modal {\r\n    position: fixed;\r\n    top: 0;\r\n    left: 0;\r\n    width: 100vw;\r\n    height: 100vh;\r\n    z-index: 2017;\r\n    background: rgba(0, 0, 0, 0.7);\r\n}\r\n";
+    styleInject(css_248z$b);
 
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation.
@@ -35766,7 +35777,7 @@
     var triggerUpdatedEvent;
     var bindRenderedEvent;
     var bindMouseEvent;
-    var render$h;
+    var render$i;
     var renderComponents;
     var renderSeries;
     var createExtensionAPI;
@@ -36906,7 +36917,7 @@
             coordSysMgr.update(ecModel, api);
             clearColorPalette(ecModel);
             scheduler.performVisualTasks(ecModel, payload);
-            render$h(this, ecModel, api, payload, updateParams); // Set background
+            render$i(this, ecModel, api, payload, updateParams); // Set background
 
             var backgroundColor = ecModel.get('backgroundColor') || 'transparent';
             var darkMode = ecModel.get('darkMode');
@@ -36986,7 +36997,7 @@
               setDirty: true
             });
 
-            render$h(this, ecModel, this._api, payload, {});
+            render$i(this, ecModel, this._api, payload, {});
             lifecycle$1.trigger('afterupdate', ecModel, this._api);
           },
           updateVisual: function (payload) {
@@ -37318,7 +37329,7 @@
           }
         }
 
-        render$h = function (ecIns, ecModel, api, payload, updateParams) {
+        render$i = function (ecIns, ecModel, api, payload, updateParams) {
           allocateZlevels(ecModel);
           renderComponents(ecIns, ecModel, api, payload, updateParams);
           each$g(ecIns._chartsViews, function (chart) {
@@ -102883,31 +102894,31 @@
         }
     };
 
-    var script$g = {
+    var script$i = {
         name: 'RectShape',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin],
-        setup(props) {
-            const color = computed(() => {
+        setup: function setup(props) {
+            var color = computed(function () {
                 return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
             });
-            const opacity = computed(() => {
+            var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
             });
             return {
-                color,
-                opacity
+                color: color,
+                opacity: opacity
             };
-        },
+        }
     };
 
-    function render$g(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+    function render$h(_ctx, _cache, $props, $setup, $data, $options) {
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "rect-shape absolute",
-        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
         draggable: "false",
         style: normalizeStyle$1({
           width: _ctx.width,
@@ -102917,41 +102928,46 @@
           backgroundColor: $setup.color,
           opacity: $setup.opacity
         }),
-        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onMousedown: _cache[1] || (_cache[1] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
         ref: "el"
-      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
+      }, null, 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select
+      }]]);
     }
 
-    script$g.render = render$g;
-    script$g.__file = "src/components/shape/RectShape.vue";
+    script$i.render = render$h;
+    script$i.__file = "src/components/shape/RectShape.vue";
 
-    var script$f = {
+    var script$h = {
         name: 'RoundedRectShape',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin],
-        setup(props) {
-            const color = computed(() => {
+        setup: function setup(props) {
+            var color = computed(function () {
                 return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
             });
-            const opacity = computed(() => {
+            var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
             });
             return {
-                color,
-                opacity
+                color: color,
+                opacity: opacity
             };
-        },
+        }
     };
 
-    function render$f(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+    function render$g(_ctx, _cache, $props, $setup, $data, $options) {
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "rounded-rect-shape absolute",
-        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
         draggable: "false",
         style: normalizeStyle$1({
           width: _ctx.width,
@@ -102961,45 +102977,50 @@
           backgroundColor: $setup.color,
           opacity: $setup.opacity
         }),
-        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onMousedown: _cache[1] || (_cache[1] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
         ref: "el"
-      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
+      }, null, 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select
+      }]]);
     }
 
-    var css_248z$9 = "\n.rounded-rect-shape[data-v-c59a2864]{\r\n  border-radius: 10%;\n}\r\n";
-    styleInject(css_248z$9);
+    var css_248z$a = "\n.rounded-rect-shape[data-v-c59a2864]{\r\n  border-radius: 10%;\n}\r\n";
+    styleInject(css_248z$a);
 
-    script$f.render = render$f;
-    script$f.__scopeId = "data-v-c59a2864";
-    script$f.__file = "src/components/shape/RoundedRectShape.vue";
+    script$h.render = render$g;
+    script$h.__scopeId = "data-v-c59a2864";
+    script$h.__file = "src/components/shape/RoundedRectShape.vue";
 
-    var script$e = {
+    var script$g = {
         name: 'CircleShape',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin],
-        setup(props) {
-            const color = computed(() => {
+        setup: function setup(props) {
+            var color = computed(function () {
                 return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
             });
-            const opacity = computed(() => {
+            var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
             });
             return {
-                color,
-                opacity
+                color: color,
+                opacity: opacity
             };
-        },
+        }
     };
 
-    function render$e(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+    function render$f(_ctx, _cache, $props, $setup, $data, $options) {
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "circle-rect-shape absolute",
-        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
         draggable: "false",
         style: normalizeStyle$1({
           width: _ctx.width,
@@ -103009,46 +103030,51 @@
           backgroundColor: $setup.color,
           opacity: $setup.opacity
         }),
-        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onMousedown: _cache[1] || (_cache[1] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
         ref: "el"
-      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
+      }, null, 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select
+      }]]);
     }
 
-    var css_248z$8 = "\n.circle-rect-shape[data-v-d550f47a]{\r\n  border-radius: 50%;\n}\r\n";
-    styleInject(css_248z$8);
+    var css_248z$9 = "\n.circle-rect-shape[data-v-d550f47a]{\r\n  border-radius: 50%;\n}\r\n";
+    styleInject(css_248z$9);
 
-    script$e.render = render$e;
-    script$e.__scopeId = "data-v-d550f47a";
-    script$e.__file = "src/components/shape/CircleShape.vue";
+    script$g.render = render$f;
+    script$g.__scopeId = "data-v-d550f47a";
+    script$g.__file = "src/components/shape/CircleShape.vue";
 
-    var script$d = {
+    var script$f = {
         name: 'TriangleShape',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin],
-        setup(props) {
+        setup: function setup(props) {
             // exterior
-            const color = computed(() => {
+            var color = computed(function () {
                 return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
             });
-            const opacity = computed(() => {
+            var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
             });
             return {
-                color,
-                opacity
+                color: color,
+                opacity: opacity
             };
-        },
+        }
     };
 
-    function render$d(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+    function render$e(_ctx, _cache, $props, $setup, $data, $options) {
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "triangle-shape absolute",
-        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
         draggable: "false",
         style: normalizeStyle$1({
           width: _ctx.width,
@@ -103058,49 +103084,62 @@
           backgroundColor: $setup.color,
           opacity: $setup.opacity
         }),
-        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args)))
-      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
+        onMousedown: _cache[1] || (_cache[1] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        })
+      }, null, 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select
+      }]]);
     }
 
-    var css_248z$7 = "\n.triangle-shape[data-v-54d47dea] {\r\n  clip-path: polygon(0 0, 0% 100%, 100% 100%);\n}\r\n";
-    styleInject(css_248z$7);
+    var css_248z$8 = "\n.triangle-shape[data-v-54d47dea] {\r\n  clip-path: polygon(0 0, 0% 100%, 100% 100%);\n}\r\n";
+    styleInject(css_248z$8);
 
-    script$d.render = render$d;
-    script$d.__scopeId = "data-v-54d47dea";
-    script$d.__file = "src/components/shape/TriangleShape.vue";
+    script$f.render = render$e;
+    script$f.__scopeId = "data-v-54d47dea";
+    script$f.__file = "src/components/shape/TriangleShape.vue";
 
-    var script$c = {
+    var script$e = {
         name: 'ImageMedia',
         props: ['node'],
         mixins: [matrixMixin],
         emits: ['select', 'append'],
-        setup(props) {
-            const src = computed(() => props.node.option.src);
+        setup: function setup(props) {
+            var src = computed(function () {
+                return props.node.option.src;
+            });
             return {
-                src
+                src: src
             };
-        },
+        }
     };
 
-    const _withScopeId$1 = n => (pushScopeId("data-v-dcb9cef8"),n=n(),popScopeId(),n);
-    const _hoisted_1$2 = ["src"];
-    const _hoisted_2$1 = {
+    var _withScopeId$1 = function _withScopeId(n) {
+      return pushScopeId("data-v-dcb9cef8"), n = n(), popScopeId(), n;
+    };
+
+    var _hoisted_1$3 = ["src"];
+    var _hoisted_2$2 = {
       key: 1,
       class: "img-placeholder-box"
     };
-    const _hoisted_3$1 = /*#__PURE__*/ _withScopeId$1(() => /*#__PURE__*/createBaseVNode("img", {
-      class: "i-p",
-      src: _imports_0__default["default"],
-      draggable: "false"
-    }, null, -1 /* HOISTED */));
-    const _hoisted_4$1 = [
-      _hoisted_3$1
-    ];
 
-    function render$c(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+    var _hoisted_3$2 = /*#__PURE__*/_withScopeId$1(function () {
+      return /*#__PURE__*/createBaseVNode("img", {
+        class: "i-p",
+        src: _imports_0__default["default"],
+        draggable: "false"
+      }, null, -1
+      /* HOISTED */
+      );
+    });
+
+    var _hoisted_4$2 = [_hoisted_3$2];
+    function render$d(_ctx, _cache, $props, $setup, $data, $options) {
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "image-media-wrap",
@@ -103111,60 +103150,71 @@
           top: _ctx.top
         }),
         ref: "el",
-        onMousedown: _cache[0] || (_cache[0] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        onClick: _cache[1] || (_cache[1] = withModifiers(() => {}, ["stop"])),
+        onMousedown: _cache[0] || (_cache[0] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
+        onClick: _cache[1] || (_cache[1] = withModifiers(function () {}, ["stop"])),
         draggable: "false"
-      }, [
-        ($setup.src)
-          ? (openBlock(), createElementBlock("img", {
-              key: 0,
-              class: "image-media absolute",
-              draggable: "false",
-              src: $setup.src
-            }, null, 8 /* PROPS */, _hoisted_1$2))
-          : (openBlock(), createElementBlock("div", _hoisted_2$1, _hoisted_4$1))
-      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
+      }, [$setup.src ? (openBlock(), createElementBlock("img", {
+        key: 0,
+        class: "image-media absolute",
+        draggable: "false",
+        src: $setup.src
+      }, null, 8
+      /* PROPS */
+      , _hoisted_1$3)) : (openBlock(), createElementBlock("div", _hoisted_2$2, _hoisted_4$2))], 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select
+      }]]);
     }
 
-    var css_248z$6 = "\n.image-media-wrap[data-v-dcb9cef8] {\n  position: absolute;\n}\n.image-media[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n.img-placeholder-box[data-v-dcb9cef8] {\n  width: 100%;\n  height: 100%;\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n";
-    styleInject(css_248z$6);
+    var css_248z$7 = "\n.image-media-wrap[data-v-dcb9cef8] {\n  position: absolute;\n}\n.image-media[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n.img-placeholder-box[data-v-dcb9cef8] {\n  width: 100%;\n  height: 100%;\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n";
+    styleInject(css_248z$7);
 
-    script$c.render = render$c;
-    script$c.__scopeId = "data-v-dcb9cef8";
-    script$c.__file = "src/components/media/ImageMedia.vue";
+    script$e.render = render$d;
+    script$e.__scopeId = "data-v-dcb9cef8";
+    script$e.__file = "src/components/media/ImageMedia.vue";
 
-    var script$b = {
+    var script$d = {
         name: 'VideoMedia',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin],
-        setup(props) {
-            const src = computed(() => props.node.option.src);
+        setup: function setup(props) {
+            var src = computed(function () {
+                return props.node.option.src;
+            });
             return {
-                src
+                src: src
             };
         }
     };
 
-    const _withScopeId = n => (pushScopeId("data-v-6ff79d38"),n=n(),popScopeId(),n);
-    const _hoisted_1$1 = ["src"];
-    const _hoisted_2 = {
+    var _withScopeId = function _withScopeId(n) {
+      return pushScopeId("data-v-6ff79d38"), n = n(), popScopeId(), n;
+    };
+
+    var _hoisted_1$2 = ["src"];
+    var _hoisted_2$1 = {
       key: 1,
       class: "img-placeholder"
     };
-    const _hoisted_3 = /*#__PURE__*/ _withScopeId(() => /*#__PURE__*/createBaseVNode("img", {
-      class: "i-p",
-      src: _imports_0__default["default"],
-      draggable: "false"
-    }, null, -1 /* HOISTED */));
-    const _hoisted_4 = [
-      _hoisted_3
-    ];
 
-    function render$b(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+    var _hoisted_3$1 = /*#__PURE__*/_withScopeId(function () {
+      return /*#__PURE__*/createBaseVNode("img", {
+        class: "i-p",
+        src: _imports_0__default["default"],
+        draggable: "false"
+      }, null, -1
+      /* HOISTED */
+      );
+    });
+
+    var _hoisted_4$1 = [_hoisted_3$1];
+    function render$c(_ctx, _cache, $props, $setup, $data, $options) {
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "video-media-wrap",
@@ -103175,105 +103225,234 @@
           top: _ctx.top
         }),
         ref: "el",
-        onMousedown: _cache[0] || (_cache[0] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        onClick: _cache[1] || (_cache[1] = withModifiers(() => {}, ["stop"])),
+        onMousedown: _cache[0] || (_cache[0] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
+        onClick: _cache[1] || (_cache[1] = withModifiers(function () {}, ["stop"])),
         draggable: "false"
-      }, [
-        ($setup.src)
-          ? (openBlock(), createElementBlock("video", {
-              key: 0,
-              class: "video-media absolute",
-              draggable: "false",
-              autoplay: "",
-              loop: "",
-              src: $setup.src
-            }, null, 8 /* PROPS */, _hoisted_1$1))
-          : (openBlock(), createElementBlock("div", _hoisted_2, _hoisted_4))
-      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
+      }, [$setup.src ? (openBlock(), createElementBlock("video", {
+        key: 0,
+        class: "video-media absolute",
+        draggable: "false",
+        autoplay: "",
+        loop: "",
+        src: $setup.src
+      }, null, 8
+      /* PROPS */
+      , _hoisted_1$2)) : (openBlock(), createElementBlock("div", _hoisted_2$1, _hoisted_4$1))], 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select
+      }]]);
     }
 
-    var css_248z$5 = "\n.video-media-wrap[data-v-6ff79d38] {\r\n  position: absolute;\n}\n.video-media[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\n.img-placeholder[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-6ff79d38]{\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\r\n";
-    styleInject(css_248z$5);
+    var css_248z$6 = "\n.video-media-wrap[data-v-6ff79d38] {\r\n  position: absolute;\n}\n.video-media[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\n.img-placeholder[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-6ff79d38]{\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\r\n";
+    styleInject(css_248z$6);
 
-    script$b.render = render$b;
-    script$b.__scopeId = "data-v-6ff79d38";
-    script$b.__file = "src/components/media/VideoMedia.vue";
+    script$d.render = render$c;
+    script$d.__scopeId = "data-v-6ff79d38";
+    script$d.__file = "src/components/media/VideoMedia.vue";
 
-    var script$a = {
+    var script$c = {
         name: 'BigTitle',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin],
-        setup(props) {
-            const h1 = ref();
-            // exterior
-            const color = computed(() => {
+        setup: function setup(props) {
+            var h1 = ref(); // exterior
+            var color = computed(function () {
                 return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
             });
-            const opacity = computed(() => {
+            var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
-            });
-            // font
-            const fontColor = computed(() => {
+            }); // font
+            var fontColor = computed(function () {
                 return props.node.option.textOption.color;
             });
-            const fontSize = computed(() => {
+            var fontSize = computed(function () {
                 return toPx(props.node.option.textOption.fontSize);
             });
-            const fontFamily = computed(() => {
+            var fontFamily = computed(function () {
                 return props.node.option.textOption.fontFamily;
             });
-            const fontStyle = computed(() => {
+            var fontStyle = computed(function () {
                 return props.node.option.textOption.fontStyle;
             });
-            const align = computed(() => {
+            var align = computed(function () {
                 return props.node.option.textOption.align;
             });
-            const verticalAlign = computed(() => {
+            var verticalAlign = computed(function () {
                 return props.node.option.textOption.verticalAlign;
-            });
-            // value
-            const value = computed(() => {
+            }); // value
+            var value = computed(function () {
                 return props.node.option.value;
             });
-            let dbClickText;
-            let textElInput;
-            // editor
+            var dbClickText;
+            var textElInput; // editor
             {
-                dbClickText = (ev) => {
+                dbClickText = function dbClickText(ev) {
                     ev.target;
                     props.node.contentEditable = true;
                 };
-                watch(() => props.node.contentEditable, (newVal, oldVal) => {
+                watch(function () {
+                    return props.node.contentEditable;
+                }, function (newVal, oldVal) {
+                    var _h1$value;
                     h1.value.contentEditable = String(newVal);
                     if (newVal)
-                        h1.value?.focus();
+                        (_h1$value = h1.value) === null || _h1$value === void 0 ? void 0 : _h1$value.focus();
                 });
-                textElInput = (ev) => {
+                textElInput = function textElInput(ev) {
                     props.node.option.value = ev.target.innerText;
                 };
             }
             return {
-                color,
-                opacity,
-                value,
-                fontColor,
-                fontSize,
-                fontFamily,
-                fontStyle,
-                align,
-                verticalAlign,
-                dbClickText,
-                h1,
-                textElInput
+                color: color,
+                opacity: opacity,
+                value: value,
+                fontColor: fontColor,
+                fontSize: fontSize,
+                fontFamily: fontFamily,
+                fontStyle: fontStyle,
+                align: align,
+                verticalAlign: verticalAlign,
+                dbClickText: dbClickText,
+                h1: h1,
+                textElInput: textElInput
+            };
+        }
+    };
+
+    function render$b(_ctx, _cache, $props, $setup, $data, $options) {
+      var _directive_drag = resolveDirective("drag");
+
+      return withDirectives((openBlock(), createElementBlock("div", {
+        class: "text-wrapper absolute flex",
+        draggable: "false",
+        style: normalizeStyle$1({
+          width: _ctx.width,
+          height: _ctx.height,
+          left: _ctx.left,
+          top: _ctx.top,
+          backgroundColor: $setup.color,
+          opacity: $setup.opacity,
+          textAlign: $setup.align,
+          alignItems: $setup.verticalAlign
+        }),
+        onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
+        onMousedown: _cache[6] || (_cache[6] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
+        onWheelPassive: _cache[7] || (_cache[7] = withModifiers(function () {}, ["stop"])),
+        onScroll: _cache[8] || (_cache[8] = withModifiers(function () {}, ["stop"])),
+        ref: "el"
+      }, [createBaseVNode("h1", {
+        class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
+        style: normalizeStyle$1({
+          color: $setup.fontColor,
+          fontSize: $setup.fontSize,
+          fontFamily: $setup.fontFamily
+        }),
+        onDblclick: _cache[0] || (_cache[0] = withModifiers(function () {
+          return $setup.dbClickText && $setup.dbClickText.apply($setup, arguments);
+        }, ["stop"])),
+        ref: "h1",
+        onInput: _cache[1] || (_cache[1] = function () {
+          return $setup.textElInput && $setup.textElInput.apply($setup, arguments);
+        }),
+        onKeydown: _cache[2] || (_cache[2] = withModifiers(function () {}, ["stop"])),
+        onKeyup: _cache[3] || (_cache[3] = withModifiers(function () {}, ["stop"])),
+        onKeypress: _cache[4] || (_cache[4] = withModifiers(function () {}, ["stop"]))
+      }, toDisplayString($setup.value), 39
+      /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */
+      )], 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select
+      }]]);
+    }
+
+    var css_248z$5 = "\n.text-wrapper[data-v-5c83e1cc] {\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y: contain;\n}\n.weight[data-v-5c83e1cc] {\r\n  font-weight: bold;\n}\n.underline[data-v-5c83e1cc] {\r\n  text-decoration: underline;\n}\n.italic[data-v-5c83e1cc] {\r\n  font-style: oblique;\n}\n.big-title[data-v-5c83e1cc] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
+    styleInject(css_248z$5);
+
+    script$c.render = render$b;
+    script$c.__scopeId = "data-v-5c83e1cc";
+    script$c.__file = "src/components/text/BigTitle.vue";
+
+    var script$b = {
+        name: 'SmallTitle',
+        props: ['node'],
+        emits: ['select', 'append'],
+        mixins: [matrixMixin],
+        setup: function setup(props) {
+            var h1 = ref(); // exterior
+            var color = computed(function () {
+                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            });
+            var opacity = computed(function () {
+                return (props.node.option.transparency / 100).toFixed(2);
+            }); // font
+            var fontColor = computed(function () {
+                return props.node.option.textOption.color;
+            });
+            var fontSize = computed(function () {
+                return toPx(props.node.option.textOption.fontSize);
+            });
+            var fontFamily = computed(function () {
+                return props.node.option.textOption.fontFamily;
+            });
+            var fontStyle = computed(function () {
+                return props.node.option.textOption.fontStyle;
+            });
+            var align = computed(function () {
+                return props.node.option.textOption.align;
+            });
+            var verticalAlign = computed(function () {
+                return props.node.option.textOption.verticalAlign;
+            }); // value
+            var value = computed(function () {
+                return props.node.option.value;
+            });
+            var dbClickText;
+            var textElInput; // editor
+            {
+                dbClickText = function dbClickText(ev) {
+                    ev.target;
+                    props.node.contentEditable = true;
+                };
+                watch(function () {
+                    return props.node.contentEditable;
+                }, function (newVal, oldVal) {
+                    var _h1$value;
+                    h1.value.contentEditable = String(newVal);
+                    if (newVal)
+                        (_h1$value = h1.value) === null || _h1$value === void 0 ? void 0 : _h1$value.focus();
+                });
+                textElInput = function textElInput(ev) {
+                    props.node.option.value = ev.target.innerText;
+                };
+            }
+            return {
+                color: color,
+                opacity: opacity,
+                value: value,
+                fontColor: fontColor,
+                fontSize: fontSize,
+                fontFamily: fontFamily,
+                fontStyle: fontStyle,
+                align: align,
+                verticalAlign: verticalAlign,
+                dbClickText: dbClickText,
+                h1: h1,
+                textElInput: textElInput
             };
         }
     };
 
     function render$a(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "text-wrapper absolute flex",
@@ -103288,156 +103467,46 @@
           textAlign: $setup.align,
           alignItems: $setup.verticalAlign
         }),
-        onClick: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"])),
-        onMousedown: _cache[6] || (_cache[6] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        onWheelPassive: _cache[7] || (_cache[7] = withModifiers(() => {}, ["stop"])),
-        onScroll: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
+        onMousedown: _cache[6] || (_cache[6] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
+        onWheelPassive: _cache[7] || (_cache[7] = withModifiers(function () {}, ["stop"])),
+        onScroll: _cache[8] || (_cache[8] = withModifiers(function () {}, ["stop"])),
         ref: "el"
-      }, [
-        createBaseVNode("h1", {
-          class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
-          style: normalizeStyle$1({
-            color: $setup.fontColor,
-            fontSize: $setup.fontSize,
-            fontFamily: $setup.fontFamily
-          }),
-          onDblclick: _cache[0] || (_cache[0] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
-          ref: "h1",
-          onInput: _cache[1] || (_cache[1] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
-          onKeydown: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
-          onKeyup: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
-          onKeypress: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"]))
-        }, toDisplayString($setup.value), 39 /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */)
-      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
+      }, [createBaseVNode("h6", {
+        class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
+        style: normalizeStyle$1({
+          color: $setup.fontColor,
+          fontSize: $setup.fontSize,
+          fontFamily: $setup.fontFamily
+        }),
+        onDblclick: _cache[0] || (_cache[0] = withModifiers(function () {
+          return $setup.dbClickText && $setup.dbClickText.apply($setup, arguments);
+        }, ["stop"])),
+        ref: "h1",
+        onInput: _cache[1] || (_cache[1] = function () {
+          return $setup.textElInput && $setup.textElInput.apply($setup, arguments);
+        }),
+        onKeydown: _cache[2] || (_cache[2] = withModifiers(function () {}, ["stop"])),
+        onKeyup: _cache[3] || (_cache[3] = withModifiers(function () {}, ["stop"])),
+        onKeypress: _cache[4] || (_cache[4] = withModifiers(function () {}, ["stop"]))
+      }, toDisplayString($setup.value), 39
+      /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */
+      )], 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select
+      }]]);
     }
 
-    var css_248z$4 = "\n.text-wrapper[data-v-5c83e1cc] {\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y: contain;\n}\n.weight[data-v-5c83e1cc] {\r\n  font-weight: bold;\n}\n.underline[data-v-5c83e1cc] {\r\n  text-decoration: underline;\n}\n.italic[data-v-5c83e1cc] {\r\n  font-style: oblique;\n}\n.big-title[data-v-5c83e1cc] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
+    var css_248z$4 = "\n.text-wrapper[data-v-7a696473]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-7a696473] {\r\n  font-weight: bold;\n}\n.underline[data-v-7a696473] {\r\n  text-decoration: underline;\n}\n.italic[data-v-7a696473] {\r\n  font-style: oblique;\n}\n.big-title[data-v-7a696473] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
     styleInject(css_248z$4);
 
-    script$a.render = render$a;
-    script$a.__scopeId = "data-v-5c83e1cc";
-    script$a.__file = "src/components/text/BigTitle.vue";
-
-    var script$9 = {
-        name: 'SmallTitle',
-        props: ['node'],
-        emits: ['select', 'append'],
-        mixins: [matrixMixin],
-        setup(props) {
-            const h1 = ref();
-            // exterior
-            const color = computed(() => {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
-            });
-            const opacity = computed(() => {
-                return (props.node.option.transparency / 100).toFixed(2);
-            });
-            // font
-            const fontColor = computed(() => {
-                return props.node.option.textOption.color;
-            });
-            const fontSize = computed(() => {
-                return toPx(props.node.option.textOption.fontSize);
-            });
-            const fontFamily = computed(() => {
-                return props.node.option.textOption.fontFamily;
-            });
-            const fontStyle = computed(() => {
-                return props.node.option.textOption.fontStyle;
-            });
-            const align = computed(() => {
-                return props.node.option.textOption.align;
-            });
-            const verticalAlign = computed(() => {
-                return props.node.option.textOption.verticalAlign;
-            });
-            // value
-            const value = computed(() => {
-                return props.node.option.value;
-            });
-            let dbClickText;
-            let textElInput;
-            // editor
-            {
-                dbClickText = (ev) => {
-                    ev.target;
-                    props.node.contentEditable = true;
-                };
-                watch(() => props.node.contentEditable, (newVal, oldVal) => {
-                    h1.value.contentEditable = String(newVal);
-                    if (newVal)
-                        h1.value?.focus();
-                });
-                textElInput = (ev) => {
-                    props.node.option.value = ev.target.innerText;
-                };
-            }
-            return {
-                color,
-                opacity,
-                value,
-                fontColor,
-                fontSize,
-                fontFamily,
-                fontStyle,
-                align,
-                verticalAlign,
-                dbClickText,
-                h1,
-                textElInput
-            };
-        },
-    };
-
-    function render$9(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
-
-      return withDirectives((openBlock(), createElementBlock("div", {
-        class: "text-wrapper absolute flex",
-        draggable: "false",
-        style: normalizeStyle$1({
-          width: _ctx.width,
-          height: _ctx.height,
-          left: _ctx.left,
-          top: _ctx.top,
-          backgroundColor: $setup.color,
-          opacity: $setup.opacity,
-          textAlign: $setup.align,
-          alignItems: $setup.verticalAlign
-        }),
-        onClick: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"])),
-        onMousedown: _cache[6] || (_cache[6] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        onWheelPassive: _cache[7] || (_cache[7] = withModifiers(() => {}, ["stop"])),
-        onScroll: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
-        ref: "el"
-      }, [
-        createBaseVNode("h6", {
-          class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
-          style: normalizeStyle$1({
-            color: $setup.fontColor,
-            fontSize: $setup.fontSize,
-            fontFamily: $setup.fontFamily
-          }),
-          onDblclick: _cache[0] || (_cache[0] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
-          ref: "h1",
-          onInput: _cache[1] || (_cache[1] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
-          onKeydown: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
-          onKeyup: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
-          onKeypress: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"]))
-        }, toDisplayString($setup.value), 39 /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */)
-      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
-    }
-
-    var css_248z$3 = "\n.text-wrapper[data-v-7a696473]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-7a696473] {\r\n  font-weight: bold;\n}\n.underline[data-v-7a696473] {\r\n  text-decoration: underline;\n}\n.italic[data-v-7a696473] {\r\n  font-style: oblique;\n}\n.big-title[data-v-7a696473] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
-    styleInject(css_248z$3);
-
-    script$9.render = render$9;
-    script$9.__scopeId = "data-v-7a696473";
-    script$9.__file = "src/components/text/SmallTitle.vue";
+    script$b.render = render$a;
+    script$b.__scopeId = "data-v-7a696473";
+    script$b.__file = "src/components/text/SmallTitle.vue";
 
     //@ts-nocheck
     var emitterMixin = {
@@ -103454,79 +103523,78 @@
         }
     };
 
-    var script$8 = {
+    var script$a = {
         name: 'BaseTitle',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin, emitterMixin],
-        setup(props) {
-            const h1 = ref();
-            // exterior
-            const color = computed(() => {
+        setup: function setup(props) {
+            var h1 = ref(); // exterior
+            var color = computed(function () {
                 return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
             });
-            const opacity = computed(() => {
+            var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
-            });
-            // font
-            const fontColor = computed(() => {
+            }); // font
+            var fontColor = computed(function () {
                 return props.node.option.textOption.color;
             });
-            const fontSize = computed(() => {
+            var fontSize = computed(function () {
                 return toPx(props.node.option.textOption.fontSize);
             });
-            const fontFamily = computed(() => {
+            var fontFamily = computed(function () {
                 return props.node.option.textOption.fontFamily;
             });
-            const fontStyle = computed(() => {
+            var fontStyle = computed(function () {
                 return props.node.option.textOption.fontStyle;
             });
-            const align = computed(() => {
+            var align = computed(function () {
                 return props.node.option.textOption.align;
             });
-            const verticalAlign = computed(() => {
+            var verticalAlign = computed(function () {
                 return props.node.option.textOption.verticalAlign;
-            });
-            // value
-            const value = computed(() => {
+            }); // value
+            var value = computed(function () {
                 return props.node.option.value;
             });
-            let dbClickText;
-            let textElInput;
-            // editor
+            var dbClickText;
+            var textElInput; // editor
             {
-                dbClickText = (ev) => {
+                dbClickText = function dbClickText(ev) {
                     ev.target;
                     props.node.contentEditable = true;
                 };
-                watch(() => props.node.contentEditable, (newVal, oldVal) => {
+                watch(function () {
+                    return props.node.contentEditable;
+                }, function (newVal, oldVal) {
+                    var _h1$value;
                     h1.value.contentEditable = String(newVal);
                     if (newVal)
-                        h1.value?.focus();
+                        (_h1$value = h1.value) === null || _h1$value === void 0 ? void 0 : _h1$value.focus();
                 });
-                textElInput = (ev) => {
+                textElInput = function textElInput(ev) {
                     props.node.option.value = ev.target.innerText;
                 };
             }
             return {
-                color,
-                opacity,
-                value,
-                fontColor,
-                fontSize,
-                fontFamily,
-                fontStyle,
-                align,
-                verticalAlign,
-                dbClickText,
-                h1,
-                textElInput
+                color: color,
+                opacity: opacity,
+                value: value,
+                fontColor: fontColor,
+                fontSize: fontSize,
+                fontFamily: fontFamily,
+                fontStyle: fontStyle,
+                align: align,
+                verticalAlign: verticalAlign,
+                dbClickText: dbClickText,
+                h1: h1,
+                textElInput: textElInput
             };
-        },
+        }
     };
 
-    function render$8(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+    function render$9(_ctx, _cache, $props, $setup, $data, $options) {
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "text-wrapper absolute flex",
@@ -103541,119 +103609,128 @@
           textAlign: $setup.align,
           alignItems: $setup.verticalAlign
         }),
-        onClick: _cache[6] || (_cache[6] = withModifiers(() => {}, ["stop"])),
-        onMousedown: _cache[7] || (_cache[7] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        onWheelPassive: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
-        onScroll: _cache[9] || (_cache[9] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[6] || (_cache[6] = withModifiers(function () {}, ["stop"])),
+        onMousedown: _cache[7] || (_cache[7] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
+        onWheelPassive: _cache[8] || (_cache[8] = withModifiers(function () {}, ["stop"])),
+        onScroll: _cache[9] || (_cache[9] = withModifiers(function () {}, ["stop"])),
         ref: "el"
-      }, [
-        withDirectives(createBaseVNode("img", {
-          src: "",
-          class: "emitter-icon absolute",
-          draggable: "false",
-          onClick: _cache[0] || (_cache[0] = (...args) => (_ctx.emitterEffect && _ctx.emitterEffect(...args)))
-        }, null, 512 /* NEED_PATCH */), [
-          [vShow, Object.keys($props.node.option.emitters).length>0]
-        ]),
-        createBaseVNode("h3", {
-          class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
-          style: normalizeStyle$1({
-            color: $setup.fontColor,
-            fontSize: $setup.fontSize,
-            fontFamily: $setup.fontFamily
-          }),
-          onDblclick: _cache[1] || (_cache[1] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
-          ref: "h1",
-          onInput: _cache[2] || (_cache[2] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
-          onKeydown: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
-          onKeyup: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"])),
-          onKeypress: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"]))
-        }, toDisplayString($setup.value), 39 /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */)
-      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
+      }, [withDirectives(createBaseVNode("img", {
+        src: "",
+        class: "emitter-icon absolute",
+        draggable: "false",
+        onClick: _cache[0] || (_cache[0] = function () {
+          return _ctx.emitterEffect && _ctx.emitterEffect.apply(_ctx, arguments);
+        })
+      }, null, 512
+      /* NEED_PATCH */
+      ), [[vShow, Object.keys($props.node.option.emitters).length > 0]]), createBaseVNode("h3", {
+        class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
+        style: normalizeStyle$1({
+          color: $setup.fontColor,
+          fontSize: $setup.fontSize,
+          fontFamily: $setup.fontFamily
+        }),
+        onDblclick: _cache[1] || (_cache[1] = withModifiers(function () {
+          return $setup.dbClickText && $setup.dbClickText.apply($setup, arguments);
+        }, ["stop"])),
+        ref: "h1",
+        onInput: _cache[2] || (_cache[2] = function () {
+          return $setup.textElInput && $setup.textElInput.apply($setup, arguments);
+        }),
+        onKeydown: _cache[3] || (_cache[3] = withModifiers(function () {}, ["stop"])),
+        onKeyup: _cache[4] || (_cache[4] = withModifiers(function () {}, ["stop"])),
+        onKeypress: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"]))
+      }, toDisplayString($setup.value), 39
+      /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */
+      )], 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select
+      }]]);
     }
 
-    var css_248z$2 = "\n.text-wrapper[data-v-71cfa315]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-71cfa315] {\r\n  font-weight: bold;\n}\n.underline[data-v-71cfa315] {\r\n  text-decoration: underline;\n}\n.italic[data-v-71cfa315] {\r\n  font-style: oblique;\n}\n.big-title[data-v-71cfa315] {\r\n  outline: none;\r\n  word-break: break-all;\n}\n.emitter-icon[data-v-71cfa315]{\r\n  right: 0;\r\n  top: 0;\r\n  width: 50px;\n}\r\n";
-    styleInject(css_248z$2);
+    var css_248z$3 = "\n.text-wrapper[data-v-71cfa315]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-71cfa315] {\r\n  font-weight: bold;\n}\n.underline[data-v-71cfa315] {\r\n  text-decoration: underline;\n}\n.italic[data-v-71cfa315] {\r\n  font-style: oblique;\n}\n.big-title[data-v-71cfa315] {\r\n  outline: none;\r\n  word-break: break-all;\n}\n.emitter-icon[data-v-71cfa315]{\r\n  right: 0;\r\n  top: 0;\r\n  width: 50px;\n}\r\n";
+    styleInject(css_248z$3);
 
-    script$8.render = render$8;
-    script$8.__scopeId = "data-v-71cfa315";
-    script$8.__file = "src/components/text/BaseTitle.vue";
+    script$a.render = render$9;
+    script$a.__scopeId = "data-v-71cfa315";
+    script$a.__file = "src/components/text/BaseTitle.vue";
 
-    var script$7 = {
+    var script$9 = {
         name: 'TextContent',
         props: ['node'],
         emits: ['select', 'append'],
         mixins: [matrixMixin],
-        setup(props) {
-            const h1 = ref();
-            // exterior
-            const color = computed(() => {
+        setup: function setup(props) {
+            var h1 = ref(); // exterior
+            var color = computed(function () {
                 return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
             });
-            const opacity = computed(() => {
+            var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
-            });
-            // font
-            const fontColor = computed(() => {
+            }); // font
+            var fontColor = computed(function () {
                 return props.node.option.textOption.color;
             });
-            const fontSize = computed(() => {
+            var fontSize = computed(function () {
                 return toPx(props.node.option.textOption.fontSize);
             });
-            const fontFamily = computed(() => {
+            var fontFamily = computed(function () {
                 return props.node.option.textOption.fontFamily;
             });
-            const fontStyle = computed(() => {
+            var fontStyle = computed(function () {
                 return props.node.option.textOption.fontStyle;
             });
-            const align = computed(() => {
+            var align = computed(function () {
                 return props.node.option.textOption.align;
             });
-            const verticalAlign = computed(() => {
+            var verticalAlign = computed(function () {
                 return props.node.option.textOption.verticalAlign;
-            });
-            // value
-            const value = computed(() => {
+            }); // value
+            var value = computed(function () {
                 return props.node.option.value;
             });
-            let dbClickText;
-            let textElInput;
-            // editor
+            var dbClickText;
+            var textElInput; // editor
             {
-                dbClickText = (ev) => {
+                dbClickText = function dbClickText(ev) {
                     ev.target;
                     props.node.contentEditable = true;
                 };
-                watch(() => props.node.contentEditable, (newVal, oldVal) => {
+                watch(function () {
+                    return props.node.contentEditable;
+                }, function (newVal, oldVal) {
+                    var _h1$value;
                     h1.value.contentEditable = String(newVal);
                     if (newVal)
-                        h1.value?.focus();
+                        (_h1$value = h1.value) === null || _h1$value === void 0 ? void 0 : _h1$value.focus();
                 });
-                textElInput = (ev) => {
+                textElInput = function textElInput(ev) {
                     props.node.option.value = ev.target.innerText;
                 };
             }
             return {
-                color,
-                opacity,
-                value,
-                fontColor,
-                fontSize,
-                fontFamily,
-                fontStyle,
-                align,
-                verticalAlign,
-                dbClickText,
-                h1,
-                textElInput
+                color: color,
+                opacity: opacity,
+                value: value,
+                fontColor: fontColor,
+                fontSize: fontSize,
+                fontFamily: fontFamily,
+                fontStyle: fontStyle,
+                align: align,
+                verticalAlign: verticalAlign,
+                dbClickText: dbClickText,
+                h1: h1,
+                textElInput: textElInput
             };
-        },
+        }
     };
 
-    function render$7(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+    function render$8(_ctx, _cache, $props, $setup, $data, $options) {
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "text-wrapper absolute flex",
@@ -103668,37 +103745,46 @@
           textAlign: $setup.align,
           alignItems: $setup.verticalAlign
         }),
-        onClick: _cache[5] || (_cache[5] = withModifiers(() => {}, ["stop"])),
-        onMousedown: _cache[6] || (_cache[6] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        onWheelPassive: _cache[7] || (_cache[7] = withModifiers(() => {}, ["stop"])),
-        onScroll: _cache[8] || (_cache[8] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
+        onMousedown: _cache[6] || (_cache[6] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
+        onWheelPassive: _cache[7] || (_cache[7] = withModifiers(function () {}, ["stop"])),
+        onScroll: _cache[8] || (_cache[8] = withModifiers(function () {}, ["stop"])),
         ref: "el"
-      }, [
-        createBaseVNode("p", {
-          class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
-          style: normalizeStyle$1({
-            color: $setup.fontColor,
-            fontSize: $setup.fontSize,
-            fontFamily: $setup.fontFamily
-          }),
-          onDblclick: _cache[0] || (_cache[0] = withModifiers((...args) => ($setup.dbClickText && $setup.dbClickText(...args)), ["stop"])),
-          ref: "h1",
-          onInput: _cache[1] || (_cache[1] = (...args) => ($setup.textElInput && $setup.textElInput(...args))),
-          onKeydown: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
-          onKeyup: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
-          onKeypress: _cache[4] || (_cache[4] = withModifiers(() => {}, ["stop"]))
-        }, toDisplayString($setup.value), 39 /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */)
-      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
+      }, [createBaseVNode("p", {
+        class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
+        style: normalizeStyle$1({
+          color: $setup.fontColor,
+          fontSize: $setup.fontSize,
+          fontFamily: $setup.fontFamily
+        }),
+        onDblclick: _cache[0] || (_cache[0] = withModifiers(function () {
+          return $setup.dbClickText && $setup.dbClickText.apply($setup, arguments);
+        }, ["stop"])),
+        ref: "h1",
+        onInput: _cache[1] || (_cache[1] = function () {
+          return $setup.textElInput && $setup.textElInput.apply($setup, arguments);
+        }),
+        onKeydown: _cache[2] || (_cache[2] = withModifiers(function () {}, ["stop"])),
+        onKeyup: _cache[3] || (_cache[3] = withModifiers(function () {}, ["stop"])),
+        onKeypress: _cache[4] || (_cache[4] = withModifiers(function () {}, ["stop"]))
+      }, toDisplayString($setup.value), 39
+      /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */
+      )], 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select
+      }]]);
     }
 
-    var css_248z$1 = "\n.text-wrapper[data-v-3a41379a]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-3a41379a] {\r\n  font-weight: bold;\n}\n.underline[data-v-3a41379a] {\r\n  text-decoration: underline;\n}\n.italic[data-v-3a41379a] {\r\n  font-style: oblique;\n}\n.big-title[data-v-3a41379a] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
-    styleInject(css_248z$1);
+    var css_248z$2 = "\n.text-wrapper[data-v-3a41379a]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-3a41379a] {\r\n  font-weight: bold;\n}\n.underline[data-v-3a41379a] {\r\n  text-decoration: underline;\n}\n.italic[data-v-3a41379a] {\r\n  font-style: oblique;\n}\n.big-title[data-v-3a41379a] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
+    styleInject(css_248z$2);
 
-    script$7.render = render$7;
-    script$7.__scopeId = "data-v-3a41379a";
-    script$7.__file = "src/components/text/TextContent.vue";
+    script$9.render = render$8;
+    script$9.__scopeId = "data-v-3a41379a";
+    script$9.__file = "src/components/text/TextContent.vue";
 
     var chartMixin = {
       methods: {
@@ -103746,89 +103832,204 @@
       }
     };
 
-    var script$6 = {
+    var script$8 = {
       name: 'ChartBar',
-      mixins: [matrixMixin,chartMixin],
+      mixins: [matrixMixin, chartMixin],
       props: ['node'],
-      mounted() {
+      mounted: function mounted() {
         this.myChart = init$1(this.$refs.chartWrap);
         this.myChart.setOption(this.node.option.echartsOption);
       },
-
       methods: {
-        debounceSetOption: debounce$1(function (...args) {
-          this.updateEchartsOption(...args);
+        debounceSetOption: debounce$1(function () {
+          this.updateEchartsOption.apply(this, arguments);
         }, 300)
       },
-      setup(props) {
-        const instance = getCurrentInstance();
-        // title watcher
-        watch(
-          () => props.node.option.echartsOption.title,
-          (newVal, oldVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
+      setup: function setup(props) {
+        var instance = getCurrentInstance(); // title watcher
 
-        watch(
-          () => props.node.option.echartsOption.unit,
-          (newVal, oldVal) => {
-            if (newVal.show) {
-              const unit = props.node.option.echartsOption.unit;
-              // eslint-disable-next-line vue/no-mutating-props
-              props.node.option.echartsOption.graphic = {
-                elements: [
-                  {
-                    type: 'text',
-                    left: unit.left,
-                    right: unit.right,
-                    top: unit.top,
-                    style: {
-                      text: unit.text,
-                      fill: unit.textStyle.color,
-                      font: `${unit.textStyle.fontStyle} ${unit.textStyle.fontWeight} ${unit.textStyle.fontSize}px ${unit.textStyle.fontFamily}`
-                    }
-                  }
-                ]
-              };
-            } else {
-              // eslint-disable-next-line vue/no-mutating-props
-              delete props.node.option.echartsOption.graphic;
-            }
-            instance.ctx.debounceSetOption(true);
-          },
-          { deep: true }
-        );
+        watch(function () {
+          return props.node.option.echartsOption.title;
+        }, function (newVal, oldVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.unit;
+        }, function (newVal, oldVal) {
+          if (newVal.show) {
+            var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
 
-        watch(
-          () => props.node.option.echartsOption.series,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(
-          () => props.node.option.echartsOption.yAxis,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(
-          () => props.node.option.echartsOption.legend,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(()=>props.node.option.apiMapping,()=>{
+            props.node.option.echartsOption.graphic = {
+              elements: [{
+                type: 'text',
+                left: unit.left,
+                right: unit.right,
+                top: unit.top,
+                style: {
+                  text: unit.text,
+                  fill: unit.textStyle.color,
+                  font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
+                }
+              }]
+            };
+          } else {
+            // eslint-disable-next-line vue/no-mutating-props
+            delete props.node.option.echartsOption.graphic;
+          }
+
+          instance.ctx.debounceSetOption(true);
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.series;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.yAxis;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.legend;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.apiMapping;
+        }, function () {
           instance.ctx.debounceSetOption();
         });
       },
       watch: {
         'node.option.echartsOption.color': {
-          handler(newVal, oldVal) {
+          handler: function handler(newVal, oldVal) {
+            this.debounceSetOption();
+          },
+          deep: true
+        }
+      }
+    };
+
+    function render$7(_ctx, _cache, $props, $setup, $data, $options) {
+      var _directive_drag = resolveDirective("drag");
+
+      return withDirectives((openBlock(), createElementBlock("div", {
+        class: "chart-bar absolute",
+        onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
+        draggable: "false",
+        onMousedown: _cache[1] || (_cache[1] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
+        style: normalizeStyle$1({
+          width: _ctx.width,
+          height: _ctx.height,
+          left: _ctx.left,
+          top: _ctx.top
+        }),
+        ref: "chartWrap"
+      }, null, 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select,
+        change: _ctx.updateEchartsSize
+      }]]);
+    }
+
+    script$8.render = render$7;
+    script$8.__file = "src/components/chart/ChartBar.vue";
+
+    var script$7 = {
+      name: 'ChartLine',
+      mixins: [matrixMixin, chartMixin],
+      props: ['node'],
+      mounted: function mounted() {
+        this.myChart = init$1(this.$refs.chartWrap);
+        this.myChart.setOption(this.node.option.echartsOption);
+      },
+      methods: {
+        debounceSetOption: debounce$1(function () {
+          this.updateEchartsOption.apply(this, arguments);
+        }, 300)
+      },
+      setup: function setup(props) {
+        var instance = getCurrentInstance(); // title watcher
+
+        watch(function () {
+          return props.node.option.echartsOption.title;
+        }, function (newVal, oldVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.unit;
+        }, function (newVal, oldVal) {
+          if (newVal.show) {
+            var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
+
+            props.node.option.echartsOption.graphic = {
+              elements: [{
+                type: 'text',
+                left: unit.left,
+                right: unit.right,
+                top: unit.top,
+                style: {
+                  text: unit.text,
+                  fill: unit.textStyle.color,
+                  font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
+                }
+              }]
+            };
+          } else {
+            // eslint-disable-next-line vue/no-mutating-props
+            delete props.node.option.echartsOption.graphic;
+          }
+
+          instance.ctx.debounceSetOption(true);
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.series;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.yAxis;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.legend;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.apiMapping;
+        }, function () {
+          instance.ctx.debounceSetOption();
+        });
+      },
+      watch: {
+        'node.option.echartsOption.color': {
+          handler: function handler(newVal, oldVal) {
             this.debounceSetOption();
           },
           deep: true
@@ -103837,13 +104038,15 @@
     };
 
     function render$6(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "chart-bar absolute",
-        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
         draggable: "false",
-        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onMousedown: _cache[1] || (_cache[1] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
         style: normalizeStyle$1({
           width: _ctx.width,
           height: _ctx.height,
@@ -103851,116 +104054,109 @@
           top: _ctx.top
         }),
         ref: "chartWrap"
-      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, {
-          rect: $props.node.option.matrixOption,
-          select: $props.node.select,
-          change: _ctx.updateEchartsSize
-        }]
-      ])
+      }, null, 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select,
+        change: _ctx.updateEchartsSize
+      }]]);
     }
 
-    script$6.render = render$6;
-    script$6.__file = "src/components/chart/ChartBar.vue";
+    script$7.render = render$6;
+    script$7.__file = "src/components/chart/ChartLine.vue";
 
-    var script$5 = {
-      name: 'ChartLine',
-      mixins: [matrixMixin,chartMixin],
+    var script$6 = {
+      name: 'ChartPie',
+      mixins: [matrixMixin, chartMixin],
       props: ['node'],
-      mounted() {
+      mounted: function mounted() {
         this.myChart = init$1(this.$refs.chartWrap);
         this.myChart.setOption(this.node.option.echartsOption);
       },
-
       methods: {
-        debounceSetOption: debounce$1(function (...args) {
-          this.updateEchartsOption(...args);
+        debounceSetOption: debounce$1(function () {
+          this.updateEchartsOption.apply(this, arguments);
         }, 300)
       },
-      setup(props) {
-        const instance = getCurrentInstance();
-        // title watcher
-        watch(
-          () => props.node.option.echartsOption.title,
-          (newVal, oldVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
+      setup: function setup(props) {
+        var instance = getCurrentInstance(); // title watcher
 
-        watch(
-          () => props.node.option.echartsOption.unit,
-          (newVal, oldVal) => {
-            if (newVal.show) {
-              const unit = props.node.option.echartsOption.unit;
-              // eslint-disable-next-line vue/no-mutating-props
-              props.node.option.echartsOption.graphic = {
-                elements: [
-                  {
-                    type: 'text',
-                    left: unit.left,
-                    right: unit.right,
-                    top: unit.top,
-                    style: {
-                      text: unit.text,
-                      fill: unit.textStyle.color,
-                      font: `${unit.textStyle.fontStyle} ${unit.textStyle.fontWeight} ${unit.textStyle.fontSize}px ${unit.textStyle.fontFamily}`
-                    }
-                  }
-                ]
-              };
-            } else {
-              // eslint-disable-next-line vue/no-mutating-props
-              delete props.node.option.echartsOption.graphic;
-            }
-            instance.ctx.debounceSetOption(true);
-          },
-          { deep: true }
-        );
+        watch(function () {
+          return props.node.option.echartsOption.title;
+        }, function (newVal, oldVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.unit;
+        }, function (newVal, oldVal) {
+          if (newVal.show) {
+            var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
 
-        watch(
-          () => props.node.option.echartsOption.series,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(
-          () => props.node.option.echartsOption.yAxis,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(
-          () => props.node.option.echartsOption.legend,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(()=>props.node.option.apiMapping,()=>{
+            props.node.option.echartsOption.graphic = {
+              elements: [{
+                type: 'text',
+                left: unit.left,
+                right: unit.right,
+                top: unit.top,
+                style: {
+                  text: unit.text,
+                  fill: unit.textStyle.color,
+                  font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
+                }
+              }]
+            };
+          } else {
+            // eslint-disable-next-line vue/no-mutating-props
+            delete props.node.option.echartsOption.graphic;
+          }
+
+          instance.ctx.debounceSetOption(true);
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.series;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.legend;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.apiMapping;
+        }, function () {
           instance.ctx.debounceSetOption();
         });
       },
       watch: {
         'node.option.echartsOption.color': {
-          handler(newVal, oldVal) {
+          handler: function handler(newVal, oldVal) {
             this.debounceSetOption();
           },
           deep: true
         }
-      },
+      }
     };
 
     function render$5(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "chart-bar absolute",
-        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
         draggable: "false",
-        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onMousedown: _cache[1] || (_cache[1] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
         style: normalizeStyle$1({
           width: _ctx.width,
           height: _ctx.height,
@@ -103968,97 +104164,92 @@
           top: _ctx.top
         }),
         ref: "chartWrap"
-      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, {
-          rect: $props.node.option.matrixOption,
-          select: $props.node.select,
-          change: _ctx.updateEchartsSize
-        }]
-      ])
+      }, null, 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select,
+        change: _ctx.updateEchartsSize
+      }]]);
     }
 
-    script$5.render = render$5;
-    script$5.__file = "src/components/chart/ChartLine.vue";
+    script$6.render = render$5;
+    script$6.__file = "src/components/chart/ChartPie.vue";
 
-    var script$4 = {
-      name: 'ChartPie',
+    var script$5 = {
+      name: 'ChartGauge',
       mixins: [matrixMixin, chartMixin],
       props: ['node'],
-      mounted() {
+      mounted: function mounted() {
         this.myChart = init$1(this.$refs.chartWrap);
         this.myChart.setOption(this.node.option.echartsOption);
       },
-
       methods: {
-        debounceSetOption: debounce$1(function (...args) {
-          this.updateEchartsOption(...args);
+        debounceSetOption: debounce$1(function () {
+          this.updateEchartsOption.apply(this, arguments);
         }, 300)
       },
-      setup(props) {
-        const instance = getCurrentInstance();
-        // title watcher
-        watch(
-          () => props.node.option.echartsOption.title,
-          (newVal, oldVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
+      setup: function setup(props) {
+        var instance = getCurrentInstance(); // title watcher
 
-        watch(
-          () => props.node.option.echartsOption.unit,
-          (newVal, oldVal) => {
-            if (newVal.show) {
-              const unit = props.node.option.echartsOption.unit;
-              // eslint-disable-next-line vue/no-mutating-props
-              props.node.option.echartsOption.graphic = {
-                elements: [
-                  {
-                    type: 'text',
-                    left: unit.left,
-                    right: unit.right,
-                    top: unit.top,
-                    style: {
-                      text: unit.text,
-                      fill: unit.textStyle.color,
-                      font: `${unit.textStyle.fontStyle} ${unit.textStyle.fontWeight} ${unit.textStyle.fontSize}px ${unit.textStyle.fontFamily}`
-                    }
-                  }
-                ]
-              };
-            } else {
-              // eslint-disable-next-line vue/no-mutating-props
-              delete props.node.option.echartsOption.graphic;
-            }
-            instance.ctx.debounceSetOption(true);
-          },
-          { deep: true }
-        );
+        watch(function () {
+          return props.node.option.echartsOption.title;
+        }, function (newVal, oldVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.unit;
+        }, function (newVal, oldVal) {
+          if (newVal.show) {
+            var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
 
-        watch(
-          () => props.node.option.echartsOption.series,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(
-          () => props.node.option.echartsOption.legend,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(
-          () => props.node.option.apiMapping,
-          () => {
-            instance.ctx.debounceSetOption();
+            props.node.option.echartsOption.graphic = {
+              elements: [{
+                type: 'text',
+                left: unit.left,
+                right: unit.right,
+                top: unit.top,
+                style: {
+                  text: unit.text,
+                  fill: unit.textStyle.color,
+                  font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
+                }
+              }]
+            };
+          } else {
+            // eslint-disable-next-line vue/no-mutating-props
+            delete props.node.option.echartsOption.graphic;
           }
-        );
+
+          instance.ctx.debounceSetOption(true);
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.series;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.legend;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.apiMapping;
+        }, function () {
+          instance.ctx.debounceSetOption();
+        });
       },
       watch: {
         'node.option.echartsOption.color': {
-          handler(newVal, oldVal) {
+          handler: function handler(newVal, oldVal) {
             this.debounceSetOption();
           },
           deep: true
@@ -104067,13 +104258,15 @@
     };
 
     function render$4(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "chart-bar absolute",
-        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
         draggable: "false",
-        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onMousedown: _cache[1] || (_cache[1] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
         style: normalizeStyle$1({
           width: _ctx.width,
           height: _ctx.height,
@@ -104081,93 +104274,99 @@
           top: _ctx.top
         }),
         ref: "chartWrap"
-      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, {
-          rect: $props.node.option.matrixOption,
-          select: $props.node.select,
-          change: _ctx.updateEchartsSize
-        }]
-      ])
+      }, null, 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select,
+        change: _ctx.updateEchartsSize
+      }]]);
     }
 
-    script$4.render = render$4;
-    script$4.__file = "src/components/chart/ChartPie.vue";
+    script$5.render = render$4;
+    script$5.__file = "src/components/chart/ChartGauge.vue";
 
-    var script$3 = {
-      name: 'ChartGauge',
-      mixins: [matrixMixin,chartMixin],
+    var script$4 = {
+      name: 'ChartCurve',
+      mixins: [matrixMixin, chartMixin],
       props: ['node'],
-      mounted() {
+      mounted: function mounted() {
         this.myChart = init$1(this.$refs.chartWrap);
         this.myChart.setOption(this.node.option.echartsOption);
       },
-
       methods: {
-        debounceSetOption: debounce$1(function (...args) {
-          this.updateEchartsOption(...args);
+        debounceSetOption: debounce$1(function () {
+          this.updateEchartsOption.apply(this, arguments);
         }, 300)
       },
-      setup(props) {
-        const instance = getCurrentInstance();
-        // title watcher
-        watch(
-          () => props.node.option.echartsOption.title,
-          (newVal, oldVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(
-          () => props.node.option.echartsOption.unit,
-          (newVal, oldVal) => {
-            if (newVal.show) {
-              const unit = props.node.option.echartsOption.unit;
-              // eslint-disable-next-line vue/no-mutating-props
-              props.node.option.echartsOption.graphic = {
-                elements: [
-                  {
-                    type: 'text',
-                    left: unit.left,
-                    right: unit.right,
-                    top: unit.top,
-                    style: {
-                      text: unit.text,
-                      fill: unit.textStyle.color,
-                      font: `${unit.textStyle.fontStyle} ${unit.textStyle.fontWeight} ${unit.textStyle.fontSize}px ${unit.textStyle.fontFamily}`
-                    }
-                  }
-                ]
-              };
-            } else {
-              // eslint-disable-next-line vue/no-mutating-props
-              delete props.node.option.echartsOption.graphic;
-            }
-            instance.ctx.debounceSetOption(true);
-          },
-          { deep: true }
-        );
+      setup: function setup(props) {
+        var instance = getCurrentInstance(); // title watcher
 
-        watch(
-          () => props.node.option.echartsOption.series,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(
-          () => props.node.option.echartsOption.legend,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(()=>props.node.option.apiMapping,()=>{
+        watch(function () {
+          return props.node.option.echartsOption.title;
+        }, function (newVal, oldVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.unit;
+        }, function (newVal, oldVal) {
+          if (newVal.show) {
+            var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
+
+            props.node.option.echartsOption.graphic = {
+              elements: [{
+                type: 'text',
+                left: unit.left,
+                right: unit.right,
+                top: unit.top,
+                style: {
+                  text: unit.text,
+                  fill: unit.textStyle.color,
+                  font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
+                }
+              }]
+            };
+          } else {
+            // eslint-disable-next-line vue/no-mutating-props
+            delete props.node.option.echartsOption.graphic;
+          }
+
+          instance.ctx.debounceSetOption(true);
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.series;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.yAxis;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.echartsOption.legend;
+        }, function (newVal) {
+          instance.ctx.debounceSetOption();
+        }, {
+          deep: true
+        });
+        watch(function () {
+          return props.node.option.apiMapping;
+        }, function () {
           instance.ctx.debounceSetOption();
         });
       },
       watch: {
         'node.option.echartsOption.color': {
-          handler(newVal, oldVal) {
+          handler: function handler(newVal, oldVal) {
             this.debounceSetOption();
           },
           deep: true
@@ -104176,13 +104375,15 @@
     };
 
     function render$3(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "chart-bar absolute",
-        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
         draggable: "false",
-        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+        onMousedown: _cache[1] || (_cache[1] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
         style: normalizeStyle$1({
           width: _ctx.width,
           height: _ctx.height,
@@ -104190,147 +104391,238 @@
           top: _ctx.top
         }),
         ref: "chartWrap"
-      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, {
-          rect: $props.node.option.matrixOption,
-          select: $props.node.select,
-          change: _ctx.updateEchartsSize
-        }]
-      ])
+      }, null, 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select,
+        change: _ctx.updateEchartsSize
+      }]]);
     }
 
-    script$3.render = render$3;
-    script$3.__file = "src/components/chart/ChartGauge.vue";
+    script$4.render = render$3;
+    script$4.__file = "src/components/chart/ChartCurve.vue";
 
-    var script$2 = {
-      name: 'ChartCurve',
-      mixins: [matrixMixin,chartMixin],
-      props: ['node'],
-      mounted() {
-        this.myChart = init$1(this.$refs.chartWrap);
-        this.myChart.setOption(this.node.option.echartsOption);
-      },
+    function _toConsumableArray(arr) {
+      return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+    }
 
-      methods: {
-        debounceSetOption: debounce$1(function (...args) {
-          this.updateEchartsOption(...args);
-        }, 300)
-      },
-      setup(props) {
-        const instance = getCurrentInstance();
-        // title watcher
-        watch(
-          () => props.node.option.echartsOption.title,
-          (newVal, oldVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
+    function _arrayWithoutHoles(arr) {
+      if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+    }
 
-        watch(
-          () => props.node.option.echartsOption.unit,
-          (newVal, oldVal) => {
-            if (newVal.show) {
-              const unit = props.node.option.echartsOption.unit;
-              // eslint-disable-next-line vue/no-mutating-props
-              props.node.option.echartsOption.graphic = {
-                elements: [
-                  {
-                    type: 'text',
-                    left: unit.left,
-                    right: unit.right,
-                    top: unit.top,
-                    style: {
-                      text: unit.text,
-                      fill: unit.textStyle.color,
-                      font: `${unit.textStyle.fontStyle} ${unit.textStyle.fontWeight} ${unit.textStyle.fontSize}px ${unit.textStyle.fontFamily}`
-                    }
-                  }
-                ]
-              };
-            } else {
-              // eslint-disable-next-line vue/no-mutating-props
-              delete props.node.option.echartsOption.graphic;
-            }
-            instance.ctx.debounceSetOption(true);
-          },
-          { deep: true }
-        );
+    function _iterableToArray(iter) {
+      if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+    }
 
-        watch(
-          () => props.node.option.echartsOption.series,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(
-          () => props.node.option.echartsOption.yAxis,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(
-          () => props.node.option.echartsOption.legend,
-          (newVal) => {
-            instance.ctx.debounceSetOption();
-          },
-          { deep: true }
-        );
-        watch(()=>props.node.option.apiMapping,()=>{
-          instance.ctx.debounceSetOption();
+    function _unsupportedIterableToArray(o, minLen) {
+      if (!o) return;
+      if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+      var n = Object.prototype.toString.call(o).slice(8, -1);
+      if (n === "Object" && o.constructor) n = o.constructor.name;
+      if (n === "Map" || n === "Set") return Array.from(o);
+      if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+    }
+
+    function _arrayLikeToArray(arr, len) {
+      if (len == null || len > arr.length) len = arr.length;
+
+      for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+      return arr2;
+    }
+
+    function _nonIterableSpread() {
+      throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+
+    var script$3 = {
+      name: 'TableEl',
+      props: ['data'],
+      setup: function setup(props, context) {
+        console.log('debugger');
+        var instance = getCurrentInstance();
+        var tableEl = ref(null);
+        var fixedWidth = 0;
+        var columnVnodes = context.slots.default();
+        var columnsProps = reactive(columnVnodes.map(function (item) {
+          var res = clone$1(item.props);
+          !isNaN(item.props.width) && (fixedWidth += res.realWidth = Number(item.props.width));
+          return res;
+        })); // 记录自动适应宽度的列
+
+        var flexColumn = columnsProps.filter(function (item) {
+          return !item.realWidth;
         });
-      },
-      watch: {
-        'node.option.echartsOption.color': {
-          handler(newVal, oldVal) {
-            this.debounceSetOption();
-          },
-          deep: true
-        }
+        var bodyWidth = ref(0);
+        var observer = new IntersectionObserver(function (mutations) {
+          if (mutations[0].isIntersecting) {
+            computedWidth();
+          }
+        }); // 计算列宽度
+
+        var computedWidth = function computedWidth() {
+          if (bodyWidth.value === instance.vnode.el.clientWidth) return;
+          bodyWidth.value = instance.vnode.el.clientWidth;
+          var diffWidth = bodyWidth.value - fixedWidth;
+          flexColumn.forEach(function (item) {
+            item.realWidth = diffWidth / flexColumn.length;
+          });
+        };
+
+        var _loop;
+
+        onMounted(function () {
+          observer.observe(instance.vnode.el);
+
+          _loop = function loop() {
+            computedWidth();
+            requestAnimationFrame(_loop);
+          };
+
+          _loop();
+        });
+        onUpdated(function () {
+          requestAnimationFrame(computedWidth);
+        });
+        onUnmounted(function () {
+          observer.disconnect();
+          _loop = null;
+        });
+
+        var tableBody = function tableBody() {
+          return createVNode$1("tbody", null, _toConsumableArray(props.data.map(function (item, rowI) {
+            return createVNode$1("tr", null, _toConsumableArray(columnVnodes.map(function (col) {
+              var _col$children;
+
+              return createVNode$1("td", null, [col !== null && col !== void 0 && (_col$children = col.children) !== null && _col$children !== void 0 && _col$children.default ? col.children.default(clone$1({
+                row: item,
+                $index: rowI,
+                column: item[col.props.prop]
+              })) : item[col.props.prop]]);
+            })));
+          })));
+        };
+
+        var tableHead = function tableHead() {
+          return createVNode$1("thead", null, [createVNode$1("tr", null, [columnVnodes.map(function (col, i) {
+            var _col$children2;
+
+            return createVNode$1("th", null, [' ', col !== null && col !== void 0 && (_col$children2 = col.children) !== null && _col$children2 !== void 0 && _col$children2.header ? col.children.header(clone$1({
+              column: col.props.label,
+              $index: i
+            })) : col.props.label]);
+          })])]);
+        };
+
+        console.log('debugger');
+        return {
+          toPx: toPx,
+          columnsProps: columnsProps,
+          bodyWidth: bodyWidth,
+          tableBody: tableBody,
+          tableHead: tableHead,
+          tableEl: tableEl
+        };
       }
     };
 
+    var _hoisted_1$1 = {
+      class: "table-el",
+      ref: "tableEl"
+    };
+    var _hoisted_2 = {
+      class: "table"
+    };
+    var _hoisted_3 = ["width"];
+    var _hoisted_4 = {
+      class: "table"
+    };
+    var _hoisted_5 = ["width"];
     function render$2(_ctx, _cache, $props, $setup, $data, $options) {
-      const _directive_drag = resolveDirective("drag");
-
-      return withDirectives((openBlock(), createElementBlock("div", {
-        class: "chart-bar absolute",
-        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
-        draggable: "false",
-        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
+      return openBlock(), createElementBlock("section", _hoisted_1$1, [createBaseVNode("div", {
+        class: "table-header",
         style: normalizeStyle$1({
-          width: _ctx.width,
-          height: _ctx.height,
-          left: _ctx.left,
-          top: _ctx.top
-        }),
-        ref: "chartWrap"
-      }, null, 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, {
-          rect: $props.node.option.matrixOption,
-          select: $props.node.select,
-          change: _ctx.updateEchartsSize
-        }]
-      ])
+          width: _ctx.toPx(_ctx.bodyWidth)
+        })
+      }, [createBaseVNode("table", _hoisted_2, [createBaseVNode("colgroup", null, [(openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.columnsProps, function (item) {
+        return openBlock(), createElementBlock("col", {
+          span: "1",
+          width: item.realWidth,
+          key: item.prop
+        }, null, 8
+        /* PROPS */
+        , _hoisted_3);
+      }), 128
+      /* KEYED_FRAGMENT */
+      ))]), (openBlock(), createBlock(resolveDynamicComponent(_ctx.tableHead)))])], 4
+      /* STYLE */
+      ), createBaseVNode("div", {
+        class: "table-body",
+        style: normalizeStyle$1({
+          width: _ctx.toPx(_ctx.bodyWidth)
+        })
+      }, [createBaseVNode("table", _hoisted_4, [createBaseVNode("colgroup", null, [(openBlock(true), createElementBlock(Fragment, null, renderList(_ctx.columnsProps, function (item) {
+        return openBlock(), createElementBlock("col", {
+          span: "1",
+          width: item.realWidth,
+          key: item.prop
+        }, null, 8
+        /* PROPS */
+        , _hoisted_5);
+      }), 128
+      /* KEYED_FRAGMENT */
+      ))]), createCommentVNode("        <tbody>\n               <tr v-for=\"item in data\" :key=\"item\">\n            <td v-for=\"col in columnsProps\" :key=\"col.prop\">{{ item[col.prop] }}</td>\n          </tr>\n        </tbody>"), (openBlock(), createBlock(resolveDynamicComponent(_ctx.tableBody), {
+        class: "tbody"
+      }))])], 4
+      /* STYLE */
+      )], 512
+      /* NEED_PATCH */
+      );
     }
 
-    script$2.render = render$2;
-    script$2.__file = "src/components/chart/ChartCurve.vue";
+    var css_248z$1 = "\n.table-el[data-v-872d8798] {\n  width: 100%;\n  text-align: center;\n  color: #FFF;\n}\n.table-header[data-v-872d8798] {\n  background: #1d1d1d;\n}\n.table-body[data-v-872d8798] {\n  background: #141414;\n}\n.table[data-v-872d8798] {\n  border-collapse: collapse;\n}\n.table-header[data-v-872d8798] th{\n  height: 30px;\n  border: 1px solid #313131;\n  border-bottom: none;\n  vertical-align: middle;\n}\n.table-body[data-v-872d8798] td  {\n  height: 50px;\n  vertical-align: middle;\n  border: 1px solid #313131;\n}\n";
+    styleInject(css_248z$1);
+
+    script$3.render = render$2;
+    script$3.__scopeId = "data-v-872d8798";
+    script$3.__file = "src/components/2d/common/tableEl/TableEl.vue";
+
+    var script$2 = {
+      name: "ColumnEl",
+      props: ['prop', 'label', 'width'],
+      setup: function setup() {
+        return function () {};
+      }
+    };
+
+    script$2.__file = "src/components/2d/common/tableEl/ColumnEl.vue";
 
     var script$1 = {
       name: 'BaseTable',
-      mixins:[matrixMixin],
-      props:['node'],
-      setup(){
-        console.log();
+      mixins: [matrixMixin],
+      props: ['node'],
+      components: {
+        TableEl: script$3,
+        ColumnEl: script$2
+      },
+      setup: function setup(props) {
+        console.log(props.node);
+        var tableData = computed(function () {
+          return props.node.option.tableData;
+        });
+        return {
+          tableData: tableData
+        };
       }
     };
 
     function render$1(_ctx, _cache, $props, $setup, $data, $options) {
-      const _component_table_el = resolveComponent("table-el");
-      const _directive_drag = resolveDirective("drag");
+      var _component_column_el = resolveComponent("column-el");
+
+      var _component_table_el = resolveComponent("table-el");
+
+      var _directive_drag = resolveDirective("drag");
 
       return withDirectives((openBlock(), createElementBlock("div", {
         class: "table-wrapper absolute",
@@ -104339,18 +104631,38 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
-          top: _ctx.top,
+          top: _ctx.top
         }),
-        onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
-        onMousedown: _cache[1] || (_cache[1] = (...args) => (_ctx.onMouseDown && _ctx.onMouseDown(...args))),
-        onWheelPassive: _cache[2] || (_cache[2] = withModifiers(() => {}, ["stop"])),
-        onScroll: _cache[3] || (_cache[3] = withModifiers(() => {}, ["stop"])),
+        onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
+        onMousedown: _cache[1] || (_cache[1] = function () {
+          return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+        }),
+        onWheelPassive: _cache[2] || (_cache[2] = withModifiers(function () {}, ["stop"])),
+        onScroll: _cache[3] || (_cache[3] = withModifiers(function () {}, ["stop"])),
         ref: "el"
-      }, [
-        createVNode$1(_component_table_el)
-      ], 36 /* STYLE, HYDRATE_EVENTS */)), [
-        [_directive_drag, { rect: $props.node.option.matrixOption, select: $props.node.select }]
-      ])
+      }, [createVNode$1(_component_table_el, {
+        data: $setup.tableData
+      }, {
+        default: withCtx(function () {
+          return [createVNode$1(_component_column_el, {
+            prop: "name",
+            label: "姓名"
+          }), createVNode$1(_component_column_el, {
+            prop: "age",
+            label: "年龄"
+          })];
+        }),
+        _: 1
+        /* STABLE */
+
+      }, 8
+      /* PROPS */
+      , ["data"])], 36
+      /* STYLE, HYDRATE_EVENTS */
+      )), [[_directive_drag, {
+        rect: $props.node.option.matrixOption,
+        select: $props.node.select
+      }]]);
     }
 
     script$1.render = render$1;
@@ -104358,6 +104670,8 @@
 
     var elementInstaller = {
         install(app) {
+            app.component(script$i.name, script$i);
+            app.component(script$h.name, script$h);
             app.component(script$g.name, script$g);
             app.component(script$f.name, script$f);
             app.component(script$e.name, script$e);
@@ -104371,8 +104685,6 @@
             app.component(script$6.name, script$6);
             app.component(script$5.name, script$5);
             app.component(script$4.name, script$4);
-            app.component(script$3.name, script$3);
-            app.component(script$2.name, script$2);
             app.component(script$1.name, script$1);
         }
     };
@@ -105973,6 +106285,8 @@
                     case 'ChartPie':
                     case 'ChartGauge':
                         return 'PieChartConfigurator';
+                    case 'BaseTable':
+                        return 'TableConfigurator';
                 }
             }
             return '';
@@ -109592,7 +109906,9 @@
     const importScene = (canvas, d) => {
         const scene = d || store.state.exportContent[0].children[0].trees.threeDimension;
         var Camera, AmbientLight, HemisphereLight, DirectionLights, SpotLights, PointLights, RectAreaLights, Shadow, Background, HDR, Fog, BloomPass, OutlinePass, DOFPass, GammaPass, MSAAPass;
-        var modelUrls = [], models = [], publicPath = location.origin + location.pathname;
+        var modelUrls = [], models = [], publicPath = location.protocol === 'blob:'
+                ? location.origin + '/'
+                : location.origin + location.pathname;
         var textMeshGroup, iconMeshGroup, flyLineMeshGroup;
         scene.forEach((item) => {
             if (item.uuid == -1) {
@@ -109835,54 +110151,74 @@
     var script = {
       name: 'ElementParser',
       props: ['pageTreeNodes', 'drawingBoard'],
-      setup(props, ctx) {
+      setup: function setup(props, ctx) {
         function flatTree(tree) {
-          const arr = [],
-            nodes = [...tree];
-          let node;
-          // eslint-disable-next-line no-cond-assign
-          while ((node = nodes.shift())) {
-            if(node.children)nodes.unshift(...node.children);
-            else {arr.push(node);}
+          var arr = [],
+              nodes = _toConsumableArray(tree);
+
+          var node; // eslint-disable-next-line no-cond-assign
+
+          while (node = nodes.shift()) {
+            if (node.children) nodes.unshift.apply(nodes, _toConsumableArray(node.children));else {
+              arr.push(node);
+            }
           }
-          return arr
+
+          return arr;
         }
-        const nodes = computed(() => {
-          return flatTree(props.pageTreeNodes[0].children[0]?.trees?.twoDimension) || []
+
+        var nodes = computed(function () {
+          var _props$pageTreeNodes$, _props$pageTreeNodes$2;
+
+          return flatTree((_props$pageTreeNodes$ = props.pageTreeNodes[0].children[0]) === null || _props$pageTreeNodes$ === void 0 ? void 0 : (_props$pageTreeNodes$2 = _props$pageTreeNodes$.trees) === null || _props$pageTreeNodes$2 === void 0 ? void 0 : _props$pageTreeNodes$2.twoDimension) || [];
         });
-        const canvasRenderer = ref(null);
-        onMounted(() => {
+        var canvasRenderer = ref(null);
+        onMounted(function () {
           importScene(canvasRenderer.value, props.pageTreeNodes[0].children[0].trees.threeDimension);
         });
-        return { nodes, toPx, canvasRenderer }
+        return {
+          nodes: nodes,
+          toPx: toPx,
+          canvasRenderer: canvasRenderer
+        };
       }
     };
 
-    const _hoisted_1 = ["width", "height"];
-
+    var _hoisted_1 = ["width", "height"];
     function render(_ctx, _cache, $props, $setup, $data, $options) {
-      return (openBlock(), createElementBlock("section", {
+      return openBlock(), createElementBlock("section", {
         id: "app",
-        style: normalizeStyle$1({ height: $setup.toPx($props.drawingBoard.height), width: $setup.toPx($props.drawingBoard.width) })
-      }, [
-        createBaseVNode("div", {
-          class: "box-2d",
-          style: normalizeStyle$1({ height: $setup.toPx($props.drawingBoard.height), width: $setup.toPx($props.drawingBoard.width) })
-        }, [
-          (openBlock(true), createElementBlock(Fragment, null, renderList($setup.nodes, (item) => {
-            return (openBlock(), createBlock(resolveDynamicComponent(item.type), {
-              key: item.id,
-              node: item
-            }, null, 8 /* PROPS */, ["node"]))
-          }), 128 /* KEYED_FRAGMENT */))
-        ], 4 /* STYLE */),
-        createBaseVNode("canvas", {
-          ref: "canvasRenderer",
-          class: "renderer",
-          width: $props.drawingBoard.width,
-          height: $props.drawingBoard.height
-        }, null, 8 /* PROPS */, _hoisted_1)
-      ], 4 /* STYLE */))
+        style: normalizeStyle$1({
+          height: $setup.toPx($props.drawingBoard.height),
+          width: $setup.toPx($props.drawingBoard.width)
+        })
+      }, [createBaseVNode("div", {
+        class: "box-2d",
+        style: normalizeStyle$1({
+          height: $setup.toPx($props.drawingBoard.height),
+          width: $setup.toPx($props.drawingBoard.width)
+        })
+      }, [(openBlock(true), createElementBlock(Fragment, null, renderList($setup.nodes, function (item) {
+        return openBlock(), createBlock(resolveDynamicComponent(item.type), {
+          key: item.id,
+          node: item
+        }, null, 8
+        /* PROPS */
+        , ["node"]);
+      }), 128
+      /* KEYED_FRAGMENT */
+      ))], 4
+      /* STYLE */
+      ), createBaseVNode("canvas", {
+        ref: "canvasRenderer",
+        class: "renderer",
+        width: $props.drawingBoard.width,
+        height: $props.drawingBoard.height
+      }, null, 8
+      /* PROPS */
+      , _hoisted_1)], 4
+      /* STYLE */
+      );
     }
 
     var css_248z = "\n#app[data-v-58db88bb] {\n  position: relative;\n}\n.box-2d[data-v-58db88bb] {\n  pointer-events: none;\n  position: absolute;\n  z-index: 10;\n}\n.renderer[data-v-58db88bb] {\n  position: absolute;\n}\n";

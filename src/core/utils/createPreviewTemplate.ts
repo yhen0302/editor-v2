@@ -11,8 +11,8 @@ export default function createPreviewTemplate(code: string) {
       </head>
       <body>
         <div id="app"></div>
-        <script src="${baseURL}/sdk/index.js"></script>
         <script src="${baseURL}/static/main.js"></script>
+        <script src="${baseURL}/sdk/index.js"></script>
         <script>
           ${code}
         </script>

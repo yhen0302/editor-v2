@@ -39,6 +39,8 @@ import TextConfigurator from './configurator/TextConfigurator.vue'
 import ShapeConfigurator from './configurator/ShapeConfigurator.vue'
 import MediaConfigurator from './configurator/MediaConfigurator.vue'
 import PieChartConfigurator from './configurator/PieChartConfigurator.vue'
+import TableConfigurator from './configurator/TableConfigurator.vue'
+
 import LineEl from '@/components/utils/common/LineEl.vue'
 export default {
   name: 'ElementEditConfigurator',
@@ -51,7 +53,8 @@ export default {
     TextConfigurator,
     ShapeConfigurator,
     MediaConfigurator,
-    PieChartConfigurator
+    PieChartConfigurator,
+    TableConfigurator
   },
   setup() {
     const store = useStore()

@@ -41,6 +41,8 @@ export default {
         case 'ChartPie':
         case 'ChartGauge':
           return 'PieChartConfigurator'
+        case 'BaseTable':
+          return 'TableConfigurator'
       }
     }
     return ''
