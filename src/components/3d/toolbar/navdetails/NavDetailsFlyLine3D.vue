@@ -1,8 +1,14 @@
 <template>
   <div class="nav-details-test-3d-box">
     <div v-for="(item, key) in detailsList" :key="key">
-      <NavDetailsSelectItem :name="item.name" :type="key" :selected="item.selected" @click="selectItem({ key, target: item })" />
+      <NavDetailsSelectItem
+        :name="item.name"
+        :type="key"
+        :selected="item.selected"
+        @click="selectItem({ key, target: item })"
+      />
       <div class="escButton" v-if="visible" @click="escOut()">Esc退出飞线模式</div>
+      <div class="escButton1" v-if="visible" @click="changeInModel">{{ addModeText }}</div>
     </div>
   </div>
 </template>
@@ -15,12 +21,27 @@ import { EventsBus } from '@/core/EventsBus'
 
 const store = useStore()
 let visible = ref(false)
+const addModeType = ref(true)
+const addModeText = ref('添加至当前页')
 const detailsList = ref({
   FlyLine: {
     name: '添加飞线',
     selected: false
   }
 })
+
+const changeInModel = () => {
+  if (addModeType.value) {
+    addModeText.value = '添加至全局'
+  } else {
+    addModeText.value = '添加至当前页'
+  }
+  addModeType.value = !addModeType.value
+
+  if (store.state.addElementType) {
+    store.state.addElementType.modelType = addModeType.value
+  }
+}
 
 const mouseEnter = () => {
   document.querySelector('body').style.cursor = 'pointer'
@@ -110,7 +131,8 @@ const selectItem = (options) => {
     basePoint: null,
     movePoint: null,
     curveObj: null,
-    painting: false
+    painting: false,
+    modelType: addModeType.value
   }
   // let node = { type: 'flyLine', selected: key, name: target.name }
   // EventsBus.emit('toolBarSelected', { node })
@@ -131,6 +153,25 @@ const selectItem = (options) => {
   text-align: center;
   top: 10px;
   left: 290px;
+  border-radius: 2px;
+  background: #5475ff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  word-break: keep-all;
+  white-space: nowrap;
+}
+
+.escButton1 {
+  position: absolute;
+  width: 90px;
+  padding: 0 10px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  top: 10px;
+  left: 410px;
   border-radius: 2px;
   background: #5475ff;
   cursor: pointer;

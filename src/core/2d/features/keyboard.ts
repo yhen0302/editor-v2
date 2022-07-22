@@ -8,6 +8,7 @@ import {
   layerMoveUp,
   layerMoveDownward
 } from '@/core/2d/features/hotKeyHandle'
+import { globalHotKeyMap } from '@/core/features/hotKey'
 
 export interface SpecialKeySign {
   ctrl: boolean
@@ -24,7 +25,8 @@ export const hotKeyMap: hotKeyMap = {
   'layer move to the bottom.': { effect: layerMoveToBottomHandle, keySet: new Set(['ctrl', 'alt', '[']) },
   'layer move to the top.': { effect: layerMoveToTopHandle, keySet: new Set(['ctrl', 'alt', ']']) },
   'layer move downward.': { effect: layerMoveDownward, keySet: new Set(['ctrl', '[']) },
-  'layer move up.': { effect: layerMoveUp, keySet: new Set(['ctrl', ']']) }
+  'layer move up.': { effect: layerMoveUp, keySet: new Set(['ctrl', ']']) },
+  ...globalHotKeyMap
 }
 
 document.addEventListener('keydown', (ev) => {

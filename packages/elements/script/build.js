@@ -1,20 +1,18 @@
 const rollup = require('rollup')
 const vue = require('rollup-plugin-vue')
 const postcss = require('rollup-plugin-postcss')
-// const tailwindcss = require('tailwindcss')
-// const autoprefixer = require('autoprefixer')
 const path = require('path')
 const pImport = require('postcss-import')
 const typescript = require('rollup-plugin-typescript2')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
 const replace = require('rollup-plugin-replace')
-// import postcss from 'rollup-plugin-postcss'
+const { terser } = require('rollup-plugin-terser')
 const { getBabelOutputPlugin, babel } = require('@rollup/plugin-babel')
 
 const env = process.env.NODE_ENV
 const inputConf = {
   input: path.resolve(__dirname, '../src/index.ts'),
-  external: ['vue', 'echarts','@/assets/icon/clip-1406.svg'],
+  external: ['vue', 'echarts', '@/assets/icon/clip-1406.svg'],
   plugins: [
     nodeResolve({ extensions: ['.js', '.ts', '.vue'] }),
     vue({
@@ -37,7 +35,7 @@ const inputConf = {
       IS_EDITOR: true
     }),
     typescript({ allowJs: true })
-  ],
+  ]
 }
 
 const outputConf = {
@@ -48,6 +46,7 @@ const outputConf = {
 
 async function main() {
   if (env === 'production') {
+    inputConf.plugins.push(terser())
     const bundler = await rollup.rollup(inputConf)
     await bundler.write(outputConf)
   } else {

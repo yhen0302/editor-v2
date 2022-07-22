@@ -72,7 +72,7 @@ const formSettings = ref([
     name: 'height',
     content: [
       {
-        value: 100,
+        value: 1,
         type: 'input',
         typeText: 'number',
         scope: [0, Infinity]
@@ -109,9 +109,17 @@ watch(
     let source, target, height, speed, color, range, size
     formSettings.value.forEach((item) => {
       if (item.name == 'source') {
-        source = new Bol3D.Vector3(item.content[0].value, item.content[1].value, item.content[2].value)
+        source = new Bol3D.Vector3(
+          item.content[0].value,
+          item.content[1].value,
+          item.content[2].value
+        )
       } else if (item.name == 'target') {
-        target = new Bol3D.Vector3(item.content[0].value, item.content[1].value, item.content[2].value)
+        target = new Bol3D.Vector3(
+          item.content[0].value,
+          item.content[1].value,
+          item.content[2].value
+        )
       } else if (item.name == 'color') {
         color = item.content[0].value
       } else if (item.name == 'range') {
@@ -124,17 +132,20 @@ watch(
         size = item.content[0].value
       }
     })
-    Fly.reviseFlyLine({
-      source,
-      target,
-      height,
-      speed,
-      size,
-      color,
-      range
-    })
+    Fly.reviseFlyLine(
+      {
+        source,
+        target,
+        height,
+        speed,
+        size,
+        color,
+        range
+      },
+      store.state.addElementType.mesh
+    )
 
-    store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+    store.state.selectedSceneTreeNode.trees.threeDimension.forEach((item) => {
       if (item.name == 'FlyLine') {
         item.children.forEach((dev) => {
           if (dev.uuid == store.state.addElementType.mesh.uuid) {
@@ -159,9 +170,12 @@ watch(
   () => store.state.addElementType.moving,
   (v1, v2) => {
     if (store.state.addElementType.mesh && store.state.addElementType.basePoint) {
-      store.state.addElementType.mesh.userData.source = store.state.addElementType.basePoint.position.clone()
-      store.state.addElementType.mesh.userData.target = store.state.addElementType.movePoint.position.clone()
-      let { source, target, height, speed, color, range, size } = store.state.addElementType.mesh.userData
+      store.state.addElementType.mesh.userData.source =
+        store.state.addElementType.basePoint.position.clone()
+      store.state.addElementType.mesh.userData.target =
+        store.state.addElementType.movePoint.position.clone()
+      let { source, target, height, speed, color, range, size } =
+        store.state.addElementType.mesh.userData
       formSettings.value.forEach((item) => {
         if (item.name == 'source') {
           item.content[0].value = parseInt(source.x)
@@ -184,7 +198,7 @@ watch(
         }
       })
 
-      store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((item) => {
         if (item.name == 'FlyLine') {
           item.children.forEach((dev) => {
             if (dev.uuid == store.state.addElementType.mesh.uuid) {

@@ -187,7 +187,7 @@ export default defineComponent({
             const node: any = {}
             const index = 0
             // 3d模板 存入缓存
-            parseModelNode(model, index, node)
+            parseModelNode({ name: model.name, sql: 0 }, model, index, node)
             store.state.template.threeDimension.push(node)
           })
           store.state.template.threeDimension.forEach((c: any) => {

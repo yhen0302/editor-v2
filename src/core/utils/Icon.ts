@@ -24,12 +24,24 @@ export const addIcon = (container: any, obj: any) => {
   icon.add(lightPlane)
   store.state.addElementType.mesh = icon
   store.state.addElementType.lightMesh = lightPlane
-  store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item: any) => {
+
+  const modelType = store.state.addElementType.modelType
+  store.state.selectedSceneTreeNode.trees.threeDimension.forEach((item: any) => {
     if (item.name == 'Icon') {
-      const obj = meshBasicMsg(icon, item, urlIcon)
-      item.children.push(obj)
+      item.childIndex++
+      icon.uuid = `iconSelfindex${item.childIndex}-${store.state.selectedSceneTreeNode.uuid}`
+      const ObjMesh = meshBasicMsg(icon, item, urlIcon, { position, scaleMax, modelType })
+      item.children.push(ObjMesh)
     }
   })
+  if (!modelType) {
+    store.state.template.threeDimension.forEach((item: any) => {
+      if (item.name == 'Icon') {
+        const ObjMesh = meshBasicMsg(icon, item, urlIcon, { position, scaleMax, modelType })
+        item.children.push(ObjMesh)
+      }
+    })
+  }
   store.state.threeDimensionContainer.scene.children.forEach((item) => {
     if (item.name == 'Icon') {
       item.add(icon)
@@ -40,7 +52,7 @@ export const addIcon = (container: any, obj: any) => {
   }, 100)
 }
 
-export const addIconToJson = (container: any, node: any, callback: any) => {
+export const addIconToJson = (container: any, node: any, visible: any, callback: any) => {
   const { meshPosition, urlIcon, meshScale, meshOpacity } = node.options
   const icon = new Bol3D.POI.Icon({
     position: meshPosition,
@@ -51,16 +63,16 @@ export const addIconToJson = (container: any, node: any, callback: any) => {
       icon.material.opacity = meshOpacity / 100
       icon.scale.z = meshScale
       icon.center.y = 0
-      icon.visible = node.visible
+      icon.visible = visible
       container.clickObjects.push(icon)
       icon.name = node.name
       callback && callback(icon)
     }
   })
-  node.uuid = icon.uuid
+  icon.uuid = node.uuid
 }
 
-const meshBasicMsg = (mesh: any, item: any, urlIcon: any) => {
+const meshBasicMsg = (mesh: any, item: any, urlIcon: any, options: any) => {
   var index = item.index
   const obj = {
     children: [],
@@ -68,17 +80,18 @@ const meshBasicMsg = (mesh: any, item: any, urlIcon: any) => {
     name: mesh.name,
     options: {
       urlIcon: urlIcon,
-      meshPosition: [],
-      meshScale: '',
-      meshOpacity: ''
+      meshPosition: options.position,
+      meshScale: options.scaleMax,
+      meshOpacity: 100
     },
     addMeshType: 'Icon',
     selected: false,
     show: true,
     spread: false,
-    type: 'Mesh',
+    type: 'Icon',
     uuid: mesh.uuid,
-    visible: mesh.visible
+    visible: mesh.visible,
+    modelType: options.modelType
   }
   return obj
 }

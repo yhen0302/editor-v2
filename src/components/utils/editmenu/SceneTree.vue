@@ -7,13 +7,14 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, toRaw } from 'vue'
+import { computed, defineComponent, nextTick, onMounted, ref, toRaw } from 'vue'
 import SceneTreeNode from './SceneTreeNode.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 import { useStore } from 'vuex'
 
 import { reloadThreeDimensionScene, traverseFindNodeById } from '@/core/3d/util'
+import { clone } from '@/share/util/base'
 
 export default defineComponent({
   name: 'SceneTree',
@@ -24,21 +25,33 @@ export default defineComponent({
     const store = useStore()
 
     // trees: {threeDimension, twoDimension}
-    const nodes = computed<any>({get(){
-      return store.state.pageTreeNodes
-      },set(val){
-        return store.state.pageTreeNodes = val
-      }})
+    const nodes = computed<any>({
+      get() {
+        return store.state.pageTreeNodes
+      },
+      set(val) {
+        return (store.state.pageTreeNodes = val)
+      }
+    })
 
     // 初始化场景/页
     EventsBus.on('sceneLoaded', (e: any) => {
+      console.log(store.state.pageTreeNodes[0].children[1])
       if (e.type === '3d') {
         nodes.value[0].children[0].trees = JSON.parse(JSON.stringify(toRaw(store.state.template)))
         store.state.threeDimensionContainer = e.container
       }
-      if(e.isImport){
-        store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
-        console.log(store.state.pageTreeNodes[0].children[0].trees.twoDimension)
+      console.log('初始化场景')
+
+      if (e.isImport) {
+        // TODO 异步BUG
+        setTimeout(()=> {
+          ;(store.state.exportContent as Array<any>).forEach((_, i) => {
+            _.children.forEach((_, j) => {
+              store.state.pageTreeNodes[i].children[j].trees.twoDimension = clone(_.trees.twoDimension)
+            })
+          })
+        },1000)
       }
     })
 

@@ -6,6 +6,7 @@ const autoprefixer = require('autoprefixer')
 const pImport = require('postcss-import')
 const typescript = require('rollup-plugin-typescript2')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
+const { terser } = require('rollup-plugin-terser')
 const replace = require('rollup-plugin-replace')
 const {getBabelOutputPlugin,babel} = require('@rollup/plugin-babel')
 const path = require('path')
@@ -36,7 +37,6 @@ const inputConf = {
     }),
     typescript({ allowJs: true })
   ],
-  external: ['@/assets/icon/clip-1406.svg']
 }
 const outputConf = {
   file: './sdk/index.js',
@@ -46,8 +46,15 @@ const outputConf = {
 
 async function main() {
   if (env === 'production') {
+    inputConf.plugins.push(terser())
     const bundler = await rollup.rollup(inputConf)
     await bundler.write(outputConf)
+    await bundler.write({
+      file: path.resolve(__dirname,'../../../public/sdk/index.js'),
+      format: 'umd',
+      name: 'EDITOR_SDK'
+    })
+
   } else {
     const watcher = rollup.watch({
         ...inputConf,

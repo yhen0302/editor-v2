@@ -77,7 +77,7 @@ export default {
       observer.observe(instance.vnode.el)
       loop = () => {
         computedWidth()
-        requestAnimationFrame(loop)
+        requestAnimationFrame(loop||(new Function))
       }
       loop()
     })

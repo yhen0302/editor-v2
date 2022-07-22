@@ -25,7 +25,7 @@
           :icon="require('@/assets/images/header/editor_preview_btn_dark.png')"
           name="1"
           tip-position="tb"
-          @click="preview"
+          @click="previewHandle"
         >
           <template v-slot:tip>
             <p>预览</p>
@@ -84,9 +84,11 @@ import { useStore } from 'vuex'
 import { ElMessage } from 'element-plus'
 import createPreviewTemplate from '@/core/utils/createPreviewTemplate'
 import htmlToUrl from '@/core/utils/htmlToUrl'
-import { clone } from '@/share/util/base'
+import { clone, formatterDate } from '@/share/util/base'
 import { parseModelNode } from '@/core/3d/util'
 import { EventsBus } from '@/core/EventsBus'
+import { getAvailablePageTreeNodes } from '@/core/features/hotKeyShare'
+import { previewHandle } from '@/core/features/hotKey'
 
 function saveJSON(data: any, filename: any) {
   if (!data) {
@@ -125,7 +127,7 @@ export default defineComponent({
     const exportJSON = () => {
       // 导出
       let JSON_data = JSON.stringify(getAvailablePageTreeNodes())
-      saveJSON(JSON_data, 'bol3d.json')
+      saveJSON(JSON_data, `bol3d-${formatterDate()}.json`)
     }
 
     //导入 bol3d.json
@@ -166,52 +168,19 @@ export default defineComponent({
       }
 
       EventsBus.emit('toolBarSelected', { node: {} })
+      store.state.dimensionType = null
+      store.state.selectBarToolType = ''
       nextTick(() => {
+        store.state.dimensionType = '3d'
         remove3Dnodes()
         fileList[0].text().then((res: any) => {
           // 接受
           store.state.exportContent = JSON.parse(res)
+          console.log(store.state.exportContent)
           // store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
           store.state.exportType = !store.state.exportType
         })
       })
-    }
-
-    async function preview() {
-      // const sdk = await (await fetch('/sdk/index.js')).text()
-      // const sdk3d = await (await fetch('/static/main.js')).text()
-
-      const html = createPreviewTemplate(
-        `console.log(EDITOR_SDK(${JSON.stringify({
-          pageTreeNodes: getAvailablePageTreeNodes(),
-          drawingBoard: store.state.drawingBoard
-        })}))`
-      )
-      console.log(window.open(htmlToUrl(html)))
-    }
-
-    function getAvailablePageTreeNodes() {
-      const pageTreeNodes = clone(toRaw(store.state.pageTreeNodes))
-      for (const scene of pageTreeNodes) {
-        for (const page of scene.children) {
-          deleteTreeParentQuote(page.trees.twoDimension)
-        }
-      }
-      return pageTreeNodes
-    }
-
-    function deleteTreeParentQuote(tree: any) {
-      let nodes = [...tree],
-        node: any = null
-
-      // eslint-disable-next-line no-cond-assign
-      while ((node = nodes.pop())) {
-        node.parent = null
-        node.select = false
-        if (node?.children?.length > 0) {
-          nodes.unshift(...node?.children)
-        }
-      }
     }
 
     function remove3Dnodes() {
@@ -306,7 +275,7 @@ export default defineComponent({
       importJSON,
       loadJSON,
       uploadJSON,
-      preview
+      previewHandle
     }
   }
 })

@@ -390,7 +390,10 @@ if (props.node.clickObj) {
           item.content[0].value = props.node.clickObj.options.textTextScale[0]
           item.content[1].value = props.node.clickObj.options.textTextScale[1]
         } else if (item.name == '填充') {
-          let rgb = props.node.clickObj.options.textBGColor == '' ? '' : 'rgb(' + props.node.clickObj.options.textBGColor + ')'
+          let rgb =
+            props.node.clickObj.options.textBGColor == ''
+              ? ''
+              : 'rgb(' + props.node.clickObj.options.textBGColor + ')'
           item.content[0].value.color.value = rgb.colorHex()
           item.content[0].value.opacity.value = props.node.clickObj.options.textBGOpacity
           item.content[0].value.loadPicture.value = props.node.clickObj.options.textBGImage
@@ -476,7 +479,7 @@ watch(
     })
 
     upDateText3D(obj, movingType.value, props.node.selected)
-    store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+    store.state.selectedSceneTreeNode.trees.threeDimension.forEach((item) => {
       if (item.name == 'Text') {
         item.children.forEach((dev) => {
           if (dev.uuid == store.state.addElementType.mesh.uuid) {
@@ -537,7 +540,7 @@ watch(
           }
         })
       })
-      store.state.pageTreeNodes[0].children[0].trees.threeDimension.forEach((item) => {
+      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((item) => {
         if (item.name == 'Text') {
           item.children.forEach((dev) => {
             if (dev.uuid == store.state.addElementType.mesh.uuid) {
@@ -546,7 +549,10 @@ watch(
                 parseInt(store.state.addElementType.mesh.position.y),
                 parseInt(store.state.addElementType.mesh.position.z)
               ]
-              dev.options.meshScale = [store.state.addElementType.mesh.scale.x, store.state.addElementType.mesh.scale.y]
+              dev.options.meshScale = [
+                store.state.addElementType.mesh.scale.x,
+                store.state.addElementType.mesh.scale.y
+              ]
               dev.options.meshOpacity = store.state.addElementType.mesh.material.opacity * 100
               if (props.node.selected == 'FixedText') {
                 dev.options.meshRotation = [
@@ -555,7 +561,10 @@ watch(
                   (store.state.addElementType.mesh.rotation.z * 180) / Math.PI
                 ]
               } else {
-                dev.options.meshCenter = [store.state.addElementType.mesh.center.x, store.state.addElementType.mesh.center.y]
+                dev.options.meshCenter = [
+                  store.state.addElementType.mesh.center.x,
+                  store.state.addElementType.mesh.center.y
+                ]
               }
             }
           })
