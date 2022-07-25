@@ -14,10 +14,12 @@ const path = require('path')
 const env = process.env.NODE_ENV
 const inputConf = {
   input: path.resolve(__dirname, '../src/main.ts'),
-
+  globals:{
+    vue:'Vue'
+  },
   plugins: [
     nodeResolve({ extensions: ['.js', '.ts', '.vue'] }),
-    vue({
+  vue({
       target:'browser',
       preprocessStyles:true,
       postcssPlugins:[

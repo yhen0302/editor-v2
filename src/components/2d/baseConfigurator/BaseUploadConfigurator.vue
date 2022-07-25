@@ -6,7 +6,7 @@
           <upload-el @update="onUpdate" :type-verification="typeVerification">
             <template #upload-content>
               <div class="relative w-full h-full flex-1" v-if="src">
-                <img :src="src" v-if="viewType === 'ImageMedia'" class="w-full h-full"/>
+                <img :src="src" v-if="viewType === 'ImageMedia'" class="w-full h-full" />
                 <video class="upload-placeholder absolute" v-else :src="src" />
               </div>
             </template>
@@ -25,6 +25,7 @@ import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
 import { computed } from 'vue'
 import { fileToBlobUrl } from '@/share/util/base'
+import { uploadFile } from '@/api/file'
 
 export default {
   name: 'BaseUploadConfigurator',
@@ -48,9 +49,7 @@ export default {
 
     function videoMimeTypeVerification(file: File) {
       return (
-        file.type === 'video/x-msvideo' ||
-        file.type === 'video/mpeg' ||
-        file.type === 'video/mp4'
+        file.type === 'video/x-msvideo' || file.type === 'video/mpeg' || file.type === 'video/mp4'
       )
     }
 
@@ -63,8 +62,19 @@ export default {
     }
     function onUpdate(files: File[]) {
       if (!files) return
+      uploadFileToServer(files)
       const url = fileToBlobUrl(files[0])
       src.value = url
+    }
+    async function uploadFileToServer(files) {
+      const formData = new FormData
+      formData.append('files', files[0])
+      const res = (await uploadFile(formData)).data
+      console.log(res)
+      // 上传成功
+      if(res.code === 200){
+        src.value = res.data[0]
+      }
     }
 
     const tip = computed(() => {

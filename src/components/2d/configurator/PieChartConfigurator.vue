@@ -12,9 +12,7 @@
 import BasePositionConfigurator from '../baseConfigurator/BasePositionConfigurator'
 import ChartColorConfigurator from '../baseConfigurator/ChartColorConfigurator'
 import ChartTitleConfigurator from '../baseConfigurator/ChartTitleConfigurator'
-import ChartGridConfigurator from '../baseConfigurator/ChartGridConfigurator'
 import ChartDataConfigurator from '../baseConfigurator/ChartDataConfigurator'
-
 import ChartLegendConfigurator from '../baseConfigurator/ChartLegendConfigurator'
 
 export default {

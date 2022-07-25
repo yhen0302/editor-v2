@@ -290,8 +290,15 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
             sex:'男',
             hobby:'篮球'
           }],
+          tableMap:{
+            name:'姓名',
+            age:'年龄',
+            hobby:'爱好',
+            sex:'性别'
+          },
+          style:[],
 
-        }
+        },
       }
     ]
   }
