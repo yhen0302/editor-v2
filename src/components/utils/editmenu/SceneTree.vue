@@ -43,16 +43,6 @@ export default defineComponent({
       }
       console.log('初始化场景')
 
-      if (e.isImport) {
-        // TODO 异步BUG
-        setTimeout(()=> {
-          ;(store.state.exportContent as Array<any>).forEach((_, i) => {
-            _.children.forEach((_, j) => {
-              store.state.pageTreeNodes[i].children[j].trees.twoDimension = clone(_.trees.twoDimension)
-            })
-          })
-        },1000)
-      }
     })
 
     // 添加场景

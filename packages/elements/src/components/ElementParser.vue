@@ -14,7 +14,7 @@ import { importScene } from '../../../../src/core/3d/importIndex'
 
 export default {
   name: 'ElementParser',
-  props: ['pageTreeNodes', 'drawingBoard'],
+  props: ['pageTreeNodes', 'drawingBoard','template'],
   setup(props, ctx) {
     function flatTree(tree) {
       const arr = [],
