@@ -2,6 +2,7 @@
   <div class="axis-line-chart property-box">
     <base-position-configurator></base-position-configurator>
     <chart-color-configurator></chart-color-configurator>
+    <chart-data-configurator></chart-data-configurator>
     <chart-title-configurator></chart-title-configurator>
     <chart-legend-configurator></chart-legend-configurator>
   </div>
@@ -11,7 +12,7 @@
 import BasePositionConfigurator from '../baseConfigurator/BasePositionConfigurator'
 import ChartColorConfigurator from '../baseConfigurator/ChartColorConfigurator'
 import ChartTitleConfigurator from '../baseConfigurator/ChartTitleConfigurator'
-import ChartGridConfigurator from '../baseConfigurator/ChartGridConfigurator'
+import ChartDataConfigurator from '../baseConfigurator/ChartDataConfigurator'
 import ChartLegendConfigurator from '../baseConfigurator/ChartLegendConfigurator'
 
 export default {
@@ -20,7 +21,8 @@ export default {
     ChartLegendConfigurator,
     ChartTitleConfigurator,
     ChartColorConfigurator,
-    BasePositionConfigurator
+    BasePositionConfigurator,
+    ChartDataConfigurator
   }
 }
 </script>

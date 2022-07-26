@@ -1,4 +1,11 @@
-import { dimensionSelectBarType2d, dimensionSelectBarType3d, dimensionType, SelectBarItem, selectItemType2d, selectItemType3d } from '../../../store/type'
+import {
+  dimensionSelectBarType2d,
+  dimensionSelectBarType3d,
+  dimensionType,
+  SelectBarItem,
+  selectItemType2d,
+  selectItemType3d
+} from '../../../store/type'
 import { clone, getChartUrl } from '../../../share/util/base'
 import { baseTitle, bigTitle, smallTitle, textContent } from './text'
 import { baseShapeList } from './shape'
@@ -245,13 +252,15 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
     ],
     viewType: 'block'
   },
-  table: { viewType: 'list', list: [
+  table: {
+    viewType: 'list',
+    list: [
       {
-        icon:require('../../../assets/images/table-style1.png'),
-        name:'表格样式-001-',
-        type:"BaseTable",
-        option:{
-          emitters:{},
+        icon: require('../../../assets/images/table-style1.png'),
+        name: '表格样式-001-',
+        type: 'BaseTable',
+        option: {
+          emitters: {},
           matrixOption: {
             left: 0,
             top: 0,
@@ -259,9 +268,40 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
             width: 200,
             angle: 0
           },
-        }
+          tableData: [
+            {
+            name:'张三',
+            age:18,
+            sex:'男',
+            hobby:'唱'
+          },{
+            name:'李四',
+            age:2.5,
+            sex:'男',
+            hobby:'跳'
+          },{
+            name:'王五',
+            age:18,
+            sex:'男',
+            hobby:'rap'
+          },{
+            name:'赵六',
+            age:18,
+            sex:'男',
+            hobby:'篮球'
+          }],
+          tableMap:{
+            name:'姓名',
+            age:'年龄',
+            hobby:'爱好',
+            sex:'性别'
+          },
+          style:[],
+
+        },
       }
-    ] }
+    ]
+  }
 }
 
 export const layerIcon: { [key in dimensionSelectBarType2d]: string } = {

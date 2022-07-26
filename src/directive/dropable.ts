@@ -21,7 +21,6 @@ export default {
 
       function initData(ev: DragEvent) {
         const target = ev.target as HTMLDivElement
-        console.log(target)
         const matrixOption = data.option.matrixOption
         if (target.className.includes('art-board-wrapper')) {
           const targetRect = target.getBoundingClientRect()

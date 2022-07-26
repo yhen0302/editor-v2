@@ -6,7 +6,13 @@ import { addIconToJson } from '../utils/Icon'
 import { addFlyLine } from '../utils/flyLine'
 declare const Bol3D: any
 
-export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj: any = null) => {
+export const onloadFun = (
+  evt: any,
+  container: any,
+  publicPath: any,
+  addMeshObj: any = null,
+  isImport = false
+) => {
   // console.log('loaded')
   const scaleMax =
     store.state.elementScaleInterval.x > store.state.elementScaleInterval.z

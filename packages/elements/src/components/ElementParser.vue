@@ -32,7 +32,8 @@ export default {
     })
     const canvasRenderer = ref(null)
     onMounted(() => {
-      importScene(canvasRenderer.value, props.pageTreeNodes[0].children[0].trees.threeDimension)
+      console.log(props.pageTreeNodes[0])
+      // importScene(canvasRenderer.value, props.pageTreeNodes[0])
     })
     return { nodes, toPx, canvasRenderer }
   }

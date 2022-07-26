@@ -49,7 +49,10 @@ export const importScene = (canvas: any) => {
         ? location.protocol === 'blob:'
           ? 'https://www.kantu3d.com/demo/edit/'
           : location.origin + location.pathname
+        : location.protocol === 'blob:'
+        ? location.origin + '/'
         : location.origin + location.pathname
+  var textMeshGroup: any, iconMeshGroup: any, flyLineMeshGroup: any
 
   var textMeshGroup: any, iconMeshGroup: any, flyLineMeshGroup: any
   var textMeshGroupFoo: any = [],
@@ -206,14 +209,20 @@ export const importScene = (canvas: any) => {
 
       store.state.threeDimensionContainer = container
 
-      const obj = onloadFun(evt, container, publicPath, {
-        textMeshGroup,
-        iconMeshGroup,
-        flyLineMeshGroup,
-        textMeshGroupDepu,
-        iconMeshGroupDepu,
-        flyLineMeshGroupDepu
-      })
+      const obj = onloadFun(
+        evt,
+        container,
+        publicPath,
+        {
+          textMeshGroup,
+          iconMeshGroup,
+          flyLineMeshGroup,
+          textMeshGroupDepu,
+          iconMeshGroupDepu,
+          flyLineMeshGroupDepu
+        },
+        true
+      )
       // // click event
       clickFun(container, publicPath, obj)
     }

@@ -1,14 +1,9 @@
 <template>
-  <section class="table-el">
+  <section class="table-el" ref="tableEl">
     <div class="table-header" :style="{ width: toPx(bodyWidth) }">
       <table class="table">
         <colgroup>
-          <col
-            v-for="item in columnsProps"
-            span="1"
-            :width="item.realWidth"
-            :key="item.prop"
-          />
+          <col v-for="item in columnsProps" span="1" :width="item.realWidth" :key="item.prop" />
         </colgroup>
         <component :is="tableHead"></component>
       </table>
@@ -16,12 +11,7 @@
     <div class="table-body" :style="{ width: toPx(bodyWidth) }">
       <table class="table">
         <colgroup>
-          <col
-            v-for="item in columnsProps"
-            span="1"
-            :width="item.realWidth"
-            :key="item.prop"
-          />
+          <col v-for="item in columnsProps" span="1" :width="item.realWidth" :key="item.prop" />
         </colgroup>
         <!--        <tbody>
                <tr v-for="item in data" :key="item">
@@ -35,16 +25,16 @@
 </template>
 
 <script lang="jsx">
-import { clone, toPx } from '@/share/util/base'
+import { clone, toPx } from '../../../../share/util/base'
 import {
+  computed,
   getCurrentInstance,
-  h,
-  nextTick,
-  onBeforeUpdate,
   onMounted,
+  onUnmounted,
   onUpdated,
   reactive,
-  ref
+  ref,
+  Fragment
 } from 'vue'
 
 export default {
@@ -52,13 +42,23 @@ export default {
   props: ['data'],
   setup: function (props, context) {
     const instance = getCurrentInstance()
+    const tableEl = ref(null)
     let fixedWidth = 0
-    const columnVnodes = context.slots.default()
+    const columnVnodes = computed(() => {
+      const list = []
+      const clsDefault = context.slots.default()
+      clsDefault.forEach((item) => {
+        // v-for
+        if (item.type === Fragment) list.push(...item.children)
+        else list.push(item)
+      })
+      return list
+    })
+
     const columnsProps = reactive(
-      columnVnodes.map((item) => {
+      columnVnodes.value.map((item) => {
         const res = clone(item.props)
-        !isNaN(item.props.width) &&
-          (fixedWidth += res.realWidth = Number(item.props.width))
+        !isNaN(item.props.width) && (fixedWidth += res.realWidth = Number(item.props.width))
         return res
       })
     )
@@ -73,25 +73,39 @@ export default {
         computedWidth()
       }
     })
+
     // 计算列宽度
     const computedWidth = () => {
+      if (bodyWidth.value === instance.vnode.el.clientWidth) return
       bodyWidth.value = instance.vnode.el.clientWidth
       const diffWidth = bodyWidth.value - fixedWidth
       flexColumn.forEach((item) => {
         item.realWidth = diffWidth / flexColumn.length
       })
     }
-
+    let loop
     onMounted(() => {
       observer.observe(instance.vnode.el)
-      computedWidth()
+      loop = () => {
+        computedWidth()
+        requestAnimationFrame(loop || new Function())
+      }
+      loop()
     })
+    onUpdated(() => {
+      requestAnimationFrame(computedWidth)
+    })
+    onUnmounted(() => {
+      observer.disconnect()
+      loop = null
+    })
+
     const tableBody = () => (
       <tbody>
         {...props.data.map((item, rowI) => {
           return (
             <tr>
-              {...columnVnodes.map((col) => (
+              {...columnVnodes.value.map((col) => (
                 <td>
                   {col?.children?.default
                     ? col.children.default(
@@ -113,20 +127,20 @@ export default {
     const tableHead = () => (
       <thead>
         <tr>
-          {columnVnodes.map((col, i) => (
+          {columnVnodes.value.map((col, i) => (
             <th>
               {' '}
               {col?.children?.header
-                ? col.children.header(
-                    clone({ column: col.props.label, $index: i })
-                  )
+                ? col.children.header(clone({ column: col.props.label, $index: i }))
                 : col.props.label}
             </th>
           ))}
         </tr>
       </thead>
     )
-    return { toPx, columnsProps, bodyWidth, tableBody, tableHead }
+
+    console.log('debugger')
+    return { toPx, columnsProps, bodyWidth, tableBody, tableHead, tableEl }
   }
 }
 </script>
@@ -134,6 +148,8 @@ export default {
 <style scoped>
 .table-el {
   width: 100%;
+  text-align: center;
+  color: #fff;
 }
 .table-header {
   background: #1d1d1d;
@@ -144,13 +160,13 @@ export default {
 .table {
   border-collapse: collapse;
 }
-.table-header /deep/ th {
+.table-header:deep(th) {
   height: 30px;
   border: 1px solid #313131;
   border-bottom: none;
   vertical-align: middle;
 }
-.table-body /deep/ td {
+.table-body:deep(td) {
   height: 50px;
   vertical-align: middle;
   border: 1px solid #313131;

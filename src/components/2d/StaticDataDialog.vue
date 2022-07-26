@@ -44,15 +44,14 @@ export default {
   components: { ExcelTable, DialogEl: Dialog },
   props: ['visible'],
   setup(props, context) {
+    const handle = {
+
+    }
     const store = useStore()
     const editorGetter = useGetter(store, 'global', ['GET_SELECT_NODE'])
 
-    const title = ref(
-      editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title.text
-    )
-    const unit = ref(
-      editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit.text
-    )
+    const title = ref(editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title.text)
+    const unit = ref(editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit.text)
     const show = computed({
       get() {
         return props.visible
@@ -61,21 +60,17 @@ export default {
         context.emit('update:visible', val)
       }
     })
+
     function echartsDataToTableByNode(node) {
       return [
         ['', ...node.option.echartsOption.xAxis.data],
-        ...node.option.echartsOption.series.map((item) => [
-          item.name,
-          ...item.data
-        ])
+        ...node.option.echartsOption.series.map((item) => [item.name, ...item.data])
       ]
     }
     let cacheVal
     const data = computed({
       get() {
-        cacheVal = echartsDataToTableByNode(
-          editorGetter['GET_SELECT_NODE'].value
-        )
+        cacheVal = echartsDataToTableByNode(editorGetter['GET_SELECT_NODE'].value)
         return cacheVal
       },
       set(payload) {
@@ -87,10 +82,7 @@ export default {
     function tableDataAssignEcharts(tableData, node) {
       let realIndex = 0
       tableData.forEach((item, index) => {
-        if (index === 0)
-          node.option.echartsOption.xAxis.data = item.filter(
-            (item, i) => i !== 0
-          )
+        if (index === 0) node.option.echartsOption.xAxis.data = item.filter((item, i) => i !== 0)
         else {
           if (!node.option.echartsOption.series[realIndex - 1])
             node.option.echartsOption.series[realIndex - 1] = clone(
@@ -104,8 +96,7 @@ export default {
               node.option.echartsOption.series[realIndex - 1].data[i - 1] = 0
               continue
             }
-            node.option.echartsOption.series[realIndex - 1].data[i - 1] =
-              item[i]
+            node.option.echartsOption.series[realIndex - 1].data[i - 1] = item[i]
           }
         }
         realIndex++
