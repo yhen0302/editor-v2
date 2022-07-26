@@ -38,7 +38,7 @@ export default {
   padding: 2px 1px;
   background: #31333d;
 }
-.multi-color-picker /deep/ .color-selector {
+.multi-color-picker :deep(.color-selector) {
   width: 38px;
   padding: 0;
 }

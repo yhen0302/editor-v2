@@ -21,8 +21,8 @@ export default {
         nodes = [...tree]
       let node
       // eslint-disable-next-line no-cond-assign
-      while ((node = nodes.shift())) {
-        if(node.children)nodes.unshift(...node.children)
+      while ((node = nodes.pop())) {
+        if(node.children)nodes.push(...node.children)
         else{arr.push(node)}
       }
       return arr

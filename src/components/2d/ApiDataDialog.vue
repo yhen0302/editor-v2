@@ -263,7 +263,7 @@ export default {
   background: #292929;
   border-radius: 2px;
 }
-.dialog-table /deep/ .table-body td {
+.dialog-table :deep(.table-body td) {
   border: none;
   border-left: 1px solid #313131;
   border-right: 1px solid #313131;
