@@ -176,11 +176,48 @@ export default defineComponent({
         fileList[0].text().then((res: any) => {
           // 接受
           store.state.exportContent = JSON.parse(res)
-          console.log(store.state.exportContent)
-          // store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
           store.state.exportType = !store.state.exportType
+          // store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
         })
       })
+    }
+
+    async function preview() {
+      // const sdk = await (await fetch('/sdk/index.js')).text()
+      // const sdk3d = await (await fetch('/static/main.js')).text()
+
+      const html = createPreviewTemplate(
+        `console.log(EDITOR_SDK(${JSON.stringify({
+          pageTreeNodes: getAvailablePageTreeNodes(),
+          drawingBoard: store.state.drawingBoard
+        })}))`
+      )
+      console.log(window.open(htmlToUrl(html)))
+    }
+
+    function getAvailablePageTreeNodes() {
+      const template = clone(toRaw(store.state.template))
+      const pageTreeNodes = clone(toRaw(store.state.pageTreeNodes))
+      for (const scene of pageTreeNodes) {
+        for (const page of scene.children) {
+          deleteTreeParentQuote(page.trees.twoDimension)
+        }
+      }
+      return { tree: pageTreeNodes, template: template }
+    }
+
+    function deleteTreeParentQuote(tree: any) {
+      let nodes = [...tree],
+        node: any = null
+
+      // eslint-disable-next-line no-cond-assign
+      while ((node = nodes.pop())) {
+        node.parent = null
+        node.select = false
+        if (node?.children?.length > 0) {
+          nodes.unshift(...node?.children)
+        }
+      }
     }
 
     function remove3Dnodes() {

@@ -48,10 +48,10 @@ export default defineComponent({
         domShow.value = false
         setTimeout(() => {
           domShow.value = true
-
-          const threeObjs = store.state.exportContent[0]
+          store.state.template = JSON.parse(JSON.stringify(store.state.exportContent.template))
+          store.state.pageTreeNodes = JSON.parse(JSON.stringify(store.state.exportContent.tree))
           nextTick(() => {
-            importScene(scene.value, threeObjs)
+            importScene(scene.value)
           })
         }, 200)
       },

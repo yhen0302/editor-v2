@@ -4,7 +4,6 @@ import store from '../../store'
 // import { throttled } from '../utils/base'
 import { clickFun } from './clickFun'
 import { onloadFun } from './onloadFun'
-import { clone } from '@/share/util/base'
 
 declare const Bol3D: any
 
@@ -25,50 +24,7 @@ const distinct: any = (arr) => {
   return arr
 }
 
-export const importScene = (canvas: any, d?: any) => {
-  var textMeshGroup: any, iconMeshGroup: any, flyLineMeshGroup: any
-
-  var textMeshGroupFoo: any = [],
-    iconMeshGroupFoo: any = [],
-    flyLineMeshGroupFoo: any = [],
-    textMeshGroupDepu: any,
-    iconMeshGroupDepu: any,
-    flyLineMeshGroupDepu: any
-  if (d) {
-    d.children.forEach((item: any, b: any) => {
-      item.trees.threeDimension.forEach((dev: any, i: any) => {
-        if (dev.uuid == 'IconIndex-uuid-2CC79AFB') {
-          if (b == 0) {
-            iconMeshGroup = JSON.parse(JSON.stringify(dev))
-          }
-          dev.children.forEach((i: any) => {
-            iconMeshGroupFoo.push(JSON.parse(JSON.stringify(i)))
-          })
-        } else if (dev.uuid == 'TextIndex-uuid-F4763805') {
-          if (b == 0) {
-            textMeshGroup = JSON.parse(JSON.stringify(dev))
-          }
-          dev.children.forEach((i: any) => {
-            textMeshGroupFoo.push(JSON.parse(JSON.stringify(i)))
-          })
-        } else if (dev.uuid == 'FlyLineIndex-uuid-352BF4EA') {
-          if (b == 0) {
-            flyLineMeshGroup = JSON.parse(JSON.stringify(dev))
-          }
-          dev.children.forEach((i: any) => {
-            flyLineMeshGroupFoo.push(JSON.parse(JSON.stringify(i)))
-          })
-        }
-      })
-    })
-  }
-  textMeshGroupDepu = distinct(textMeshGroupFoo)
-  iconMeshGroupDepu = distinct(iconMeshGroupFoo)
-  flyLineMeshGroupDepu = distinct(flyLineMeshGroupFoo)
-
-  const scene =
-    (d && d.children[0].trees.threeDimension) ||
-    store.state.exportContent[0].children[0].trees.threeDimension
+export const importScene = (canvas: any) => {
   var Camera: any,
     AmbientLight: any,
     HemisphereLight: any,
@@ -85,7 +41,6 @@ export const importScene = (canvas: any, d?: any) => {
     DOFPass: any,
     GammaPass: any,
     MSAAPass: any
-
   var modelUrls: any = [],
     models: any = [],
     production = 'production', // 不提出来过不了编译 semantic error TS2367
@@ -98,6 +53,52 @@ export const importScene = (canvas: any, d?: any) => {
         ? location.origin + '/'
         : location.origin + location.pathname
   var textMeshGroup: any, iconMeshGroup: any, flyLineMeshGroup: any
+
+  var textMeshGroup: any, iconMeshGroup: any, flyLineMeshGroup: any
+  var textMeshGroupFoo: any = [],
+    iconMeshGroupFoo: any = [],
+    flyLineMeshGroupFoo: any = [],
+    textMeshGroupDepu: any,
+    iconMeshGroupDepu: any,
+    flyLineMeshGroupDepu: any
+
+  const tree = JSON.parse(JSON.stringify(store.state.exportContent.tree))
+  var scene: any = null
+  tree.forEach((item: any) => {
+    item.children.forEach((dev: any) => {
+      if (dev.selected) {
+        scene = dev.trees.threeDimension
+      }
+
+      dev.trees.threeDimension.forEach((crt: any) => {
+        if (crt.uuid == 'IconIndex-uuid-2CC79AFB') {
+          crt.children.forEach((i: any) => {
+            iconMeshGroupFoo.push(i)
+          })
+          if (dev.selected) {
+            iconMeshGroup = crt
+          }
+        } else if (crt.uuid == 'TextIndex-uuid-F4763805') {
+          crt.children.forEach((i: any) => {
+            textMeshGroupFoo.push(i)
+          })
+          if (dev.selected) {
+            textMeshGroup = crt
+          }
+        } else if (crt.uuid == 'FlyLineIndex-uuid-352BF4EA') {
+          crt.children.forEach((i: any) => {
+            flyLineMeshGroupFoo.push(i)
+          })
+          if (dev.selected) {
+            flyLineMeshGroup = crt
+          }
+        }
+      })
+    })
+  })
+  iconMeshGroupDepu = distinct(iconMeshGroupFoo)
+  textMeshGroupDepu = distinct(textMeshGroupFoo)
+  flyLineMeshGroupDepu = distinct(flyLineMeshGroupFoo)
 
   scene.forEach((item: any) => {
     if (item.uuid == -1) {
@@ -191,44 +192,38 @@ export const importScene = (canvas: any, d?: any) => {
           if (__min.lengthSq() > min.lengthSq()) min.copy(__min)
         }
       })
-
       const node: any = {}
       const index = 0
       // 3d模板 存入缓存
-      parseModelNode({ name: model.name, sql: 0 }, model, index, node)
-
+      parseModelNode({ name: model.name }, model, index, node)
       models.forEach((crv: any) => {
         if (crv[0].uuid == model.uuid) {
           modelGiveRecursion(model, crv, node)
         }
       })
-      store.state.template.threeDimension.push(node)
     },
     onLoad: (evt: any) => {
-      ;(store as any).state.elementScaleInterval.x = max.x - min.x
-      ;(store as any).state.elementScaleInterval.y = max.y - min.y
-      ;(store as any).state.elementScaleInterval.z = max.z - min.z
+      ;(store as any).state.elementScaleInterval.x = Math.abs(max.x) + Math.abs(min.x)
+      ;(store as any).state.elementScaleInterval.y = Math.abs(max.y) + Math.abs(min.y)
+      ;(store as any).state.elementScaleInterval.z = Math.abs(max.z) + Math.abs(min.z)
 
-      const obj = onloadFun(evt, container, publicPath, {
-        textMeshGroup,
-        iconMeshGroup,
-        flyLineMeshGroup,
-        textMeshGroupDepu,
-        iconMeshGroupDepu,
-        flyLineMeshGroupDepu,
-      },true)
+      store.state.threeDimensionContainer = container
 
-      if (store.state.exportContent[0].children.length > 1) {
-        store.state.exportContent[0].children.forEach((item: any, i: any) => {
-          if (i != 0) {
-            item.selected = false
-            store.state.pageTreeNodes[0].children.push(JSON.parse(JSON.stringify
-            (item)))
-          }
-        })
-      }
-
-      // click event
+      const obj = onloadFun(
+        evt,
+        container,
+        publicPath,
+        {
+          textMeshGroup,
+          iconMeshGroup,
+          flyLineMeshGroup,
+          textMeshGroupDepu,
+          iconMeshGroupDepu,
+          flyLineMeshGroupDepu
+        },
+        true
+      )
+      // // click event
       clickFun(container, publicPath, obj)
     }
   })
@@ -290,25 +285,6 @@ const modelGiveRecursion = (gourp: any, arrs: any, node: any) => {
       }
     })
   })
-  const ars: any = []
-  findAllChildren(ars, node)
-
-  const selfChange = (item: any) => {
-    arrs.forEach((dev: any) => {
-      if (item.uuid == dev.uuid) {
-        item.selected = dev.selected
-        item.show = dev.show
-        item.spread = dev.spread
-        item.visible = dev.visible
-      }
-    })
-    if (item.children.length > 0) {
-      item.children.forEach((sr: any) => {
-        selfChange(sr)
-      })
-    }
-  }
-  selfChange(node)
 }
 
 const findAllChildren = (arrs: any, obj: any) => {
