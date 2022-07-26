@@ -174,8 +174,8 @@ export default defineComponent({
         fileList[0].text().then((res: any) => {
           // 接受
           store.state.exportContent = JSON.parse(res)
-          // store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
           store.state.exportType = !store.state.exportType
+          // store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
         })
       })
     }
@@ -194,13 +194,14 @@ export default defineComponent({
     }
 
     function getAvailablePageTreeNodes() {
+      const template = clone(toRaw(store.state.template))
       const pageTreeNodes = clone(toRaw(store.state.pageTreeNodes))
       for (const scene of pageTreeNodes) {
         for (const page of scene.children) {
           deleteTreeParentQuote(page.trees.twoDimension)
         }
       }
-      return pageTreeNodes
+      return { tree: pageTreeNodes, template: template }
     }
 
     function deleteTreeParentQuote(tree: any) {

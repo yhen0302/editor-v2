@@ -9,7 +9,6 @@ declare const Bol3D: any
 export function parseModelNode(opt: any, node: any, index: number, result: any) {
   node.uuid = findParentName(node)
 
-  opt.sql++
   result.uuid = node.uuid
   result.name = node.name
   result.visible = node.visible

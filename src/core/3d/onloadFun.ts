@@ -6,7 +6,7 @@ import { addIconToJson } from '../utils/Icon'
 import { addFlyLine } from '../utils/flyLine'
 declare const Bol3D: any
 
-export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj: any = {}) => {
+export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj: any = null) => {
   // console.log('loaded')
   const scaleMax =
     store.state.elementScaleInterval.x > store.state.elementScaleInterval.z
@@ -63,510 +63,6 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
   line.type = 'flyLineAuxiliaryLine'
   container.attach(line)
 
-  // msaaPass(单个)
-  const msaaPassOptions = {
-    supersampling: evt.supersampling
-  }
-  const msaaPassNode: any = {
-    uuid: -1,
-    name: 'MSAAPass',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'MSAAPass',
-    children: [],
-    show: false,
-    options: msaaPassOptions
-  }
-  ;(store as any).state.template.threeDimension.unshift(msaaPassNode)
-
-  // gammaPass(单个)
-  const gammaPassOptions = {
-    enabled: evt.gammaPass.enabled,
-    factor: evt.gammaPass.uniforms.factor.value
-  }
-  const gammaPassNode: any = {
-    uuid: -1,
-    name: 'GammaPass',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'GammaPass',
-    children: [],
-    show: false,
-    options: gammaPassOptions
-  }
-  ;(store as any).state.template.threeDimension.unshift(gammaPassNode)
-
-  // dofPass(单个)
-  const dofPassOptions = {
-    enabled: evt.bokehPass.enabled,
-    focus: evt.bokehPass.uniforms.focus.value,
-    aperture: evt.bokehPass.uniforms.aperture.value,
-    maxblur: evt.bokehPass.uniforms.maxblur.value
-  }
-  const dofPassNode: any = {
-    uuid: -1,
-    name: 'DOFPass',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'DOFPass',
-    children: [],
-    show: false,
-    options: dofPassOptions
-  }
-  ;(store as any).state.template.threeDimension.unshift(dofPassNode)
-
-  // outlinePass(单个)
-  const outlinePassOptions = {
-    enabled: evt.outlinePass.enabled,
-    edgeStrength: evt.outlinePass.edgeStrength,
-    edgeGlow: evt.outlinePass.edgeGlow,
-    edgeThickness: evt.outlinePass.edgeThickness,
-    pulsePeriod: evt.outlinePass.pulsePeriod,
-    visibleEdgeColor: '#' + evt.outlinePass.visibleEdgeColor.getHexString(),
-    hiddenEdgeColor: '#' + evt.outlinePass.hiddenEdgeColor.getHexString()
-  }
-  const outlinePassNode: any = {
-    uuid: -1,
-    name: 'OutlinePass',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'OutlinePass',
-    children: [],
-    show: false,
-    options: outlinePassOptions
-  }
-  ;(store as any).state.template.threeDimension.unshift(outlinePassNode)
-
-  // bloomPass(单个)
-  const bloomPassOptions = {
-    enabled: evt.bloomPass.enabled,
-    strength: evt.bloomPass.strength,
-    radius: evt.bloomPass.radius,
-    threshold: evt.bloomPass.threshold
-  }
-  const bloomPassNode: any = {
-    uuid: -1,
-    name: 'BloomPass',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'BloomPass',
-    children: [],
-    show: false,
-    options: bloomPassOptions
-  }
-  ;(store as any).state.template.threeDimension.unshift(bloomPassNode)
-
-  // 雾节点(单个)
-  const fogOptions = {
-    intensity: evt.fog.density,
-    color: '#' + evt.fog.color.getHexString()
-  }
-  const fogNode: any = {
-    uuid: -1,
-    name: 'Fog',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'Fog',
-    children: [],
-    show: false,
-    options: fogOptions
-  }
-  ;(store as any).state.template.threeDimension.unshift(fogNode)
-
-  // HDR节点(单个)
-  const hdrOptions = {
-    value: evt.hdrUrls
-  }
-  const hdrNode: any = {
-    uuid: -1,
-    name: 'HDR',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'HDR',
-    children: [],
-    show: false,
-    options: hdrOptions
-  }
-  ;(store as any).state.template.threeDimension.unshift(hdrNode)
-
-  // 背景节点(单个)
-  let bgGroundVal: any
-  let bgGroundOpts = {}
-  if (evt.bgType === 'color') {
-    const bgColor = '#' + new Bol3D.Color(evt.bgColor).getHexString()
-    bgGroundVal = bgColor
-  } else if (evt.bgType === 'texture') {
-    const valArr = evt.scene.background.image.src.split('//')
-    bgGroundVal = '/' + valArr[valArr.length - 1]
-    bgGroundOpts = {
-      encoding: evt.scene.background.encoding,
-      wrapping: evt.scene.background.wrapS,
-      repeat: [evt.scene.background.repeat.x, evt.scene.background.repeat.y]
-    }
-  } else if (evt.bgType === 'panorama') {
-    bgGroundVal = evt.sky.userData.value
-    bgGroundOpts = {
-      scale: evt.sky.scale.x,
-      rotation: [
-        parseFloat(((evt.sky.rotation.x * 180) / Math.PI).toFixed(4)),
-        parseFloat(((evt.sky.rotation.y * 180) / Math.PI).toFixed(4)),
-        parseFloat(((evt.sky.rotation.z * 180) / Math.PI).toFixed(4))
-      ]
-    }
-  }
-  const backgroundOptions = {
-    type: evt.bgType,
-    value: bgGroundVal,
-    opts: bgGroundOpts
-  }
-  const backgroundNode: any = {
-    uuid: -1,
-    name: 'Background',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'Background',
-    children: [],
-    show: false,
-    options: backgroundOptions
-  }
-  ;(store as any).state.template.threeDimension.unshift(backgroundNode)
-
-  // 阴影节点(单个)
-  const shadowOptions = {
-    enabled: evt.renderer.shadowMap.enabled,
-    type: evt.renderer.shadowMap.type
-  }
-  const shadowNode: any = {
-    uuid: -1,
-    name: 'Shadow',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'Shadow',
-    children: [],
-    show: false,
-    options: shadowOptions
-  }
-
-  ;(store as any).state.template.threeDimension.unshift(shadowNode)
-
-  // 面光源节点(多个)
-  const rectAreaLights = evt.rectAreaLights
-  const rectAreaLightNodes: any = {
-    uuid: -1,
-    name: 'RectAreaLights',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'RectAreaLights',
-    children: [],
-    show: false,
-    options: {}
-  }
-  rectAreaLights.forEach((rectAreaLight: any) => {
-    const rectAreaLightOptions = {
-      color: [
-        rectAreaLight.color.r * 255,
-        rectAreaLight.color.g * 255,
-        rectAreaLight.color.b * 255
-      ],
-      intensity: rectAreaLight.intensity,
-      width: rectAreaLight.width,
-      height: rectAreaLight.height,
-      position: [
-        parseFloat(rectAreaLight.position.x.toFixed(4)),
-        parseFloat(rectAreaLight.position.y.toFixed(4)),
-        parseFloat(rectAreaLight.position.z.toFixed(4))
-      ],
-      target: [
-        parseFloat(rectAreaLight.userData.target[0].toFixed(4)),
-        parseFloat(rectAreaLight.userData.target[1].toFixed(4)),
-        parseFloat(rectAreaLight.userData.target[2].toFixed(4))
-      ]
-    }
-
-    const rectAreaLightNode = {
-      uuid: rectAreaLight.uuid,
-      name: 'RectAreaLight',
-      selected: false,
-      index: 1,
-      spread: false,
-      type: 'RectAreaLight',
-      children: [],
-      show: false,
-      options: rectAreaLightOptions
-    }
-
-    rectAreaLightNodes.children.push(rectAreaLightNode)
-  })
-  ;(store as any).state.template.threeDimension.unshift(rectAreaLightNodes)
-
-  // 点光源节点(多个)
-  const pointLights = evt.pointLights
-  const pointLightNodes: any = {
-    uuid: -1,
-    name: 'PointLights',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'PointLights',
-    children: [],
-    show: false,
-    options: {}
-  }
-  pointLights.forEach((pointLight: any) => {
-    const pointLightOptions = {
-      color: [pointLight.color.r * 255, pointLight.color.g * 255, pointLight.color.b * 255],
-      intensity: pointLight.intensity,
-      decay: pointLight.decay,
-      distance: pointLight.distance,
-      position: [
-        parseFloat(pointLight.position.x.toFixed(4)),
-        parseFloat(pointLight.position.y.toFixed(4)),
-        parseFloat(pointLight.position.z.toFixed(4))
-      ],
-      castShadow: pointLight.castShadow,
-      near: pointLight.shadow.camera.near,
-      far: pointLight.shadow.camera.far,
-      bias: pointLight.shadow.bias,
-      size: pointLight.shadow.mapSize.x
-    }
-
-    const pointLightNode = {
-      uuid: pointLight.uuid,
-      name: 'PointLight',
-      selected: false,
-      index: 1,
-      spread: false,
-      type: 'PointLight',
-      children: [],
-      show: false,
-      options: pointLightOptions
-    }
-
-    pointLightNodes.children.push(pointLightNode)
-  })
-  ;(store as any).state.template.threeDimension.unshift(pointLightNodes)
-
-  // 聚光灯节点(多个)
-  const spotLights = evt.spotLights
-  const spotLightNodes: any = {
-    uuid: -1,
-    name: 'SpotLights',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'SpotLights',
-    children: [],
-    show: false,
-    options: {}
-  }
-  spotLights.forEach((spotLight: any) => {
-    const spotLightOptions = {
-      color: [spotLight.color.r * 255, spotLight.color.g * 255, spotLight.color.b * 255],
-      intensity: spotLight.intensity,
-      decay: spotLight.decay,
-      distance: spotLight.distance,
-      penumbra: spotLight.penumbra,
-      position: [
-        parseFloat(spotLight.position.x.toFixed(4)),
-        parseFloat(spotLight.position.y.toFixed(4)),
-        parseFloat(spotLight.position.z.toFixed(4))
-      ],
-      target: [
-        parseFloat(spotLight.target.position.x.toFixed(4)),
-        parseFloat(spotLight.target.position.y.toFixed(4)),
-        parseFloat(spotLight.target.position.z.toFixed(4))
-      ],
-      castShadow: spotLight.castShadow,
-      angle: spotLight.angle,
-      near: spotLight.shadow.camera.near,
-      far: spotLight.shadow.camera.far,
-      focus: spotLight.shadow.focus,
-      bias: spotLight.shadow.bias,
-      size: spotLight.shadow.mapSize.x
-    }
-
-    const spotLightNode = {
-      uuid: spotLight.uuid,
-      name: 'SpotLight',
-      selected: false,
-      index: 1,
-      spread: false,
-      type: 'SpotLight',
-      children: [],
-      show: false,
-      options: spotLightOptions
-    }
-
-    spotLightNodes.children.push(spotLightNode)
-  })
-  ;(store as any).state.template.threeDimension.unshift(spotLightNodes)
-
-  // 平行光节点(多个)
-  const directionLights = evt.directionLights
-  const directionLightNodes: any = {
-    uuid: -1,
-    name: 'DirectionLights',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'DirectionLights',
-    children: [],
-    show: false,
-    options: {}
-  }
-  directionLights.forEach((directionLight: any) => {
-    const directionLightOptions = {
-      color: [
-        directionLight.color.r * 255,
-        directionLight.color.g * 255,
-        directionLight.color.b * 255
-      ],
-      intensity: directionLight.intensity,
-      position: [
-        parseFloat(directionLight.position.x.toFixed(4)),
-        parseFloat(directionLight.position.y.toFixed(4)),
-        parseFloat(directionLight.position.z.toFixed(4))
-      ],
-      // shadow options
-      near: directionLight.shadow.camera.near,
-      far: directionLight.shadow.camera.far,
-      bias: directionLight.shadow.bias,
-      distance: directionLight.shadow.camera.top,
-      size: directionLight.shadow.mapSize.width,
-      castShadow: directionLight.castShadow,
-      // target options
-      target: [
-        parseFloat(directionLight.target.position.x.toFixed(4)),
-        parseFloat(directionLight.target.position.y.toFixed(4)),
-        parseFloat(directionLight.target.position.z.toFixed(4))
-      ]
-    }
-
-    const directionLightNode = {
-      uuid: directionLight.uuid,
-      name: 'DirectionLight',
-      selected: false,
-      index: 1,
-      spread: false,
-      type: 'DirectionLight',
-      children: [],
-      show: false,
-      options: directionLightOptions
-    }
-
-    directionLightNodes.children.push(directionLightNode)
-  })
-  ;(store as any).state.template.threeDimension.unshift(directionLightNodes)
-
-  // 半球光节点(单个)
-  const hemisphereLight = evt.hemiLight
-  const hemisphereLightOptions = {
-    color: [
-      hemisphereLight.color.r * 255,
-      hemisphereLight.color.g * 255,
-      hemisphereLight.color.b * 255
-    ],
-    groundColor: [
-      hemisphereLight.groundColor.r * 255,
-      hemisphereLight.groundColor.g * 255,
-      hemisphereLight.groundColor.b * 255
-    ],
-    intensity: hemisphereLight.intensity,
-    position: [
-      parseFloat(hemisphereLight.position.x.toFixed(4)),
-      parseFloat(hemisphereLight.position.y.toFixed(4)),
-      parseFloat(hemisphereLight.position.z.toFixed(4))
-    ]
-  }
-
-  const hemisphereLightNode = {
-    uuid: -1,
-    name: 'HemisphereLight',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: hemisphereLight.type,
-    children: [],
-    show: false,
-    options: hemisphereLightOptions
-  }
-
-  ;(store as any).state.template.threeDimension.unshift(hemisphereLightNode)
-
-  // 环境光节点(单个)
-  const ambientLight = evt.ambientLight
-  const ambientLightOptions = {
-    color: [ambientLight.color.r * 255, ambientLight.color.g * 255, ambientLight.color.b * 255],
-    intensity: ambientLight.intensity
-  }
-
-  const ambientLightNode = {
-    uuid: -1,
-    name: 'AmbientLight',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: ambientLight.type,
-    children: [],
-    show: false,
-    options: ambientLightOptions
-  }
-
-  ;(store as any).state.template.threeDimension.unshift(ambientLightNode)
-
-  // 相机节点(单个)
-  let camera: any
-  let controls: any
-  let cameraOptions: any = {}
-  if (evt.viewState === 'orbit') {
-    camera = evt.orbitCamera
-    controls = evt.orbitControls
-    cameraOptions = {
-      position: [
-        parseFloat(camera.position.x.toFixed(4)),
-        parseFloat(camera.position.y.toFixed(4)),
-        parseFloat(camera.position.z.toFixed(4))
-      ],
-      near: camera.near,
-      far: camera.far,
-      fov: camera.fov,
-      minDistance: controls.minDistance,
-      maxDistance: controls.maxDistance,
-      minPolarAngle: (controls.minPolarAngle * 180) / Math.PI,
-      maxPolarAngle: (controls.maxPolarAngle * 180) / Math.PI
-    }
-  } else if (evt.viewState === 'firstPerson') {
-    camera = evt.firstPersonCamera
-    controls = evt.firstPersonControls
-  } else if (evt.viewState === 'map') {
-    camera = evt.mapCamera
-    controls = evt.mapControls
-  }
-
-  const cameraNode = {
-    uuid: -1,
-    name: 'Camera',
-    selected: false,
-    index: 0,
-    spread: false,
-    type: 'Camera',
-    children: [],
-    show: false,
-    options: cameraOptions
-  }
-
-  ;(store as any).state.template.threeDimension.unshift(cameraNode)
-
   const IconGroup = new Bol3D.Group()
   IconGroup.name = 'Icon'
   IconGroup.uuid = 'IconIndex-uuid-2CC79AFB'
@@ -582,210 +78,768 @@ export const onloadFun = (evt: any, container: any, publicPath: any, addMeshObj:
   FlyLineGroup.uuid = 'FlyLineIndex-uuid-352BF4EA'
   container.attach(FlyLineGroup)
 
-  const IconGroupNode: any = {
-    uuid: IconGroup.uuid,
-    name: 'Icon',
-    selected: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.selected : false,
-    index: 0,
-    spread: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.spread : false,
-    type: 'Group',
-    show: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.show : true,
-    children: [],
-    visible: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.visible : true,
-    isEdit: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.isEdit : true,
-    childIndex: addMeshObj.iconMeshGroup ? addMeshObj.iconMeshGroup.childIndex : 0
-  }
-  if (addMeshObj.iconMeshGroup) {
-    IconGroup.visible = addMeshObj.iconMeshGroup.visible
-    if (addMeshObj.iconMeshGroupDepu.length > 0) {
-      addMeshObj.iconMeshGroupDepu.forEach((item: any, i: any) => {
-        var status: any = true
-        addMeshObj.iconMeshGroup.children.forEach((dev: any) => {
-          if (item.uuid == dev.uuid) {
-            status = false
-            addIconToJson(container, item, item.visible, (srrs) => {
-              if (i == 0) {
-                srrs.add(lightPlane)
-              }
-              IconGroup.add(srrs)
-            })
-            if (!item.modelType) {
-              IconGroupNode.children.push(item)
-            }
-          }
-        })
-        if (status) {
-          if (!item.modelType) {
-            addIconToJson(container, item, true, (srrs) => {
-              if (i == 0) {
-                srrs.add(lightPlane)
-              }
-              IconGroup.add(srrs)
-            })
-            IconGroupNode.children.push(item)
-          } else {
-            addIconToJson(container, item, false, (srrs) => {
-              if (i == 0) {
-                srrs.add(lightPlane)
-              }
-              IconGroup.add(srrs)
-            })
-          }
-        }
-      })
+  if (!addMeshObj) {
+    // msaaPass(单个)
+    const msaaPassOptions = {
+      supersampling: evt.supersampling
     }
-  }
-  ;(store as any).state.template.threeDimension.unshift(IconGroupNode)
-
-  const TextGroupNode: any = {
-    uuid: TextGroup.uuid,
-    name: 'Text',
-    selected: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.selected : false,
-    index: 0,
-    spread: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.spread : false,
-    type: 'Group',
-    show: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.show : true,
-    children: [],
-    visible: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.visible : true,
-    isEdit: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.isEdit : true,
-    childIndex: addMeshObj.textMeshGroup ? addMeshObj.textMeshGroup.childIndex : 0
-  }
-  if (addMeshObj.textMeshGroup) {
-    TextGroup.visible = addMeshObj.textMeshGroup.visible
-    if (addMeshObj.textMeshGroupDepu.length > 0) {
-      addMeshObj.textMeshGroupDepu.forEach((item: any, i: any) => {
-        var status: any = true
-        addMeshObj.textMeshGroup.children.forEach((dev: any) => {
-          if (item.uuid == dev.uuid) {
-            status = false
-            loadTextPlane(container, TextGroup, item.visible, item)
-            if (!item.modelType) {
-              TextGroupNode.children.push(item)
-            }
-          }
-        })
-        if (status) {
-          if (!item.modelType) {
-            loadTextPlane(container, TextGroup, true, item)
-            TextGroupNode.children.push(item)
-          } else {
-            loadTextPlane(container, TextGroup, false, item)
-          }
-        }
-      })
+    const msaaPassNode: any = {
+      uuid: -1,
+      name: 'MSAAPass',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'MSAAPass',
+      children: [],
+      show: false,
+      options: msaaPassOptions
     }
-  }
-  ;(store as any).state.template.threeDimension.unshift(TextGroupNode)
+    ;(store as any).state.template.threeDimension.unshift(msaaPassNode)
 
-  const FlyLineNode: any = {
-    uuid: FlyLineGroup.uuid,
-    name: 'FlyLine',
-    selected: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.selected : false,
-    index: 0,
-    spread: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.spread : false,
-    type: 'Group',
-    show: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.show : true,
-    children: [],
-    visible: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.visible : true,
-    isEdit: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.isEdit : true,
-    childIndex: addMeshObj.flyLineMeshGroup ? addMeshObj.flyLineMeshGroup.childIndex : 0
-  }
-  if (addMeshObj.flyLineMeshGroup) {
-    FlyLineGroup.visible = addMeshObj.flyLineMeshGroup.visible
-    if (addMeshObj.flyLineMeshGroupDepu.length > 0) {
-      addMeshObj.flyLineMeshGroupDepu.forEach((item: any, i: any) => {
-        var status: any = true
-        addMeshObj.flyLineMeshGroup.children.forEach((dev: any) => {
-          if (item.uuid == dev.uuid) {
-            status = false
-            addFlyLine(container, FlyLineGroup, item.visible, item)
-            if (!item.modelType) {
-              FlyLineNode.children.push(item)
-            }
-          }
-        })
-        if (status) {
-          if (!item.modelType) {
-            addFlyLine(container, FlyLineGroup, true, item)
-            FlyLineNode.children.push(item)
-          } else {
-            addFlyLine(container, FlyLineGroup, false, item)
-          }
-        }
-      })
+    // gammaPass(单个)
+    const gammaPassOptions = {
+      enabled: evt.gammaPass.enabled,
+      factor: evt.gammaPass.uniforms.factor.value
     }
-  }
-  ;(store as any).state.template.threeDimension.unshift(FlyLineNode)
+    const gammaPassNode: any = {
+      uuid: -1,
+      name: 'GammaPass',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'GammaPass',
+      children: [],
+      show: false,
+      options: gammaPassOptions
+    }
+    ;(store as any).state.template.threeDimension.unshift(gammaPassNode)
 
-  EventsBus.emit('sceneLoaded', {
-    type: '3d',
-    container: evt
-  })
+    // dofPass(单个)
+    const dofPassOptions = {
+      enabled: evt.bokehPass.enabled,
+      focus: evt.bokehPass.uniforms.focus.value,
+      aperture: evt.bokehPass.uniforms.aperture.value,
+      maxblur: evt.bokehPass.uniforms.maxblur.value
+    }
+    const dofPassNode: any = {
+      uuid: -1,
+      name: 'DOFPass',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'DOFPass',
+      children: [],
+      show: false,
+      options: dofPassOptions
+    }
+    ;(store as any).state.template.threeDimension.unshift(dofPassNode)
 
-  // 相机事件
-  let controlsFlag = false
-  controls.addEventListener('start', () => {
-    controlsFlag = true
-  })
-  controls.addEventListener('end', () => {
-    controlsFlag = false
-  })
+    // outlinePass(单个)
+    const outlinePassOptions = {
+      enabled: evt.outlinePass.enabled,
+      edgeStrength: evt.outlinePass.edgeStrength,
+      edgeGlow: evt.outlinePass.edgeGlow,
+      edgeThickness: evt.outlinePass.edgeThickness,
+      pulsePeriod: evt.outlinePass.pulsePeriod,
+      visibleEdgeColor: '#' + evt.outlinePass.visibleEdgeColor.getHexString(),
+      hiddenEdgeColor: '#' + evt.outlinePass.hiddenEdgeColor.getHexString()
+    }
+    const outlinePassNode: any = {
+      uuid: -1,
+      name: 'OutlinePass',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'OutlinePass',
+      children: [],
+      show: false,
+      options: outlinePassOptions
+    }
+    ;(store as any).state.template.threeDimension.unshift(outlinePassNode)
 
-  const updateFnCamera = (event: any) => {
-    if (controlsFlag && event && event.target) {
-      const t = event.target
-      const { object } = t
-      const { position, uuid } = object
+    // bloomPass(单个)
+    const bloomPassOptions = {
+      enabled: evt.bloomPass.enabled,
+      strength: evt.bloomPass.strength,
+      radius: evt.bloomPass.radius,
+      threshold: evt.bloomPass.threshold
+    }
+    const bloomPassNode: any = {
+      uuid: -1,
+      name: 'BloomPass',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'BloomPass',
+      children: [],
+      show: false,
+      options: bloomPassOptions
+    }
+    ;(store as any).state.template.threeDimension.unshift(bloomPassNode)
 
-      // update editForms
-      EventsBus.emit('pageTreeNodeUpdate', {
-        type: '3d',
-        options: {
-          position: [
-            parseFloat(position.x.toFixed(4)),
-            parseFloat(position.y.toFixed(4)),
-            parseFloat(position.z.toFixed(4))
-          ]
-        },
-        uuid
-      })
+    // 雾节点(单个)
+    const fogOptions = {
+      intensity: evt.fog.density,
+      color: '#' + evt.fog.color.getHexString()
+    }
+    const fogNode: any = {
+      uuid: -1,
+      name: 'Fog',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'Fog',
+      children: [],
+      show: false,
+      options: fogOptions
+    }
+    ;(store as any).state.template.threeDimension.unshift(fogNode)
 
-      // update pageTreeNode
-      if (
-        (store as any).state.selectedPageTreeNode &&
-        (store as any).state.selectedPageTreeNode.type === 'Camera'
-      ) {
-        Object.assign((store as any).state.selectedPageTreeNode.options, {
-          position: [
-            parseFloat(position.x.toFixed(4)),
-            parseFloat(position.y.toFixed(4)),
-            parseFloat(position.z.toFixed(4))
-          ]
-        })
+    // HDR节点(单个)
+    const hdrOptions = {
+      value: evt.hdrUrls
+    }
+    const hdrNode: any = {
+      uuid: -1,
+      name: 'HDR',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'HDR',
+      children: [],
+      show: false,
+      options: hdrOptions
+    }
+    ;(store as any).state.template.threeDimension.unshift(hdrNode)
+
+    // 背景节点(单个)
+    let bgGroundVal: any
+    let bgGroundOpts = {}
+    if (evt.bgType === 'color') {
+      const bgColor = '#' + new Bol3D.Color(evt.bgColor).getHexString()
+      bgGroundVal = bgColor
+    } else if (evt.bgType === 'texture') {
+      const valArr = evt.scene.background.image.src.split('//')
+      bgGroundVal = '/' + valArr[valArr.length - 1]
+      bgGroundOpts = {
+        encoding: evt.scene.background.encoding,
+        wrapping: evt.scene.background.wrapS,
+        repeat: [evt.scene.background.repeat.x, evt.scene.background.repeat.y]
       }
-
-      // update sceneTreeNode
-      if ((store as any).state.selectedSceneTreeNode) {
-        ;(store as any).state.selectedSceneTreeNode.trees.threeDimension.forEach((c: any) => {
-          if (c.type === 'Camera')
-            Object.assign(c.options, {
-              position: [
-                parseFloat(position.x.toFixed(4)),
-                parseFloat(position.y.toFixed(4)),
-                parseFloat(position.z.toFixed(4))
-              ]
-            })
-        })
+    } else if (evt.bgType === 'panorama') {
+      bgGroundVal = evt.sky.userData.value
+      bgGroundOpts = {
+        scale: evt.sky.scale.x,
+        rotation: [
+          parseFloat(((evt.sky.rotation.x * 180) / Math.PI).toFixed(4)),
+          parseFloat(((evt.sky.rotation.y * 180) / Math.PI).toFixed(4)),
+          parseFloat(((evt.sky.rotation.z * 180) / Math.PI).toFixed(4))
+        ]
       }
     }
-  }
+    const backgroundOptions = {
+      type: evt.bgType,
+      value: bgGroundVal,
+      opts: bgGroundOpts
+    }
+    const backgroundNode: any = {
+      uuid: -1,
+      name: 'Background',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'Background',
+      children: [],
+      show: false,
+      options: backgroundOptions
+    }
+    ;(store as any).state.template.threeDimension.unshift(backgroundNode)
 
-  // 节流 change频率太高
-  // const updateFnCameraTd = throttled(updateFnCamera, 60)
-  const updateFnCameraTd = throttled(updateFnCamera, 0)
-  controls.addEventListener('change', (event: any) => {
-    updateFnCameraTd(event)
-  })
+    // 阴影节点(单个)
+    const shadowOptions = {
+      enabled: evt.renderer.shadowMap.enabled,
+      type: evt.renderer.shadowMap.type
+    }
+    const shadowNode: any = {
+      uuid: -1,
+      name: 'Shadow',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'Shadow',
+      children: [],
+      show: false,
+      options: shadowOptions
+    }
+
+    ;(store as any).state.template.threeDimension.unshift(shadowNode)
+
+    // 面光源节点(多个)
+    const rectAreaLights = evt.rectAreaLights
+    const rectAreaLightNodes: any = {
+      uuid: -1,
+      name: 'RectAreaLights',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'RectAreaLights',
+      children: [],
+      show: false,
+      options: {}
+    }
+    rectAreaLights.forEach((rectAreaLight: any) => {
+      const rectAreaLightOptions = {
+        color: [
+          rectAreaLight.color.r * 255,
+          rectAreaLight.color.g * 255,
+          rectAreaLight.color.b * 255
+        ],
+        intensity: rectAreaLight.intensity,
+        width: rectAreaLight.width,
+        height: rectAreaLight.height,
+        position: [
+          parseFloat(rectAreaLight.position.x.toFixed(4)),
+          parseFloat(rectAreaLight.position.y.toFixed(4)),
+          parseFloat(rectAreaLight.position.z.toFixed(4))
+        ],
+        target: [
+          parseFloat(rectAreaLight.userData.target[0].toFixed(4)),
+          parseFloat(rectAreaLight.userData.target[1].toFixed(4)),
+          parseFloat(rectAreaLight.userData.target[2].toFixed(4))
+        ]
+      }
+
+      const rectAreaLightNode = {
+        uuid: rectAreaLight.uuid,
+        name: 'RectAreaLight',
+        selected: false,
+        index: 1,
+        spread: false,
+        type: 'RectAreaLight',
+        children: [],
+        show: false,
+        options: rectAreaLightOptions
+      }
+
+      rectAreaLightNodes.children.push(rectAreaLightNode)
+    })
+    ;(store as any).state.template.threeDimension.unshift(rectAreaLightNodes)
+
+    // 点光源节点(多个)
+    const pointLights = evt.pointLights
+    const pointLightNodes: any = {
+      uuid: -1,
+      name: 'PointLights',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'PointLights',
+      children: [],
+      show: false,
+      options: {}
+    }
+    pointLights.forEach((pointLight: any) => {
+      const pointLightOptions = {
+        color: [pointLight.color.r * 255, pointLight.color.g * 255, pointLight.color.b * 255],
+        intensity: pointLight.intensity,
+        decay: pointLight.decay,
+        distance: pointLight.distance,
+        position: [
+          parseFloat(pointLight.position.x.toFixed(4)),
+          parseFloat(pointLight.position.y.toFixed(4)),
+          parseFloat(pointLight.position.z.toFixed(4))
+        ],
+        castShadow: pointLight.castShadow,
+        near: pointLight.shadow.camera.near,
+        far: pointLight.shadow.camera.far,
+        bias: pointLight.shadow.bias,
+        size: pointLight.shadow.mapSize.x
+      }
+
+      const pointLightNode = {
+        uuid: pointLight.uuid,
+        name: 'PointLight',
+        selected: false,
+        index: 1,
+        spread: false,
+        type: 'PointLight',
+        children: [],
+        show: false,
+        options: pointLightOptions
+      }
+
+      pointLightNodes.children.push(pointLightNode)
+    })
+    ;(store as any).state.template.threeDimension.unshift(pointLightNodes)
+
+    // 聚光灯节点(多个)
+    const spotLights = evt.spotLights
+    const spotLightNodes: any = {
+      uuid: -1,
+      name: 'SpotLights',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'SpotLights',
+      children: [],
+      show: false,
+      options: {}
+    }
+    spotLights.forEach((spotLight: any) => {
+      const spotLightOptions = {
+        color: [spotLight.color.r * 255, spotLight.color.g * 255, spotLight.color.b * 255],
+        intensity: spotLight.intensity,
+        decay: spotLight.decay,
+        distance: spotLight.distance,
+        penumbra: spotLight.penumbra,
+        position: [
+          parseFloat(spotLight.position.x.toFixed(4)),
+          parseFloat(spotLight.position.y.toFixed(4)),
+          parseFloat(spotLight.position.z.toFixed(4))
+        ],
+        target: [
+          parseFloat(spotLight.target.position.x.toFixed(4)),
+          parseFloat(spotLight.target.position.y.toFixed(4)),
+          parseFloat(spotLight.target.position.z.toFixed(4))
+        ],
+        castShadow: spotLight.castShadow,
+        angle: spotLight.angle,
+        near: spotLight.shadow.camera.near,
+        far: spotLight.shadow.camera.far,
+        focus: spotLight.shadow.focus,
+        bias: spotLight.shadow.bias,
+        size: spotLight.shadow.mapSize.x
+      }
+
+      const spotLightNode = {
+        uuid: spotLight.uuid,
+        name: 'SpotLight',
+        selected: false,
+        index: 1,
+        spread: false,
+        type: 'SpotLight',
+        children: [],
+        show: false,
+        options: spotLightOptions
+      }
+
+      spotLightNodes.children.push(spotLightNode)
+    })
+    ;(store as any).state.template.threeDimension.unshift(spotLightNodes)
+
+    // 平行光节点(多个)
+    const directionLights = evt.directionLights
+    const directionLightNodes: any = {
+      uuid: -1,
+      name: 'DirectionLights',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'DirectionLights',
+      children: [],
+      show: false,
+      options: {}
+    }
+    directionLights.forEach((directionLight: any) => {
+      const directionLightOptions = {
+        color: [
+          directionLight.color.r * 255,
+          directionLight.color.g * 255,
+          directionLight.color.b * 255
+        ],
+        intensity: directionLight.intensity,
+        position: [
+          parseFloat(directionLight.position.x.toFixed(4)),
+          parseFloat(directionLight.position.y.toFixed(4)),
+          parseFloat(directionLight.position.z.toFixed(4))
+        ],
+        // shadow options
+        near: directionLight.shadow.camera.near,
+        far: directionLight.shadow.camera.far,
+        bias: directionLight.shadow.bias,
+        distance: directionLight.shadow.camera.top,
+        size: directionLight.shadow.mapSize.width,
+        castShadow: directionLight.castShadow,
+        // target options
+        target: [
+          parseFloat(directionLight.target.position.x.toFixed(4)),
+          parseFloat(directionLight.target.position.y.toFixed(4)),
+          parseFloat(directionLight.target.position.z.toFixed(4))
+        ]
+      }
+
+      const directionLightNode = {
+        uuid: directionLight.uuid,
+        name: 'DirectionLight',
+        selected: false,
+        index: 1,
+        spread: false,
+        type: 'DirectionLight',
+        children: [],
+        show: false,
+        options: directionLightOptions
+      }
+
+      directionLightNodes.children.push(directionLightNode)
+    })
+    ;(store as any).state.template.threeDimension.unshift(directionLightNodes)
+
+    // 半球光节点(单个)
+    const hemisphereLight = evt.hemiLight
+    const hemisphereLightOptions = {
+      color: [
+        hemisphereLight.color.r * 255,
+        hemisphereLight.color.g * 255,
+        hemisphereLight.color.b * 255
+      ],
+      groundColor: [
+        hemisphereLight.groundColor.r * 255,
+        hemisphereLight.groundColor.g * 255,
+        hemisphereLight.groundColor.b * 255
+      ],
+      intensity: hemisphereLight.intensity,
+      position: [
+        parseFloat(hemisphereLight.position.x.toFixed(4)),
+        parseFloat(hemisphereLight.position.y.toFixed(4)),
+        parseFloat(hemisphereLight.position.z.toFixed(4))
+      ]
+    }
+
+    const hemisphereLightNode = {
+      uuid: -1,
+      name: 'HemisphereLight',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: hemisphereLight.type,
+      children: [],
+      show: false,
+      options: hemisphereLightOptions
+    }
+
+    ;(store as any).state.template.threeDimension.unshift(hemisphereLightNode)
+
+    // 环境光节点(单个)
+    const ambientLight = evt.ambientLight
+    const ambientLightOptions = {
+      color: [ambientLight.color.r * 255, ambientLight.color.g * 255, ambientLight.color.b * 255],
+      intensity: ambientLight.intensity
+    }
+
+    const ambientLightNode = {
+      uuid: -1,
+      name: 'AmbientLight',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: ambientLight.type,
+      children: [],
+      show: false,
+      options: ambientLightOptions
+    }
+
+    ;(store as any).state.template.threeDimension.unshift(ambientLightNode)
+
+    // 相机节点(单个)
+    let camera: any
+    let controls: any
+    let cameraOptions: any = {}
+    if (evt.viewState === 'orbit') {
+      camera = evt.orbitCamera
+      controls = evt.orbitControls
+      cameraOptions = {
+        position: [
+          parseFloat(camera.position.x.toFixed(4)),
+          parseFloat(camera.position.y.toFixed(4)),
+          parseFloat(camera.position.z.toFixed(4))
+        ],
+        near: camera.near,
+        far: camera.far,
+        fov: camera.fov,
+        minDistance: controls.minDistance,
+        maxDistance: controls.maxDistance,
+        minPolarAngle: (controls.minPolarAngle * 180) / Math.PI,
+        maxPolarAngle: (controls.maxPolarAngle * 180) / Math.PI
+      }
+    } else if (evt.viewState === 'firstPerson') {
+      camera = evt.firstPersonCamera
+      controls = evt.firstPersonControls
+    } else if (evt.viewState === 'map') {
+      camera = evt.mapCamera
+      controls = evt.mapControls
+    }
+
+    const cameraNode = {
+      uuid: -1,
+      name: 'Camera',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'Camera',
+      children: [],
+      show: false,
+      options: cameraOptions
+    }
+
+    ;(store as any).state.template.threeDimension.unshift(cameraNode)
+
+    const IconGroupNode: any = {
+      uuid: IconGroup.uuid,
+      name: 'Icon',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'Group',
+      show: true,
+      children: [],
+      visible: true,
+      isEdit: true,
+      childIndex: 0
+    }
+    ;(store as any).state.template.threeDimension.unshift(IconGroupNode)
+
+    const TextGroupNode: any = {
+      uuid: TextGroup.uuid,
+      name: 'Text',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'Group',
+      show: true,
+      children: [],
+      visible: true,
+      isEdit: true,
+      childIndex: 0
+    }
+    ;(store as any).state.template.threeDimension.unshift(TextGroupNode)
+
+    const FlyLineNode: any = {
+      uuid: FlyLineGroup.uuid,
+      name: 'FlyLine',
+      selected: false,
+      index: 0,
+      spread: false,
+      type: 'Group',
+      show: true,
+      children: [],
+      visible: true,
+      isEdit: true,
+      childIndex: 0
+    }
+    ;(store as any).state.template.threeDimension.unshift(FlyLineNode)
+
+    EventsBus.emit('sceneLoaded', {
+      type: '3d',
+      container: evt
+    })
+
+    // 相机事件
+    let controlsFlag = false
+    controls.addEventListener('start', () => {
+      controlsFlag = true
+    })
+    controls.addEventListener('end', () => {
+      controlsFlag = false
+    })
+
+    const updateFnCamera = (event: any) => {
+      if (controlsFlag && event && event.target) {
+        const t = event.target
+        const { object } = t
+        const { position, uuid } = object
+
+        // update editForms
+        EventsBus.emit('pageTreeNodeUpdate', {
+          type: '3d',
+          options: {
+            position: [
+              parseFloat(position.x.toFixed(4)),
+              parseFloat(position.y.toFixed(4)),
+              parseFloat(position.z.toFixed(4))
+            ]
+          },
+          uuid
+        })
+
+        // update pageTreeNode
+        if (
+          (store as any).state.selectedPageTreeNode &&
+          (store as any).state.selectedPageTreeNode.type === 'Camera'
+        ) {
+          Object.assign((store as any).state.selectedPageTreeNode.options, {
+            position: [
+              parseFloat(position.x.toFixed(4)),
+              parseFloat(position.y.toFixed(4)),
+              parseFloat(position.z.toFixed(4))
+            ]
+          })
+        }
+
+        // update sceneTreeNode
+        if ((store as any).state.selectedSceneTreeNode) {
+          ;(store as any).state.selectedSceneTreeNode.trees.threeDimension.forEach((c: any) => {
+            if (c.type === 'Camera')
+              Object.assign(c.options, {
+                position: [
+                  parseFloat(position.x.toFixed(4)),
+                  parseFloat(position.y.toFixed(4)),
+                  parseFloat(position.z.toFixed(4))
+                ]
+              })
+          })
+        }
+      }
+    }
+
+    // 节流 change频率太高
+    // const updateFnCameraTd = throttled(updateFnCamera, 60)
+    const updateFnCameraTd = throttled(updateFnCamera, 0)
+    controls.addEventListener('change', (event: any) => {
+      updateFnCameraTd(event)
+    })
+  } else {
+    // 相机节点(单个)
+    let camera: any
+    let controls: any
+    if (evt.viewState === 'orbit') {
+      camera = evt.orbitCamera
+      controls = evt.orbitControls
+    } else if (evt.viewState === 'firstPerson') {
+      camera = evt.firstPersonCamera
+      controls = evt.firstPersonControls
+    } else if (evt.viewState === 'map') {
+      camera = evt.mapCamera
+      controls = evt.mapControls
+    }
+
+    // 相机事件
+    let controlsFlag = false
+    controls.addEventListener('start', () => {
+      controlsFlag = true
+    })
+    controls.addEventListener('end', () => {
+      controlsFlag = false
+    })
+
+    const updateFnCamera = (event: any) => {
+      if (controlsFlag && event && event.target) {
+        const t = event.target
+        const { object } = t
+        const { position, uuid } = object
+
+        // update editForms
+        EventsBus.emit('pageTreeNodeUpdate', {
+          type: '3d',
+          options: {
+            position: [
+              parseFloat(position.x.toFixed(4)),
+              parseFloat(position.y.toFixed(4)),
+              parseFloat(position.z.toFixed(4))
+            ]
+          },
+          uuid
+        })
+
+        // update pageTreeNode
+        if (
+          (store as any).state.selectedPageTreeNode &&
+          (store as any).state.selectedPageTreeNode.type === 'Camera'
+        ) {
+          Object.assign((store as any).state.selectedPageTreeNode.options, {
+            position: [
+              parseFloat(position.x.toFixed(4)),
+              parseFloat(position.y.toFixed(4)),
+              parseFloat(position.z.toFixed(4))
+            ]
+          })
+        }
+
+        // update sceneTreeNode
+        if ((store as any).state.selectedSceneTreeNode) {
+          ;(store as any).state.selectedSceneTreeNode.trees.threeDimension.forEach((c: any) => {
+            if (c.type === 'Camera')
+              Object.assign(c.options, {
+                position: [
+                  parseFloat(position.x.toFixed(4)),
+                  parseFloat(position.y.toFixed(4)),
+                  parseFloat(position.z.toFixed(4))
+                ]
+              })
+          })
+        }
+      }
+    }
+
+    // 节流 change频率太高
+    // const updateFnCameraTd = throttled(updateFnCamera, 60)
+    const updateFnCameraTd = throttled(updateFnCamera, 0)
+    controls.addEventListener('change', (event: any) => {
+      updateFnCameraTd(event)
+    })
+
+    if (addMeshObj.iconMeshGroup) {
+      const iconMeshGroup = addMeshObj.iconMeshGroup
+      const iconMeshGroupDepu = addMeshObj.iconMeshGroupDepu
+
+      IconGroup.visible = iconMeshGroup.visible
+      iconMeshGroupDepu.forEach((item: any, i: any) => {
+        var status: any = true
+        iconMeshGroup.children.forEach((dev: any) => {
+          if (item.uuid == dev.uuid) {
+            addIconToJson(container, dev, dev.visible, (srrs) => {
+              i == 0 && srrs.add(lightPlane)
+              IconGroup.add(srrs)
+              status = false
+            })
+          }
+        })
+        if (status) {
+          addIconToJson(container, item, false, (srrs) => {
+            i == 0 && srrs.add(lightPlane)
+            IconGroup.add(srrs)
+          })
+        }
+      })
+    }
+
+    if (addMeshObj.textMeshGroup) {
+      const textMeshGroup = addMeshObj.textMeshGroup
+      const textMeshGroupDepu = addMeshObj.textMeshGroupDepu
+
+      TextGroup.visible = textMeshGroup.visible
+      textMeshGroupDepu.forEach((item: any) => {
+        var status: any = true
+        textMeshGroup.children.forEach((dev: any) => {
+          if (item.uuid == dev.uuid) {
+            status = false
+            loadTextPlane(container, TextGroup, dev.visible, dev)
+          }
+        })
+        if (status) {
+          loadTextPlane(container, TextGroup, false, item)
+        }
+      })
+    }
+
+    if (addMeshObj.flyLineMeshGroup) {
+      const flyLineMeshGroup = addMeshObj.flyLineMeshGroup
+      const flyLineMeshGroupDepu = addMeshObj.flyLineMeshGroupDepu
+
+      FlyLineGroup.visible = flyLineMeshGroup.visible
+      flyLineMeshGroupDepu.forEach((item: any) => {
+        var status: any = true
+        flyLineMeshGroup.children.forEach((dev: any) => {
+          if (item.uuid == dev.uuid) {
+            status = false
+            addFlyLine(container, FlyLineGroup, dev.visible, dev)
+          }
+        })
+        if (status) {
+          addFlyLine(container, FlyLineGroup, false, item)
+        }
+      })
+    }
+  }
 
   return { lightPlane, curveSphere1, curveSphere2, line }
 }

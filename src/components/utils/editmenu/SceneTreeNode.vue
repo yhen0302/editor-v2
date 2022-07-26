@@ -84,32 +84,6 @@ export default defineComponent({
         store.state.addElementType = null
         store.state.dimensionType = '3d'
 
-        if (store.state.exportContent && page.uuid == '0-0') {
-          store.state.exportContent.forEach((item: any) => {
-            item.children.forEach((dev: any) => {
-              if (dev.uuid == page.uuid) {
-                dev.trees.threeDimension.forEach((i: any) => {
-                  page.trees.threeDimension.forEach((b: any) => {
-                    if (i.isEdit && b.isEdit && i.uuid == b.uuid && i.children.length > 0) {
-                      i.children.forEach((c: any) => {
-                        let status: any = true
-                        b.children.forEach((d: any) => {
-                          if (c.uuid == d.uuid) {
-                            status = false
-                          }
-                        })
-                        if (status) {
-                          b.children.push(c)
-                        }
-                      })
-                    }
-                  })
-                })
-              }
-            })
-          })
-          store.state.exportContent = null
-        }
         page.trees.threeDimension.forEach((item: any) => {
           if (item.isEdit) {
             store.state.template.threeDimension.forEach((dev: any) => {
