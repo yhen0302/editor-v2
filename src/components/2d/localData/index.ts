@@ -296,8 +296,6 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
             hobby:'爱好',
             sex:'性别'
           },
-          style:[],
-
         },
       }
     ]

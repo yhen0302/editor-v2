@@ -37,6 +37,7 @@ export default {
           return 'TextConfigurator'
         case 'ChartBar':
         case 'ChartLine':
+        case 'ChartCurve':
           return 'AxisLineChartConfigurator'
         case 'ChartPie':
         case 'ChartGauge':

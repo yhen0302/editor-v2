@@ -185,10 +185,11 @@ export default defineComponent({
     async function preview() {
       // const sdk = await (await fetch('/sdk/index.js')).text()
       // const sdk3d = await (await fetch('/static/main.js')).text()
-
+      const { tree: pageTreeNodes, template } = getAvailablePageTreeNodes()
       const html = createPreviewTemplate(
         `console.log(EDITOR_SDK(${JSON.stringify({
-          pageTreeNodes: getAvailablePageTreeNodes(),
+          pageTreeNodes,
+          template,
           drawingBoard: store.state.drawingBoard
         })}))`
       )
@@ -203,7 +204,7 @@ export default defineComponent({
           deleteTreeParentQuote(page.trees.twoDimension)
         }
       }
-      return { tree: pageTreeNodes, template: template }
+      return { tree: pageTreeNodes, template }
     }
 
     function deleteTreeParentQuote(tree: any) {

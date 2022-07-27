@@ -8,6 +8,7 @@ const { nodeResolve } = require('@rollup/plugin-node-resolve')
 const replace = require('rollup-plugin-replace')
 const { terser } = require('rollup-plugin-terser')
 const { getBabelOutputPlugin, babel } = require('@rollup/plugin-babel')
+const less = require('postcss-less')
 
 const env = process.env.NODE_ENV
 const inputConf = {
@@ -18,11 +19,15 @@ const inputConf = {
     vue({
       target: 'browser',
       preprocessStyles: true,
-      postcssPlugins: [pImport()]
+      postcssPlugins: [pImport()],
+      postcssOptions:{
+        parser:less
+      }
     }),
     postcss({
       extensions: ['.css'],
-      plugins: [pImport()]
+      plugins: [pImport()],
+      parser:less
     }),
     babel({
       presets: ['@babel/preset-env', '@babel/preset-typescript'],

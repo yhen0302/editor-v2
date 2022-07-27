@@ -9,6 +9,7 @@ import { defineComponent, onMounted, ref, watch, nextTick } from 'vue'
 import { loadScene } from '@/core/3d'
 import { importScene } from '@/core/3d/importIndex'
 import store from '../../../store'
+import { clone } from '@/share/util/base'
 
 export default defineComponent({
   name: 'DrawingBoard3D',
@@ -68,6 +69,11 @@ export default defineComponent({
           domShow.value = true
           store.state.template = JSON.parse(JSON.stringify(store.state.exportContent.template))
           store.state.pageTreeNodes = JSON.parse(JSON.stringify(store.state.exportContent.tree))
+          ;(store.state.exportContent.tree as Array<any>).forEach((_, i) => {
+            _.children.forEach((_, j) => {
+              store.state.pageTreeNodes[i].children[j].trees.twoDimension = clone(_.trees.twoDimension)
+            })
+          })
           nextTick(() => {
             importScene(scene.value)
           })

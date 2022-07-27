@@ -14,15 +14,15 @@ import { importScene } from '../../../../src/core/3d/importIndex'
 
 export default {
   name: 'ElementParser',
-  props: ['pageTreeNodes', 'drawingBoard'],
+  props: ['pageTreeNodes', 'drawingBoard','template'],
   setup(props, ctx) {
     function flatTree(tree) {
       const arr = [],
         nodes = [...tree]
       let node
       // eslint-disable-next-line no-cond-assign
-      while ((node = nodes.shift())) {
-        if(node.children)nodes.unshift(...node.children)
+      while ((node = nodes.pop())) {
+        if(node.children)nodes.push(...node.children)
         else{arr.push(node)}
       }
       return arr

@@ -139,7 +139,7 @@ export default {
   background: #31333d;
 }
 
-.event-page-tree /deep/ .layer-child-list > .layer-item {
+.event-page-tree :deep(.layer-child-list > .layer-item) {
   padding-left: calc((var(--level) - 1) * 14px + var(--default-pl));
 }
 .footer-box {

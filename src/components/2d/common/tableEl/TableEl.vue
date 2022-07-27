@@ -1,6 +1,6 @@
 <template>
   <section class="table-el" ref="tableEl">
-    <div class="table-header" :style="{ width: toPx(bodyWidth) }">
+    <div class="table-header" :class='headerClass' :style="{ width: toPx(bodyWidth) }">
       <table class="table">
         <colgroup>
           <col v-for="item in columnsProps" span="1" :width="item.realWidth" :key="item.prop" />
@@ -8,7 +8,7 @@
         <component :is="tableHead"></component>
       </table>
     </div>
-    <div class="table-body" :style="{ width: toPx(bodyWidth) }">
+    <div class="table-body" :class="bodyClass" :style="{ width: toPx(bodyWidth) }">
       <table class="table">
         <colgroup>
           <col v-for="item in columnsProps" span="1" :width="item.realWidth" :key="item.prop" />
@@ -39,7 +39,7 @@ import {
 
 export default {
   name: 'TableEl',
-  props: ['data'],
+  props: ['data','bodyClass','headerClass'],
   setup: function (props, context) {
     const instance = getCurrentInstance()
     const tableEl = ref(null)
@@ -49,6 +49,7 @@ export default {
       const clsDefault = context.slots.default()
       clsDefault.forEach((item) => {
         // v-for
+        console.log(item.type,Fragment)
         if (item.type === Fragment) list.push(...item.children)
         else list.push(item)
       })
@@ -139,7 +140,6 @@ export default {
       </thead>
     )
 
-    console.log('debugger')
     return { toPx, columnsProps, bodyWidth, tableBody, tableHead, tableEl }
   }
 }

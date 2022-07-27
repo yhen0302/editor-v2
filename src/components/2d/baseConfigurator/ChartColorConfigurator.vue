@@ -50,7 +50,7 @@ export default {
 .color-picker-wrap {
   padding: 0 16px 16px;
 }
-.color-picker-wrap /deep/ .color-selector {
+.color-picker-wrap :deep(.color-selector) {
   height: 28px;
 }
 </style>
