@@ -100,6 +100,7 @@ export default defineComponent({
 .drawing-borad-3d-main {
   @apply w-full h-full;
 }
+
 .scene-3d {
   left: 0;
   top: 0;
