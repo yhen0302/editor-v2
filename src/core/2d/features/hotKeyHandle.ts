@@ -3,6 +3,7 @@ import { useMutation, useGetter } from '@/store/helper'
 import { EditorGetter } from '@/store/2d/getters'
 import { EditorMutation } from '@/store/2d/mutations'
 import { hotKeyMap, SpecialKeySign } from '@/core/2d/features/keyboard'
+import { log } from 'echarts/types/src/util/log'
 
 const getters = useGetter(store, 'global', [EditorGetter.GET_SELECT_NODE])
 const mutations = useMutation(store, 'global', [

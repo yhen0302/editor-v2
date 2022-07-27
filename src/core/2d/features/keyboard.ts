@@ -30,6 +30,7 @@ export const hotKeyMap: hotKeyMap = {
 }
 
 document.addEventListener('keydown', (ev) => {
+  console.log(ev)
   const specialKeySign: SpecialKeySign = { ctrl: ev.ctrlKey, alt: ev.altKey, shift: ev.shiftKey }
   const verifyRes = verifyClashHotKeyWithBrowser(ev, specialKeySign)
   if (verifyRes) {
