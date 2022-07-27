@@ -52,7 +52,6 @@ export const importScene = (canvas: any) => {
         : location.protocol === 'blob:'
         ? location.origin + '/'
         : location.origin + location.pathname
-  var textMeshGroup: any, iconMeshGroup: any, flyLineMeshGroup: any
 
   var textMeshGroup: any, iconMeshGroup: any, flyLineMeshGroup: any
   var textMeshGroupFoo: any = [],

@@ -44,7 +44,17 @@
       </div>
     </div>
 
-    <div class="content object" v-show="headerItems[1].active">1111111111</div>
+    <div class="content object" v-show="headerItems[1].active">
+      <div class="content-item">
+        <div class="setting-item leftHead">事件选择</div>
+
+        <div class="setting-item">
+          <div class="setting"></div>
+        </div>
+
+        <LineEl class="division" :color="'#363741'" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -276,5 +286,11 @@ export default defineComponent({
 .division {
   bottom: 0;
   @apply absolute;
+}
+
+.leftHead {
+  font-size: 12px;
+  line-height: 48px;
+  padding-left: 16px;
 }
 </style>

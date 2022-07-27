@@ -881,6 +881,8 @@ export const onloadFun = (
         }
       })
     }
+
+    console.log(store.state.selectedSceneTreeNode)
   }
 
   return { lightPlane, curveSphere1, curveSphere2, line }
