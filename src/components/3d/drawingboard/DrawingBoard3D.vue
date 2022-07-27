@@ -69,11 +69,17 @@ export default defineComponent({
           domShow.value = true
           store.state.template = JSON.parse(JSON.stringify(store.state.exportContent.template))
           store.state.pageTreeNodes = JSON.parse(JSON.stringify(store.state.exportContent.tree))
-          ;(store.state.exportContent.tree as Array<any>).forEach((_, i) => {
+          /*;(store.state.exportContent.tree as Array<any>).forEach((_, i) => {
             _.children.forEach((_, j) => {
-              store.state.pageTreeNodes[i].children[j].trees.twoDimension = clone(_.trees.twoDimension)
+              const t = clone(_.trees.twoDimension)
+              // if(store.state.pageTreeNodes[i].children[j]===store.state.selectedSceneTreeNode){
+              //   store.state.selectedSceneTreeNode = t
+                console.log(clone(store.state.selectedSceneTreeNode))
+              // }
+              store.state.pageTreeNodes[i].children[j].trees.twoDimension = t
             })
-          })
+          })*/
+          console.log(clone(store.state.pageTreeNodes))
           nextTick(() => {
             importScene(scene.value)
           })
@@ -94,6 +100,7 @@ export default defineComponent({
 .drawing-borad-3d-main {
   @apply w-full h-full;
 }
+
 .scene-3d {
   left: 0;
   top: 0;
