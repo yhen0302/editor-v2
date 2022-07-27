@@ -882,7 +882,22 @@ export const onloadFun = (
       })
     }
 
-    console.log(store.state.selectedSceneTreeNode)
+    container.mixerActions.forEach((item: any) => {
+      const name = item._mixer.name + item._mixer._root.uuid
+      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((dev: any) => {
+        if (dev.uuid == 'MixerActionsUuid') {
+          dev.children.forEach((sr: any) => {
+            if (sr.uuid == name) {
+              item.paused = sr.options.paused
+              item.loop = sr.options.loop
+              item.timeScale = sr.options.timeScale
+              item.enabled = true
+              item.time = 0
+            }
+          })
+        }
+      })
+    })
   }
 
   return { lightPlane, curveSphere1, curveSphere2, line }
