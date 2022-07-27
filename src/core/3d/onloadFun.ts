@@ -19,6 +19,8 @@ export const onloadFun = (
       ? (store.state.elementScaleInterval.x / 5000).toFixed(4)
       : (store.state.elementScaleInterval.z / 5000).toFixed(4)
 
+  const mixerActions: any = container.mixerActions
+
   // 添加图标自定义元素
   var lightPlane: any
   const geometryPlane = new Bol3D.PlaneGeometry(1, 1)
@@ -588,6 +590,40 @@ export const onloadFun = (
     }
 
     ;(store as any).state.template.threeDimension.unshift(cameraNode)
+
+    if (mixerActions.length > 0) {
+      const mixerNode: any = {
+        uuid: 'MixerActionsUuid',
+        name: 'MixerActions',
+        selected: false,
+        index: 0,
+        spread: false,
+        type: 'MixerActionsGroup',
+        children: [],
+        show: true,
+        isEdit: true
+      }
+      mixerActions.forEach((item: any) => {
+        item.paused = false
+        mixerNode.children.push({
+          uuid: item._mixer.name + item._mixer._root.uuid,
+          name: item._mixer.name,
+          selected: false,
+          index: 1,
+          spread: false,
+          type: 'MixerActions',
+          addMeshType: 'MixerActions',
+          show: true,
+          options: {
+            paused: false,
+            loop: 2201, // 2200    2201    2202
+            timeScale: 1
+          },
+          children: []
+        })
+      })
+      ;(store as any).state.template.threeDimension.unshift(mixerNode)
+    }
 
     const IconGroupNode: any = {
       uuid: IconGroup.uuid,
