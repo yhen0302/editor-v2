@@ -1,15 +1,32 @@
 <template>
   <div class="node">
-    <div class="item" :class="node.selected ? 'item-selected' : ''" :style="'padding-left:' + node.index * 15 + 'px'" @mouseup="selectItem(node)">
-      <div class="spread-btn" :class="node.spread ? 'spread-btn-rotate' : ''" :style="node.children.length > 0 ? '' : 'margin-left: 10px'" @mouseup.stop="spread(node)">
-        <img src="@/assets/images/main/right/editor_unfold_icn_dark.png" v-show="node.children.length > 0" />
+    <div
+      class="item"
+      :class="node.selected ? 'item-selected' : ''"
+      :style="'padding-left:' + node.index * 15 + 'px'"
+      @mouseup="selectItem(node)"
+    >
+      <div
+        class="spread-btn"
+        :class="node.spread ? 'spread-btn-rotate' : ''"
+        :style="node.children.length > 0 ? '' : 'margin-left: 10px'"
+        @mouseup.stop="spread(node)"
+      >
+        <img
+          src="@/assets/images/main/right/editor_unfold_icn_dark.png"
+          v-show="node.children.length > 0"
+        />
       </div>
 
       <div class="item-name">
         <p>{{ node.name }}</p>
       </div>
 
-      <div class="item-visible-btn" @mouseup.stop="changeVisibility(node)" v-show="node.visible !== undefined">
+      <div
+        class="item-visible-btn"
+        @mouseup.stop="changeVisibility(node)"
+        v-show="node.visible !== undefined"
+      >
         <img v-show="node.visible" :src="visibleImg" />
         <img v-show="!node.visible" :src="inVisibleImg" />
       </div>
@@ -27,6 +44,7 @@
 import { defineComponent, ref } from 'vue'
 import { EventsBus } from '@/core/EventsBus'
 import { useStore } from 'vuex'
+import { traverseResetSelectedOfNodes } from '../../../core/3d/util'
 
 export default defineComponent({
   name: 'PageTreeNode3D',
@@ -67,19 +85,41 @@ export default defineComponent({
         EventsBus.emit('navDetailsValidate', {})
       } else {
         if (nodes.addMeshType) {
+          const flag = nodes.selected
+          traverseResetSelectedOfNodes(store.state.selectedSceneTreeNode.trees.threeDimension)
+          nodes.selected = !flag
+          store.state.selectedPageTreeNode = nodes.selected ? e.node : null
+
           store.state.addElementType = {
             mesh: null,
             moving: true,
             lightMesh: null
           }
           if (nodes.addMeshType == 'Text') {
-            const node = { type: 'text3D', selected: nodes.options.type, name: nodes.name, clickObj: nodes }
+            const node = {
+              type: 'text3D',
+              selected: nodes.options.type,
+              name: nodes.name,
+              clickObj: nodes
+            }
             EventsBus.emit('toolBarSelected', { node })
           } else if (nodes.addMeshType == 'Icon') {
             const node = { type: 'icon3D', selected: nodes.name, name: nodes.name, clickObj: nodes }
             EventsBus.emit('toolBarSelected', { node })
           } else if (nodes.addMeshType == 'FlyLine') {
-            const node = { type: 'flyLine', selected: nodes.name, name: nodes.name, clickObj: nodes }
+            const node = {
+              type: 'flyLine',
+              selected: nodes.name,
+              name: nodes.name,
+              clickObj: nodes
+            }
+            EventsBus.emit('toolBarSelected', { node })
+          } else if (nodes.addMeshType == 'MixerActions') {
+            const node = {
+              type: 'MixerActions',
+              selected: true,
+              name: nodes
+            }
             EventsBus.emit('toolBarSelected', { node })
           }
         } else {

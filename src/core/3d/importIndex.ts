@@ -62,12 +62,13 @@ export const importScene = (canvas: any) => {
     iconMeshGroupDepu: any,
     flyLineMeshGroupDepu: any
 
-  const tree = JSON.parse(JSON.stringify(store.state.exportContent.tree))
+  const tree = store.state.pageTreeNodes
   var scene: any = null
   tree.forEach((item: any) => {
     item.children.forEach((dev: any) => {
       if (dev.selected) {
         scene = dev.trees.threeDimension
+        store.state.selectedSceneTreeNode = dev
       }
 
       dev.trees.threeDimension.forEach((crt: any) => {
@@ -137,7 +138,7 @@ export const importScene = (canvas: any) => {
       }
     } else {
       if (!item.isEdit) {
-        modelUrls.push(`/models/HangKong/ChangJing/${item.name}.glb`)
+        modelUrls.push(`/models/GongChang/${item.name}.glb`)
         const arrs: any = []
         findAllChildren(arrs, item)
         models.push(arrs)
@@ -152,6 +153,11 @@ export const importScene = (canvas: any) => {
     modelUrls,
     cameras: {
       orbitCamera: Camera.options
+    },
+    controls: {
+      orbitControls: {
+        enableDamping: false
+      }
     },
     lights: {
       ambientLight: AmbientLight.options,

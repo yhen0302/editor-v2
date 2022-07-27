@@ -44,6 +44,8 @@ import MSAAPassForms3D from './editForms/MSAAPassForms3D.vue'
 import Icon from '../rightKanBan/Icon.vue'
 import Text from '../rightKanBan/Text.vue'
 import FlyLine from '../rightKanBan/FlyLine.vue'
+// 模型动画操作模块
+import MixerActions from '../rightKanBan/MixerActions.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 
@@ -75,7 +77,9 @@ export default defineComponent({
     // 添加元素图标板块
     Icon,
     Text,
-    FlyLine
+    FlyLine,
+    // 模型动画操作模块
+    MixerActions
   },
   setup() {
     const store = useStore()
@@ -185,6 +189,10 @@ export default defineComponent({
           break
         case 'MSAAPass':
           type.value = 'MSAAPassForms3D'
+          node.value = e.node
+          break
+        case 'MixerActions':
+          type.value = 'MixerActions'
           node.value = e.node
           break
         case 'icon3D':

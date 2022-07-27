@@ -135,6 +135,8 @@ export const clickFun = (container: any, publicPath: any, selfMesh: any) => {
   document.getElementsByClassName('scene-3d')[0].addEventListener('mouseup', newMoveUp)
 
   store.state.elementClick.onclick = (e: any) => {
+    console.log(e.objects[0].object)
+
     const name = e.objects[0].object.name
     if (store.state.addElementType) {
       const element = store.state.addElementType

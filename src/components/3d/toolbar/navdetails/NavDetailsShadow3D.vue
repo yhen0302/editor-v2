@@ -36,7 +36,7 @@ export default defineComponent({
         detail.selected = false
       }
       target.selected = !flag
-
+      
       store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
         if (node.type === key) {
           EventsBus.emit('treeSelected', { node })

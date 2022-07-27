@@ -2,7 +2,12 @@
   <div class="object-forms-3d-main">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
-        <EditFormsNavItem :active="item.active" :name="item.name" :type="item.type" />
+        <EditFormsNavItem
+          :active="item.active"
+          :name="item.name"
+          :type="item.type"
+          @mouseup.stop="chooseNav(item)"
+        />
       </div>
     </div>
 
@@ -12,7 +17,7 @@
 
     <LineEl :color="'#363741'" />
 
-    <div class="content object">
+    <div class="content object" v-show="headerItems[0].active">
       <div v-for="(item, key) in formSettings" :key="item" class="content-item">
         <div class="setting-item">
           <BaseTitle :value="key" :height="56" :width="72" :marginRight="8" />
@@ -38,6 +43,8 @@
         <LineEl class="division" :color="'#363741'" />
       </div>
     </div>
+
+    <div class="content object" v-show="headerItems[1].active">1111111111</div>
   </div>
 </template>
 
@@ -68,6 +75,11 @@ export default defineComponent({
         active: true,
         name: '基础设置',
         type: 'basicSetting'
+      },
+      {
+        active: false,
+        name: '事件设置',
+        type: 'eventSetting'
       }
     ])
 
@@ -188,9 +200,21 @@ export default defineComponent({
       }
 
       // update pageTreeNode
-      const position = [formSettings.value['position'][0].value, formSettings.value['position'][1].value, formSettings.value['position'][2].value]
-      const rotation = [formSettings.value['rotation'][0].value, formSettings.value['rotation'][1].value, formSettings.value['rotation'][2].value]
-      const scale = [formSettings.value['scale'][0].value, formSettings.value['scale'][1].value, formSettings.value['scale'][2].value]
+      const position = [
+        formSettings.value['position'][0].value,
+        formSettings.value['position'][1].value,
+        formSettings.value['position'][2].value
+      ]
+      const rotation = [
+        formSettings.value['rotation'][0].value,
+        formSettings.value['rotation'][1].value,
+        formSettings.value['rotation'][2].value
+      ]
+      const scale = [
+        formSettings.value['scale'][0].value,
+        formSettings.value['scale'][1].value,
+        formSettings.value['scale'][2].value
+      ]
 
       Object.assign(store.state.selectedPageTreeNode.options, {
         position,
@@ -199,11 +223,23 @@ export default defineComponent({
       })
     }
 
+    const chooseNav = (item: any) => {
+      const e = event as any
+      if (e.button !== 0) return
+
+      headerItems.value.forEach((nav: any) => {
+        nav.active = false
+      })
+
+      item.active = true
+    }
+
     return {
       store,
       headerItems,
       formSettings,
-      inputChange
+      inputChange,
+      chooseNav
     }
   }
 })

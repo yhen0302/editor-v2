@@ -126,6 +126,21 @@ export default defineComponent({
               }
             })
           }
+
+          if (item.uuid == 'MixerActionsUuid') {
+            item.children.forEach((dev: any) => {
+              store.state.threeDimensionContainer.mixerActions.forEach((ss: any) => {
+                let name: any = ss._mixer.name + ss._mixer._root.uuid
+                if (dev.uuid == name) {
+                  ss.paused = dev.options.paused
+                  ss.loop = dev.options.loop
+                  ss.timeScale = dev.options.timeScale
+                  ss.time = 0
+                  ss.enabled = true
+                }
+              })
+            })
+          }
         })
 
         EventsBus.emit('pageSelected', { node: page })

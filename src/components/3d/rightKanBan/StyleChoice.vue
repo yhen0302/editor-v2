@@ -1,7 +1,18 @@
 <template>
   <div class="setting-slide" v-if="setting.type == 'slide_input'">
-    <slider-el class="slider-set" :min="setting.scope[0]" :max="setting.scope[1]" v-model:value="setting.value"></slider-el>
-    <input-el class="input-set" :min="setting.scope[0]" :max="setting.scope[1]" v-model:value="setting.value" type="number">
+    <slider-el
+      class="slider-set"
+      :min="setting.scope[0]"
+      :max="setting.scope[1]"
+      v-model:value="setting.value"
+    ></slider-el>
+    <input-el
+      class="input-set"
+      :min="setting.scope[0]"
+      :max="setting.scope[1]"
+      v-model:value="setting.value"
+      type="number"
+    >
       <template #suffix>
         <span class="percent">%</span>
       </template>
@@ -10,8 +21,19 @@
 
   <div class="setting-slide" v-if="setting.type == 'slide_input_three'">
     <span class="slider-head">{{ setting.name }}</span>
-    <slider-el class="slider-set-three" :min="setting.scope[0]" :max="setting.scope[1]" v-model:value="setting.value"></slider-el>
-    <input-el class="input-set" :min="setting.scope[0]" :max="setting.scope[1]" v-model:value="setting.value" type="number">
+    <slider-el
+      class="slider-set-three"
+      :min="setting.scope[0]"
+      :max="setting.scope[1]"
+      v-model:value="setting.value"
+    ></slider-el>
+    <input-el
+      class="input-set"
+      :min="setting.scope[0]"
+      :max="setting.scope[1]"
+      v-model:value="setting.value"
+      type="number"
+    >
       <template #suffix>
         <span class="percent">°</span>
       </template>
@@ -27,7 +49,13 @@
   </div>
 
   <div class="setting-input" v-else-if="setting.type == 'two_input'">
-    <input-el class="input-three" :min="setting.scope[0]" :max="setting.scope[1]" v-model:value="setting.value" type="number">
+    <input-el
+      class="input-three"
+      :min="setting.scope[0]"
+      :max="setting.scope[1]"
+      v-model:value="setting.value"
+      type="number"
+    >
       <template #prefix>
         <span class="input-text">{{ setting.name }}</span>
       </template>
@@ -35,39 +63,80 @@
   </div>
 
   <div class="setting-input" v-else-if="setting.type == 'input'">
-    <input-el :class="setting.typeText == '' ? 'setting-input-line' : 'input-three'" :min="setting.scope[0]" :max="setting.scope[1]" v-model:value="setting.value" :type="setting.typeText"> </input-el>
+    <input-el
+      :class="setting.typeText == '' ? 'setting-input-line' : 'input-three'"
+      :min="setting.scope[0]"
+      :max="setting.scope[1]"
+      v-model:value="setting.value"
+      :type="setting.typeText"
+    >
+    </input-el>
   </div>
 
   <div class="setting-color" v-else-if="setting.type == 'color'">
     <color-picker-el v-model:value="setting.value"></color-picker-el>
   </div>
 
+  <div class="setting-font" v-else-if="setting.type == 'labelList'">
+    <div class="setting-fontFamily">
+      <select-el v-model:value="setting.value" :list="setting.list"></select-el>
+    </div>
+  </div>
+
+  <div class="setting-font" v-else-if="setting.type == 'switch'">
+    <div class="setting-switch">
+      <switch-el v-model:value="setting.value"></switch-el>
+    </div>
+  </div>
+
   <div class="setting-font" v-else-if="setting.type == 'fontStyle'">
     <div class="setting-fontFamily">
-      <select-el v-model:value="setting.value.fontFamily.value" :list="setting.value.fontFamily.list"></select-el>
+      <select-el
+        v-model:value="setting.value.fontFamily.value"
+        :list="setting.value.fontFamily.list"
+      ></select-el>
     </div>
     <div class="setting-fontColor">
       <color-picker-el v-model:value="setting.value.color.value"></color-picker-el>
     </div>
     <div class="setting-fontSize">
-      <input-el class="fontSizeInput" :min="setting.value.fontSize.scope[0]" :max="setting.value.fontSize.scope[1]" v-model:value="setting.value.fontSize.value" type="number">
+      <input-el
+        class="fontSizeInput"
+        :min="setting.value.fontSize.scope[0]"
+        :max="setting.value.fontSize.scope[1]"
+        v-model:value="setting.value.fontSize.value"
+        type="number"
+      >
         <template #prefix>
           <span class="input-text">{{ setting.value.fontSize.name }}</span>
         </template>
       </input-el>
     </div>
     <div class="setting-fontWeight">
-      <select-el v-model:value="setting.value.fontWeight.value" :list="setting.value.fontWeight.list"></select-el>
+      <select-el
+        v-model:value="setting.value.fontWeight.value"
+        :list="setting.value.fontWeight.list"
+      ></select-el>
     </div>
   </div>
 
   <div v-else-if="setting.type == 'fontAlign'">
-    <CheckBoxEl class="setting-Align" v-model="setting.value.textAlign.value" :list="setting.value.textAlign.list" :radio="true">
+    <CheckBoxEl
+      class="setting-Align"
+      v-model="setting.value.textAlign.value"
+      :list="setting.value.textAlign.list"
+      :radio="true"
+    >
       <template v-slot:default="{ item }">
         <img class="alignImg" :src="item.label" />
       </template>
     </CheckBoxEl>
-    <CheckBoxEl class="setting-Align" v-model="setting.value.lineAlign.value" :list="setting.value.lineAlign.list" :radio="true">
+    <CheckBoxEl
+      class="setting-Align"
+      v-model="setting.value.lineAlign.value"
+      :list="setting.value.lineAlign.list"
+      :radio="true"
+    >
       <template v-slot:default="{ item }">
         <img class="alignImg" :src="item.label" />
       </template>
@@ -76,8 +145,19 @@
 
   <div v-else-if="setting.type == 'colorOpacity'" class="setting-colorOpacity">
     <color-picker-el v-model:value="setting.value.color.value"></color-picker-el>
-    <slider-el class="slider-set-1" :min="setting.value.opacity.scope[0]" :max="setting.value.opacity.scope[1]" v-model:value="setting.value.opacity.value"></slider-el>
-    <input-el class="input-set" :min="setting.value.opacity.scope[0]" :max="setting.value.opacity.scope[1]" v-model:value="setting.value.opacity.value" type="number">
+    <slider-el
+      class="slider-set-1"
+      :min="setting.value.opacity.scope[0]"
+      :max="setting.value.opacity.scope[1]"
+      v-model:value="setting.value.opacity.value"
+    ></slider-el>
+    <input-el
+      class="input-set"
+      :min="setting.value.opacity.scope[0]"
+      :max="setting.value.opacity.scope[1]"
+      v-model:value="setting.value.opacity.value"
+      type="number"
+    >
       <template #suffix>
         <span class="percent">%</span>
       </template>
@@ -98,6 +178,7 @@ import ColorPickerEl from '@/components/common/ColorPickerEl.vue'
 import SelectEl from '@/components/common/SelectEl.vue'
 import CheckBoxEl from '@/components/common/CheckBoxEl.vue'
 import UploadEl from '@/components/common/UploadEl.vue'
+import SwitchEl from '@/components/common/SwitchEl.vue'
 
 const upFun = (file) => {
   // eslint-disable-next-line vue/no-mutating-props
@@ -216,5 +297,11 @@ const setting = ref(props.value)
 }
 .setting-color {
   margin-top: 12px;
+}
+.setting-switch {
+  margin-top: 12px;
+  color: #fff;
+  width: 181px;
+  text-align: right;
 }
 </style>
