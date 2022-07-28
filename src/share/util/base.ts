@@ -135,6 +135,7 @@ export function fileToBlobUrl(file: File) {
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
+// xxx.xxx[0] 变量访问语法解析
 export function valueHandle(obj: any, path: string): any {
   let i = 0,
     subPath = '',

@@ -100,6 +100,7 @@ export default {
 <style scoped>
 .table-wrapper {
   overflow: hidden;
+  box-sizing: border-box;
 }
 .col-content {
   outline: none;
@@ -110,20 +111,23 @@ export default {
 <style module="table-1" lang="less">
 .table-wrapper {
   background: rgba(225, 231, 227, 0.6);
-  padding: 0 10px;
 }
 .table-header {
   background: none !important;
   th {
     border: none !important;
     color: rgba(138, 152, 144, 0.6);
+    font-size: 12px !important;
   }
 }
 .table-body {
   background: none !important;
   td {
+    height: auto !important;
+    padding: 8px 0;
     border: none !important;
     color: rgba(34, 52, 41, 0.6);
+    font-size: 12px !important;
   }
 }
 </style>

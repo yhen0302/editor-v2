@@ -1,5 +1,5 @@
 import { assert } from 'chai'
-import { valueHandle } from '../../src/util/base'
+import { valueHandle } from '../../src/share/util/base'
 
 describe('util/base', () => {
   it('test base handle value', () => {

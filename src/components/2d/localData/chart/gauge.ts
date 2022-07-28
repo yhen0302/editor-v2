@@ -81,5 +81,54 @@ export const gaugeChartList = [
         }
       ]
     }
-  })
+  }),
+  new Gauge({echartsOption:{
+      color: ["#7CAF8B", "#91cc75", "#fac858", "#ee6666", "#73c0de", "#3ba272"],
+      series: [
+        {
+          type: "gauge",
+
+          progress: {
+            show: true,
+            width: 6,
+            roundCap: true
+          },
+          axisLine: {
+            show: true,
+            lineStyle: {
+              color: [[1, "#FFF"]],
+              width: 6
+            }
+          },
+          axisTick: {
+            show: false
+          },
+          splitLine: {
+            show: false
+          },
+          axisLabel: {
+            show: false
+          },
+          anchor: {
+            show: false
+          },
+          title: {
+            show: false
+          },
+          pointer: { show: false },
+          startAngle: 90,
+          endAngle: -270,
+          detail: {
+            valueAnimation: true,
+            fontSize: 18,
+            offsetCenter: [0, 0]
+          },
+          data: [
+            {
+              value: 70
+            }
+          ]
+        }
+      ]
+    }})
 ]

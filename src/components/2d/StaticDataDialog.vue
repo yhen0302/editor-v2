@@ -24,7 +24,7 @@
         </div>
       </header>
       <div class="static-data-content">
-        <excel-table v-model:data="data" v-if='visible'></excel-table>
+        <excel-table v-model:data="data" v-if="visible"></excel-table>
       </div>
       <button class="success-btn" @click="saveData">完成</button>
     </section>
@@ -101,13 +101,13 @@ export default {
     function pieTableDataAssignEchartsHandle(tableData, node) {
       // node.option.echartsOption.series[0].data
       // const m = tableData[0].length>tableData[1].length?tableData[0]:tableData[1]
-      tableData[0].forEach((item,index)=>{
-        if(!node.option.echartsOption.series[0].data[index])node.option.echartsOption.series[0].data[index] = {}
-        node.option.echartsOption.series[0].data[index].name = item
-        node.option.echartsOption.series[0].data[index].value = tableData[1][item]
-
+      const eO = node.option.echartsOption
+      tableData[0].forEach((item, index) => {
+        if (!eO.series[0].data[index]) eO.series[0].data[index] = {}
+        eO.series[0].data[index].name = item
+        eO.series[0].data[index].value = tableData[1][index]
       })
-      console.log(tableData, node)
+      eO.series[0].data.splice(tableData[0].length)
     }
 
     const handle = computed(() => {
@@ -121,6 +121,7 @@ export default {
             tableDataAssignEchartsHandle: hasAxisTableDataAssignEchartsHandle
           }
         case 'ChartPie':
+        case 'ChartGauge':
           return {
             echartsDataToTableHandle: pieEchartsDataToTableHandle,
             tableDataAssignEchartsHandle: pieTableDataAssignEchartsHandle
@@ -132,7 +133,6 @@ export default {
       }
     })
     function echartsDataToTableByNode(node) {
-      console.log(handle.value)
       return handle.value.echartsDataToTableHandle(node)
     }
     function tableDataAssignEcharts(tableData, node) {
@@ -143,7 +143,6 @@ export default {
     const data = computed({
       get() {
         cacheVal = echartsDataToTableByNode(editorGetter['GET_SELECT_NODE'].value)
-        console.log('cacheVal',cacheVal)
         return cacheVal
       },
       set(payload) {

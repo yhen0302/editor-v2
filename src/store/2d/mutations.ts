@@ -5,8 +5,10 @@ import {
   LayerTree3dNode,
   selectBarType
 } from '../type'
-
 import { createNode } from '../../../packages/elements/src/share'
+import { EditorGetter } from '@/store/2d/getters'
+import { clone } from '@/share/util/base'
+import { deleteTreeParentQuote } from '@/core/2d/util/tree'
 
 export interface EditorMutationI {
   // 2d
@@ -28,6 +30,9 @@ export interface EditorMutationI {
   MOVE_TO_TOP_OF_NODES: 'MOVE_TO_TOP_OF_NODES'
   MOVE_TO_BOTTOM_OF_NODES: 'MOVE_TO_BOTTOM_OF_NODES'
 
+  // copy
+  COPY_NODE_2D: 'COPY_NODE_2D'
+  PASTE_NODE_2D: 'PASTE_NODE_2D'
   // 3d
   ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
 }
@@ -49,6 +54,9 @@ export const EditorMutation: EditorMutationI = {
   MOVE_DOWNWARD_OF_NODES: 'MOVE_DOWNWARD_OF_NODES',
   MOVE_TO_TOP_OF_NODES: 'MOVE_TO_TOP_OF_NODES',
   MOVE_TO_BOTTOM_OF_NODES: 'MOVE_TO_BOTTOM_OF_NODES',
+  // copy
+  COPY_NODE_2D: 'COPY_NODE_2D',
+  PASTE_NODE_2D: 'PASTE_NODE_2D',
   ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
 }
 
@@ -375,6 +383,27 @@ export default {
     parentChildren.splice(parentChildren.length, 0, ...nodes)
     // select
     for (const node of nodes) state.select2dNodes.add(node)
+  },
+  [EditorMutation.COPY_NODE_2D](this: any, state) {
+    if (!this.getters[EditorGetter.GET_SELECT_NODE]) return
+    const nodes = Array.isArray(this.getters[EditorGetter.GET_SELECT_NODE])
+      ? this.getters[EditorGetter.GET_SELECT_NODE]
+      : [this.getters[EditorGetter.GET_SELECT_NODE]]
+
+    state.clipboard.unshift(clone(deleteTreeParentQuote(nodes)))
+  },
+  [EditorMutation.PASTE_NODE_2D](this: any, state) {
+    if (state.clipboard.length === 0) return
+    state.clipboard[0].forEach((item) => {
+      console.log(item)
+      // item.option.matrixOption.left += 10
+      // item.option.matrixOption.top += 10
+      const node = createNode({
+        ...item,
+        name: item.name + '副本'
+      })
+      this.commit(EditorMutation.ADD_2D_TREE_NODE, { node })
+    })
   },
   // 3d
   [EditorMutation.ADD_3D_TREE_NODE](state: EditorStore, payload: { node: LayerTree3dNode }) {

@@ -270,31 +270,41 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
           },
           tableData: [
             {
-            name:'张三',
-            age:18,
-            sex:'男',
-            hobby:'唱'
+            name:'1',
+            age:"王小虎",
+            sex:'分拣区',
+            hobby:'无不良'
           },{
-            name:'李四',
-            age:2.5,
-            sex:'男',
-            hobby:'跳'
+            name:'2',
+            age:"王小虎",
+            sex:'分拣区',
+            hobby:'无不良'
           },{
-            name:'王五',
-            age:18,
-            sex:'男',
-            hobby:'rap'
+            name:'3',
+            age:"王小虎",
+            sex:'分拣区',
+            hobby:'无不良'
           },{
-            name:'赵六',
-            age:18,
-            sex:'男',
-            hobby:'篮球'
-          }],
+            name:'4',
+            age:"王小虎",
+            sex:'分拣区',
+            hobby:'无不良'
+          },{
+              name:'5',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'无不良'
+            },{
+              name:'6',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'不良'
+            }],
           tableMap:{
-            name:'姓名',
-            age:'年龄',
-            hobby:'爱好',
-            sex:'性别'
+            name:'序号',
+            age:'姓名',
+            hobby:'位置',
+            sex:'不良状态'
           },
         },
       }
