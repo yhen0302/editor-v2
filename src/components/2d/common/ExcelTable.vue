@@ -35,7 +35,7 @@
 <script lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, onUpdated, Ref, ref, watch } from 'vue'
 import SliderEl from './SliderEl'
-import { toPx } from '@/share/util/base'
+import { clone, toPx } from '@/share/util/base'
 import { WatchOptions } from '@vue/runtime-core'
 
 const letters = new Array(26).fill().map((item, index) => String.fromCharCode(65 + index))
@@ -57,7 +57,7 @@ export default {
       x: 0,
       y: 0
     })
-    let update = 'y'
+    let update = ''
 
     const widths = new Array(26).fill().map(() => 80)
     const heights = new Array(100).fill().map(() => 30)
@@ -72,6 +72,9 @@ export default {
       ctx.strokeStyle = '#212530'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
+      // console.log('draw')
+      // debugger
+      // console.log(update)
       switch (update) {
         case 'x':
           ctx.clearRect(widths[0], 0, ctx.canvas.width, ctx.canvas.height)
@@ -89,19 +92,6 @@ export default {
 
       // window.requestAnimationFrame(draw.bind(null, ctx))
       // window.setTimeout(draw.bind(null, ctx), 100)
-    }
-    const deleteHandle = addHotKey()
-    function addHotKey() {
-      document.body.addEventListener('keyup', (ev) => {
-        ev.stopPropagation()
-      })
-      const keydownHandle = (ev) => {
-        ev.stopPropagation()
-      }
-      document.body.addEventListener('keydown', keydownHandle)
-      return () => {
-        document.body.removeEventListener('keydown', keydownHandle)
-      }
     }
 
     function drawTableLegend(ctx) {
@@ -171,10 +161,11 @@ export default {
 
     // scroll
     const sync: WatchOptions = { flush: 'sync' }
-    ;[('x', 'y')].forEach((k) => {
+    ;['x', 'y'].forEach((k) => {
       watch(
         () => scroll.value[k],
         (newVal, oldVal) => {
+          console.log(k, newVal)
           update = k
           draw()
         },
@@ -237,15 +228,14 @@ export default {
       excelEl.value.focus()
       hiddenInp()
       const cellRect = findCellRectByXY(ev.offsetX, ev.offsetY)
-      // update = cellRect.left < 100 ? 'y' : 'x'
       for (let key of Object.keys(cellRect)) {
         selectorRect.value[key] = cellRect[key]
       }
     }
     function selectorRectChange(newVal, oldVal) {
       const ctx = excelEl.value.getContext('2d')
-      update = 'y'
       draw(ctx)
+      if (selectType.value === 'NULL') return
       ctx.strokeStyle = '#6582FE'
       ctx.lineWidth = 2
       ctx.strokeRect(newVal.left, newVal.top, newVal.width, newVal.height)
@@ -288,9 +278,29 @@ export default {
     }
 
     // keyHandle
-      function hotKeyDeleteHandle() {
-        console.log('delete',selectType.value)
+    function hotKeyDeleteHandle() {
+      switch (selectType.value) {
+        case 'ROW':
+          // eslint-disable-next-line vue/no-mutating-props
+          props.data.splice(selectorRect.value.j, 1)
+          break
+        case 'COL':
+          // eslint-disable-next-line vue/no-mutating-props
+          props.data.forEach((item) => {
+            item.splice(selectorRect.value.i, 1)
+          })
+          break
+        case 'NODE':
+          // eslint-disable-next-line vue/no-mutating-props
+          props.data[selectorRect.value.j][selectorRect.value.i] = 0
       }
+      // reset selector
+      selectorRect.value.left = -1
+      selectorRect.value.top = -1
+      // reset selectType
+      selectType.value = 'NULL'
+      draw()
+    }
 
     return {
       excelEl,

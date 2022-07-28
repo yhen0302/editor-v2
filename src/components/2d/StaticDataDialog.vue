@@ -24,7 +24,7 @@
         </div>
       </header>
       <div class="static-data-content">
-        <excel-table v-model:data="data"></excel-table>
+        <excel-table v-model:data="data" v-if='visible'></excel-table>
       </div>
       <button class="success-btn" @click="saveData">完成</button>
     </section>
@@ -99,6 +99,14 @@ export default {
       return [line1, line2]
     }
     function pieTableDataAssignEchartsHandle(tableData, node) {
+      // node.option.echartsOption.series[0].data
+      // const m = tableData[0].length>tableData[1].length?tableData[0]:tableData[1]
+      tableData[0].forEach((item,index)=>{
+        if(!node.option.echartsOption.series[0].data[index])node.option.echartsOption.series[0].data[index] = {}
+        node.option.echartsOption.series[0].data[index].name = item
+        node.option.echartsOption.series[0].data[index].value = tableData[1][item]
+
+      })
       console.log(tableData, node)
     }
 
@@ -135,6 +143,7 @@ export default {
     const data = computed({
       get() {
         cacheVal = echartsDataToTableByNode(editorGetter['GET_SELECT_NODE'].value)
+        console.log('cacheVal',cacheVal)
         return cacheVal
       },
       set(payload) {
