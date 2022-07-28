@@ -24,7 +24,7 @@
         </div>
       </header>
       <div class="static-data-content">
-        <excel-table v-model:data="data"></excel-table>
+        <excel-table v-model:data="data" v-if="visible"></excel-table>
       </div>
       <button class="success-btn" @click="saveData">完成</button>
     </section>
@@ -44,9 +44,6 @@ export default {
   components: { ExcelTable, DialogEl: Dialog },
   props: ['visible'],
   setup(props, context) {
-    const handle = {
-
-    }
     const store = useStore()
     const editorGetter = useGetter(store, 'global', ['GET_SELECT_NODE'])
 
@@ -61,25 +58,13 @@ export default {
       }
     })
 
-    function echartsDataToTableByNode(node) {
+    function hasAxisEchartsDataToTableHandle(node) {
       return [
         ['', ...node.option.echartsOption.xAxis.data],
         ...node.option.echartsOption.series.map((item) => [item.name, ...item.data])
       ]
     }
-    let cacheVal
-    const data = computed({
-      get() {
-        cacheVal = echartsDataToTableByNode(editorGetter['GET_SELECT_NODE'].value)
-        return cacheVal
-      },
-      set(payload) {
-        if (!cacheVal?.[payload[0]]) cacheVal[payload[0]] = []
-        cacheVal[payload[0]][payload[1]] = payload[2]
-      }
-    })
-
-    function tableDataAssignEcharts(tableData, node) {
+    function hasAxisTableDataAssignEchartsHandle(tableData, node) {
       let realIndex = 0
       tableData.forEach((item, index) => {
         if (index === 0) node.option.echartsOption.xAxis.data = item.filter((item, i) => i !== 0)
@@ -102,6 +87,69 @@ export default {
         realIndex++
       })
     }
+
+    // 饼图
+    function pieEchartsDataToTableHandle(node) {
+      const line1 = []
+      const line2 = []
+      node.option.echartsOption.series[0].data.forEach((data) => {
+        line1.push(data.name)
+        line2.push(data.value)
+      })
+      return [line1, line2]
+    }
+    function pieTableDataAssignEchartsHandle(tableData, node) {
+      // node.option.echartsOption.series[0].data
+      // const m = tableData[0].length>tableData[1].length?tableData[0]:tableData[1]
+      const eO = node.option.echartsOption
+      tableData[0].forEach((item, index) => {
+        if (!eO.series[0].data[index]) eO.series[0].data[index] = {}
+        eO.series[0].data[index].name = item
+        eO.series[0].data[index].value = tableData[1][index]
+      })
+      eO.series[0].data.splice(tableData[0].length)
+    }
+
+    const handle = computed(() => {
+      const node = editorGetter['GET_SELECT_NODE'].value
+      switch (node.type) {
+        case 'ChartBar':
+        case 'ChartCurve':
+        case 'ChartLine':
+          return {
+            echartsDataToTableHandle: hasAxisEchartsDataToTableHandle,
+            tableDataAssignEchartsHandle: hasAxisTableDataAssignEchartsHandle
+          }
+        case 'ChartPie':
+        case 'ChartGauge':
+          return {
+            echartsDataToTableHandle: pieEchartsDataToTableHandle,
+            tableDataAssignEchartsHandle: pieTableDataAssignEchartsHandle
+          }
+      }
+      return {
+        echartsDataToTableHandle: new Function(),
+        tableDataAssignEchartsHandle: new Function()
+      }
+    })
+    function echartsDataToTableByNode(node) {
+      return handle.value.echartsDataToTableHandle(node)
+    }
+    function tableDataAssignEcharts(tableData, node) {
+      handle.value.tableDataAssignEchartsHandle(tableData, node)
+    }
+
+    let cacheVal
+    const data = computed({
+      get() {
+        cacheVal = echartsDataToTableByNode(editorGetter['GET_SELECT_NODE'].value)
+        return cacheVal
+      },
+      set(payload) {
+        if (!cacheVal?.[payload[0]]) cacheVal[payload[0]] = []
+        cacheVal[payload[0]][payload[1]] = payload[2]
+      }
+    })
 
     function saveData() {
       const node = editorGetter['GET_SELECT_NODE'].value

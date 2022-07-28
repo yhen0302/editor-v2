@@ -49,7 +49,6 @@ export default {
       const clsDefault = context.slots.default()
       clsDefault.forEach((item) => {
         // v-for
-        console.log(item.type,Fragment)
         if (item.type === Fragment) list.push(...item.children)
         else list.push(item)
       })

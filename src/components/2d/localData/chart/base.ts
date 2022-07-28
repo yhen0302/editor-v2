@@ -58,8 +58,9 @@ export class BaseChart {
 
   merge(target: any = {}, custom: any = {}) {
     for (const key of Object.keys(target)) {
-      if (!custom[key] || typeof custom[key] !== 'object') custom[key] = target[key]
+      if (!custom[key]) custom[key] = target[key]
       else {
+        if( typeof custom[key] === 'object')
         custom[key] = this.merge(target[key], custom[key])
       }
     }

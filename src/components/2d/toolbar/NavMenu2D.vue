@@ -42,7 +42,6 @@ export default {
 
     const initData= markRaw(selectData[editorStore.selectBarToolType])
     initData.key = editorStore.selectBarToolType
-    console.log(initData)
     // element selector area
     const stack  = ref([initData])
     const navIndex  = ref(0)
@@ -51,7 +50,6 @@ export default {
     watch(
       () => editorStore.selectBarToolType,
       (newVal) => {
-        console.log('selectBarToolType',newVal)
         if (newVal) {
           let data = markRaw(selectData[newVal])
           data.key = newVal

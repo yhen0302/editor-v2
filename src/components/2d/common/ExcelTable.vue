@@ -8,43 +8,37 @@
       @wheel.stop="scrollExcel"
       @mousedown.stop="selectCell"
       @dblclick.stop="editCell"
+      contenteditable="true"
+      @keydown.stop.delete="hotKeyDeleteHandle"
     ></canvas>
 
     <div class="scrollbar-y absolute">
-      <slider-el
-        v-model:value="scroll.y"
-        direction="y"
-        :max="90"
-        :tip="false"
-      ></slider-el>
+      <slider-el v-model:value="scroll.y" direction="y" :max="90" :tip="false"></slider-el>
     </div>
     <div class="scrollbar-x absolute">
       <slider-el v-model:value="scroll.x" :max="18" :tip="false"></slider-el>
     </div>
-    <div
-      class="editor-inp-wrap absolute"
-      :style="toPx(editInpRect)"
-      v-show="showEditInp"
-    >
+    <div class="editor-inp-wrap absolute" :style="toPx(editInpRect)" v-show="showEditInp">
       <input
         type="text"
         class="editor-inp block w-full h-full"
         ref="editInp"
         v-model="inpVal"
-        @blur="showEditInp=false"
+        @blur="showEditInp = false"
+        @keyup.stop
+        @keydown.stop
       />
     </div>
   </section>
 </template>
 
-<script>
-import {computed, nextTick, onMounted, onUpdated, ref, watch} from 'vue'
+<script lang="ts">
+import { computed, nextTick, onMounted, onUnmounted, onUpdated, Ref, ref, watch } from 'vue'
 import SliderEl from './SliderEl'
-import { toPx } from '@/share/util/base'
+import { clone, toPx } from '@/share/util/base'
+import { WatchOptions } from '@vue/runtime-core'
 
-const letters = new Array(26)
-  .fill()
-  .map((item, index) => String.fromCharCode(65 + index))
+const letters = new Array(26).fill().map((item, index) => String.fromCharCode(65 + index))
 
 export default {
   name: 'ExcelTable',
@@ -63,28 +57,7 @@ export default {
       x: 0,
       y: 0
     })
-    let update = 'y'
-
-    watch(
-      () => scroll.value.x,
-      (newVal, oldVal) => {
-        update = 'x'
-        draw()
-      },
-      {
-        flush: 'sync'
-      }
-    )
-    watch(
-      () => scroll.value.y,
-      (newVal, oldVal) => {
-        update = 'y'
-        draw()
-      },
-      {
-        flush: 'sync'
-      }
-    )
+    let update = ''
 
     const widths = new Array(26).fill().map(() => 80)
     const heights = new Array(100).fill().map(() => 30)
@@ -93,16 +66,15 @@ export default {
       const ctx = excelEl.value.getContext('2d')
       draw(ctx)
     })
-    onUpdated(()=>{
-      draw()
-    })
 
     function draw(ctx = excelEl.value.getContext('2d')) {
       ctx.fillStyle = '#2D333E'
       ctx.strokeStyle = '#212530'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.fillRect(0, 0, 60, 30)
+      // console.log('draw')
+      // debugger
+      // console.log(update)
       switch (update) {
         case 'x':
           ctx.clearRect(widths[0], 0, ctx.canvas.width, ctx.canvas.height)
@@ -112,14 +84,17 @@ export default {
           ctx.clearRect(0, heights[0], ctx.canvas.width, ctx.canvas.height)
           update = ''
           break
+        default:
+          ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
       }
-      dragTableLegend(ctx)
+      ctx.fillRect(0, 0, 60, 30)
+      drawTableLegend(ctx)
 
       // window.requestAnimationFrame(draw.bind(null, ctx))
       // window.setTimeout(draw.bind(null, ctx), 100)
     }
 
-    function dragTableLegend(ctx) {
+    function drawTableLegend(ctx) {
       let offsetX = defaultOffsetX
       let offsetY = defaultOffsetY
       const height = heights.reduce((pre, next) => pre + next)
@@ -185,6 +160,18 @@ export default {
     }
 
     // scroll
+    const sync: WatchOptions = { flush: 'sync' }
+    ;['x', 'y'].forEach((k) => {
+      watch(
+        () => scroll.value[k],
+        (newVal, oldVal) => {
+          console.log(k, newVal)
+          update = k
+          draw()
+        },
+        sync
+      )
+    })
     function scrollExcel(ev) {
       if (ev.wheelDelta < 0) {
         scroll.value.y < 90 && scroll.value.y++
@@ -194,6 +181,8 @@ export default {
     }
 
     // selector
+    type SelectType = 'NULL' | 'ROW' | 'COL' | 'NODE'
+    const selectType: Ref<SelectType> = ref<SelectType>('NULL')
     const selectorRect = ref({
       width: 80,
       height: 30,
@@ -205,6 +194,14 @@ export default {
     function findCellRectByXY(x, y) {
       let left = x - defaultOffsetX
       let top = y - defaultOffsetY
+      const flagL = left < 0
+      const flagT = top < 0
+      if (flagL && flagT) selectType.value = 'NULL'
+      else if (flagL) selectType.value = 'ROW'
+      else if (flagT) selectType.value = 'COL'
+      else selectType.value = 'NODE'
+      if (flagL && flagT) return selectorRect.value
+
       let i = scroll.value.x
       let j = scroll.value.y
       while (left > widths[i]) {
@@ -219,26 +216,26 @@ export default {
       top = y - top
 
       return {
-        left,
-        top,
-        width: widths[i],
-        height: heights[i],
+        left: flagL ? defaultOffsetX : left,
+        top: flagT ? defaultOffsetY : top,
+        width: flagL ? widths.reduce((pre, item) => pre + item) : widths[i],
+        height: flagT ? heights.reduce((pre, item) => pre + item) : heights[i],
         i,
         j
       }
     }
     function selectCell(ev) {
+      excelEl.value.focus()
       hiddenInp()
       const cellRect = findCellRectByXY(ev.offsetX, ev.offsetY)
-      // update = cellRect.left < 100 ? 'y' : 'x'
       for (let key of Object.keys(cellRect)) {
         selectorRect.value[key] = cellRect[key]
       }
     }
     function selectorRectChange(newVal, oldVal) {
       const ctx = excelEl.value.getContext('2d')
-      update = 'y'
       draw(ctx)
+      if (selectType.value === 'NULL') return
       ctx.strokeStyle = '#6582FE'
       ctx.lineWidth = 2
       ctx.strokeRect(newVal.left, newVal.top, newVal.width, newVal.height)
@@ -275,11 +272,34 @@ export default {
       const rect = findCellRectByXY(ev.offsetX, ev.offsetY)
       if (rect.i === selectorRect.value.i && rect.j === selectorRect.value.j) {
         showEditInp.value = true
-        Object.keys(editInpRect.value).forEach(
-          (key) => (editInpRect.value[key] = rect[key])
-        )
+        Object.keys(editInpRect.value).forEach((key) => (editInpRect.value[key] = rect[key]))
         nextTick().then(() => editInp.value.focus())
       }
+    }
+
+    // keyHandle
+    function hotKeyDeleteHandle() {
+      switch (selectType.value) {
+        case 'ROW':
+          // eslint-disable-next-line vue/no-mutating-props
+          props.data.splice(selectorRect.value.j, 1)
+          break
+        case 'COL':
+          // eslint-disable-next-line vue/no-mutating-props
+          props.data.forEach((item) => {
+            item.splice(selectorRect.value.i, 1)
+          })
+          break
+        case 'NODE':
+          // eslint-disable-next-line vue/no-mutating-props
+          props.data[selectorRect.value.j][selectorRect.value.i] = 0
+      }
+      // reset selector
+      selectorRect.value.left = -1
+      selectorRect.value.top = -1
+      // reset selectType
+      selectType.value = 'NULL'
+      draw()
     }
 
     return {
@@ -296,13 +316,18 @@ export default {
       editInpRect,
       editInp,
       inpVal,
-      showEditInp
+      showEditInp,
+      hotKeyDeleteHandle
     }
   }
 }
 </script>
 
 <style scoped>
+.excel-el {
+  outline: none;
+  cursor: pointer;
+}
 .excel-table {
   width: 100%;
   height: 340px;

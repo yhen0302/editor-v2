@@ -2,6 +2,7 @@ import { createStore } from 'vuex'
 import { default as mutations2d } from '@/store/2d/mutations'
 import { default as getters2d } from '@/store/2d/getters'
 
+const _clipboard: any[] = []
 export default createStore({
   state: {
     dimensionType: '3d', // 2D/3D
@@ -55,7 +56,18 @@ export default createStore({
     addElementType: null,
     elementScaleInterval: {}, // 存储模型包围盒尺寸
     elementFlyLine: [], // 存储飞线数组
-    elementClick: null
+    elementClick: null,
+    // 剪贴板
+    get clipboard() {
+      return _clipboard
+    },
+    set clipboard(val: any) {
+      _clipboard.unshift(val)
+      if (_clipboard.length > 20) {
+        _clipboard.pop()
+      }
+    }
+    // \剪贴板
   } as any,
   mutations: { ...mutations2d },
   actions: {},

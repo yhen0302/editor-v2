@@ -89,6 +89,7 @@ import { parseModelNode } from '@/core/3d/util'
 import { EventsBus } from '@/core/EventsBus'
 import { getAvailablePageTreeNodes } from '@/core/features/hotKeyShare'
 import { previewHandle } from '@/core/features/hotKey'
+import { deleteTreeParentQuote } from '@/core/2d/util/tree'
 
 function saveJSON(data: any, filename: any) {
   if (!data) {
@@ -127,7 +128,7 @@ export default defineComponent({
     const exportJSON = () => {
       // 导出
       let JSON_data = JSON.stringify(getAvailablePageTreeNodes())
-      saveJSON(JSON_data, `bol3d-${formatterDate()}.json`)
+      saveJSON(JSON_data, `bol3d-${formatterDate()}.ktj`)
     }
 
     //导入 bol3d.json
@@ -205,20 +206,6 @@ export default defineComponent({
         }
       }
       return { tree: pageTreeNodes, template }
-    }
-
-    function deleteTreeParentQuote(tree: any) {
-      let nodes = [...tree],
-        node: any = null
-
-      // eslint-disable-next-line no-cond-assign
-      while ((node = nodes.pop())) {
-        node.parent = null
-        node.select = false
-        if (node?.children?.length > 0) {
-          nodes.unshift(...node?.children)
-        }
-      }
     }
 
     function remove3Dnodes() {
