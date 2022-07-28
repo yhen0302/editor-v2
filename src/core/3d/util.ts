@@ -16,6 +16,7 @@ export function parseModelNode(opt: any, node: any, index: number, result: any) 
   result.index = index
   result.spread = false
   result.type = node.type
+  result.event = {}
   result.children = []
   result.options = {}
   result.show = true
@@ -561,6 +562,12 @@ export function reloadThreeDimensionScene(pageNode: any) {
         )
         node.scale.set(n.options.scale[0], n.options.scale[1], n.options.scale[2])
       }
+
+      n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
+      n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
+      n.event && n.event.dbclick
+        ? (node.userData.dbclick = n.event.dbclick)
+        : (node.userData.dbclick = {})
     } else if (n.type === 'Mesh') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
@@ -599,6 +606,12 @@ export function reloadThreeDimensionScene(pageNode: any) {
           }
         }
       }
+
+      n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
+      n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
+      n.event && n.event.dbclick
+        ? (node.userData.dbclick = n.event.dbclick)
+        : (node.userData.dbclick = {})
     } else if (n.type === 'Object3D') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
@@ -618,6 +631,12 @@ export function reloadThreeDimensionScene(pageNode: any) {
         (n.options.rotation[2] * Math.PI) / 180
       )
       node.scale.set(n.options.scale[0], n.options.scale[1], n.options.scale[2])
+
+      n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
+      n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
+      n.event && n.event.dbclick
+        ? (node.userData.dbclick = n.event.dbclick)
+        : (node.userData.dbclick = {})
     } else if (n.type === 'Icon') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
@@ -633,6 +652,12 @@ export function reloadThreeDimensionScene(pageNode: any) {
       node.position.set(...n.options.meshPosition)
       node.scale.set(n.options.meshScale, n.options.meshScale, n.options.meshScale)
       node.material.opacity = n.options.meshOpacity / 100
+
+      n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
+      n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
+      n.event && n.event.dbclick
+        ? (node.userData.dbclick = n.event.dbclick)
+        : (node.userData.dbclick = {})
     } else if (n.type === 'Text') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
@@ -664,6 +689,12 @@ export function reloadThreeDimensionScene(pageNode: any) {
         center: n.options.meshCenter
       }
       upDateForText(obj, node, n.options.type)
+
+      n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
+      n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
+      n.event && n.event.dbclick
+        ? (node.userData.dbclick = n.event.dbclick)
+        : (node.userData.dbclick = {})
     } else if (n.type === 'FlyLine') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)

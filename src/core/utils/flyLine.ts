@@ -317,6 +317,7 @@ const meshBasicMsg = (mesh: any, item: any, options: any) => {
     selected: false,
     show: true,
     spread: false,
+    event: {},
     type: 'FlyLine',
     uuid: mesh.uuid,
     visible: mesh.visible,

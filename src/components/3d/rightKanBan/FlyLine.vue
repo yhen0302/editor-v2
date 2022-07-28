@@ -167,9 +167,13 @@ watch(
 )
 
 watch(
-  () => store.state.addElementType.moving,
+  () => store.state.addElementType && store.state.addElementType.moving,
   (v1, v2) => {
-    if (store.state.addElementType.mesh && store.state.addElementType.basePoint) {
+    if (
+      store.state.addElementType &&
+      store.state.addElementType.mesh &&
+      store.state.addElementType.basePoint
+    ) {
       store.state.addElementType.mesh.userData.source =
         store.state.addElementType.basePoint.position.clone()
       store.state.addElementType.mesh.userData.target =

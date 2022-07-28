@@ -33,7 +33,7 @@ export default defineComponent({
         // 'models/HangKong/ChangJing/WeiQiang.glb'
 
         'models/GongChang/ChaChe.glb',
-        'models/GongChang/ChangXian.glb',
+        // 'models/GongChang/ChangXian.glb',
         'models/GongChang/ChanXianJia.glb',
         'models/GongChang/ChiXiang_D.glb',
         'models/GongChang/DianNao.glb',

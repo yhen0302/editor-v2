@@ -2,11 +2,24 @@
   <div class="icon-forms-3d">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
-        <EditFormsNavItem :active="item.active" :name="item.name" :type="item.type" />
+        <EditFormsNavItem
+          :active="item.active"
+          :name="item.name"
+          :type="item.type"
+          @mouseup.stop="chooseNav(item)"
+        />
       </div>
     </div>
     <LineEl :color="'#363741'" />
-    <Universal :value="formSettings" v-if="store.state.addElementType.mesh"></Universal>
+    <Universal
+      :value="formSettings"
+      v-if="store.state.addElementType.mesh"
+      v-show="headerItems[0].active"
+    ></Universal>
+
+    <div class="content object" v-if="headerItems[1].active">
+      <EventBind :node="propsNode"></EventBind>
+    </div>
   </div>
 </template>
 
@@ -16,6 +29,7 @@ import store from '../../../store'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import Universal from './Universal.vue'
+import EventBind from './EventBind.vue'
 
 const props = defineProps({
   node: Object
@@ -26,6 +40,11 @@ const headerItems = ref([
     active: true,
     name: '基础设置',
     type: 'basicSetting'
+  },
+  {
+    active: false,
+    name: '事件设置',
+    type: 'eventSetting'
   }
 ])
 const formSettings = ref([
@@ -72,6 +91,17 @@ const formSettings = ref([
   }
 ])
 
+const chooseNav = (item) => {
+  const e = event
+  if (e.button !== 0) return
+
+  headerItems.value.forEach((nav) => {
+    nav.active = false
+  })
+
+  item.active = true
+}
+
 onUnmounted(() => {
   store.state.threeDimensionContainer.scene.children.forEach((item) => {
     if (item.name == 'Icon') {
@@ -86,6 +116,7 @@ onUnmounted(() => {
 
 onMounted(() => {
   if (props.node.clickObj) {
+    propsNode.value = props.node.clickObj
     if (props.node.clickObj != true) {
       store.state.threeDimensionContainer.scene.children.forEach((item) => {
         if (item.name == 'Icon') {
@@ -111,10 +142,11 @@ onMounted(() => {
   }
 })
 
+const propsNode = ref(null)
 watch(
-  () => store.state.addElementType.moving,
+  () => store.state.addElementType && store.state.addElementType.moving,
   (v1, v2) => {
-    if (store.state.addElementType.mesh) {
+    if (store.state.addElementType && store.state.addElementType.mesh) {
       store.state.addElementType.mesh.children[0].visible = true
       formSettings.value[1].content[0].value = store.state.addElementType.mesh.scale.x
       formSettings.value[2].content[0].value =
@@ -134,6 +166,7 @@ watch(
               ]
               dev.options.meshScale = store.state.addElementType.mesh.scale.x
               dev.options.meshOpacity = store.state.addElementType.mesh.material.opacity * 100
+              propsNode.value = dev
             }
           })
         }
@@ -188,5 +221,9 @@ watch(
 .header-item {
   width: 80px;
   height: 64px;
+}
+.content {
+  height: calc(100% - 64px - 1px - 48px - 1px);
+  @apply w-full overflow-scroll;
 }
 </style>

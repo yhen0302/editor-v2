@@ -103,6 +103,10 @@
         </div>
       </div>
     </div>
+
+    <div class="content object" v-show="headerItems[2].active">
+      <EventBind :node="node"></EventBind>
+    </div>
   </div>
 </template>
 
@@ -116,6 +120,7 @@ import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
 import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
+import EventBind from '../../rightKanBan/EventBind.vue'
 
 import { colorRGBtoHex, hex2rgb } from '@/core/utils/base'
 
@@ -129,7 +134,8 @@ export default defineComponent({
     BaseTitle,
     BaseInput,
     BaseSwitch,
-    BaseColor
+    BaseColor,
+    EventBind
   },
   props: ['node'],
   setup(props: any) {
@@ -146,6 +152,11 @@ export default defineComponent({
         active: false,
         name: '材质设置',
         type: 'matSetting'
+      },
+      {
+        active: false,
+        name: '事件设置',
+        type: 'eventSetting'
       }
     ])
     // title val
@@ -155,6 +166,8 @@ export default defineComponent({
       if (headerItems.value[0].active) {
         val = 'Object'
       } else if (headerItems.value[1].active) {
+        val = 'Material'
+      } else if (headerItems.value[2].active) {
         val = 'Material'
       }
 

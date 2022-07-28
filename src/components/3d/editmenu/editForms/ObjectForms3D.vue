@@ -44,7 +44,9 @@
       </div>
     </div>
 
-    <div class="content object" v-show="headerItems[1].active">1111111111</div>
+    <div class="content object" v-show="headerItems[1].active">
+      <EventBind :node="node"></EventBind>
+    </div>
   </div>
 </template>
 
@@ -56,6 +58,7 @@ import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
+import EventBind from '../../rightKanBan/EventBind.vue'
 
 export default defineComponent({
   name: 'ObjectForms3D',
@@ -63,7 +66,8 @@ export default defineComponent({
     LineEl,
     EditFormsNavItem,
     BaseTitle,
-    BaseInput
+    BaseInput,
+    EventBind
   },
   props: ['node'],
   setup(props: any) {

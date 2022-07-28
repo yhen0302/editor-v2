@@ -255,6 +255,16 @@ const modelGiveRecursion = (gourp: any, arrs: any, node: any) => {
             parseFloat(dev.options.scale[2])
           )
           child.visible = dev.visible
+
+          dev.event && dev.event.hover
+            ? (child.userData.hover = dev.event.hover)
+            : (child.userData.hover = {})
+          dev.event && dev.event.click
+            ? (child.userData.click = dev.event.click)
+            : (child.userData.click = {})
+          dev.event && dev.event.dbclick
+            ? (child.userData.dbclick = dev.event.dbclick)
+            : (child.userData.dbclick = {})
         } else if (child.type == 'Mesh') {
           child.visible = dev.visible
           child.position.set(
@@ -286,6 +296,16 @@ const modelGiveRecursion = (gourp: any, arrs: any, node: any) => {
           child.material.lightMapIntensity = dev.matOptions.extends.lightMapIntensity
           child.material.metalness = dev.matOptions.extends.metalness
           child.material.roughness = dev.matOptions.extends.roughness
+
+          dev.event && dev.event.hover
+            ? (child.userData.hover = dev.event.hover)
+            : (child.userData.hover = {})
+          dev.event && dev.event.click
+            ? (child.userData.click = dev.event.click)
+            : (child.userData.click = {})
+          dev.event && dev.event.dbclick
+            ? (child.userData.dbclick = dev.event.dbclick)
+            : (child.userData.dbclick = {})
         }
       }
     })

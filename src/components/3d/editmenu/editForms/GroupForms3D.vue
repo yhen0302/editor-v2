@@ -45,15 +45,7 @@
     </div>
 
     <div class="content object" v-show="headerItems[1].active">
-      <div class="content-item">
-        <div class="setting-item leftHead">事件选择</div>
-
-        <div class="setting-item">
-          <div class="setting"></div>
-        </div>
-
-        <LineEl class="division" :color="'#363741'" />
-      </div>
+      <EventBind :node="node"></EventBind>
     </div>
   </div>
 </template>
@@ -66,6 +58,7 @@ import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
+import EventBind from '../../rightKanBan/EventBind.vue'
 
 export default defineComponent({
   name: 'GroupForms3D',
@@ -73,7 +66,8 @@ export default defineComponent({
     LineEl,
     EditFormsNavItem,
     BaseTitle,
-    BaseInput
+    BaseInput,
+    EventBind
   },
   props: ['node'],
   setup(props: any) {
@@ -289,8 +283,36 @@ export default defineComponent({
 }
 
 .leftHead {
+  width: 80px;
   font-size: 12px;
   line-height: 48px;
-  padding-left: 16px;
+}
+
+.settingLineList {
+  margin-top: 8px;
+  color: #fff;
+  width: 181px;
+  vertical-align: top;
+}
+.btnBox {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin-top: 12px;
+}
+.btnStyle {
+  width: 60px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.sureBtn {
+  background-color: #6582fe;
+}
+.recelBtn {
+  background-color: #808080;
 }
 </style>

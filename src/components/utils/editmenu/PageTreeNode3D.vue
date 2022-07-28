@@ -81,6 +81,7 @@ export default defineComponent({
       if (e.button != 0) return
 
       if (nodes.isEdit) {
+        store.state.addElementType = null
         EventsBus.emit('treeSelected', { node: { selected: true, type: 'None' } })
         EventsBus.emit('navDetailsValidate', {})
       } else {
@@ -124,6 +125,7 @@ export default defineComponent({
           }
         } else {
           const node = nodes
+          store.state.addElementType = null
           EventsBus.emit('treeSelected', { node })
           EventsBus.emit('navDetailsValidate', {})
         }

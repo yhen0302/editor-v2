@@ -2,21 +2,35 @@
   <div class="text-forms-3d">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
-        <EditFormsNavItem :active="item.active" :name="item.name" :type="item.type" />
+        <EditFormsNavItem
+          :active="item.active"
+          :name="item.name"
+          :type="item.type"
+          @mouseup.stop="chooseNav(item)"
+        />
       </div>
     </div>
     <LineEl :color="'#363741'" />
-    <Universal :value="formSettings" v-if="store.state.addElementType.mesh"></Universal>
+    <Universal
+      :value="formSettings"
+      v-if="store.state.addElementType.mesh"
+      v-show="headerItems[0].active"
+    ></Universal>
+
+    <div class="content object" v-if="headerItems[1].active">
+      <EventBind :node="propsNode"></EventBind>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, defineProps } from 'vue'
+import { ref, watch, defineProps, onMounted } from 'vue'
 import { upDateText3D } from '@/core/utils/text3D'
 import store from '../../../store'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import Universal from './Universal.vue'
+import EventBind from './EventBind.vue'
 
 String.prototype.colorHex = function () {
   // RGB颜色值的正则
@@ -284,8 +298,24 @@ const headerItems = ref([
     active: true,
     name: '基础设置',
     type: 'basicSetting'
+  },
+  {
+    active: false,
+    name: '事件设置',
+    type: 'eventSetting'
   }
 ])
+const chooseNav = (item) => {
+  const e = event
+  if (e.button !== 0) return
+
+  headerItems.value.forEach((nav) => {
+    nav.active = false
+  })
+
+  item.active = true
+}
+
 const formSettings = ref(arrs)
 if (props.node.selected == 'RotateText') {
   formSettings.value[1].content.push({
@@ -331,112 +361,116 @@ if (props.node.selected == 'RotateText') {
   })
 }
 
-if (props.node.clickObj) {
-  if (props.node.clickObj == true) {
-    let data = store.state.addElementType.mesh.userData.editDate
-    formSettings.value.forEach((dev) => {
-      dev.content.forEach((item) => {
-        if (item.name == '字体') {
-          item.content[0].value.color.value = data.color
-          item.content[0].value.fontFamily.value = data.fontFamily
-          item.content[0].value.fontSize.value = data.fontSize
-          item.content[0].value.fontWeight.value = data.fontWeight
-        } else if (item.name == '内容') {
-          item.content[0].value = data.text
-        } else if (item.name == '尺寸') {
-          item.content[0].value = data.textScale[0]
-          item.content[1].value = data.textScale[1]
-        } else if (item.name == '填充') {
-          let rgb = data.bgColor == '' ? '' : 'rgb(' + data.bgColor + ')'
-          item.content[0].value.color.value = rgb.colorHex()
-          item.content[0].value.opacity.value = data.bgOpcity
-          item.content[0].value.loadPicture.value = data.bgImage
-        } else if (item.name == '偏移') {
-          item.content[0].value = data.textOffset[0]
-          item.content[1].value = data.textOffset[1]
-        } else if (item.name == '对齐') {
-          item.content[0].value.textAlign.value[0] = data.textAlign
-          item.content[0].value.lineAlign.value[0] = data.lineAlign
-        } else if (item.name == 'position') {
-          item.content[0].value = data.position[0]
-          item.content[1].value = data.position[1]
-          item.content[2].value = data.position[2]
-        } else if (item.name == 'scale') {
-          item.content[0].value = data.scale[0]
-          item.content[1].value = data.scale[1]
-        } else if (item.name == 'opacity') {
-          item.content[0].value = data.opacity
-        } else if (item.name == 'rotation' && props.node.selected == 'FixedText') {
-          item.content[0].value = data.rotation[0]
-          item.content[1].value = data.rotation[1]
-          item.content[2].value = data.rotation[2]
-        } else if (item.name == 'center' && props.node.selected == 'RotateText') {
-          item.content[0].value = data.center[0]
-          item.content[1].value = data.center[1]
-        }
-      })
-    })
-  } else {
-    formSettings.value.forEach((dev) => {
-      dev.content.forEach((item) => {
-        if (item.name == '字体') {
-          item.content[0].value.color.value = props.node.clickObj.options.textColor
-          item.content[0].value.fontFamily.value = props.node.clickObj.options.textFontFamily
-          item.content[0].value.fontSize.value = props.node.clickObj.options.textFontSize
-          item.content[0].value.fontWeight.value = props.node.clickObj.options.textFontWeight
-        } else if (item.name == '内容') {
-          item.content[0].value = props.node.clickObj.options.textText
-        } else if (item.name == '尺寸') {
-          item.content[0].value = props.node.clickObj.options.textTextScale[0]
-          item.content[1].value = props.node.clickObj.options.textTextScale[1]
-        } else if (item.name == '填充') {
-          let rgb =
-            props.node.clickObj.options.textBGColor == ''
-              ? ''
-              : 'rgb(' + props.node.clickObj.options.textBGColor + ')'
-          item.content[0].value.color.value = rgb.colorHex()
-          item.content[0].value.opacity.value = props.node.clickObj.options.textBGOpacity
-          item.content[0].value.loadPicture.value = props.node.clickObj.options.textBGImage
-        } else if (item.name == '偏移') {
-          item.content[0].value = props.node.clickObj.options.textTextOffset[0]
-          item.content[1].value = props.node.clickObj.options.textTextOffset[1]
-        } else if (item.name == '对齐') {
-          item.content[0].value.textAlign.value[0] = props.node.clickObj.options.textTextAlign
-          item.content[0].value.lineAlign.value[0] = props.node.clickObj.options.textLineAlign
-        } else if (item.name == 'position') {
-          item.content[0].value = props.node.clickObj.options.meshPosition[0]
-          item.content[1].value = props.node.clickObj.options.meshPosition[1]
-          item.content[2].value = props.node.clickObj.options.meshPosition[2]
-        } else if (item.name == 'scale') {
-          item.content[0].value = props.node.clickObj.options.meshScale[0]
-          item.content[1].value = props.node.clickObj.options.meshScale[1]
-        } else if (item.name == 'opacity') {
-          item.content[0].value = props.node.clickObj.options.meshOpacity
-        } else if (item.name == 'rotation' && props.node.selected == 'FixedText') {
-          item.content[0].value = props.node.clickObj.options.meshRotation[0]
-          item.content[1].value = props.node.clickObj.options.meshRotation[1]
-          item.content[2].value = props.node.clickObj.options.meshRotation[2]
-        } else if (item.name == 'center' && props.node.selected == 'RotateText') {
-          item.content[0].value = props.node.clickObj.options.meshCenter[0]
-          item.content[1].value = props.node.clickObj.options.meshCenter[1]
-        }
-      })
-    })
-    store.state.threeDimensionContainer.scene.children.forEach((item) => {
-      if (item.name == 'Text') {
-        item.traverse((child) => {
-          if (child.uuid == props.node.clickObj.uuid) {
-            store.state.addElementType = {
-              mesh: child,
-              moving: true
-            }
+onMounted(() => {
+  if (props.node.clickObj) {
+    propsNode.value = props.node.clickObj
+    if (props.node.clickObj == true) {
+      let data = store.state.addElementType.mesh.userData.editDate
+      formSettings.value.forEach((dev) => {
+        dev.content.forEach((item) => {
+          if (item.name == '字体') {
+            item.content[0].value.color.value = data.color
+            item.content[0].value.fontFamily.value = data.fontFamily
+            item.content[0].value.fontSize.value = data.fontSize
+            item.content[0].value.fontWeight.value = data.fontWeight
+          } else if (item.name == '内容') {
+            item.content[0].value = data.text
+          } else if (item.name == '尺寸') {
+            item.content[0].value = data.textScale[0]
+            item.content[1].value = data.textScale[1]
+          } else if (item.name == '填充') {
+            let rgb = data.bgColor == '' ? '' : 'rgb(' + data.bgColor + ')'
+            item.content[0].value.color.value = rgb.colorHex()
+            item.content[0].value.opacity.value = data.bgOpcity
+            item.content[0].value.loadPicture.value = data.bgImage
+          } else if (item.name == '偏移') {
+            item.content[0].value = data.textOffset[0]
+            item.content[1].value = data.textOffset[1]
+          } else if (item.name == '对齐') {
+            item.content[0].value.textAlign.value[0] = data.textAlign
+            item.content[0].value.lineAlign.value[0] = data.lineAlign
+          } else if (item.name == 'position') {
+            item.content[0].value = data.position[0]
+            item.content[1].value = data.position[1]
+            item.content[2].value = data.position[2]
+          } else if (item.name == 'scale') {
+            item.content[0].value = data.scale[0]
+            item.content[1].value = data.scale[1]
+          } else if (item.name == 'opacity') {
+            item.content[0].value = data.opacity
+          } else if (item.name == 'rotation' && props.node.selected == 'FixedText') {
+            item.content[0].value = data.rotation[0]
+            item.content[1].value = data.rotation[1]
+            item.content[2].value = data.rotation[2]
+          } else if (item.name == 'center' && props.node.selected == 'RotateText') {
+            item.content[0].value = data.center[0]
+            item.content[1].value = data.center[1]
           }
         })
-      }
-    })
+      })
+    } else {
+      formSettings.value.forEach((dev) => {
+        dev.content.forEach((item) => {
+          if (item.name == '字体') {
+            item.content[0].value.color.value = props.node.clickObj.options.textColor
+            item.content[0].value.fontFamily.value = props.node.clickObj.options.textFontFamily
+            item.content[0].value.fontSize.value = props.node.clickObj.options.textFontSize
+            item.content[0].value.fontWeight.value = props.node.clickObj.options.textFontWeight
+          } else if (item.name == '内容') {
+            item.content[0].value = props.node.clickObj.options.textText
+          } else if (item.name == '尺寸') {
+            item.content[0].value = props.node.clickObj.options.textTextScale[0]
+            item.content[1].value = props.node.clickObj.options.textTextScale[1]
+          } else if (item.name == '填充') {
+            let rgb =
+              props.node.clickObj.options.textBGColor == ''
+                ? ''
+                : 'rgb(' + props.node.clickObj.options.textBGColor + ')'
+            item.content[0].value.color.value = rgb.colorHex()
+            item.content[0].value.opacity.value = props.node.clickObj.options.textBGOpacity
+            item.content[0].value.loadPicture.value = props.node.clickObj.options.textBGImage
+          } else if (item.name == '偏移') {
+            item.content[0].value = props.node.clickObj.options.textTextOffset[0]
+            item.content[1].value = props.node.clickObj.options.textTextOffset[1]
+          } else if (item.name == '对齐') {
+            item.content[0].value.textAlign.value[0] = props.node.clickObj.options.textTextAlign
+            item.content[0].value.lineAlign.value[0] = props.node.clickObj.options.textLineAlign
+          } else if (item.name == 'position') {
+            item.content[0].value = props.node.clickObj.options.meshPosition[0]
+            item.content[1].value = props.node.clickObj.options.meshPosition[1]
+            item.content[2].value = props.node.clickObj.options.meshPosition[2]
+          } else if (item.name == 'scale') {
+            item.content[0].value = props.node.clickObj.options.meshScale[0]
+            item.content[1].value = props.node.clickObj.options.meshScale[1]
+          } else if (item.name == 'opacity') {
+            item.content[0].value = props.node.clickObj.options.meshOpacity
+          } else if (item.name == 'rotation' && props.node.selected == 'FixedText') {
+            item.content[0].value = props.node.clickObj.options.meshRotation[0]
+            item.content[1].value = props.node.clickObj.options.meshRotation[1]
+            item.content[2].value = props.node.clickObj.options.meshRotation[2]
+          } else if (item.name == 'center' && props.node.selected == 'RotateText') {
+            item.content[0].value = props.node.clickObj.options.meshCenter[0]
+            item.content[1].value = props.node.clickObj.options.meshCenter[1]
+          }
+        })
+      })
+      store.state.threeDimensionContainer.scene.children.forEach((item) => {
+        if (item.name == 'Text') {
+          item.traverse((child) => {
+            if (child.uuid == props.node.clickObj.uuid) {
+              store.state.addElementType = {
+                mesh: child,
+                moving: true
+              }
+            }
+          })
+        }
+      })
+    }
   }
-}
+})
 
+const propsNode = ref(null)
 const movingType = ref(false),
   movingTimeout = ref(null)
 watch(
@@ -514,9 +548,9 @@ watch(
 )
 
 watch(
-  () => store.state.addElementType.moving,
+  () => store.state.addElementType && store.state.addElementType.moving,
   (v1, v2) => {
-    if (store.state.addElementType.mesh) {
+    if (store.state.addElementType && store.state.addElementType.mesh) {
       movingTimeout.value && clearTimeout(movingTimeout.value)
       movingType.value = true
       formSettings.value.forEach((dev) => {
@@ -566,6 +600,7 @@ watch(
                   store.state.addElementType.mesh.center.y
                 ]
               }
+              propsNode.value = dev
             }
           })
         }
@@ -586,5 +621,9 @@ watch(
 .header-item {
   width: 80px;
   height: 64px;
+}
+.content {
+  height: calc(100% - 64px - 1px - 48px - 1px);
+  @apply w-full overflow-scroll;
 }
 </style>

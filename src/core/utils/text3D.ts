@@ -419,6 +419,7 @@ const meshBasicMsg = (mesh: any, item: any, type: any, options: any) => {
     addMeshType: 'Text',
     selected: false,
     show: true,
+    event: {},
     spread: false,
     type: 'Text',
     uuid: mesh.uuid,

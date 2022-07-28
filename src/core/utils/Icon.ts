@@ -88,6 +88,7 @@ const meshBasicMsg = (mesh: any, item: any, urlIcon: any, options: any) => {
     selected: false,
     show: true,
     spread: false,
+    event: {},
     type: 'Icon',
     uuid: mesh.uuid,
     visible: mesh.visible,

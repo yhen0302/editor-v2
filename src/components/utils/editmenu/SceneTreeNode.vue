@@ -83,6 +83,7 @@ export default defineComponent({
       nextTick(() => {
         store.state.addElementType = null
         store.state.dimensionType = '3d'
+        const scene = store.state.threeDimensionContainer.scene
 
         page.trees.threeDimension.forEach((item: any) => {
           if (item.isEdit) {
@@ -108,38 +109,39 @@ export default defineComponent({
           }
         })
         page.trees.threeDimension.forEach((item: any) => {
-          if (item.isEdit) {
-            store.state.threeDimensionContainer.scene.children.forEach((child: any) => {
-              if (child.name == item.name) {
-                child.children.forEach((i: any) => {
-                  let status = true
-                  item.children.forEach((b: any) => {
-                    if (i.uuid == b.uuid) {
-                      status = false
-                      i.visible = b.visible
+          if (item.uuid != -1) {
+            if (item.isEdit) {
+              store.state.threeDimensionContainer.scene.children.forEach((child: any) => {
+                if (child.name == item.name) {
+                  child.children.forEach((i: any) => {
+                    let status = true
+                    item.children.forEach((b: any) => {
+                      if (i.uuid == b.uuid) {
+                        status = false
+                        i.visible = b.visible
+                      }
+                    })
+                    if (status) {
+                      i.visible = false
                     }
                   })
-                  if (status) {
-                    i.visible = false
-                  }
-                })
-              }
-            })
-          }
-
-          if (item.uuid == 'MixerActionsUuid') {
-            item.children.forEach((dev: any) => {
-              store.state.threeDimensionContainer.mixerActions.forEach((ss: any) => {
-                let name: any = ss._mixer.name + ss._mixer._root.uuid
-                if (dev.uuid == name) {
-                  ss.paused = dev.options.paused
-                  ss.loop = dev.options.loop
-                  ss.timeScale = dev.options.timeScale
-                  ss.time = 0
-                  ss.enabled = true
                 }
               })
-            })
+            }
+            if (item.uuid == 'MixerActionsUuid') {
+              item.children.forEach((dev: any) => {
+                store.state.threeDimensionContainer.mixerActions.forEach((ss: any) => {
+                  let name: any = ss._mixer.name + ss._mixer._root.uuid
+                  if (dev.uuid == name) {
+                    ss.paused = dev.options.paused
+                    ss.loop = dev.options.loop
+                    ss.timeScale = dev.options.timeScale
+                    ss.time = 0
+                    ss.enabled = true
+                  }
+                })
+              })
+            }
           }
         })
 
