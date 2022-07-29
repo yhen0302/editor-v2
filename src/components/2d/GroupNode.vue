@@ -1,6 +1,6 @@
 <template>
-  <div class="group absolute">
-    <element-node v-for="item in [...groupNode.children].reverse()" :key="item.id" :node="item"></element-node>
+  <div class="group absolute" v-if='groupNode.show'>
+    <element-node  v-for="item in [...groupNode.children].reverse()" :key="item.id" :node="item" ></element-node>
   </div>
 </template>
 
