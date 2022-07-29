@@ -1,5 +1,5 @@
 <template>
-  <div class="icon-forms-3d">
+  <div class="icon-forms-3d" v-if="store.state.addElementType.mesh">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
         <EditFormsNavItem
@@ -11,14 +11,14 @@
       </div>
     </div>
     <LineEl :color="'#363741'" />
-    <Universal
-      :value="formSettings"
-      v-if="store.state.addElementType.mesh"
-      v-show="headerItems[0].active"
-    ></Universal>
+    <Universal :value="formSettings" v-show="headerItems[0].active"></Universal>
 
     <div class="content object" v-if="headerItems[1].active">
       <EventBind :node="propsNode"></EventBind>
+    </div>
+
+    <div class="content object" v-if="headerItems[2].active">
+      <AnimationBind :node="propsNode"></AnimationBind>
     </div>
   </div>
 </template>
@@ -30,6 +30,7 @@ import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import Universal from './Universal.vue'
 import EventBind from './EventBind.vue'
+import AnimationBind from './AnimationBind.vue'
 
 const props = defineProps({
   node: Object
@@ -45,6 +46,11 @@ const headerItems = ref([
     active: false,
     name: '事件设置',
     type: 'eventSetting'
+  },
+  {
+    active: false,
+    name: '动画设置',
+    type: 'animationSetting'
   }
 ])
 const formSettings = ref([
@@ -116,8 +122,8 @@ onUnmounted(() => {
 
 onMounted(() => {
   if (props.node.clickObj) {
-    propsNode.value = props.node.clickObj
     if (props.node.clickObj != true) {
+      propsNode.value = props.node.clickObj
       store.state.threeDimensionContainer.scene.children.forEach((item) => {
         if (item.name == 'Icon') {
           item.traverse((child) => {
@@ -133,6 +139,16 @@ onMounted(() => {
         }
       })
       store.state.addElementType.mesh.add(store.state.addElementType.lightMesh)
+    } else if (props.node.clickObj == true) {
+      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((item) => {
+        if (item.name == 'Icon') {
+          item.children.forEach((dev) => {
+            if (dev.uuid == store.state.addElementType.mesh.uuid) {
+              propsNode.value = dev
+            }
+          })
+        }
+      })
     }
     formSettings.value[1].content[0].value = store.state.addElementType.mesh.scale.x
     formSettings.value[2].content[0].value = store.state.addElementType.mesh.material.opacity * 100
@@ -147,6 +163,17 @@ watch(
   () => store.state.addElementType && store.state.addElementType.moving,
   (v1, v2) => {
     if (store.state.addElementType && store.state.addElementType.mesh) {
+      if (
+        store.state.addElementType.mesh.userData.beat &&
+        Object.keys(store.state.addElementType.mesh.userData.beat).length > 0
+      ) {
+        store.state.addElementType.mesh.userData.beat.position = [
+          parseInt(store.state.addElementType.mesh.position.x),
+          parseInt(store.state.addElementType.mesh.position.y),
+          parseInt(store.state.addElementType.mesh.position.z)
+        ]
+      }
+
       store.state.addElementType.mesh.children[0].visible = true
       formSettings.value[1].content[0].value = store.state.addElementType.mesh.scale.x
       formSettings.value[2].content[0].value =
@@ -167,6 +194,10 @@ watch(
               dev.options.meshScale = store.state.addElementType.mesh.scale.x
               dev.options.meshOpacity = store.state.addElementType.mesh.material.opacity * 100
               propsNode.value = dev
+
+              if (dev.animation.beat && Object.keys(dev.animation.beat).length > 0) {
+                dev.animation.beat.position = dev.options.meshPosition
+              }
             }
           })
         }
@@ -187,6 +218,16 @@ watch(
       formSettings.value[1].content[0].value
     )
     store.state.addElementType.mesh.material.opacity = formSettings.value[2].content[0].value / 100
+    if (
+      store.state.addElementType.mesh.userData.beat &&
+      Object.keys(store.state.addElementType.mesh.userData.beat).length > 0
+    ) {
+      store.state.addElementType.mesh.userData.beat.position = [
+        parseInt(store.state.addElementType.mesh.position.x),
+        parseInt(store.state.addElementType.mesh.position.y),
+        parseInt(store.state.addElementType.mesh.position.z)
+      ]
+    }
 
     store.state.selectedSceneTreeNode.trees.threeDimension.forEach((item) => {
       if (item.name == 'Icon') {
@@ -199,6 +240,10 @@ watch(
             ]
             dev.options.meshScale = store.state.addElementType.mesh.scale.x
             dev.options.meshOpacity = store.state.addElementType.mesh.material.opacity * 100
+
+            if (dev.animation.beat && Object.keys(dev.animation.beat).length > 0) {
+              dev.animation.beat.position = dev.options.meshPosition
+            }
           }
         })
       }

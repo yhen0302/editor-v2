@@ -1,4 +1,4 @@
-import { parseModelNode } from './util'
+import { parseModelNode, animationToBeat } from './util'
 import store from '../../store'
 // import { EventsBus } from '../EventsBus'
 // import { throttled } from '../utils/base'
@@ -306,6 +306,12 @@ const modelGiveRecursion = (gourp: any, arrs: any, node: any) => {
           dev.event && dev.event.dbclick
             ? (child.userData.dbclick = dev.event.dbclick)
             : (child.userData.dbclick = {})
+          dev.animation && dev.animation.beat
+            ? (child.userData.beat = dev.animation.beat)
+            : (child.userData.beat = {})
+          if (Object.keys(child.userData.beat).length != 0) {
+            animationToBeat(node, true)
+          }
         }
       }
     })

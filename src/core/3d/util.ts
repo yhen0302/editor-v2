@@ -658,6 +658,16 @@ export function reloadThreeDimensionScene(pageNode: any) {
       n.event && n.event.dbclick
         ? (node.userData.dbclick = n.event.dbclick)
         : (node.userData.dbclick = {})
+
+      animationToBeat(node, false)
+      if (n.animation && n.animation.beat) {
+        node.userData.beat = n.animation.beat
+      } else {
+        node.userData.beat = {}
+      }
+      if (Object.keys(node.userData.beat).length != 0) {
+        animationToBeat(node, true)
+      }
     } else if (n.type === 'Text') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
@@ -734,4 +744,62 @@ export function traverseFindNodeById(nodes: any, id: string, result: Array<any>)
     if (n.uuid === id) result.push(n)
     if (n.children && n.children.length > 0) traverseFindNodeById(n.children, id, result)
   })
+}
+
+export function removeTweenNode(page: any) {
+  page.forEach((item: any) => {
+    if (item.uuid == 'IconIndex-uuid-2CC79AFB' || item.uuid == 'TextIndex-uuid-F4763805') {
+      item.children.forEach((dev: any) => {
+        if (dev.animation && dev.animation.beat && Object.keys(dev.animation.beat).length > 0) {
+          dev.animation.beat.tweenSwitch = null
+        }
+      })
+    }
+  })
+  // let nodes = [...page],
+  // node: any = null
+
+  // eslint-disable-next-line no-cond-assign
+  // while ((node = nodes.pop())) {
+  //   // node.parent = null
+  //   // node.select = false
+
+  //   if (node?.children?.length > 0) {
+  //     nodes.unshift(...node?.children)
+  //   }
+  // }
+  // return page
+}
+
+export function animationToBeat(obj, bool) {
+  const intervalTween = (upNum, downNum, time, type) => {
+    obj.userData.beat.tweenSwitch = new Bol3D.TWEEN.Tween(obj.position)
+      .to({ y: type ? upNum : downNum }, time)
+      .start()
+      .onComplete(function () {
+        intervalTween(upNum, downNum, time, !type)
+      })
+  }
+
+  if (bool) {
+    const up = obj.userData.beat.options.up
+    const down = Math.abs(obj.userData.beat.options.down)
+    const time = obj.userData.beat.options.time
+    const position = obj.userData.beat.position
+    const upNum = position[1] + up
+    const downNum = position[1] - down
+
+    obj.position.y = downNum
+    obj.userData.beat.tweenSwitch = new Bol3D.TWEEN.Tween(obj.position)
+      .to({ y: upNum }, time)
+      .start()
+      .onComplete(function () {
+        intervalTween(upNum, downNum, time, false)
+      })
+  } else {
+    if (obj.userData.beat && obj.userData.beat.tweenSwitch) {
+      obj.userData.beat.tweenSwitch.stop()
+      obj.userData.beat = {}
+    }
+  }
 }

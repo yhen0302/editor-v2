@@ -85,7 +85,7 @@ import { ElMessage } from 'element-plus'
 import createPreviewTemplate from '@/core/utils/createPreviewTemplate'
 import htmlToUrl from '@/core/utils/htmlToUrl'
 import { clone, formatterDate } from '@/share/util/base'
-import { parseModelNode } from '@/core/3d/util'
+import { parseModelNode, removeTweenNode } from '@/core/3d/util'
 import { EventsBus } from '@/core/EventsBus'
 import { getAvailablePageTreeNodes } from '@/core/features/hotKeyShare'
 import { previewHandle } from '@/core/features/hotKey'
@@ -128,6 +128,8 @@ export default defineComponent({
     const exportJSON = () => {
       // 导出
       let JSON_data = JSON.stringify(getAvailablePageTreeNodes())
+      console.log('isNoe')
+
       saveJSON(JSON_data, `bol3d-${formatterDate()}.ktj`)
     }
 
@@ -203,8 +205,11 @@ export default defineComponent({
       for (const scene of pageTreeNodes) {
         for (const page of scene.children) {
           deleteTreeParentQuote(page.trees.twoDimension)
+          removeTweenNode(page.trees.threeDimension)
         }
       }
+      console.log(template)
+      console.log(pageTreeNodes)
       return { tree: pageTreeNodes, template }
     }
 
