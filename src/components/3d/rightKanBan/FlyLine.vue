@@ -1,5 +1,5 @@
 <template>
-  <div class="text-forms-3d">
+  <div class="text-forms-3d" v-if="store.state.addElementType.mesh">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
         <EditFormsNavItem :active="item.active" :name="item.name" :type="item.type" />
@@ -253,7 +253,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (!store.state.addElementType.painting) {
+  if (store.state.addElementType && !store.state.addElementType.painting) {
     store.state.elementFlyLine.forEach((item) => {
       if (item.name == 'flyLineSelfSphere1') {
         item.visible = false

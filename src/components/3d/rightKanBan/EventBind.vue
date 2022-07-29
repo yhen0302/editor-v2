@@ -151,7 +151,7 @@ const viewFocus = ref({
   ],
   time: [
     {
-      name: 'S',
+      name: 'MS',
       value: 0,
       type: 'input'
     }

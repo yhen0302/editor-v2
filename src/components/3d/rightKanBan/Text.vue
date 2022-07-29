@@ -1,5 +1,5 @@
 <template>
-  <div class="text-forms-3d">
+  <div class="text-forms-3d" v-if="store.state.addElementType.mesh">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
         <EditFormsNavItem
@@ -11,11 +11,7 @@
       </div>
     </div>
     <LineEl :color="'#363741'" />
-    <Universal
-      :value="formSettings"
-      v-if="store.state.addElementType.mesh"
-      v-show="headerItems[0].active"
-    ></Universal>
+    <Universal :value="formSettings" v-show="headerItems[0].active"></Universal>
 
     <div class="content object" v-if="headerItems[1].active">
       <EventBind :node="propsNode"></EventBind>
@@ -363,7 +359,6 @@ if (props.node.selected == 'RotateText') {
 
 onMounted(() => {
   if (props.node.clickObj) {
-    propsNode.value = props.node.clickObj
     if (props.node.clickObj == true) {
       let data = store.state.addElementType.mesh.userData.editDate
       formSettings.value.forEach((dev) => {
@@ -408,7 +403,17 @@ onMounted(() => {
           }
         })
       })
+      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((item) => {
+        if (item.name == 'Text') {
+          item.children.forEach((dev) => {
+            if (dev.uuid == store.state.addElementType.mesh.uuid) {
+              propsNode.value = dev
+            }
+          })
+        }
+      })
     } else {
+      propsNode.value = props.node.clickObj
       formSettings.value.forEach((dev) => {
         dev.content.forEach((item) => {
           if (item.name == '字体') {

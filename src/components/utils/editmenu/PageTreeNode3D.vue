@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, nextTick } from 'vue'
 import { EventsBus } from '@/core/EventsBus'
 import { useStore } from 'vuex'
 import { traverseResetSelectedOfNodes } from '../../../core/3d/util'
@@ -84,6 +84,14 @@ export default defineComponent({
         store.state.addElementType = null
         EventsBus.emit('treeSelected', { node: { selected: true, type: 'None' } })
         EventsBus.emit('navDetailsValidate', {})
+
+        EventsBus.emit('toolBarSelected', { node: {} })
+        store.state.dimensionType = null
+        store.state.selectBarToolType = ''
+        nextTick(() => {
+          store.state.addElementType = null
+          store.state.dimensionType = '3d'
+        })
       } else {
         if (nodes.addMeshType) {
           const flag = nodes.selected
