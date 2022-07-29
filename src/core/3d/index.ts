@@ -51,7 +51,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         enableDamping: false
       }
     },
-    stats: true,
+    stats: false,
 
     hdrUrls: ['/hdr/dikhololo_night_1k.hdr'],
 

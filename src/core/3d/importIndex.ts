@@ -179,7 +179,7 @@ export const importScene = (canvas: any) => {
     gammaEnabled: GammaPass.options.enabled,
     gamma: GammaPass.options,
     msaa: MSAAPass.options,
-    stats: true,
+    stats: false,
     onProgress: (model: any) => {
       model.traverse((child: any) => {
         if (child.isMesh) {
@@ -306,12 +306,6 @@ const modelGiveRecursion = (gourp: any, arrs: any, node: any) => {
           dev.event && dev.event.dbclick
             ? (child.userData.dbclick = dev.event.dbclick)
             : (child.userData.dbclick = {})
-          dev.animation && dev.animation.beat
-            ? (child.userData.beat = dev.animation.beat)
-            : (child.userData.beat = {})
-          if (Object.keys(child.userData.beat).length != 0) {
-            animationToBeat(node, true)
-          }
         }
       }
     })

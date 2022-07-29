@@ -756,19 +756,6 @@ export function removeTweenNode(page: any) {
       })
     }
   })
-  // let nodes = [...page],
-  // node: any = null
-
-  // eslint-disable-next-line no-cond-assign
-  // while ((node = nodes.pop())) {
-  //   // node.parent = null
-  //   // node.select = false
-
-  //   if (node?.children?.length > 0) {
-  //     nodes.unshift(...node?.children)
-  //   }
-  // }
-  // return page
 }
 
 export function animationToBeat(obj, bool) {
