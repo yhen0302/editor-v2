@@ -125,6 +125,7 @@ export const pieChartList = [
             { value: 484, name: 'Union Ads' },
             { value: 300, name: 'Video Ads' }
           ],
+          label:{fontSize:10},
           emphasis: {
             itemStyle: {
               shadowBlur: 10,
