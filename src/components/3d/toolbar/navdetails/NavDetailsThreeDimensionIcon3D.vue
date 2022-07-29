@@ -74,6 +74,7 @@ const dataList = ref([
     type: 'fenlianqu'
   },
   {
+    // icon: require('@/assets/images/zhihuiwuliu/position.png'),
     icon: require('@/assets/images/zhihuiwuliu/position.svg'),
     name: '定位器',
     type: 'dingweiqi'

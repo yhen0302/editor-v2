@@ -83,6 +83,8 @@ export const addIconToJson = (
         }
       }
 
+      console.log(icon)
+
       callback && callback(icon)
     }
   })
