@@ -1,16 +1,7 @@
-<!--
- // 1. 每个树节点增加父节点引用 parent
-
- // 2. 在拖拽的时候禁止元素的 point-event 来解决leave 事件穿透的问题
-
- // 4. 解决高度动画卡顿
-
- -->
 <script>
 import SvgIcon from '@/plugins/SvgIcon'
 import TreeItem from '@/plugins/layerPlugin/TreeItem'
 import TreeFolderItem from '@/plugins/layerPlugin/TreeFolderItem'
-import { h } from 'vue'
 
 export default {
   name: 'LayerList',
@@ -41,8 +32,13 @@ export default {
           node.parent = parentNode[parentNode.length - 1]
           if (node.children.length) {
             path.push(node.children.length)
+            // debugger
             parentNode.push(node)
             depth++
+          }
+          while (path[path.length - 1] === 0) {
+            path.pop()
+            depth--
           }
         } else {
           arr.push(node)
@@ -60,6 +56,7 @@ export default {
       }
       creatJsxTree(arr)
 
+      // console.log(treeRoot)
       function creatJsxTree(arr) {
         for (let i = arr.length - 1; i >= 0; i--) {
           let node = arr[i]
@@ -157,6 +154,7 @@ export default {
 }
 
 .item-name-wrapper {
+  user-select: none;
   display: flex;
   align-items: center;
   text-align: left;
@@ -173,7 +171,7 @@ export default {
   white-space: nowrap;
   text-overflow: clip;
   overflow: hidden;
-  cursor: text;
+  cursor:default;
 }
 
 .item-name:focus {

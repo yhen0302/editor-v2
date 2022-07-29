@@ -1,10 +1,8 @@
-import { DirectiveBinding, h, markRaw, nextTick, reactive, ref } from 'vue'
-import { EditorStore, LayerTree2dNode } from '@/store/editor/type'
+import { DirectiveBinding} from 'vue'
 import store from '@/store'
-import { useMutation, useState } from '@/store/helper'
-import { clone } from '@/util/base'
+import { useMutation} from '@/store/helper'
+import { createNode } from '../../packages/elements/src/share'
 
-let id = 0
 export default {
   mounted: function (el: HTMLElement, binding: DirectiveBinding) {
     el.addEventListener('dragover', function (ev: DragEvent) {
@@ -13,12 +11,9 @@ export default {
 
     el.addEventListener('drop', function (ev: DragEvent) {
       let { offsetX, offsetY } = ev
-      const editorStore: EditorStore = useState(store, 'editor')
-      const mutations = useMutation(store, 'editor', [
-        'ADD_2D_TREE_NODE',
-        'SELECT_2D_TREE_NODE',
-        'CLEAR_SELECT_2D_NODES'
-      ])
+      const editorStore = store.state
+      const mutations = useMutation(store, 'global', ['ADD_2D_TREE_NODE', 'SELECT_2D_TREE_NODE', 'CLEAR_SELECT_2D_NODES'])
+
       // 将数据添加到树结构中
       const data = JSON.parse(<string>ev.dataTransfer?.getData('meta'))
 
@@ -29,15 +24,11 @@ export default {
         const matrixOption = data.option.matrixOption
         if (target.className.includes('art-board-wrapper')) {
           const targetRect = target.getBoundingClientRect()
-          const childRect = (
-            target.querySelector('.art-board-box') as HTMLDivElement
-          ).getBoundingClientRect()
-          const scale = editorStore.artBoardConfig.artBoardScale
+          const childRect = (target.querySelector('.art-board-box') as HTMLDivElement).getBoundingClientRect()
+          const scale = editorStore.state.drawingBoard.scale
 
-          offsetX =
-            -((targetRect.width - childRect.width) / 2 - offsetX) / scale
-          offsetY =
-            -((targetRect.height - childRect.height) / 2 - offsetY) / scale
+          offsetX = -((targetRect.width - childRect.width) / 2 - offsetX) / scale
+          offsetY = -((targetRect.height - childRect.height) / 2 - offsetY) / scale
         }
         matrixOption.left = offsetX - matrixOption.width / 2
         matrixOption.top = offsetY - matrixOption.height / 2
@@ -45,14 +36,7 @@ export default {
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const node: LayerTree2dNode = {
-        name: data.name + String(id++),
-        id,
-        type: data.type,
-        option: reactive(clone(data.option)),
-        select: true,
-        show: true
-      }
+      const node = createNode(data)
 
       mutations['ADD_2D_TREE_NODE']({ node })
       mutations['CLEAR_SELECT_2D_NODES']()

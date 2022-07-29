@@ -1,104 +1,77 @@
 <template>
-  <section
-    id="drag-wrapper"
-    v-show="isActive"
-    dragType="DRAG_MOVE"
-    :style="toPx(rectProperties)"
-    ref="dragEl"
-    @click.stop.prevent
-  >
+  <section id="drag-wrapper" v-show="isActive&&!editorStore.addDragging" dragType="DRAG_MOVE" :style="{ ...toPx(rectProperties)}" ref="dragEl" @click.stop.prevent>
     <!--  控制顶点缩放的四个圆点  -->
     <div
       class="circle nw-resize drag-wrapper_left drag-wrapper_top"
       dragType="DRAG_LEFT_TOP"
       v-show="!isDrag"
-      v-memo="[isDrag, editorStore.artBoardConfig.artBoardScale]"
+      v-memo="[isDrag, editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${
-        1 / editorStore.artBoardConfig.artBoardScale
-      });`"
+      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="circle ne-resize drag-wrapper_right drag-wrapper_top"
       dragType="DRAG_RIGHT_TOP"
       v-show="!isDrag"
-      v-memo="[isDrag, editorStore.artBoardConfig.artBoardScale]"
+      v-memo="[isDrag, editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${
-        1 / editorStore.artBoardConfig.artBoardScale
-      });`"
+      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="circle se-resize drag-wrapper_right drag-wrapper_bottom"
       dragType="DRAG_RIGHT_BOTTOM"
       v-show="!isDrag"
-      v-memo="[isDrag, editorStore.artBoardConfig.artBoardScale]"
+      v-memo="[isDrag, editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${
-        1 / editorStore.artBoardConfig.artBoardScale
-      });`"
+      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="circle sw-resize drag-wrapper_left drag-wrapper_bottom"
       dragType="DRAG_LEFT_BOTTOM"
       v-show="!isDrag"
-      v-memo="[isDrag, editorStore.artBoardConfig.artBoardScale]"
+      v-memo="[isDrag, editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${
-        1 / editorStore.artBoardConfig.artBoardScale
-      });`"
+      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <!--  控制上下左右拖拽的四条边  -->
     <div
       class="border n-resize drag-wrapper_top"
       dragType="DRAG_TOP"
-      v-memo="[editorStore.artBoardConfig.artBoardScale]"
+      v-memo="[editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleY(${
-        1 / editorStore.artBoardConfig.artBoardScale
-      });`"
+      :style="`transform:scaleY(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="border e-resize drag-wrapper_right"
       dragType="DRAG_RIGHT"
-      v-memo="[editorStore.artBoardConfig.artBoardScale]"
+      v-memo="[editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleX(${
-        1 / editorStore.artBoardConfig.artBoardScale
-      });`"
+      :style="`transform:scaleX(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="border n-resize drag-wrapper_bottom"
       dragType="DRAG_BOTTOM"
-      v-memo="[editorStore.artBoardConfig.artBoardScale]"
+      v-memo="[editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleY(${
-        1 / editorStore.artBoardConfig.artBoardScale
-      });`"
+      :style="`transform:scaleY(${1 / editorStore.drawingBoard.scale});`"
     ></div>
     <div
       class="border e-resize drag-wrapper_left"
       dragType="DRAG_LEFT"
-      v-memo="[editorStore.artBoardConfig.artBoardScale]"
+      v-memo="[editorStore.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleX(${
-        1 / editorStore.artBoardConfig.artBoardScale
-      });`"
+      :style="`transform:scaleX(${1 / editorStore.drawingBoard.scale});`"
     ></div>
   </section>
 </template>
 
 <script lang="ts">
 import { defineComponent, getCurrentInstance, ref, watch } from 'vue'
-import {
-  toPx,
-  findParentPathHasEl,
-  computedElementsRect
-} from '@/plugins/dragPlugin/util/util'
+import { toPx, findParentPathHasEl, computedElementsRect } from '@/plugins/dragPlugin/util/util'
 import { Ref } from '@vue/reactivity'
 import { activeEl, isCalculating } from './index'
 import { rectProperties } from '@/plugins/dragPlugin/convert'
-import { EditorStore } from '@/store/editor/type'
+import { EditorStore } from '@/store/type'
 import { useState } from '@/store/helper'
 import store from '@/store'
 
@@ -125,7 +98,7 @@ export default defineComponent({
     const isRunning = ref<boolean>(false)
     const dragStatus = ref<DRAG_STATUS>(DRAG_STATUS.IDLE)
     const isDrag = ref<boolean>(false)
-    const editorStore = useState(store, 'editor') as EditorStore
+    const editorStore = useState(store, 'global').state as any
 
     let dragEl: Ref<HTMLElement | null> = ref<HTMLElement | null>(null)
 
@@ -146,9 +119,7 @@ export default defineComponent({
         function wrapperDragDown(ev: MouseEvent) {
           isDrag.value = false
           let target: HTMLElement = ev.target as HTMLElement
-          let dragType = target.getAttribute(
-            'dragType'
-          ) as keyof typeof DRAG_STATUS
+          let dragType = target.getAttribute('dragType') as keyof typeof DRAG_STATUS
 
           isRunning.value = verifyDragWrapperActive(target)
 
@@ -166,6 +137,7 @@ export default defineComponent({
         function wrapperDragUp(ev: MouseEvent) {
           let target: HTMLElement = ev.target as HTMLElement
           isDrag.value = isRunning.value = false
+          dragStatus.value = DRAG_STATUS.IDLE
           modifyMouseShape('auto')
           preX = preY = offsetY = offsetX = 0
         }
@@ -177,7 +149,7 @@ export default defineComponent({
             offsetX = pageX - preX
             offsetY = pageY - preY
 
-            const scale = editorStore.artBoardConfig.artBoardScale
+            const scale = editorStore.drawingBoard.scale
             offsetX /= scale
             offsetY /= scale
 

@@ -1,21 +1,31 @@
 const webpack = require('webpack')
 
+const env = process.env.NODE_ENV
+console.log(env)
 module.exports = {
-  publicPath: '/demo/editorV2',
+  publicPath: './',
 
   css: {
     loaderOptions: {
       postcss: {
-        plugins: [require('tailwindcss'), require('autoprefixer')],
-      },
-    },
+        plugins: [require('tailwindcss'), require('autoprefixer')]
+      }
+    }
   },
   configureWebpack:{
+/*    module:{
+      rules:[
+        {
+          test:/\.html$/,
+          use:['html-loader']
+        }
+      ]
+    },*/
     plugins:[  new webpack.DefinePlugin({
-      IS_EDITOR:true
-     })
+      IS_EDITOR:true,
+      'process.env.NODE_ENV':env
+    })
     ]
   },
-  transpileDependencies: [],
-
+  transpileDependencies: []
 }

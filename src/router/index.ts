@@ -1,28 +1,16 @@
-import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
-import Home from '@/views/Home.vue'
-import PersonalCenter from '@/views/PersonalCenter.vue'
-import Editor from '@/views/editor/Editor.vue'
+import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } from 'vue-router'
+import Home from '../views/Home.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/Home',
+    path: '/',
     name: 'Home',
     component: Home
-  },
-  {
-    path: '/PersonalCenter',
-    name: 'PersonalCenter',
-    component: PersonalCenter
-  },
-  {
-    path: '/',
-    name: 'Editor',
-    component: Editor
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory("/demo/editorV2/"),
+  history: createWebHashHistory('./edit'),
   routes
 })
 
