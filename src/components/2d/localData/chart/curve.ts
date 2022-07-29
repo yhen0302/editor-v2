@@ -176,7 +176,6 @@ export const curveChartList = [
         {
           name: 'Line 4',
           type: 'line',
-          stack: 'Total',
           smooth: true,
           lineStyle: {
             width: 0
@@ -193,7 +192,6 @@ export const curveChartList = [
         {
           name: 'Line 5',
           type: 'line',
-          stack: 'Total',
           smooth: true,
           lineStyle: {
             width: 0

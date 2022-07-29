@@ -148,7 +148,7 @@ export default defineComponent({
       }
 
       let validateFlag = true
-      let validateTypes = ['json']
+      let validateTypes = ['ktj']
       for (const i in fileList) {
         const file = fileList[i]
         if (file instanceof File) {
