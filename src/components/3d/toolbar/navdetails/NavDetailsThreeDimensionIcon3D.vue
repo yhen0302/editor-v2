@@ -67,6 +67,17 @@ const dataList = ref([
     icon: require('@/assets/images/threeDimensionIcon/WindowPos.png'),
     name: '风扇',
     type: 'threeWindowPos'
+  },
+  {
+    icon: require('@/assets/images/zhihuiwuliu/top.png'),
+    name: '分拣区',
+    type: 'fenlianqu'
+  },
+  {
+    // icon: require('@/assets/images/zhihuiwuliu/position.png'),
+    icon: require('@/assets/images/zhihuiwuliu/position.svg'),
+    name: '定位器',
+    type: 'dingweiqi'
   }
 ])
 

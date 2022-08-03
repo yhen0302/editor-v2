@@ -47,7 +47,7 @@ export const importScene = (canvas: any) => {
     publicPath =
       process.env.NODE_ENV === production
         ? location.protocol === 'blob:'
-          ? 'https://www.kantu3d.com/demo/edit/'
+          ? 'https://www.kantu3d.com/edit/'
           : location.origin + location.pathname
         : location.protocol === 'blob:'
         ? location.origin + '/'
@@ -179,7 +179,7 @@ export const importScene = (canvas: any) => {
     gammaEnabled: GammaPass.options.enabled,
     gamma: GammaPass.options,
     msaa: MSAAPass.options,
-    stats: true,
+    stats: false,
     onProgress: (model: any) => {
       model.traverse((child: any) => {
         if (child.isMesh) {
@@ -256,6 +256,14 @@ const modelGiveRecursion = (gourp: any, arrs: any, node: any) => {
           )
           child.visible = dev.visible
 
+          // if (
+          //   child.name == 'Ren04' ||
+          //   child.name == 'Ren03' ||
+          //   child.name == 'Ren02' ||
+          //   child.name == 'Ren01'
+          // ) {
+          //   console.log(child)
+          // }
           dev.event && dev.event.hover
             ? (child.userData.hover = dev.event.hover)
             : (child.userData.hover = {})
@@ -306,12 +314,6 @@ const modelGiveRecursion = (gourp: any, arrs: any, node: any) => {
           dev.event && dev.event.dbclick
             ? (child.userData.dbclick = dev.event.dbclick)
             : (child.userData.dbclick = {})
-          dev.animation && dev.animation.beat
-            ? (child.userData.beat = dev.animation.beat)
-            : (child.userData.beat = {})
-          if (Object.keys(child.userData.beat).length != 0) {
-            animationToBeat(node, true)
-          }
         }
       }
     })

@@ -1,5 +1,6 @@
 import store from '../../store'
 import { EventsBus } from '../EventsBus'
+import { animationToBeat } from '../3d/util'
 
 declare const Bol3D: any
 
@@ -52,7 +53,13 @@ export const addIcon = (container: any, obj: any) => {
   }, 100)
 }
 
-export const addIconToJson = (container: any, node: any, visible: any, callback: any) => {
+export const addIconToJson = (
+  container: any,
+  node: any,
+  visible: any,
+  animationType: any,
+  callback: any
+) => {
   const { meshPosition, urlIcon, meshScale, meshOpacity } = node.options
   const icon = new Bol3D.POI.Icon({
     position: meshPosition,
@@ -66,6 +73,18 @@ export const addIconToJson = (container: any, node: any, visible: any, callback:
       icon.visible = visible
       container.clickObjects.push(icon)
       icon.name = node.name
+
+      if (animationType) {
+        node.animation && node.animation.beat
+          ? (icon.userData.beat = JSON.parse(JSON.stringify(node.animation.beat)))
+          : (icon.userData.beat = {})
+        if (Object.keys(icon.userData.beat).length != 0) {
+          animationToBeat(icon, true)
+        }
+      }
+
+      console.log(icon)
+
       callback && callback(icon)
     }
   })

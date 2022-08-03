@@ -822,21 +822,20 @@ export const onloadFun = (
     if (addMeshObj.iconMeshGroup) {
       const iconMeshGroup = addMeshObj.iconMeshGroup
       const iconMeshGroupDepu = addMeshObj.iconMeshGroupDepu
-
       IconGroup.visible = iconMeshGroup.visible
       iconMeshGroupDepu.forEach((item: any, i: any) => {
         var status: any = true
         iconMeshGroup.children.forEach((dev: any) => {
           if (item.uuid == dev.uuid) {
-            addIconToJson(container, dev, dev.visible, (srrs) => {
+            addIconToJson(container, dev, dev.visible, true, (srrs) => {
               i == 0 && srrs.add(lightPlane)
               IconGroup.add(srrs)
-              status = false
             })
+            status = false
           }
         })
         if (status) {
-          addIconToJson(container, item, false, (srrs) => {
+          addIconToJson(container, item, false, false, (srrs) => {
             i == 0 && srrs.add(lightPlane)
             IconGroup.add(srrs)
           })
