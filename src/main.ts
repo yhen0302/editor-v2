@@ -7,7 +7,7 @@ import dragPlugin from '@/plugins/dragPlugin'
 // @ts-ignore
 import elementInstaller from '@editor-v2/elements'
 import layerPlugin from '@/plugins/layerPlugin/index'
-
+import ColorPickerGradient from 'vue3-color-picker-gradient'
 // 快捷键
 import '@/core/2d/features/keyboard'
 import '@/core/2d/features/contextmenu'
@@ -26,4 +26,5 @@ createApp(App)
   .use(dragPlugin)
   .use(elementInstaller)
   .use(layerPlugin)
+  .use(ColorPickerGradient)
   .mount('#app')

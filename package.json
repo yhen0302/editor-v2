@@ -16,6 +16,7 @@
     "element-plus": "^2.2.8",
     "underscore": "^1.13.3",
     "vue-router": "^4.0.0-0",
+    "vue3-color-picker-gradient": "^0.7.0",
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {

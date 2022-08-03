@@ -9,7 +9,7 @@
       height,
       left,
       top,
-      backgroundColor: color,
+      background: color,
       opacity
     }"
       @mousedown="onMouseDown"
@@ -18,7 +18,8 @@
 </template>
 
 <script lang="ts">
-import { hexColorToRgba, toPx } from '../../../../../src/share/util/base'
+import { getColor } from '../../../../../src/share/util/node'
+
 import { computed, ref, watch } from 'vue'
 import matrixMixin from '../matrixMixin'
 
@@ -30,10 +31,8 @@ export default {
   mixins:[matrixMixin],
   setup(props: any) {
     const color = computed(() => {
-      return hexColorToRgba(
-          props.node.option.transparencyColor.color,
-          props.node.option.transparencyColor.transparency
-      )
+      console.log(getColor(props.node))
+      return getColor(props.node)
     })
     const opacity = computed(() => {
       return (props.node.option.transparency / 100).toFixed(2)

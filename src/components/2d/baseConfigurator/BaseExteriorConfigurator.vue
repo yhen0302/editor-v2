@@ -5,29 +5,16 @@
         <div class="sub-fold-item-wrap pr-16 pb-16 flex items-center">
           <div class="config-item-pre pl-16 text-12">填充</div>
           <div class="config-item-suf flex">
-            <color-picker-el
-              style="flex-shrink: 0"
-              v-model:value="color"
-            ></color-picker-el>
-            <input-el style="height: 32px" v-model:value="color"></input-el>
-            <input-el style="height: 32px" v-model:value="colorTransparency">
-              <template #suffix
-                ><span class="inp-suf text-12">%</span></template
-              >
-            </input-el>
+            <color-picker-el style="flex-shrink: 0" v-model:value="color" type='node.option.color.type'></color-picker-el>
+            <input-el style="height: 32px" v-model:value="colorVal"></input-el>
           </div>
         </div>
         <div class="sub-fold-item-wrap pr-16 pb-16 flex items-center">
           <div class="config-item-pre pl-16 text-12">透明度</div>
           <div class="config-item-suf flex-1 flex">
             <slider-el class="flex-1" v-model:value="transparency"></slider-el>
-            <input-el
-              style="height: 32px; width: 64px"
-              v-model:value="transparency"
-            >
-              <template #suffix
-                ><span class="inp-suf text-12">%</span></template
-              >
+            <input-el style="height: 32px; width: 64px" v-model:value="transparency">
+              <template #suffix><span class="inp-suf text-12">%</span></template>
             </input-el>
           </div>
         </div>
@@ -45,6 +32,7 @@ import SliderEl from '@/components/2d/common/SliderEl'
 import { useGetter } from '@/store/helper'
 import { useStore } from 'vuex'
 import { computed } from 'vue'
+import { getColor } from '@/share/util/node'
 
 export default {
   name: 'BaseExteriorConfigurator',
@@ -54,22 +42,13 @@ export default {
     const editorGetters = useGetter(store, 'global', ['GET_SELECT_NODE'])
     const color = computed({
       get() {
-        return editorGetters['GET_SELECT_NODE'].value.option.transparencyColor.color
+        return editorGetters['GET_SELECT_NODE'].value.option.color
       },
       set(val) {
-        editorGetters['GET_SELECT_NODE'].value.option.transparencyColor.color = val
+        editorGetters['GET_SELECT_NODE'].value.option.color = val
       }
     })
-    const colorTransparency = computed({
-      get() {
-        return editorGetters['GET_SELECT_NODE'].value.option.transparencyColor
-          .transparency
-      },
-      set(val) {
-        editorGetters['GET_SELECT_NODE'].value.option.transparencyColor.transparency =
-          val
-      }
-    })
+    const colorVal = computed(() => getColor(editorGetters['GET_SELECT_NODE'].value))
 
     const transparency = computed({
       get() {
@@ -82,7 +61,7 @@ export default {
     return {
       ...editorGetters,
       color,
-      colorTransparency,
+      colorVal,
       transparency
     }
   }
