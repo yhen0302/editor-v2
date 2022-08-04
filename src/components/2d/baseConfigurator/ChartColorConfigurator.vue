@@ -48,22 +48,26 @@ export default {
     function pickerColorToEchartsColor(pickerColor) {
       if (pickerColor.type === 'linear') return pickerColor.color.color
       else {
-        const offsetX = (val) => toFixedDouble((toFixedDouble(val) + 1) / 2)
+        const offsetX = (val) => toFixedDouble(toFixedDouble(val) / 2 + 0.5)
         const toFixedDouble = (val) => Number(val.toFixed(2))
-        const offsetY = (val) => toFixedDouble((toFixedDouble(val) + .5))
+        const boundaryZeroOne = (val) => (val > 1 ? 1 : val < 0 ? 0 : val)
+        const offsetY = (val) => toFixedDouble(toFixedDouble(val) + 0.5)
+        const deg = pickerColor.deg
+        const p1 = rotatePointer(deg, offsetX,offsetX)
+        const p2 = rotatePointer(deg + 180, offsetX,offsetX)
 
+        const pointers = {
+          x: boundaryZeroOne(p1.x),
+          y: boundaryZeroOne(p1.y),
+          x2: boundaryZeroOne(p2.x),
+          y2: boundaryZeroOne(p2.y)
+        }
 
-        const deg = pickerColor.deg - 90
-        const p1 = rotatePointer(deg,)
-        const p2 = rotatePointer(deg + 180,)
-        console.log(p1, p2)
+        console.log(deg, pointers)
         // gradient
         const color = {
           type: 'linear',
-          x: p1.x,
-          y: p1.y,
-          x2: p2.x,
-          y2: p2.y,
+          ...pointers,
           colorStops: pickerColor.colors.map((item) => ({
             offset: item.pst / 100,
             color: item.color
