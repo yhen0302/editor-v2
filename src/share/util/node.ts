@@ -1,8 +1,7 @@
 import { hexColorToRgba, rgbaColorToHex, rgbaColorToRgbaObj } from './base'
 
 export function getColor(node) {
-  console.log(node)
-  return node.option.color.style || node.option.color.color.color
+  return node.option.color.type==="linear"? node.option.color.color.color:node.option.color.style
 }
 
 export function toColor(color) {
@@ -33,12 +32,12 @@ export function toColor(color) {
         pst: 0
       }
     ],
-    style: 'linear-gradient(90deg, rgba(0, 0, 0, 1) 0%,rgba(156, 156, 156, 1) 100%);',
+    style: 'linear-gradient(90deg, rgba(0, 0, 0, 1) 0%,rgba(156, 156, 156, 1) 100%)',
     deg: 90
   }
 }
 
-class Color {
+export class Color {
   hex: string
   color: string
   rgba: { r: number; g: number; b: number; a: number }

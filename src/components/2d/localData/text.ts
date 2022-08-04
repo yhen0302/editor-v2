@@ -1,3 +1,5 @@
+import { toColor } from '@/share/util/node'
+
 export const bigTitle = {
   emitters:{},
   matrixOption: {
@@ -8,7 +10,7 @@ export const bigTitle = {
     angle: 0
   },
   transparency: 100,
-  transparencyColor: { color: '', transparency: 100 },
+  color:toColor('#6582fe'),
   value: '大标题',
   contentEditable: false,
   textOption: {
@@ -31,7 +33,7 @@ export const smallTitle = {
     angle: 0
   },
   transparency: 100,
-  transparencyColor: { color: '', transparency: 100 },
+  color:toColor('#6582fe'),
   value: '小标题',
   contentEditable: false,
   textOption: {
@@ -54,7 +56,7 @@ export const baseTitle = {
     angle: 0
   },
   transparency: 100,
-  transparencyColor: { color: '', transparency: 100 },
+  color:toColor('#6582fe'),
   value: '标题',
   contentEditable: false,
   textOption: {
@@ -78,7 +80,7 @@ export const textContent = {
     angle: 0
   },
   transparency: 100,
-  transparencyColor: { color: '', transparency: 100 },
+  color:toColor('#6582fe'),
   value: '正文',
   contentEditable: false,
   textOption: {

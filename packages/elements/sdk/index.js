@@ -102895,19 +102895,14 @@
                     newObj[key] = cacheMap.get(object[key]);
                     continue;
                 }
-                newObj[key] = deep ? clone$1(object[key], deep, cacheMap) : object[key];
+                newObj[key] = deep
+                    ? clone$1(object[key], deep, cacheMap)
+                    : object[key];
             }
             return newObj;
         }
         else
             return object; // 基本数据类型
-    }
-    function hexColorToRgba(hexColor, opacity) {
-        const hexColorReg = /^#([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})$/g;
-        const matchRes = hexColorReg.exec(hexColor);
-        if (!matchRes)
-            return 'transparent';
-        return `rgba(${Number('0x' + matchRes[1])},${Number('0x' + matchRes[2])},${Number('0x' + matchRes[3])},${(opacity / 100).toFixed(2)})`;
     }
     // eslint-disable-next-line @typescript-eslint/ban-types
     // xxx.xxx[0] 变量访问语法解析
@@ -102973,6 +102968,10 @@
         }
     };
 
+    function getColor(node) {
+        return node.option.color.type === "linear" ? node.option.color.color.color : node.option.color.style;
+    }
+
     var script$i = {
         name: 'RectShape',
         props: ['node'],
@@ -102980,7 +102979,7 @@
         mixins: [matrixMixin],
         setup: function setup(props) {
             var color = computed(function () {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+                return getColor(props.node);
             });
             var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
@@ -103004,7 +103003,7 @@
           height: _ctx.height,
           left: _ctx.left,
           top: _ctx.top,
-          backgroundColor: $setup.color,
+          background: $setup.color,
           opacity: $setup.opacity
         }),
         onMousedown: _cache[1] || (_cache[1] = function () {
@@ -103029,7 +103028,7 @@
         mixins: [matrixMixin],
         setup: function setup(props) {
             var color = computed(function () {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+                return getColor(props.node);
             });
             var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
@@ -103053,7 +103052,7 @@
           height: _ctx.height,
           left: _ctx.left,
           top: _ctx.top,
-          backgroundColor: $setup.color,
+          background: $setup.color,
           opacity: $setup.opacity
         }),
         onMousedown: _cache[1] || (_cache[1] = function () {
@@ -103082,7 +103081,7 @@
         mixins: [matrixMixin],
         setup: function setup(props) {
             var color = computed(function () {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+                return getColor(props.node);
             });
             var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
@@ -103106,7 +103105,7 @@
           height: _ctx.height,
           left: _ctx.left,
           top: _ctx.top,
-          backgroundColor: $setup.color,
+          background: $setup.color,
           opacity: $setup.opacity
         }),
         onMousedown: _cache[1] || (_cache[1] = function () {
@@ -103121,7 +103120,7 @@
       }]]);
     }
 
-    var css_248z$b = "\n.circle-rect-shape[data-v-d550f47a]{\r\n  border-radius: 50%;\n}\r\n";
+    var css_248z$b = "\n.circle-rect-shape[data-v-d550f47a] {\n  border-radius: 50%;\n}\n";
     styleInject(css_248z$b);
 
     script$g.render = render$g;
@@ -103136,7 +103135,7 @@
         setup: function setup(props) {
             // exterior
             var color = computed(function () {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+                return getColor(props.node);
             });
             var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
@@ -103160,7 +103159,7 @@
           height: _ctx.height,
           left: _ctx.left,
           top: _ctx.top,
-          backgroundColor: $setup.color,
+          background: $setup.color,
           opacity: $setup.opacity
         }),
         onMousedown: _cache[1] || (_cache[1] = function () {
@@ -103249,7 +103248,7 @@
       }]]);
     }
 
-    var css_248z$9 = "\n.image-media-wrap[data-v-dcb9cef8] {\r\n  position: absolute;\n}\n.image-media[data-v-dcb9cef8]{\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\n.img-placeholder-box[data-v-dcb9cef8] {\r\n  width: 100%;\r\n  height: 100%;\r\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-dcb9cef8]{\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\r\n";
+    var css_248z$9 = "\n.image-media-wrap[data-v-dcb9cef8] {\n  position: absolute;\n}\n.image-media[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n.img-placeholder-box[data-v-dcb9cef8] {\n  width: 100%;\n  height: 100%;\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n";
     styleInject(css_248z$9);
 
     script$e.render = render$e;
@@ -103341,7 +103340,7 @@
         setup: function setup(props) {
             var h1 = ref(); // exterior
             var color = computed(function () {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+                return getColor(props.node);
             });
             var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
@@ -103414,7 +103413,7 @@
           height: _ctx.height,
           left: _ctx.left,
           top: _ctx.top,
-          backgroundColor: $setup.color,
+          background: $setup.color,
           opacity: $setup.opacity,
           textAlign: $setup.align,
           alignItems: $setup.verticalAlign
@@ -103468,7 +103467,7 @@
         setup: function setup(props) {
             var h1 = ref(); // exterior
             var color = computed(function () {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+                return getColor(props.node);
             });
             var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
@@ -103541,7 +103540,7 @@
           height: _ctx.height,
           left: _ctx.left,
           top: _ctx.top,
-          backgroundColor: $setup.color,
+          background: $setup.color,
           opacity: $setup.opacity,
           textAlign: $setup.align,
           alignItems: $setup.verticalAlign
@@ -103610,7 +103609,7 @@
         setup: function setup(props) {
             var h1 = ref(); // exterior
             var color = computed(function () {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+                return getColor(props.node);
             });
             var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
@@ -103683,7 +103682,7 @@
           height: _ctx.height,
           left: _ctx.left,
           top: _ctx.top,
-          backgroundColor: $setup.color,
+          background: $setup.color,
           opacity: $setup.opacity,
           textAlign: $setup.align,
           alignItems: $setup.verticalAlign
@@ -103746,7 +103745,7 @@
         setup: function setup(props) {
             var h1 = ref(); // exterior
             var color = computed(function () {
-                return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+                return getColor(props.node);
             });
             var opacity = computed(function () {
                 return (props.node.option.transparency / 100).toFixed(2);
@@ -103819,7 +103818,7 @@
           height: _ctx.height,
           left: _ctx.left,
           top: _ctx.top,
-          backgroundColor: $setup.color,
+          background: $setup.color,
           opacity: $setup.opacity,
           textAlign: $setup.align,
           alignItems: $setup.verticalAlign
@@ -104657,7 +104656,7 @@
         , _hoisted_5);
       }), 128
       /* KEYED_FRAGMENT */
-      ))]), createCommentVNode("        <tbody>\r\n               <tr v-for=\"item in data\" :key=\"item\">\r\n            <td v-for=\"col in columnsProps\" :key=\"col.prop\">{{ item[col.prop] }}</td>\r\n          </tr>\r\n        </tbody>"), (openBlock(), createBlock(resolveDynamicComponent(_ctx.tableBody), {
+      ))]), createCommentVNode("        <tbody>\n               <tr v-for=\"item in data\" :key=\"item\">\n            <td v-for=\"col in columnsProps\" :key=\"col.prop\">{{ item[col.prop] }}</td>\n          </tr>\n        </tbody>"), (openBlock(), createBlock(resolveDynamicComponent(_ctx.tableBody), {
         class: "tbody"
       }))])], 6
       /* CLASS, STYLE */
@@ -104666,7 +104665,7 @@
       );
     }
 
-    var css_248z$3 = "\n.table-el[data-v-872d8798] {\r\n  width: 100%;\r\n  text-align: center;\r\n  color: #fff;\n}\n.table-header[data-v-872d8798] {\r\n  background: #1d1d1d;\n}\n.table-body[data-v-872d8798] {\r\n  background: #141414;\n}\n.table[data-v-872d8798] {\r\n  border-collapse: collapse;\n}\n.table-header[data-v-872d8798] th {\r\n  height: 30px;\r\n  border: 1px solid #313131;\r\n  border-bottom: none;\r\n  vertical-align: middle;\n}\n.table-body[data-v-872d8798] td {\r\n  height: 50px;\r\n  vertical-align: middle;\r\n  border: 1px solid #313131;\n}\r\n";
+    var css_248z$3 = "\n.table-el[data-v-872d8798] {\n  width: 100%;\n  text-align: center;\n  color: #fff;\n}\n.table-header[data-v-872d8798] {\n  background: #1d1d1d;\n}\n.table-body[data-v-872d8798] {\n  background: #141414;\n}\n.table[data-v-872d8798] {\n  border-collapse: collapse;\n}\n.table-header[data-v-872d8798] th {\n  height: 30px;\n  border: 1px solid #313131;\n  border-bottom: none;\n  vertical-align: middle;\n}\n.table-body[data-v-872d8798] td {\n  height: 50px;\n  vertical-align: middle;\n  border: 1px solid #313131;\n}\n";
     styleInject(css_248z$3);
 
     script$3.render = render$3;
@@ -104828,7 +104827,7 @@
       }]]);
     }
 
-    var css_248z$2 = "\n.table-wrapper[data-v-09d5eb08] {\r\n  overflow: hidden;\r\n  box-sizing: border-box;\n}\n.col-content[data-v-09d5eb08] {\r\n  outline: none;\r\n  overflow: auto;\n}\r\n";
+    var css_248z$2 = "\n.table-wrapper[data-v-09d5eb08] {\n  overflow: hidden;\n  box-sizing: border-box;\n}\n.col-content[data-v-09d5eb08] {\n  outline: none;\n  overflow: auto;\n}\n";
     styleInject(css_248z$2);
 
     var css_248z$1 = "._table-wrapper_xzvuu_1 {\n  background: rgba(225, 231, 227, 0.6);\n}\n._table-header_xzvuu_4 {\n  background: none !important;\n}\n._table-header_xzvuu_4 th {\n  border: none !important;\n  color: rgba(138, 152, 144, 0.6);\n  font-size: 12px !important;\n}\n._table-body_xzvuu_12 {\n  background: none !important;\n}\n._table-body_xzvuu_12 td {\n  height: auto !important;\n  padding: 8px 0;\n  border: none !important;\n  color: rgba(34, 52, 41, 0.6);\n  font-size: 12px !important;\n}\n";
@@ -110903,7 +110902,7 @@
       );
     }
 
-    var css_248z = "\n#app[data-v-58db88bb] {\r\n  position: relative;\n}\n.box-2d[data-v-58db88bb] {\r\n  pointer-events: none;\r\n  position: absolute;\r\n  z-index: 10;\n}\n.renderer[data-v-58db88bb] {\r\n  position: absolute;\n}\r\n";
+    var css_248z = "\n#app[data-v-58db88bb] {\n  position: relative;\n}\n.box-2d[data-v-58db88bb] {\n  pointer-events: none;\n  position: absolute;\n  z-index: 10;\n}\n.renderer[data-v-58db88bb] {\n  position: absolute;\n}\n";
     styleInject(css_248z);
 
     script.render = render;

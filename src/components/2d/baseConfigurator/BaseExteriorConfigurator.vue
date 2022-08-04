@@ -5,7 +5,7 @@
         <div class="sub-fold-item-wrap pr-16 pb-16 flex items-center">
           <div class="config-item-pre pl-16 text-12">填充</div>
           <div class="config-item-suf flex">
-            <color-picker-el style="flex-shrink: 0" v-model:value="color" type='node.option.color.type'></color-picker-el>
+            <color-picker-gradient-el style="flex-shrink: 0" v-model:value="color"></color-picker-gradient-el>
             <input-el style="height: 32px" v-model:value="colorVal"></input-el>
           </div>
         </div>
@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import FoldEl from '@/components/2d/common/FoldEl'
-import ColorPickerEl from '@/components/2d/common/ColorPickerEl'
+import ColorPickerGradientEl from '@/components/2d/common/ColorPickerGradientEl'
 import InputEl from '@/components/2d/common/InputEl'
 import LineEl from '@/components/2d/common/LineEl'
 import SliderEl from '@/components/2d/common/SliderEl'
@@ -36,7 +36,7 @@ import { getColor } from '@/share/util/node'
 
 export default {
   name: 'BaseExteriorConfigurator',
-  components: { SliderEl, LineEl, FoldEl, ColorPickerEl, InputEl },
+  components: { SliderEl, LineEl, FoldEl, ColorPickerGradientEl, InputEl },
   setup(props: any) {
     const store = useStore()
     const editorGetters = useGetter(store, 'global', ['GET_SELECT_NODE'])

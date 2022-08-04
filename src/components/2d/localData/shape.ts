@@ -15,7 +15,7 @@ export const baseShapeList = [
         angle: 0
       },
       transparency: 100,
-      color:{color:'#6582fe'},
+      color:toColor('#6582fe'),
       value: ''
     }
   },
@@ -33,7 +33,7 @@ export const baseShapeList = [
         angle: 0
       },
       transparency: 100,
-      color:{color:'#6582fe'},
+      color:toColor('#6582fe'),
       value: ''
     }
   },
@@ -69,7 +69,7 @@ export const baseShapeList = [
         angle: 0
       },
       transparency: 100,
-      color:{color:'#6582fe'},
+      color:toColor('#6582fe'),
       value: ''
     }
   }

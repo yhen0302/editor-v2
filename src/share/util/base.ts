@@ -206,3 +206,15 @@ export function valueHandle(obj: any, path: string): any {
 
   return res
 }
+
+export function rotatePointer(deg, offsetX, offsetY) {
+  const sinVal = Math.sin(Number(((deg / 2 / 180) * Math.PI).toFixed(2)))
+  const cosVal = Math.cos(Number(((deg / 2 / 180) * Math.PI).toFixed(2)))
+
+  const x = cosVal - sinVal,
+    y = sinVal * cosVal
+  return {
+    x: offsetX ? offsetX(cosVal - sinVal) : x,
+    y: offsetY ? offsetY(sinVal * cosVal) : y
+  }
+}

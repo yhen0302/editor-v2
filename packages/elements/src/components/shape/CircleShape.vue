@@ -1,10 +1,10 @@
 <template>
   <div
-      class="circle-rect-shape absolute"
-      @click.stop
-      draggable="false"
-      v-drag="{ rect: node.option.matrixOption, select: node.select }"
-      :style="{
+    class="circle-rect-shape absolute"
+    @click.stop
+    draggable="false"
+    v-drag="{ rect: node.option.matrixOption, select: node.select }"
+    :style="{
       width,
       height,
       left,
@@ -12,8 +12,8 @@
       background: color,
       opacity
     }"
-      @mousedown="onMouseDown"
-      ref="el"
+    @mousedown="onMouseDown"
+    ref="el"
   ></div>
 </template>
 
@@ -23,15 +23,13 @@ import { getColor } from '../../../../../src/share/util/node'
 import { computed, ref, watch } from 'vue'
 import matrixMixin from '../matrixMixin'
 
-
 export default {
   name: 'CircleShape',
   props: ['node'],
   emits: ['select', 'append'],
-  mixins:[matrixMixin],
+  mixins: [matrixMixin],
   setup(props: any) {
     const color = computed(() => {
-      console.log(getColor(props.node))
       return getColor(props.node)
     })
     const opacity = computed(() => {
@@ -41,12 +39,12 @@ export default {
       color,
       opacity
     }
-  },
+  }
 }
 </script>
 
 <style scoped>
-.circle-rect-shape{
+.circle-rect-shape {
   border-radius: 50%;
 }
 </style>

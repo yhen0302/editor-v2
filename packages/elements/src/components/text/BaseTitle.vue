@@ -8,7 +8,7 @@
       height,
       left,
       top,
-      backgroundColor: color,
+      background: color,
       opacity,
       textAlign: align,
       alignItems: verticalAlign
@@ -45,6 +45,7 @@ import { computed, ref, toRaw, watch } from 'vue'
 import { hexColorToRgba, toPx } from '../../../../../src/share/util/base'
 import matrixMixin from "../matrixMixin";
 import emitterMixin from '../emitterMixin'
+import { getColor } from '../../../../../src/share/util/node'
 
 
 export default {
@@ -56,10 +57,7 @@ export default {
     const h1 = ref<HTMLElement>()
     // exterior
     const color = computed(() => {
-      return hexColorToRgba(
-        props.node.option.transparencyColor.color,
-        props.node.option.transparencyColor.transparency
-      )
+      return getColor(props.node)
     })
     const opacity = computed(() => {
       return (props.node.option.transparency / 100).toFixed(2)

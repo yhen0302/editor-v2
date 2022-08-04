@@ -1,5 +1,5 @@
-import * as echarts from 'echarts';
 import { computed, resolveDirective, withDirectives, openBlock, createElementBlock, withModifiers, normalizeStyle, pushScopeId, popScopeId, createElementVNode, ref, watch, normalizeClass, toDisplayString, vShow, getCurrentInstance, Fragment, reactive, onMounted, onUpdated, onUnmounted, createVNode, renderList, createBlock, resolveDynamicComponent, createCommentVNode, renderSlot, useCssModule, resolveComponent, withCtx } from 'vue';
+import * as echarts from 'echarts';
 import _imports_0 from '@/assets/icon/clip-1406.svg';
 
 function toPx(target) {
@@ -52,19 +52,14 @@ function clone(object, deep = true, cacheMap) {
                 newObj[key] = cacheMap.get(object[key]);
                 continue;
             }
-            newObj[key] = deep ? clone(object[key], deep, cacheMap) : object[key];
+            newObj[key] = deep
+                ? clone(object[key], deep, cacheMap)
+                : object[key];
         }
         return newObj;
     }
     else
         return object; // 基本数据类型
-}
-function hexColorToRgba(hexColor, opacity) {
-    const hexColorReg = /^#([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})$/g;
-    const matchRes = hexColorReg.exec(hexColor);
-    if (!matchRes)
-        return 'transparent';
-    return `rgba(${Number('0x' + matchRes[1])},${Number('0x' + matchRes[2])},${Number('0x' + matchRes[3])},${(opacity / 100).toFixed(2)})`;
 }
 // eslint-disable-next-line @typescript-eslint/ban-types
 // xxx.xxx[0] 变量访问语法解析
@@ -130,6 +125,10 @@ var matrixMixin = {
     }
 };
 
+function getColor(node) {
+    return node.option.color.type === "linear" ? node.option.color.color.color : node.option.color.style;
+}
+
 var script$h = {
     name: 'RectShape',
     props: ['node'],
@@ -137,7 +136,7 @@ var script$h = {
     mixins: [matrixMixin],
     setup: function setup(props) {
         var color = computed(function () {
-            return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            return getColor(props.node);
         });
         var opacity = computed(function () {
             return (props.node.option.transparency / 100).toFixed(2);
@@ -161,7 +160,7 @@ function render$h(_ctx, _cache, $props, $setup, $data, $options) {
       height: _ctx.height,
       left: _ctx.left,
       top: _ctx.top,
-      backgroundColor: $setup.color,
+      background: $setup.color,
       opacity: $setup.opacity
     }),
     onMousedown: _cache[1] || (_cache[1] = function () {
@@ -186,7 +185,7 @@ var script$g = {
     mixins: [matrixMixin],
     setup: function setup(props) {
         var color = computed(function () {
-            return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            return getColor(props.node);
         });
         var opacity = computed(function () {
             return (props.node.option.transparency / 100).toFixed(2);
@@ -210,7 +209,7 @@ function render$g(_ctx, _cache, $props, $setup, $data, $options) {
       height: _ctx.height,
       left: _ctx.left,
       top: _ctx.top,
-      backgroundColor: $setup.color,
+      background: $setup.color,
       opacity: $setup.opacity
     }),
     onMousedown: _cache[1] || (_cache[1] = function () {
@@ -266,7 +265,7 @@ var script$f = {
     mixins: [matrixMixin],
     setup: function setup(props) {
         var color = computed(function () {
-            return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            return getColor(props.node);
         });
         var opacity = computed(function () {
             return (props.node.option.transparency / 100).toFixed(2);
@@ -290,7 +289,7 @@ function render$f(_ctx, _cache, $props, $setup, $data, $options) {
       height: _ctx.height,
       left: _ctx.left,
       top: _ctx.top,
-      backgroundColor: $setup.color,
+      background: $setup.color,
       opacity: $setup.opacity
     }),
     onMousedown: _cache[1] || (_cache[1] = function () {
@@ -305,7 +304,7 @@ function render$f(_ctx, _cache, $props, $setup, $data, $options) {
   }]]);
 }
 
-var css_248z$a = "\n.circle-rect-shape[data-v-d550f47a]{\r\n  border-radius: 50%;\n}\r\n";
+var css_248z$a = "\n.circle-rect-shape[data-v-d550f47a] {\n  border-radius: 50%;\n}\n";
 styleInject(css_248z$a);
 
 script$f.render = render$f;
@@ -320,7 +319,7 @@ var script$e = {
     setup: function setup(props) {
         // exterior
         var color = computed(function () {
-            return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            return getColor(props.node);
         });
         var opacity = computed(function () {
             return (props.node.option.transparency / 100).toFixed(2);
@@ -344,7 +343,7 @@ function render$e(_ctx, _cache, $props, $setup, $data, $options) {
       height: _ctx.height,
       left: _ctx.left,
       top: _ctx.top,
-      backgroundColor: $setup.color,
+      background: $setup.color,
       opacity: $setup.opacity
     }),
     onMousedown: _cache[1] || (_cache[1] = function () {
@@ -433,7 +432,7 @@ function render$d(_ctx, _cache, $props, $setup, $data, $options) {
   }]]);
 }
 
-var css_248z$8 = "\n.image-media-wrap[data-v-dcb9cef8] {\r\n  position: absolute;\n}\n.image-media[data-v-dcb9cef8]{\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\n.img-placeholder-box[data-v-dcb9cef8] {\r\n  width: 100%;\r\n  height: 100%;\r\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-dcb9cef8]{\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\r\n";
+var css_248z$8 = "\n.image-media-wrap[data-v-dcb9cef8] {\n  position: absolute;\n}\n.image-media[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n.img-placeholder-box[data-v-dcb9cef8] {\n  width: 100%;\n  height: 100%;\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n";
 styleInject(css_248z$8);
 
 script$d.render = render$d;
@@ -525,7 +524,7 @@ var script$b = {
     setup: function setup(props) {
         var h1 = ref(); // exterior
         var color = computed(function () {
-            return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            return getColor(props.node);
         });
         var opacity = computed(function () {
             return (props.node.option.transparency / 100).toFixed(2);
@@ -598,7 +597,7 @@ function render$b(_ctx, _cache, $props, $setup, $data, $options) {
       height: _ctx.height,
       left: _ctx.left,
       top: _ctx.top,
-      backgroundColor: $setup.color,
+      background: $setup.color,
       opacity: $setup.opacity,
       textAlign: $setup.align,
       alignItems: $setup.verticalAlign
@@ -652,7 +651,7 @@ var script$a = {
     setup: function setup(props) {
         var h1 = ref(); // exterior
         var color = computed(function () {
-            return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            return getColor(props.node);
         });
         var opacity = computed(function () {
             return (props.node.option.transparency / 100).toFixed(2);
@@ -725,7 +724,7 @@ function render$a(_ctx, _cache, $props, $setup, $data, $options) {
       height: _ctx.height,
       left: _ctx.left,
       top: _ctx.top,
-      backgroundColor: $setup.color,
+      background: $setup.color,
       opacity: $setup.opacity,
       textAlign: $setup.align,
       alignItems: $setup.verticalAlign
@@ -794,7 +793,7 @@ var script$9 = {
     setup: function setup(props) {
         var h1 = ref(); // exterior
         var color = computed(function () {
-            return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            return getColor(props.node);
         });
         var opacity = computed(function () {
             return (props.node.option.transparency / 100).toFixed(2);
@@ -867,7 +866,7 @@ function render$9(_ctx, _cache, $props, $setup, $data, $options) {
       height: _ctx.height,
       left: _ctx.left,
       top: _ctx.top,
-      backgroundColor: $setup.color,
+      background: $setup.color,
       opacity: $setup.opacity,
       textAlign: $setup.align,
       alignItems: $setup.verticalAlign
@@ -930,7 +929,7 @@ var script$8 = {
     setup: function setup(props) {
         var h1 = ref(); // exterior
         var color = computed(function () {
-            return hexColorToRgba(props.node.option.transparencyColor.color, props.node.option.transparencyColor.transparency);
+            return getColor(props.node);
         });
         var opacity = computed(function () {
             return (props.node.option.transparency / 100).toFixed(2);
@@ -1003,7 +1002,7 @@ function render$8(_ctx, _cache, $props, $setup, $data, $options) {
       height: _ctx.height,
       left: _ctx.left,
       top: _ctx.top,
-      backgroundColor: $setup.color,
+      background: $setup.color,
       opacity: $setup.opacity,
       textAlign: $setup.align,
       alignItems: $setup.verticalAlign
@@ -1841,7 +1840,7 @@ function render$2(_ctx, _cache, $props, $setup, $data, $options) {
     , _hoisted_5);
   }), 128
   /* KEYED_FRAGMENT */
-  ))]), createCommentVNode("        <tbody>\r\n               <tr v-for=\"item in data\" :key=\"item\">\r\n            <td v-for=\"col in columnsProps\" :key=\"col.prop\">{{ item[col.prop] }}</td>\r\n          </tr>\r\n        </tbody>"), (openBlock(), createBlock(resolveDynamicComponent(_ctx.tableBody), {
+  ))]), createCommentVNode("        <tbody>\n               <tr v-for=\"item in data\" :key=\"item\">\n            <td v-for=\"col in columnsProps\" :key=\"col.prop\">{{ item[col.prop] }}</td>\n          </tr>\n        </tbody>"), (openBlock(), createBlock(resolveDynamicComponent(_ctx.tableBody), {
     class: "tbody"
   }))])], 6
   /* CLASS, STYLE */
@@ -1850,7 +1849,7 @@ function render$2(_ctx, _cache, $props, $setup, $data, $options) {
   );
 }
 
-var css_248z$2 = "\n.table-el[data-v-872d8798] {\r\n  width: 100%;\r\n  text-align: center;\r\n  color: #fff;\n}\n.table-header[data-v-872d8798] {\r\n  background: #1d1d1d;\n}\n.table-body[data-v-872d8798] {\r\n  background: #141414;\n}\n.table[data-v-872d8798] {\r\n  border-collapse: collapse;\n}\n.table-header[data-v-872d8798] th {\r\n  height: 30px;\r\n  border: 1px solid #313131;\r\n  border-bottom: none;\r\n  vertical-align: middle;\n}\n.table-body[data-v-872d8798] td {\r\n  height: 50px;\r\n  vertical-align: middle;\r\n  border: 1px solid #313131;\n}\r\n";
+var css_248z$2 = "\n.table-el[data-v-872d8798] {\n  width: 100%;\n  text-align: center;\n  color: #fff;\n}\n.table-header[data-v-872d8798] {\n  background: #1d1d1d;\n}\n.table-body[data-v-872d8798] {\n  background: #141414;\n}\n.table[data-v-872d8798] {\n  border-collapse: collapse;\n}\n.table-header[data-v-872d8798] th {\n  height: 30px;\n  border: 1px solid #313131;\n  border-bottom: none;\n  vertical-align: middle;\n}\n.table-body[data-v-872d8798] td {\n  height: 50px;\n  vertical-align: middle;\n  border: 1px solid #313131;\n}\n";
 styleInject(css_248z$2);
 
 script$2.render = render$2;
@@ -2012,7 +2011,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   }]]);
 }
 
-var css_248z$1 = "\n.table-wrapper[data-v-09d5eb08] {\r\n  overflow: hidden;\r\n  box-sizing: border-box;\n}\n.col-content[data-v-09d5eb08] {\r\n  outline: none;\r\n  overflow: auto;\n}\r\n";
+var css_248z$1 = "\n.table-wrapper[data-v-09d5eb08] {\n  overflow: hidden;\n  box-sizing: border-box;\n}\n.col-content[data-v-09d5eb08] {\n  outline: none;\n  overflow: auto;\n}\n";
 styleInject(css_248z$1);
 
 var css_248z = "._table-wrapper_xzvuu_1 {\n  background: rgba(225, 231, 227, 0.6);\n}\n._table-header_xzvuu_4 {\n  background: none !important;\n}\n._table-header_xzvuu_4 th {\n  border: none !important;\n  color: rgba(138, 152, 144, 0.6);\n  font-size: 12px !important;\n}\n._table-body_xzvuu_12 {\n  background: none !important;\n}\n._table-body_xzvuu_12 td {\n  height: auto !important;\n  padding: 8px 0;\n  border: none !important;\n  color: rgba(34, 52, 41, 0.6);\n  font-size: 12px !important;\n}\n";

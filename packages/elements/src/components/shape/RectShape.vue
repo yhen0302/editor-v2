@@ -9,7 +9,7 @@
       height,
       left,
       top,
-      backgroundColor: color,
+      background: color,
       opacity
     }"
     @mousedown="onMouseDown"
@@ -21,6 +21,7 @@
 import { hexColorToRgba, toPx } from '../../../../../src/share/util/base'
 import { computed, ref } from 'vue'
 import matrixMixin from "../matrixMixin";
+import { getColor } from '../../../../../src/share/util/node'
 
 export default {
   name: 'RectShape',
@@ -30,10 +31,7 @@ export default {
 
   setup(props: any) {
     const color = computed(() => {
-      return hexColorToRgba(
-        props.node.option.transparencyColor.color,
-        props.node.option.transparencyColor.transparency
-      )
+      return getColor(props.node)
     })
     const opacity = computed(() => {
       return (props.node.option.transparency / 100).toFixed(2)
