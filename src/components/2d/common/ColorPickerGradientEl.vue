@@ -22,7 +22,7 @@
           class="color-picker"
           :type="pickerNavIndex === 0 ? 'linear' : 'gradient'"
           @changeColor="changeColor"
-          :p-ceg="value.deg"
+          :p-deg="value.deg"
           :p-color="colorComputed.color"
           :p-colors="colorComputed.colors"
           :showClose="false"
@@ -55,10 +55,7 @@ export default {
     })
 
     const showColor = computed(() => {
-      let val
-      if (pickerNavIndex.value === 0) val = props.value.color.color
-      else val = props.value.style
-      return val
+      return pickerNavIndex.value === 0 ? props.value.color.color : props.value.style
     })
 
     const colorComputed = computed({
@@ -73,13 +70,12 @@ export default {
       }
     })
 
-    const isShowPicker = ref(false)
-
     //nav
     const switchNav = (index) => {
       pickerNavIndex.value = index
     }
     // toggle
+    const isShowPicker = ref(false)
     function onClick(ev) {
       isShowPicker.value = !isShowPicker.value
       x = ev.pageX
@@ -104,6 +100,7 @@ export default {
       return { left: toPx(left), top: toPx(top) }
     })
 
+    // change
     function changeColor(color) {
       color.style = color.style && color.style.substr(0, color.style.length - 1)
       colorComputed.value = color

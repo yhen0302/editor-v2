@@ -18,7 +18,19 @@ class Bar extends BaseChart{
       angle: 0
     }
     const defaultEchartsOpt = {
-      color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272'],
+      color: [{
+        type: 'linear',
+        x: 0,
+        y:1,
+        x2:0,
+        y2: 0,
+        colorStops: [{
+          offset: 0, color: '#ff0000' // 0% 处的颜色
+        }, {
+          offset: 1, color: '#0000ff' // 100% 处的颜色
+        }],
+        global: false // 缺省为 false
+      }, '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272'],
       title: {
         text: '标题123456',
         show: false,

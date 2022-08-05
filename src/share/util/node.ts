@@ -1,4 +1,4 @@
-import { hexColorToRgba, rgbaColorToHex, rgbaColorToRgbaObj } from './base'
+import { hexColorToRgba, rgbaColorToHex, rgbaColorToRgbaObj } from './color'
 
 export function getColor(node) {
   return node.option.color.type==="linear"? node.option.color.color.color:node.option.color.style

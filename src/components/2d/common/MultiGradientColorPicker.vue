@@ -1,7 +1,7 @@
 <template>
   <div class="multi-color-picker flex justify-between">
     <color-picker-gradient-el
-      :value="value[index]"
+      :value="item"
       v-for="(item, index) in colors"
       :key="index"
       @update:value="updateFn($event, index)"

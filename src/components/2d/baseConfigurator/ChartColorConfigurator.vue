@@ -67,40 +67,41 @@ export default {
     const editorStore = store.state
     const editorGetter = useGetter(store, 'global', ['GET_SELECT_NODE'])
 
+    function getDegFromEchartsColor(echartsColor) {
+      let deg
+      if (echartsColor.x === 0 && echartsColor.y2 === 0)
+        deg = Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180) + 90
+      else if (echartsColor.x === 0 && echartsColor.y === 0)
+        deg = Math.round((Math.acos(echartsColor.x2) / Math.PI) * 180) + 90
+      else if (echartsColor.x2 === 0 && echartsColor.y === 0)
+        deg = 270 - Math.round((Math.acos(echartsColor.x) / Math.PI) * 180)
+      else if (echartsColor.x2 === 0 && echartsColor.y2 === 0)
+        deg = 270 - Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180)
+      return deg
+    }
     function echartsColorToPickerColor(echartsColor) {
       if (!echartsColor.type) return toColor(echartsColor)
       else {
-
-        console.log({
-          x: echartsColor.x,
-          y: echartsColor.y,
-          x2: echartsColor.x2,
-          y2: echartsColor.y2
-        })
-        if(echartsColor.x===0&&echartsColor.y2===0){
-          console.log(Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180) + 90)
-        }else if(echartsColor.x===0&&echartsColor.y===0){
-          console.log(Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180) + 90)
-        }
-        console.log(
-          Math.round((Math.acos(echartsColor.x) / Math.PI) * 180) + 90,
-          Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180) + 90
-        )
-        console.log(
-          Math.round((Math.acos(echartsColor.x2) / Math.PI) * 180) + 90 + 180,
-          Math.round((Math.asin(-echartsColor.y2) / Math.PI) * 180) + 90 + 180
-        )
-
-        const angle = outAngle([echartsColor.cx, echartsColor.cy])
+        let deg = getDegFromEchartsColor(echartsColor)
 
         // gradient
         const color = toColor('#FF00FF')
-        color.deg = angle
+        color.deg = deg
         color.type = 'gradient'
-        color.colors = echartsColor.colorStops.map((item) => ({
-          pst: item.offset * 100,
-          ...new Color(item.color)
-        }))
+        let style = `linear-gradient(${deg}deg `
+        const mappingColor = (item) => {
+          const c = new Color(item.color),
+            p = item.offset * 100
+          style += `,${c.color} ${p}%`
+          return {
+            pst: p,
+            ...c
+          }
+        }
+        if (echartsColor.colorStops) color.colors = echartsColor.colorStops.map(mappingColor)
+        console.log('colorStops',echartsColor.colorStops)
+        style += ')'
+        console.log('return Color', color)
         return color
       }
     }
@@ -108,8 +109,6 @@ export default {
       if (pickerColor.type === 'linear') return pickerColor.color.color
       else {
         // const toFixedDouble = (val) => Number(val.toFixed(2))
-        const center = inAngle(pickerColor.deg)
-
         const boundaryZeroOne = (val) => (val > 1 ? 1 : val < 0 ? 0 : val)
         const deg = pickerColor.deg + 90
         const p1 = rotatePointer(deg)
@@ -119,9 +118,7 @@ export default {
           x: boundaryZeroOne(p1.x),
           y: boundaryZeroOne(p1.y),
           x2: boundaryZeroOne(p2.x),
-          y2: boundaryZeroOne(p2.y),
-          cx: center[0],
-          cy: center[1]
+          y2: boundaryZeroOne(p2.y)
         }
         // gradient
         const color = {
