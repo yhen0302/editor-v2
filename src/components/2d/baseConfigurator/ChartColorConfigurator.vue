@@ -20,7 +20,7 @@ import FoldEl from '@/components/2d/common/FoldEl'
 import LineEl from '@/components/2d/common/LineEl'
 import { useStore } from 'vuex'
 import { useGetter, useMutation, useState } from '@/store/helper'
-import { computed } from 'vue'
+import { computed, toRaw } from 'vue'
 import { Color, toColor } from '@/share/util/node'
 import { rotatePointer } from '@/share/util/base'
 
@@ -35,14 +35,25 @@ export default {
     function echartsColorToPickerColor(echartsColor) {
       if (!echartsColor.type) return toColor(echartsColor)
       else {
-        console.log(echartsColor)
+
+        console.log({
+          x: echartsColor.x,
+          y: echartsColor.y,
+          x2: echartsColor.x2,
+          y2: echartsColor.y2
+        })
+        if(echartsColor.x===0&&echartsColor.y2===0){
+          console.log(Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180) + 90)
+        }else if(echartsColor.x===0&&echartsColor.y===0){
+          console.log(Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180) + 90)
+        }
         console.log(
-         - Math.round((Math.acos(echartsColor.x) / Math.PI) * 180 )+90,
-         - Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180 )+90
+          Math.round((Math.acos(echartsColor.x) / Math.PI) * 180) + 90,
+          Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180) + 90
         )
         console.log(
-          -Math.round((Math.acos(echartsColor.x2) / Math.PI) * 180 )+90+180,
-         - Math.round((Math.asin(-echartsColor.y2) / Math.PI) * 180 )+90+180
+          Math.round((Math.acos(echartsColor.x2) / Math.PI) * 180) + 90 + 180,
+          Math.round((Math.asin(-echartsColor.y2) / Math.PI) * 180) + 90 + 180
         )
 
         // gradient
@@ -61,8 +72,8 @@ export default {
         // const toFixedDouble = (val) => Number(val.toFixed(2))
         const boundaryZeroOne = (val) => (val > 1 ? 1 : val < 0 ? 0 : val)
         const deg = pickerColor.deg + 90
-        const p1 = rotatePointer(-deg)
-        const p2 = rotatePointer(-deg + 180)
+        const p1 = rotatePointer(deg)
+        const p2 = rotatePointer(deg + 180)
 
         const pointers = {
           x: boundaryZeroOne(p1.x),

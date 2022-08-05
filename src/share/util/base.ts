@@ -213,7 +213,7 @@ export function rotatePointer(deg, offsetX, offsetY) {
 
   return {
     x: cosVal,
-    y: -sinVal
+    y: sinVal
   }
 }
 
