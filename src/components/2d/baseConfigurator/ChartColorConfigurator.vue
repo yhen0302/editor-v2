@@ -24,6 +24,41 @@ import { computed } from 'vue'
 import { Color, toColor } from '@/share/util/node'
 import { rotatePointer } from '@/share/util/base'
 
+const outAngle = (arr) => {
+  const center = [0.5, 0.5] //中心点
+  const basicPoint = [1, 0.5] // 基本点
+  const targetPoint = arr // 目标切点
+
+  const angle =
+    Math.atan((targetPoint[1] - center[1]) / (targetPoint[0] - center[0])) -
+    Math.atan((basicPoint[1] - center[1]) / (basicPoint[0] - center[0]))
+  let theth
+  if (targetPoint[0] == basicPoint[0] && targetPoint[1] == basicPoint[1]) {
+    theth = (angle * 180) / Math.PI
+  } else if (targetPoint[0] != basicPoint[0] && targetPoint[1] == basicPoint[1]) {
+    theth = 180
+  } else {
+    if (targetPoint[1] > 0.5) {
+      angle > 0
+        ? (theth = (angle * 180) / Math.PI)
+        : (theth = 180 - (Math.abs(angle) * 180) / Math.PI)
+    } else {
+      angle > 0
+        ? (theth = 180 + (angle * 180) / Math.PI)
+        : (theth = 360 - Math.abs((angle * 180) / Math.PI))
+    }
+  }
+  return theth
+}
+
+function inAngle(angle) {
+  const center = [0.5, 0.5] //中心点
+  const radius = 0.5 // 半径
+  const x1 = center[0] + radius * Math.cos((angle * Math.PI) / 180)
+  const y1 = center[1] + radius * Math.sin((angle * Math.PI) / 180)
+  return [x1, y1]
+}
+
 export default {
   name: 'ChartColorConfigurator',
   components: { LineEl, FoldEl, MultiGradientColorPicker },
@@ -45,8 +80,11 @@ export default {
          - Math.round((Math.asin(-echartsColor.y2) / Math.PI) * 180 )+90+180
         )
 
+        const angle = outAngle([echartsColor.cx, echartsColor.cy])
+
         // gradient
         const color = toColor('#FF00FF')
+        color.deg = angle
         color.type = 'gradient'
         color.colors = echartsColor.colorStops.map((item) => ({
           pst: item.offset * 100,
@@ -59,6 +97,8 @@ export default {
       if (pickerColor.type === 'linear') return pickerColor.color.color
       else {
         // const toFixedDouble = (val) => Number(val.toFixed(2))
+        const center = inAngle(pickerColor.deg)
+
         const boundaryZeroOne = (val) => (val > 1 ? 1 : val < 0 ? 0 : val)
         const deg = pickerColor.deg + 90
         const p1 = rotatePointer(-deg)
@@ -68,7 +108,9 @@ export default {
           x: boundaryZeroOne(p1.x),
           y: boundaryZeroOne(p1.y),
           x2: boundaryZeroOne(p2.x),
-          y2: boundaryZeroOne(p2.y)
+          y2: boundaryZeroOne(p2.y),
+          cx: center[0],
+          cy: center[1]
         }
         // gradient
         const color = {
