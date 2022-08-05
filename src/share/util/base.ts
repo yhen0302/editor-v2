@@ -211,16 +211,12 @@ export function rotatePointer(deg, offsetX, offsetY) {
   const sinVal = Math.sin(Number(getRadian(deg).toFixed(2)))
   const cosVal = Math.cos(Number(getRadian(deg).toFixed(2)))
 
-  const x = cosVal - sinVal,
-    y = sinVal + cosVal
   return {
-    x: offsetX ? offsetX(cosVal - sinVal) : x,
-    y: offsetY ? offsetY(sinVal * cosVal) : y
-    // x:cosVal,
-    // y:-sinVal
+    x: cosVal,
+    y: -sinVal
   }
 }
 
-export function getRadian(deg:number) {
-  return(deg / 180) * Math.PI
+export function getRadian(deg: number) {
+  return (deg / 180) * Math.PI
 }
