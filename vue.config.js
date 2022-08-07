@@ -3,7 +3,7 @@ const webpack = require('webpack')
 const env = process.env.NODE_ENV
 console.log(env)
 module.exports = {
-  publicPath: './',
+  publicPath: '/edit',
 
   css: {
     loaderOptions: {

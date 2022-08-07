@@ -10,8 +10,13 @@ const routes: Array<RouteRecordRaw> = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory('./edit'),
-  routes
+  history: createWebHistory('/edit'),
+  routes,
 })
+
+// router.beforeEach((to,from,next)=>{
+//   console.log(to,from)
+//   next()
+// })
 
 export default router

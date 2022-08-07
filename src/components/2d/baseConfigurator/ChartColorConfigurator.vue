@@ -22,42 +22,7 @@ import { useStore } from 'vuex'
 import { useGetter, useMutation, useState } from '@/store/helper'
 import { computed, toRaw } from 'vue'
 import { Color, toColor } from '@/share/util/node'
-import { rotatePointer } from '@/share/util/base'
-
-const outAngle = (arr) => {
-  const center = [0.5, 0.5] //中心点
-  const basicPoint = [1, 0.5] // 基本点
-  const targetPoint = arr // 目标切点
-
-  const angle =
-    Math.atan((targetPoint[1] - center[1]) / (targetPoint[0] - center[0])) -
-    Math.atan((basicPoint[1] - center[1]) / (basicPoint[0] - center[0]))
-  let theth
-  if (targetPoint[0] == basicPoint[0] && targetPoint[1] == basicPoint[1]) {
-    theth = (angle * 180) / Math.PI
-  } else if (targetPoint[0] != basicPoint[0] && targetPoint[1] == basicPoint[1]) {
-    theth = 180
-  } else {
-    if (targetPoint[1] > 0.5) {
-      angle > 0
-        ? (theth = (angle * 180) / Math.PI)
-        : (theth = 180 - (Math.abs(angle) * 180) / Math.PI)
-    } else {
-      angle > 0
-        ? (theth = 180 + (angle * 180) / Math.PI)
-        : (theth = 360 - Math.abs((angle * 180) / Math.PI))
-    }
-  }
-  return theth
-}
-
-function inAngle(angle) {
-  const center = [0.5, 0.5] //中心点
-  const radius = 0.5 // 半径
-  const x1 = center[0] + radius * Math.cos((angle * Math.PI) / 180)
-  const y1 = center[1] + radius * Math.sin((angle * Math.PI) / 180)
-  return [x1, y1]
-}
+import { rotatePointer, clone } from '@/share/util/base'
 
 export default {
   name: 'ChartColorConfigurator',
@@ -89,19 +54,18 @@ export default {
         color.deg = deg
         color.type = 'gradient'
         let style = `linear-gradient(${deg}deg `
-        const mappingColor = (item) => {
-          const c = new Color(item.color),
-            p = item.offset * 100
-          style += `,${c.color} ${p}%`
-          return {
-            pst: p,
-            ...c
-          }
+        const mappingColor = (item) => ({ pst: item.offset * 100, ...new Color(item.color) })
+
+        const mappingStyle = (item) => {
+          style += `,${new Color(item.color).color} ${item.pst}%`
         }
         if (echartsColor.colorStops) color.colors = echartsColor.colorStops.map(mappingColor)
-        console.log('colorStops',echartsColor.colorStops)
+        clone(color.colors)
+          .sort((a, b) => a.pst - b.pst)
+          .forEach(mappingStyle)
+        console.log('echartsColor', echartsColor)
         style += ')'
-        console.log('return Color', color)
+        color.style = style
         return color
       }
     }
