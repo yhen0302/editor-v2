@@ -110,8 +110,45 @@ export default {
       eO.series[0].data.splice(tableData[0].length)
     }
 
+    // 雷达图
+    function radarEchartsDataToTableHandle(node) {
+      return [
+        ['', ...node.option.echartsOption.radar.indicator.map((item) => item.name)],
+        ...node.option.echartsOption.series[0].data.map((item) => [item.name, ...item.value])
+      ]
+    }
+    function radarTableDataAssignEchartsHandle(tableData, node) {
+      tableData.forEach((row, index) => {
+        if (index === 0) {
+          row
+            .slice(1)
+            .forEach((item, i) =>
+              node.option.echartsOption.radar.indicator[i]
+                ? (node.option.echartsOption.radar.indicator[i].name = item)
+                : (node.option.echartsOption.radar.indicator[i] = { name: item })
+            )
+        } else {
+          node.option.echartsOption.series[0].data[index - 1] = {
+            name: row[0],
+            value: row.slice(1)
+          }
+        }
+      })
+    }
+
+    // 散点图
+    function scatterEchartsDataToTableHandle(node) {
+      console.log(node)
+      return [...node.option.echartsOption.series[0].data.map(item=>clone(item))]
+    }
+    function scatterTableDataAssignEchartsHandle(tableData, node) {
+      tableData.forEach((item,i)=>{
+        node.option.echartsOption.series[0].data[i]=[...item]
+      })
+    }
     const handle = computed(() => {
       const node = editorGetter['GET_SELECT_NODE'].value
+      console.log(node.type)
       switch (node.type) {
         case 'ChartBar':
         case 'ChartCurve':
@@ -125,6 +162,16 @@ export default {
           return {
             echartsDataToTableHandle: pieEchartsDataToTableHandle,
             tableDataAssignEchartsHandle: pieTableDataAssignEchartsHandle
+          }
+        case 'ChartRadar':
+          return {
+            echartsDataToTableHandle: radarEchartsDataToTableHandle,
+            tableDataAssignEchartsHandle: radarTableDataAssignEchartsHandle
+          }
+        case 'ChartScatter':
+          return {
+            echartsDataToTableHandle: scatterEchartsDataToTableHandle,
+            tableDataAssignEchartsHandle: scatterTableDataAssignEchartsHandle
           }
       }
       return {

@@ -38,9 +38,11 @@ export default {
         case 'ChartBar':
         case 'ChartLine':
         case 'ChartCurve':
+        case 'ChartScatter':
           return 'AxisLineChartConfigurator'
         case 'ChartPie':
         case 'ChartGauge':
+        case 'ChartRadar':
           return 'PieChartConfigurator'
         case 'BaseTable':
           return 'TableConfigurator'
@@ -48,9 +50,7 @@ export default {
     }
     return ''
   },
-  [EditorGetter.GET_SELECT_STATUS](
-    store: EditorStore
-  ): 'multiple' | 'empty' | 'single' {
+  [EditorGetter.GET_SELECT_STATUS](store: EditorStore): 'multiple' | 'empty' | 'single' {
     return store.select2dNodes.size > 1
       ? 'multiple'
       : store.select2dNodes.size > 0

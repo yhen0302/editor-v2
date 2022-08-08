@@ -4,6 +4,7 @@
       <template #default>
         <div class="color-picker-wrap">
           <multi-gradient-color-picker
+            :key="node.id"
             :value="colors"
             @update="updateColor"
           ></multi-gradient-color-picker>
@@ -64,6 +65,7 @@ export default {
           .sort((a, b) => a.pst - b.pst)
           .forEach(mappingStyle)
         console.log('echartsColor', echartsColor)
+        console.log('deg', deg)
         style += ')'
         color.style = style
         return color
@@ -72,17 +74,17 @@ export default {
     function pickerColorToEchartsColor(pickerColor) {
       if (pickerColor.type === 'linear') return pickerColor.color.color
       else {
-        // const toFixedDouble = (val) => Number(val.toFixed(2))
+        const toFixedDouble = (val) => Number(val.toFixed(2))
         const boundaryZeroOne = (val) => (val > 1 ? 1 : val < 0 ? 0 : val)
         const deg = pickerColor.deg + 90
         const p1 = rotatePointer(deg)
         const p2 = rotatePointer(deg + 180)
 
         const pointers = {
-          x: boundaryZeroOne(p1.x),
-          y: boundaryZeroOne(p1.y),
-          x2: boundaryZeroOne(p2.x),
-          y2: boundaryZeroOne(p2.y)
+          x: toFixedDouble(boundaryZeroOne(p1.x)),
+          y: toFixedDouble(boundaryZeroOne(p1.y)),
+          x2: toFixedDouble(boundaryZeroOne(p2.x)),
+          y2: toFixedDouble(boundaryZeroOne(p2.y))
         }
         // gradient
         const color = {
@@ -100,14 +102,16 @@ export default {
       const node = editorGetter['GET_SELECT_NODE'].value
       const tempColors = node.option.echartsOption.color
       const mappingColors = tempColors.map(echartsColorToPickerColor)
+      console.log(node)
       return mappingColors
     })
     function updateColor({ value, index }) {
       editorGetter['GET_SELECT_NODE'].value.option.echartsOption.color[index] =
         pickerColorToEchartsColor(value)
     }
+    const node = computed(() => editorGetter['GET_SELECT_NODE'].value)
 
-    return { colors, updateColor }
+    return { colors, updateColor, node }
   }
 }
 </script>

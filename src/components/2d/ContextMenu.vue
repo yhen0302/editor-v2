@@ -8,6 +8,7 @@
       <li @click='cancelMarshalling2dNodesHandle'>取消分组(Ctrl+Shift+g)</li>
       <li @click='marshalling2dNodesHandle'>分组(Ctrl+g)</li>
       <li @click="deleteNodeHandle">删除图层(delete)</li>
+      <li @click='toggleLock'>图层锁</li>
     </ul>
   </section>
 </template>
@@ -18,8 +19,9 @@ import { toPx } from '@/share/util/base'
 import {
   cancelMarshalling2dNodesHandle,
   deleteNodeHandle, layerMoveDownward, layerMoveToBottomHandle, layerMoveToTopHandle, layerMoveUp,
-  marshalling2dNodesHandle
+  marshalling2dNodesHandle, toggleLock
 } from '@/core/2d/features/hotKeyHandle'
+import { useMutation } from '@/store/helper'
 
 export default {
   name: 'ContextMenu',
@@ -36,7 +38,8 @@ export default {
       layerMoveUp,
       layerMoveDownward,
       layerMoveToTopHandle,
-      layerMoveToBottomHandle
+      layerMoveToBottomHandle,
+      toggleLock
     }
   }
 }

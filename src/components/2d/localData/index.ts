@@ -15,6 +15,8 @@ import { barChartList } from './chart/bar'
 import { pieChartList } from './chart/pie'
 import { gaugeChartList } from './chart/gauge'
 import { curveChartList } from './chart/curve'
+import { radarChartList } from '@/components/2d/localData/chart/radar'
+import { scatterChartList } from '@/components/2d/localData/chart/scatter'
 
 export const selectBarList2d: Array<SelectBarItem> = [
   {
@@ -248,7 +250,45 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
             return item
           })
         }
+      },
+      {
+        icon: require('../../../assets/images/editor_chart_curvelinechart_btn_dark.png'),
+        name: '雷达图',
+        type: 'radar',
+        children: {
+          viewType: 'list',
+          list: radarChartList.map((item: SelectItem): SelectItem => {
+            const option = clone(item.option.echartsOption, true)
+            option.grid.bottom = '15%'
+            option.grid.top = '15%'
+            option.legend.show = false
+            option.series[0].label.show = false
+
+            item.icon = getChartUrl(option)
+            return item
+          })
+        }
+      },
+      {
+        icon: require('../../../assets/images/editor_chart_curvelinechart_btn_dark.png'),
+        name: '散点图',
+        type: 'scatter',
+        children: {
+          viewType: 'list',
+          list: scatterChartList.map((item: SelectItem): SelectItem => {
+            const option = clone(item.option.echartsOption, true)
+            option.grid.bottom = '15%'
+            option.grid.top = '15%'
+            option.legend.show = false
+            option.series[0].label.show = false
+
+            item.icon = getChartUrl(option)
+            return item
+          })
+        }
       }
+
+
     ],
     viewType: 'block'
   },

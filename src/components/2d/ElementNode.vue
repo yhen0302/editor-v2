@@ -1,7 +1,7 @@
 <template>
   <slot>
     <group-node  v-if="node.type === 'group'" :group-node='node'></group-node>
-    <div class="ele-node absolute" :style="{ pointerEvents: editorStore.addDragging ? 'none' : 'auto' }" @click.stop v-show="node.show" v-else>
+    <div class="ele-node absolute" :style="{ pointerEvents: editorStore.addDragging||node.lock ? 'none' : 'auto' }" @click.stop v-show="node.show" v-else>
       <component @select="selectNode(node)" @append="appendSelectNode(node)" :is="node.type" :node="node"></component>
     </div>
   </slot>

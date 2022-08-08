@@ -56,29 +56,28 @@ export class BaseChart {
     apiUrl: ''
   }
 
-  merge(target: any = {}, custom: any = {}) {
+  merge(target: {[key:string]:any} = {}, custom:  {[key:string]:any} = {}) {
     for (const key of Object.keys(target)) {
-      if (!custom[key]) custom[key] = target[key]
+      if (!Object.prototype.hasOwnProperty.call(custom,key)) custom[key] = target[key]
       else {
-        if( typeof custom[key] === 'object')
-        custom[key] = this.merge(target[key], custom[key])
+        if (typeof custom[key] === 'object') custom[key] = this.merge(target[key], custom[key])
       }
     }
     return custom
   }
 
-  mergeLabel(option:any){
+  mergeLabel(option: any) {
     const label = {
-      color: "#FFFFFF",
-      fontFamily: "microsoft YaHei",
+      color: '#FFFFFF',
+      fontFamily: 'microsoft YaHei',
       fontSize: 18,
-      fontStyle: "normal",
-      fontWeight: "normal",
-      show: true,
+      fontStyle: 'normal',
+      fontWeight: 'normal',
+      show: true
     }
-    for(const series of option.echartsOption.series){
-      if(!series.label)series.label={}
-      this.merge(clone(label),series.label)
+    for (const series of option.echartsOption.series) {
+      if (!series.label) series.label = {}
+      this.merge( clone(label),series.label,)
     }
   }
 }

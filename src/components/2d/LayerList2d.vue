@@ -9,15 +9,26 @@
       </div>
     </template>
     <template v-slot:suffix="node">
-      <div
-        class="suffix-icon-wrap cursor-pointer"
-        :class="{
+      <div class='suffix-icon-box flex'>
+        <div
+          class="cursor-pointer"
+          :class="{
+            'opacity-50': findHasFalseShowParentNode(node)
+          }"
+          @click.stop='node.lock = false'
+        >
+          <img src='~@/assets/images/lock.png' width='16' height='16' v-if="node.lock" />
+        </div>
+        <div
+          class="cursor-pointer"
+          :class="{
           'opacity-50': findHasFalseShowParentNode(node)
         }"
-        @click.stop="hiddenControl(node)"
-      >
-        <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
-        <img src="~@/assets/images/editor_seen_btn_dark.png" v-else />
+          @click.stop="hiddenControl(node)"
+        >
+          <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
+          <img src="~@/assets/images/editor_seen_btn_dark.png" v-else />
+        </div>
       </div>
     </template>
     <template v-slot:folderPrefix>
@@ -66,7 +77,7 @@ export default {
       editorStore,
       hiddenControl,
       findHasFalseShowParentNode,
-      nodes
+      nodes,
     }
   }
 }

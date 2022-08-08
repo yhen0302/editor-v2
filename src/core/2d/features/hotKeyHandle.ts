@@ -14,7 +14,8 @@ const mutations = useMutation(store, 'global', [
   EditorMutation.MOVE_TO_TOP_OF_NODES,
   EditorMutation.MOVE_TO_BOTTOM_OF_NODES,
   EditorMutation.COPY_NODE_2D,
-  EditorMutation.PASTE_NODE_2D
+  EditorMutation.PASTE_NODE_2D,
+  EditorMutation.TOGGLE_LOCK
 ])
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -61,9 +62,15 @@ export function layerMoveToBottomHandle() {
 }
 
 // 复制粘贴
-export function copyNodeHandle(){
+export function copyNodeHandle() {
   mutations[EditorMutation.COPY_NODE_2D]()
 }
-export function pasteNodeHandle(){
+export function pasteNodeHandle() {
   mutations[EditorMutation.PASTE_NODE_2D]()
+}
+
+// 锁
+export function toggleLock() {
+  console.log(getters[EditorGetter.GET_SELECT_NODE].value)
+  mutations[EditorMutation.TOGGLE_LOCK]({ node: getters[EditorGetter.GET_SELECT_NODE].value })
 }

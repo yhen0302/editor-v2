@@ -6,12 +6,13 @@ let id = 0
 export function createNode(data: any) {
   const { select = true } = data
   const node: LayerTree2dNode = {
-    name: data.name + String(id++),
+    name: data.name + '-' + String(id++),
     id,
     type: data.type,
     option: reactive(clone(data.option || {})),
     select: select,
-    show: true
+    show: true,
+    lock: false
   }
   if (data.children) node.children = data.children
   return node

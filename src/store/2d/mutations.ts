@@ -1,5 +1,6 @@
 import {
   dimensionType,
+  EditorMutationI,
   EditorStore,
   LayerTree2dNode,
   LayerTree3dNode,
@@ -9,33 +10,6 @@ import { createNode } from '../../../packages/elements/src/share'
 import { EditorGetter } from '@/store/2d/getters'
 import { clone } from '@/share/util/base'
 import { deleteTreeParentQuote } from '@/core/2d/util/tree'
-
-export interface EditorMutationI {
-  // 2d
-  CHANGE_DIMENSION: 'CHANGE_DIMENSION'
-  CHANGE_SELECT_BAR_TOOL_TYPE: 'CHANGE_SELECT_BAR_TOOL_TYPE'
-  CHANGE_ART_BOARD_SCALE: 'CHANGE_ART_BOARD_SCALE'
-  ADD_2D_TREE_NODE: 'ADD_2D_TREE_NODE'
-  // SELECT NODES
-  SELECT_2D_TREE_NODE: 'SELECT_2D_TREE_NODE'
-  CANCEL_SELECT_2D_NODE: 'CANCEL_SELECT_2D_NODE'
-  CLEAR_SELECT_2D_NODES: 'CLEAR_SELECT_2D_NODES'
-  TOGGLE_NODE: 'TOGGLE_NODE'
-  ADD_EMITTER_TO_NODE: 'ADD_EMITTER_TO_NODE'
-  DELETE_SELECT_NODES: 'DELETE_SELECT_NODES'
-  MARSHALLING_SELECT_NODES: 'MARSHALLING_SELECT_NODES'
-  CANCEL_MARSHALLING_SELECT_NODES: 'CANCEL_MARSHALLING_SELECT_NODES'
-  MOVE_UP_OF_NODES: 'MOVE_UP_OF_NODES'
-  MOVE_DOWNWARD_OF_NODES: 'MOVE_DOWNWARD_OF_NODES'
-  MOVE_TO_TOP_OF_NODES: 'MOVE_TO_TOP_OF_NODES'
-  MOVE_TO_BOTTOM_OF_NODES: 'MOVE_TO_BOTTOM_OF_NODES'
-
-  // copy
-  COPY_NODE_2D: 'COPY_NODE_2D'
-  PASTE_NODE_2D: 'PASTE_NODE_2D'
-  // 3d
-  ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
-}
 
 export const EditorMutation: EditorMutationI = {
   CHANGE_DIMENSION: 'CHANGE_DIMENSION',
@@ -57,6 +31,8 @@ export const EditorMutation: EditorMutationI = {
   // copy
   COPY_NODE_2D: 'COPY_NODE_2D',
   PASTE_NODE_2D: 'PASTE_NODE_2D',
+  // lock
+  TOGGLE_LOCK: 'TOGGLE_LOCK',
   ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
 }
 
@@ -404,6 +380,11 @@ export default {
       })
       this.commit(EditorMutation.ADD_2D_TREE_NODE, { node })
     })
+  },
+  [EditorMutation.TOGGLE_LOCK](this: any, state, { node }) {
+    // pass
+    node.lock = !node.lock
+    this.commit(EditorMutation.CANCEL_SELECT_2D_NODE,{node})
   },
   // 3d
   [EditorMutation.ADD_3D_TREE_NODE](state: EditorStore, payload: { node: LayerTree3dNode }) {

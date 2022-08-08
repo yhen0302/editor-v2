@@ -1,10 +1,19 @@
 import { editElNameEventFn, enterOkEventFn, preventEventFn } from './edit'
-import { dragEndEventFn, dragEnterEventFn, dragLeaveEventFn, dragOverEventFn, dragStartEventFn } from './drag'
+import {
+  dragEndEventFn,
+  dragEnterEventFn,
+  dragLeaveEventFn,
+  dragOverEventFn,
+  dragStartEventFn
+} from './drag'
 import store from '@/store'
 import { useMutation } from '@/store/helper'
 
 const editorStore = store.state
-const editorMutation = useMutation(store, 'global', ['SELECT_2D_TREE_NODE', 'CLEAR_SELECT_2D_NODES'])
+const editorMutation = useMutation(store, 'global', [
+  'SELECT_2D_TREE_NODE',
+  'CLEAR_SELECT_2D_NODES'
+])
 
 function getNodeDepLength(node) {
   let length = -1
@@ -24,7 +33,9 @@ export default (node, Children, prefix, suffix) => {
 
   function selectNode(ev) {
     if (!node.show) return
-    !ev.shiftKey && (!editorStore.select2dNodes.has(node) || editorStore.select2dNodes.size > 1) && editorMutation['CLEAR_SELECT_2D_NODES']()
+    !ev.shiftKey &&
+      (!editorStore.select2dNodes.has(node) || editorStore.select2dNodes.size > 1) &&
+      editorMutation['CLEAR_SELECT_2D_NODES']()
     editorMutation['SELECT_2D_TREE_NODE']({ node })
   }
   return (
@@ -39,7 +50,7 @@ export default (node, Children, prefix, suffix) => {
         onDragendCapture={(ev) => dragEndEventFn(ev, node)}
         onDragleaveCapture={(ev) => dragLeaveEventFn(ev, node)}
         onClick={selectNode}
-        onContextmenu={node.select ||selectNode}
+        onContextmenu={node.select || selectNode}
       >
         <img
           className={node.open ? 'active arrow-icon' : 'arrow-icon'}
@@ -51,11 +62,21 @@ export default (node, Children, prefix, suffix) => {
             ev.stopPropagation()
           }}
         />
-        <div className="layer-item-prefix">{(prefix && prefix(node)) || <svg-icon class="layer-item-prefix-icon" url={require('@/assets/icon/show.svg')}></svg-icon>}</div>
+        <div className="layer-item-prefix">
+          {(prefix && prefix(node)) || (
+            <svg-icon
+              class="layer-item-prefix-icon"
+              url={require('@/assets/icon/show.svg')}
+            ></svg-icon>
+          )}
+        </div>
         <div className="item-name-wrapper">
           <span
             className="item-name"
-            ondblclick={(ev) => editElNameEventFn(ev, node)}
+            ondblclick={(ev) => {
+              editorMutation['SELECT_2D_TREE_NODE']({ node })
+              editElNameEventFn(ev, node)
+            }}
             onKeyDown={(ev) => {
               // 按回撤
               if (ev.keyCode === 13) {

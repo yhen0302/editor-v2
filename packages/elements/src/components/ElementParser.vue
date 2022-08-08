@@ -4,7 +4,13 @@
       class="box-2d"
       :style="{ height: toPx(drawingBoard.height), width: toPx(drawingBoard.width) }"
     >
-      <component v-for="item in nodes" :key="item.id" :node="item" :is="item.type"></component>
+      <component
+        v-for="item in nodes"
+        :key="item.id"
+        :node="item"
+        :is="item.type"
+        :style="`pointer-events:${item.lock ? 'none' : 'auto'};`"
+      ></component>
     </div>
     <canvas
       ref="canvasRenderer"
@@ -61,8 +67,8 @@ export default {
   position: relative;
 }
 .box-2d {
-  pointer-events: none;
   position: absolute;
+  pointer-events: none;
   z-index: 10;
 }
 .renderer {
