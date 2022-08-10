@@ -1,5 +1,5 @@
 <template>
-  <ul class="select-type-bar bg-gray-dark h-full relative z-20">
+  <ul class="select-type-bar bg-gray-dark relative z-20">
     <li
       class="select-item relative"
       :class="{ active: item.type === editorStore.selectBarToolType }"
@@ -35,4 +35,8 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.select-item{
+  margin: 0 4px 4px 4px;
+}
+</style>

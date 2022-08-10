@@ -1,7 +1,17 @@
 <template>
-  <div class="scene-tree-main">
-    <div class="node-item" v-for="item in nodes" :key="item">
-      <SceneTreeNode :node="item" />
+  <div>
+    <div class="header">
+      <div class="title">
+        <p>场景树</p>
+      </div>
+      <div class="scene-add-btn" @mouseup="addScene">
+        <img src="@/assets/images/main/right/editor_newscene_btn_dark.png" />
+      </div>
+    </div>
+    <div class="scene-tree-main tree-content">
+      <div class="node-item" v-for="item in nodes" :key="item">
+        <SceneTreeNode :node="item" />
+      </div>
     </div>
   </div>
 </template>
@@ -23,6 +33,12 @@ export default defineComponent({
   },
   setup() {
     const store = useStore()
+    // 新增场景
+    const addScene = () => {
+      const e = event as any
+      if (e.button != 0) return
+      EventsBus.emit('sceneAdded', {})
+    }
 
     // trees: {threeDimension, twoDimension}
     const nodes = computed<any>({
@@ -36,13 +52,18 @@ export default defineComponent({
 
     // 初始化场景/页
     EventsBus.on('sceneLoaded', (e: any) => {
-      console.log(store.state.pageTreeNodes[0].children[1])
       if (e.type === '3d') {
         nodes.value[0].children[0].trees = JSON.parse(JSON.stringify(toRaw(store.state.template)))
         store.state.threeDimensionContainer = e.container
       }
-      console.log('初始化场景')
 
+      console.log('初始化场景')
+      console.log('tree',store.state.selectedSceneTreeNode.trees)
+      console.log('parent',store.state.pageTreeNodes[store.state.selectedSceneTreeNode.parent])
+      EventsBus.emit('pageEnter', {
+        node: store.state.selectedSceneTreeNode,
+        parent: store.state.pageTreeNodes[store.state.selectedSceneTreeNode.parent]
+      })
     })
 
     // 添加场景
@@ -110,6 +131,13 @@ export default defineComponent({
 
     onMounted(() => {
       store.state.selectedSceneTreeNode = nodes.value[0].children[0]
+      console.log('onMounted')
+      console.log('tree',store.state.selectedSceneTreeNode)
+      console.log('parent',store.state.pageTreeNodes[store.state.selectedSceneTreeNode.parent])
+      EventsBus.emit('pageEnter', {
+        node: store.state.selectedSceneTreeNode,
+        parent: store.state.pageTreeNodes[store.state.selectedSceneTreeNode.parent]
+      })
     })
 
     // 重置模板
@@ -142,7 +170,8 @@ export default defineComponent({
     })
 
     return {
-      nodes
+      nodes,
+      addScene
     }
   }
 })
@@ -154,5 +183,18 @@ export default defineComponent({
 }
 .node-item {
   @apply w-full h-auto;
+}
+.header {
+  height: 64px;
+  @apply w-full flex items-center justify-center relative;
+}
+.scene-add-btn {
+  width: 16px;
+  height: 16px;
+  right: 24px;
+  @apply flex items-center justify-center absolute cursor-pointer;
+}
+.tree-content {
+  height: 50vh;
 }
 </style>

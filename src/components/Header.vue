@@ -19,9 +19,9 @@
         </div>
         <div class="select-box">{{ scaleRatio }}%</div>
       </div>
-
+      <div class="content-center">{{ pageTitle }}</div>
       <div class="content-right" v-once>
-        <TipButton
+        <tip-button
           :icon="require('@/assets/images/header/editor_preview_btn_dark.png')"
           name="1"
           tip-position="tb"
@@ -31,8 +31,8 @@
             <p>预览</p>
             <p>Ctrl+P</p>
           </template>
-        </TipButton>
-        <TipButton
+        </tip-button>
+        <tip-button
           :icon="require('@/assets/images/header/editor_save_btn_dark.png')"
           name="1"
           tip-position="tb"
@@ -41,8 +41,8 @@
             <p>保存</p>
             <p>Ctrl+S</p>
           </template>
-        </TipButton>
-        <TipButton
+        </tip-button>
+        <tip-button
           :icon="require('@/assets/images/header/editor_download_btn_dark.png')"
           name="1"
           tip-position="middle"
@@ -51,8 +51,8 @@
           <template v-slot:tip>
             <p>导出配置</p>
           </template>
-        </TipButton>
-        <TipButton
+        </tip-button>
+        <tip-button
           :icon="require('@/assets/images/header/editor_import_btn_dark.png')"
           name="1"
           tip-position="middle"
@@ -62,7 +62,20 @@
             <p>导入配置</p>
             <input type="file" ref="uploadJSON" style="display: none" @change="loadJSON" />
           </template>
-        </TipButton>
+        </tip-button>
+
+        <tip-button>
+          <template #default>
+            <p class="text-12">图层</p>
+            <switch-el v-model:value="isShowLayerTree"></switch-el>
+          </template>
+        </tip-button>
+        <tip-button>
+          <template #default>
+            <p class="text-12">场景</p>
+            <switch-el v-model:value="isShowSceneTree"></switch-el>
+          </template>
+        </tip-button>
       </div>
     </section>
 
@@ -73,6 +86,11 @@
       />
       <span class="text-gray-800 text-14">上次保存时间：<Timer formatter="hh:mm" /></span>
     </aside>
+
+    <div class="trees-box flex">
+      <scene-tree class="tree-wrap" v-show="isShowSceneTree"></scene-tree>
+      <layer-tree class="tree-wrap" v-show="isShowLayerTree"></layer-tree>
+    </div>
   </div>
 </template>
 
@@ -90,6 +108,9 @@ import { EventsBus } from '@/core/EventsBus'
 import { getAvailablePageTreeNodes } from '@/core/features/hotKeyShare'
 import { previewHandle } from '@/core/features/hotKey'
 import { deleteTreeParentQuote } from '@/core/2d/util/tree'
+import SwitchEl from '@/components/utils/common/SwitchEl.vue'
+import SceneTree from '@/components/utils/editmenu/SceneTree.vue'
+import LayerTree from '@/components/utils/editmenu/LayerTree.vue'
 
 function saveJSON(data: any, filename: any) {
   if (!data) {
@@ -113,6 +134,9 @@ function saveJSON(data: any, filename: any) {
 export default defineComponent({
   name: 'Header',
   components: {
+    LayerTree,
+    SceneTree,
+    SwitchEl,
     Timer,
     TipButton
   },
@@ -298,6 +322,18 @@ export default defineComponent({
       store.state.elementClick = null
     }
 
+    // tree
+    const isShowLayerTree = ref(false)
+    const isShowSceneTree = ref(false)
+
+    const pageTitle = ref('')
+    EventsBus.on('pageEnter', (e) => {
+      const { node, parent } = e
+      // load page details --todo
+      // pageIndex.value++
+      // update title
+      pageTitle.value = parent.name + '-' + node.name
+    })
     return {
       store,
       scaleRatio,
@@ -305,7 +341,10 @@ export default defineComponent({
       importJSON,
       loadJSON,
       uploadJSON,
-      previewHandle
+      previewHandle,
+      isShowLayerTree,
+      isShowSceneTree,
+      pageTitle
     }
   }
 })
@@ -352,5 +391,21 @@ export default defineComponent({
 }
 .save-icon {
   margin-right: 4px;
+}
+
+.trees-box {
+  position: fixed;
+  right: 280px;
+  top: 72px;
+  z-index: 50;
+  gap: 0 10px;
+}
+.tree-wrap {
+  width: 272px;
+  background: #25262d;
+}
+.tree-wrap:nth-last-child(1) {
+  left: 350px;
+  top: 200px;
 }
 </style>

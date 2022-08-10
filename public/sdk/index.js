@@ -106772,7 +106772,7 @@
     const _clipboard = [];
     var store = createStore({
         state: {
-            dimensionType: '3d',
+            dimensionType: '2d',
             selectBarToolType: '',
             selectedSceneTreeNode: null,
             selectedPageTreeNode: null,

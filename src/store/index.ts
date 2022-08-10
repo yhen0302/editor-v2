@@ -5,7 +5,7 @@ import { default as getters2d } from '@/store/2d/getters'
 const _clipboard: any[] = []
 export default createStore({
   state: {
-    dimensionType: '3d', // 2D/3D
+    dimensionType: '2d', // 2D/3D
     selectBarToolType: '', // 左边工具栏选择类型
     selectedSceneTreeNode: null, // 右边选中的scene tree node
     selectedPageTreeNode: null, // 右边选中的page tree node

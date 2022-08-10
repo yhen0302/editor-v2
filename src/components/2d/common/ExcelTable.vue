@@ -72,6 +72,7 @@ export default {
       ctx.strokeStyle = '#212530'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
+      ctx.font = '16px serif'
       // console.log('draw')
       // debugger
       // console.log(update)
@@ -106,7 +107,7 @@ export default {
         ctx.fillRect(offsetX, 0, widths[i], 30)
         // text
         ctx.fillStyle = '#FFF'
-        ctx.fillText(letters[i], offsetX + widths[i] / 2, 15, widths[i])
+        ctx.fillText(letters[i], offsetX + widths[i] / 2, 15)
         // line
         ctx.moveTo(offsetX - 0.5, 0)
         ctx.lineTo(offsetX - 0.5, height)
@@ -120,7 +121,7 @@ export default {
         ctx.fillRect(0, offsetY, 60, heights[i])
         // text
         ctx.fillStyle = '#FFF'
-        ctx.fillText(i + 1, 30, offsetY + heights[i] / 2, heights[i])
+        ctx.fillText(i + 1, 30, offsetY + heights[i] / 2)
 
         // line
         ctx.moveTo(0, offsetY - 0.5)
@@ -131,6 +132,42 @@ export default {
       let dataOffsetX = defaultOffsetX
       let dataOffsetY = defaultOffsetY
 
+      function computedValidRangeForText(
+        text,
+        containerWidth,
+        ctx,
+        fontSize = 16,
+        isEllipsis = true
+      ) {
+        let m = ctx.measureText(text)
+        // overflow
+        if (m.width < containerWidth) return text
+        if (isEllipsis) containerWidth -= (fontSize / 2) * 3
+        let res = '',
+          i = 0
+        // eslint-disable-next-line no-control-regex
+        const reg = /([\u0000-\u00FF]*)([^\u0000-\u00FF]*)/g
+        while (i < text.length) {
+          //pass
+          const matcher = reg.exec(text)
+          const otherCharMsg = ctx.measureText(matcher![2])
+          const c = (subText, index, num) => {
+            if (ctx.measureText(subText).width > containerWidth) {
+              res += text.substr(index, Math.floor(containerWidth / num))
+              return true
+            }
+            res += text.substr(index, subText.length)
+            i += subText.length
+            containerWidth -= subText.length * num
+          }
+          if (
+            c(matcher![1], matcher.index, fontSize / 2) ||
+            c(matcher![2], matcher.index + matcher![1].length, fontSize)
+          )
+            break
+        }
+        return isEllipsis ? res + '...' : res
+      }
       // table date render
       // 解析行
       for (let i = 0; i < props.data.length; i++) {
@@ -138,14 +175,15 @@ export default {
           // 解析列
           if (props.data[i]) {
             for (let j = 0; j < props.data[i].length; j++) {
-              // pass
+              let t = computedValidRangeForText(props.data[i][j], widths[i + scroll.value.x]-4, ctx)
+
               if (scroll.value.x <= j) {
                 if (props.data[i][j] !== undefined)
                   ctx.fillText(
-                    props.data[i][j],
+                    t,
                     dataOffsetX + widths[i] / 2,
-                    dataOffsetY + heights[j] / 2,
-                    widths[i + scroll.value.x]
+                    dataOffsetY + heights[j] / 2
+                    // widths[i + scroll.value.x]
                   )
                 dataOffsetX += widths[i] + 1
               }

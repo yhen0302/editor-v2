@@ -5,10 +5,10 @@
     </section>
 
     <!-- 2d/3d切换 -->
-    <section class="dimension-toggle-box relative z-30 flex items-center text-12 text-gray-light cursor-pointer">
+<!--    <section class="dimension-toggle-box relative z-30 flex items-center text-12 text-gray-light cursor-pointer">
       <div class="dimension-toggle" :class="{ active: store.state.dimensionType === '3d' }" @click="dimensionTypeChange('3d')">3d</div>
       <div class="dimension-toggle" :class="{ active: store.state.dimensionType === '2d' }" @click="dimensionTypeChange('2d')">2d</div>
-    </section>
+    </section>-->
 
     <section class="main">
       <Main />

@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch, isRef, onUpdated } from 'vue'
 import LineEl from './LineEl'
 import { cssUnitToNumber } from '@/share/util/base'
 
@@ -62,31 +62,27 @@ export default {
         }
       })
     } else {
-      fold = ref(true)
+      fold = ref(!props.controlFold)
     }
 
     updateHeight()
-
     function updateHeight() {
-      nextTick(() => {
-        cacheHeight.value = cssUnitToNumber(foldContent.value.scrollHeight)
-      })
+      if (foldContent.value) cacheHeight.value = foldContent.value.scrollHeight
     }
 
-    watch(
+    /*  watch(
       () => props.heightUpdate,
       (newVal) => {
         newVal && updateHeight()
       },
       { flush: 'sync' }
-    )
+    )*/
 
+    if (isRef(fold)) {
+      onUpdated(updateHeight)
+    }
     const realHeight = computed(() => {
-      return fold.value
-        ? cacheHeight.value
-          ? cacheHeight.value + 'px'
-          : 'auto'
-        : '0px'
+      return fold.value ? (cacheHeight.value ? cacheHeight.value + 'px' : 'auto') : '0px'
     })
     return { fold, foldContent, cacheHeight, realHeight }
   }

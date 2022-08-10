@@ -1,6 +1,6 @@
 <template>
   <section class="chart-legend-configurator-wrap">
-    <fold-el title="图例" :line-show="false">
+    <fold-el title="图例" :line-show="false" :show='false'>
       <template #default>
         <fold-el :line-show="false">
           <template #header>

@@ -28,8 +28,7 @@ export default defineComponent({
 
     // 查看详情页
     EventsBus.on('pageEnter', (e: any) => {
-      // console.log('trees3d', e.node.trees)
-
+      console.log('trees3d', e.node)
       nodes.value = e.node.trees.threeDimension
     })
 

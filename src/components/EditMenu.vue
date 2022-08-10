@@ -1,36 +1,5 @@
 <template>
   <div class="right-main">
-    <div class="trees">
-      <div class="header" v-if="pageIndex === 0">
-        <div class="title">
-          <p>场景树</p>
-        </div>
-        <div class="scene-add-btn" @mouseup="addScene">
-          <img src="@/assets/images/main/right/editor_newscene_btn_dark.png" />
-        </div>
-      </div>
-
-      <div class="header" v-else-if="pageIndex === 1">
-        <div class="page-back-btn" @mouseup="goBack">
-          <img src="@/assets/images/main/left/editor_card_backarrow_btn_dark.png" />
-        </div>
-        <div class="title">
-          <p>{{ pageTitle }}</p>
-        </div>
-      </div>
-
-      <LineEl :color="'#363741'" />
-
-      <div class="tree" v-show="pageIndex === 0">
-        <SceneTree />
-      </div>
-
-      <div class="tree" v-show="pageIndex === 1">
-        <Trees2D v-show="store.state.dimensionType === '2d'" />
-        <Trees3D v-show="store.state.dimensionType === '3d'" />
-      </div>
-    </div>
-
     <div class="forms">
       <EditForms2D v-show="store.state.dimensionType === '2d'" />
       <EditForms3D v-show="store.state.dimensionType === '3d'" />
@@ -63,14 +32,7 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const pageIndex = ref(0)
-    const pageTitle = ref('')
 
-    // 新增场景
-    const addScene = () => {
-      const e = event as any
-      if (e.button != 0) return
-      EventsBus.emit('sceneAdded', {})
-    }
 
     // 返回上级
     const goBack = () => {
@@ -87,7 +49,6 @@ export default defineComponent({
       // load page details --todo
       pageIndex.value++
       // update title
-      pageTitle.value = parent.name + '-' + node.name
     })
 
     // 重置模板
@@ -98,9 +59,7 @@ export default defineComponent({
     return {
       store,
       pageIndex,
-      addScene,
       goBack,
-      pageTitle
     }
   }
 })
@@ -128,19 +87,13 @@ export default defineComponent({
 .title p {
   width: 120px;
   font-size: 14px;
-  font-family: Microsoft YaHei;
   font-weight: 400;
   color: #f2f2f2;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
 }
-.scene-add-btn {
-  width: 16px;
-  height: 16px;
-  right: 24px;
-  @apply flex items-center justify-center absolute cursor-pointer;
-}
+
 .scene-add-btn img {
   width: 16px;
   height: 16px;
@@ -164,7 +117,8 @@ export default defineComponent({
 
 .forms {
   width: 272px;
-  height: calc(100% - 448px - 4px);
+  /*height: calc(100% - 448px - 4px);*/
+  height: 100%;
   background: #25262d;
 }
 </style>
