@@ -58,7 +58,7 @@ class Bar extends BaseChart {
         }
       },
       xAxis: {
-        type: 'category',
+        type: 'category'
       },
       grid: {
         top: '20%',
@@ -171,7 +171,7 @@ export const barChartList = [
           color: '#05D5FF',
           textStyle: {
             fontSize: 11
-          },
+          }
         },
         axisTick: {
           show: false
@@ -207,7 +207,9 @@ export const barChartList = [
           barWidth: 10,
           itemStyle: {
             shadowColor: 'rgba(5, 213, 255, 1)',
-            shadowBlur: 4
+            shadowBlur: 4,
+            barBorderRadius: 11,
+
           },
           label: {
             show: true,
@@ -222,15 +224,12 @@ export const barChartList = [
         }
       ]
     }
-  })
-]
-console.log(
+  }),
   new Bar({
     echartsOption: {
-      backgroundColor: '#0D2753',
       color: [
         {
-          type: 'linear',
+          type:'linear',
           x: 0,
           y: 0,
           x2: 0,
@@ -238,130 +237,137 @@ console.log(
           colorStops: [
             {
               offset: 0,
-              color: 'rgba(5, 213, 255, 1)' // 0% 处的颜色
+              color: '#fccb05'
             },
             {
-              offset: 0.98,
-              color: 'rgba(5, 213, 255, 0)' // 100% 处的颜色
+              offset: 1,
+              color: '#f5804d'
+            }
+          ]
+        },
+        {
+          type:'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            {
+              offset: 0,
+              color: '#8bd46e'
+            },
+            {
+              offset: 1,
+              color: '#09bcb7'
+            }
+          ]
+        },
+        {
+          type:'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            {
+              offset: 0,
+              color: '#248ff7'
+            },
+            {
+              offset: 1,
+              color: '#6851f1'
             }
           ]
         }
       ],
+      backgroundColor: '#323a5e',
       tooltip: {
         trigger: 'axis',
         axisPointer: {
-          type: 'shadow'
+          // 坐标轴指示器，坐标轴触发有效
+          type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
         }
       },
       grid: {
-        top: '10%',
-        right: '5%',
-        left: '10%',
-        bottom: '10%'
+        left: '2%',
+        right: '4%',
+        bottom: '14%',
+        top: '16%',
+        containLabel: true
+      },
+      legend: {
+        right: 10,
+        top: 12,
+        textStyle: {
+          color: '#fff'
+        },
+        itemWidth: 12,
+        itemHeight: 10
+        // itemGap: 35
       },
       xAxis: {
         type: 'category',
-        data: [
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道',
-          'XX街道'
-        ],
+        data: ['2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019'],
         axisLine: {
           lineStyle: {
-            color: 'rgba(66, 192, 255, .3)'
+            color: 'white'
           }
         },
         axisLabel: {
-          interval: 0,
-          margin: 10,
-          color: '#05D5FF',
           textStyle: {
-            fontSize: 11
-          },
-          rotate: '45'
-        },
-        axisTick: {
-          //刻度
-          show: false
+            fontFamily: 'Microsoft YaHei'
+          }
         }
       },
       yAxis: {
-        axisLabel: {
-          padding: [3, 0, 0, 0],
-          formatter: '{value}',
-          color: 'rgba(95, 187, 235, 1)',
-          textStyle: {
-            fontSize: 11
-          }
-        },
-        axisTick: {
-          show: true
-        },
+        type: 'value',
+        max: '1200',
         axisLine: {
+          show: false,
           lineStyle: {
-            color: 'rgba(66, 192, 255, .3)'
+            color: 'white'
           }
         },
         splitLine: {
-          lineStyle: {
-            color: 'rgba(255,255,255,0)'
-          }
-        }
-      },
-      dataZoom: [
-        //滚动条
-        {
           show: true,
-          type: 'slider',
-          realtime: true,
-          startValue: 0,
-          endValue: 14,
-          xAxisIndex: [0],
-          bottom: '10',
-          left: '30',
-          height: 10,
-          borderColor: 'rgba(0,0,0,0)',
-          textStyle: {
-            color: '#05D5FF'
+          lineStyle: {
+            color: 'rgba(255,255,255,0.3)'
           }
-        }
-      ],
+        },
+        axisLabel: {}
+      },
       series: [
         {
+          name: '1',
           type: 'bar',
-          data: [20, 50, 15, 35, 50, 30, 40, 50, 60, 20, 50, 15, 35, 50, 30, 40, 50, 60],
-          barWidth: 10,
-          itemStyle: {
-            shadowColor: 'rgba(5, 213, 255, 1)',
-            shadowBlur: 4
+          barWidth: '15%',
+          label: { show: false },
+          itemStyle:{
+            barBorderRadius: 11,
           },
-          label: {
-            show: true,
-            lineHeight: 10,
-            formatter: '{c}',
-            position: 'top',
-            textStyle: {
-              color: '#fff',
-              fontSize: 10
-            }
-          }
+          data: [400, 400, 300, 300, 300, 400, 400, 400, 300]
+        },
+        {
+          name: '2',
+          type: 'bar',
+          barWidth: '15%',
+          label: { show: false },
+          itemStyle:{
+            barBorderRadius: 11,
+          },
+          data: [400, 500, 500, 500, 500, 400, 400, 500, 500]
+        },
+        {
+          name: '3',
+          type: 'bar',
+          barWidth: '15%',
+          label: { show: false },
+          itemStyle:{
+            barBorderRadius: 11,
+          },
+          data: [400, 600, 700, 700, 1000, 400, 400, 600, 700]
         }
       ]
     }
   })
-)
+]

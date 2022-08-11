@@ -26,7 +26,8 @@ export default defineComponent({
 
     const barToolTypeChange = (type: string, name: string) => {
       store.state.selectBarToolType === type ? (store.state.selectBarToolType = '') : (store.state.selectBarToolType = type)
-
+      store.state.dimensionType = '3d'
+      store.state.selectBarToolType = ''
       nextTick(() => {
         EventsBus.emit('navMenuChanged', {
           dimension: '3d',

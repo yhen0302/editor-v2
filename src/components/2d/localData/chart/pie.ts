@@ -159,17 +159,17 @@ export const pieChartList = [
           hoverAnimation: false,
           color: ['#c487ee', '#deb140', '#49dff0', '#034079', '#6f81da', '#00ffb4'],
           label: {
-            formatter: '{white|{b}white}\n{yellow|{c}yellow}\n{blue|{d}%}',
+            formatter: '{white|{b}}\n{yellow|{c}}\n{blue|{d}%}',
             rich: {
               yellow: {
                 color: '#ffc72b',
-                fontSize: 30,
+                fontSize: 30 / 2,
                 padding: [5, 4],
                 align: 'center'
               },
               total: {
                 color: '#ffc72b',
-                fontSize: 40,
+                fontSize: 40 / 2,
                 align: 'center'
               },
               white: {
@@ -193,7 +193,7 @@ export const pieChartList = [
           },
           labelLine: {
             normal: {
-              length: 55,
+              length: 30,
               length2: 0,
               lineStyle: {
                 color: '#0b5263'
@@ -226,6 +226,214 @@ export const pieChartList = [
               name: '山东师范大学'
             }
           ]
+        }
+      ]
+    }
+  }),
+  new Pie({
+    echartsOption: {
+      color: [
+        {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 1,
+          y2: 1,
+          colorStops: [
+            {
+              offset: 0,
+              color: 'rgba(51,192,205,.5)' // 0% 处的颜色
+            },
+            {
+              offset: 1,
+              color: 'rgba(51,192,205,1)' // 100% 处的颜色
+            }
+          ],
+          globalCoord: false // 缺省为 false
+        },
+        {
+          type: 'linear',
+          x: 1,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            {
+              offset: 0,
+              color: 'rgba(115,172,255,.5)' // 0% 处的颜色
+            },
+            {
+              offset: 1,
+              color: 'rgba(115,172,255,1)' // 100% 处的颜色
+            }
+          ],
+          globalCoord: false // 缺省为 false
+        },
+        {
+          type: 'linear',
+          x: 1,
+          y: 0,
+          x2: 0,
+          y2: 0,
+          colorStops: [
+            {
+              offset: 0,
+              color: 'rgba(158,135,255,.5)' // 0% 处的颜色
+            },
+            {
+              offset: 1,
+              color: 'rgba(158,135,255,1)' // 100% 处的颜色
+            }
+          ],
+          globalCoord: false // 缺省为 false
+        },
+        {
+          type: 'linear',
+          x: 0,
+          y: 1,
+          x2: 0,
+          y2: 0,
+          colorStops: [
+            {
+              offset: 0,
+              color: 'rgba(252,75,75,0.5)' // 0% 处的颜色
+            },
+            {
+              offset: 1,
+              color: 'rgba(252,75,75,1)' // 100% 处的颜色
+            }
+          ],
+          globalCoord: false // 缺省为 false
+        },
+        {
+          type: 'linear',
+          x: 1,
+          y: 1,
+          x2: 1,
+          y2: 0,
+          colorStops: [
+            {
+              offset: 0,
+              color: 'rgba(253,138,106,.5)' // 0% 处的颜色
+            },
+            {
+              offset: 1,
+              color: 'rgba(253,179,106,1)' // 100% 处的颜色
+            }
+          ],
+          globalCoord: false // 缺省为 false
+        },
+        {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 1,
+          y2: 0,
+          colorStops: [
+            {
+              offset: 0,
+              color: 'rgba(254,206,67,.5)' // 0% 处的颜色
+            },
+            {
+              offset: 1,
+              color: 'rgba(254,206,67,1)' // 100% 处的颜色
+            }
+          ],
+          globalCoord: false // 缺省为 false
+        }
+      ],
+      series: [
+        {
+          type: 'pie',
+          radius: '60%',
+          center: ['50%', '50%'],
+          clockwise: true,
+          avoidLabelOverlap: true,
+          label: {
+            show: true,
+            position: 'outside',
+            formatter: `{a{@[1]}|{b}:{d}%}\n{hr|}`,
+            rich: (function () {
+              let result = {}
+              ;['#33C0CD', '#73ACFF', '#9E87FF', '#FE6969', '#FDB36A', '#FECE43'].forEach(
+                (v, i) => {
+                  result[`hr${i}`] = {
+                    backgroundColor: [
+                      '#33C0CD',
+                      '#73ACFF',
+                      '#9E87FF',
+                      '#FE6969',
+                      '#FDB36A',
+                      '#FECE43'
+                    ][i],
+                    borderRadius: 3,
+                    width: 3,
+                    height: 3,
+                    padding: [3, 3, 0, -12]
+                  }
+                  result[`a${i}`] = {
+                    padding: [-11, 6, -20, 6],
+                    color: ['#33C0CD', '#73ACFF', '#9E87FF', '#FE6969', '#FDB36A', '#FECE43'][i],
+                    backgroundColor: 'transparent',
+                    fontSize: 12
+                  }
+                }
+              )
+              return result
+            })()
+          },
+
+          data: [
+            {
+              name: '北京',
+              value: [25,0],
+              lineStyle: {
+                width: 1,
+                color: '#33C0CD'
+              }
+            },
+            {
+              name: '上海',
+              value: [20,1],
+              lineStyle: {
+                width: 1,
+                color: '#73ACFF'
+              }
+            },
+            {
+              name: '广州',
+              value: [18,2],
+              lineStyle: {
+                width: 1,
+                color: '#9E87FF'
+              }
+            },
+            {
+              name: '深圳',
+              value: [15,3],
+              lineStyle: {
+                width: 1,
+                color: '#FE6969'
+              }
+            },
+            {
+              name: '未知',
+              value: [13,4],
+              lineStyle: {
+                width: 1,
+                color: '#FDB36A'
+              }
+            },
+            {
+              name: '海外',
+              value: [9,5],
+              lineStyle: {
+                width: 1,
+                color: '#FECE43'
+              }
+            }
+          ],
+          roseType: 'radius'
         }
       ]
     }
