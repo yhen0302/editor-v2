@@ -129,7 +129,7 @@ function getColor(node) {
     return node.option.color.type === "linear" ? node.option.color.color.color : node.option.color.style;
 }
 
-var script$j = {
+var script$m = {
     name: 'RectShape',
     props: ['node'],
     emits: ['select', 'append'],
@@ -141,28 +141,116 @@ var script$j = {
         var opacity = computed(function () {
             return (props.node.option.transparency / 100).toFixed(2);
         });
+        var borderRadius = computed(function () {
+            return toPx({
+                borderTopLeftRadius: props.node.option.matrixOption.borderTopLeftRadius,
+                borderTopRightRadius: props.node.option.matrixOption.borderTopRightRadius,
+                borderBottomLeftRadius: props.node.option.matrixOption.borderBottomLeftRadius,
+                borderBottomRightRadius: props.node.option.matrixOption.borderBottomRightRadius
+            });
+        });
+        var boxShadow = computed(function () {
+            return "".concat(props.node.option.shadowX, "px ").concat(props.node.option.shadowY, "px ").concat(props.node.option.shadowBlur, "px ").concat(props.node.option.shadowColor);
+        });
         return {
             color: color,
-            opacity: opacity
+            opacity: opacity,
+            boxShadow: boxShadow,
+            borderRadius: borderRadius
         };
     }
 };
 
-function render$j(_ctx, _cache, $props, $setup, $data, $options) {
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    enumerableOnly && (symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    })), keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = null != arguments[i] ? arguments[i] : {};
+    i % 2 ? ownKeys(Object(source), !0).forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) {
+      Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+    });
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _toConsumableArray(arr) {
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+}
+
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+}
+
+function _iterableToArray(iter) {
+  if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+}
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
+}
+
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
+function render$m(_ctx, _cache, $props, $setup, $data, $options) {
   var _directive_drag = resolveDirective("drag");
 
   return withDirectives((openBlock(), createElementBlock("div", {
     class: "rect-shape absolute",
     onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
     draggable: "false",
-    style: normalizeStyle({
+    style: normalizeStyle(_objectSpread2({
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
       top: _ctx.top,
       background: $setup.color,
-      opacity: $setup.opacity
-    }),
+      opacity: $setup.opacity,
+      boxShadow: $setup.boxShadow
+    }, $setup.borderRadius)),
     onMousedown: _cache[1] || (_cache[1] = function () {
       return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
     }),
@@ -175,10 +263,10 @@ function render$j(_ctx, _cache, $props, $setup, $data, $options) {
   }]]);
 }
 
-script$j.render = render$j;
-script$j.__file = "src/components/shape/RectShape.vue";
+script$m.render = render$m;
+script$m.__file = "src/components/shape/RectShape.vue";
 
-var script$i = {
+var script$l = {
     name: 'RoundedRectShape',
     props: ['node'],
     emits: ['select', 'append'],
@@ -190,18 +278,85 @@ var script$i = {
         var opacity = computed(function () {
             return (props.node.option.transparency / 100).toFixed(2);
         });
+        var borderRadius = computed(function () {
+            return toPx({
+                borderTopLeftRadius: props.node.option.matrixOption.borderTopLeftRadius,
+                borderTopRightRadius: props.node.option.matrixOption.borderTopRightRadius,
+                borderBottomLeftRadius: props.node.option.matrixOption.borderBottomLeftRadius,
+                borderBottomRightRadius: props.node.option.matrixOption.borderBottomRightRadius
+            });
+        });
+        var boxShadow = computed(function () {
+            return "".concat(props.node.option.shadowX, "px ").concat(props.node.option.shadowY, "px ").concat(props.node.option.shadowBlur, "px ").concat(props.node.option.shadowColor);
+        });
         return {
             color: color,
-            opacity: opacity
+            opacity: opacity,
+            borderRadius: borderRadius,
+            boxShadow: boxShadow
         };
     }
 };
 
-function render$i(_ctx, _cache, $props, $setup, $data, $options) {
+function render$l(_ctx, _cache, $props, $setup, $data, $options) {
   var _directive_drag = resolveDirective("drag");
 
   return withDirectives((openBlock(), createElementBlock("div", {
     class: "rounded-rect-shape absolute",
+    onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
+    draggable: "false",
+    style: normalizeStyle(_objectSpread2({
+      width: _ctx.width,
+      height: _ctx.height,
+      left: _ctx.left,
+      top: _ctx.top,
+      background: $setup.color,
+      opacity: $setup.opacity,
+      boxShadow: $setup.boxShadow
+    }, $setup.borderRadius)),
+    onMousedown: _cache[1] || (_cache[1] = function () {
+      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+    }),
+    ref: "el"
+  }, null, 36
+  /* STYLE, HYDRATE_EVENTS */
+  )), [[_directive_drag, {
+    rect: $props.node.option.matrixOption,
+    select: $props.node.select
+  }]]);
+}
+
+script$l.render = render$l;
+script$l.__file = "src/components/shape/RoundedRectShape.vue";
+
+var script$k = {
+    name: 'CircleShape',
+    props: ['node'],
+    emits: ['select', 'append'],
+    mixins: [matrixMixin],
+    setup: function setup(props) {
+        var color = computed(function () {
+            return getColor(props.node);
+        });
+        var opacity = computed(function () {
+            return (props.node.option.transparency / 100).toFixed(2);
+        });
+        var boxShadow = computed(function () {
+            return "".concat(props.node.option.shadowX, "px ").concat(props.node.option.shadowY, "px ").concat(props.node.option.shadowBlur, "px ").concat(props.node.option.shadowColor);
+        });
+        return {
+            color: color,
+            opacity: opacity,
+            boxShadow: boxShadow
+        };
+    }
+};
+
+function render$k(_ctx, _cache, $props, $setup, $data, $options) {
+  var _directive_drag = resolveDirective("drag");
+
+  return withDirectives((openBlock(), createElementBlock("div", {
+    class: "circle-rect-shape absolute",
     onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
     draggable: "false",
     style: normalizeStyle({
@@ -210,6 +365,7 @@ function render$i(_ctx, _cache, $props, $setup, $data, $options) {
       left: _ctx.left,
       top: _ctx.top,
       background: $setup.color,
+      boxShadow: $setup.boxShadow,
       opacity: $setup.opacity
     }),
     onMousedown: _cache[1] || (_cache[1] = function () {
@@ -251,67 +407,14 @@ function styleInject(css, ref) {
   }
 }
 
-var css_248z$b = "\n.rounded-rect-shape[data-v-c59a2864]{\r\n  border-radius: 10%;\n}\r\n";
-styleInject(css_248z$b);
+var css_248z$c = "\n.circle-rect-shape[data-v-d550f47a] {\n  border-radius: 50%;\n}\n";
+styleInject(css_248z$c);
 
-script$i.render = render$i;
-script$i.__scopeId = "data-v-c59a2864";
-script$i.__file = "src/components/shape/RoundedRectShape.vue";
+script$k.render = render$k;
+script$k.__scopeId = "data-v-d550f47a";
+script$k.__file = "src/components/shape/CircleShape.vue";
 
-var script$h = {
-    name: 'CircleShape',
-    props: ['node'],
-    emits: ['select', 'append'],
-    mixins: [matrixMixin],
-    setup: function setup(props) {
-        var color = computed(function () {
-            return getColor(props.node);
-        });
-        var opacity = computed(function () {
-            return (props.node.option.transparency / 100).toFixed(2);
-        });
-        return {
-            color: color,
-            opacity: opacity
-        };
-    }
-};
-
-function render$h(_ctx, _cache, $props, $setup, $data, $options) {
-  var _directive_drag = resolveDirective("drag");
-
-  return withDirectives((openBlock(), createElementBlock("div", {
-    class: "circle-rect-shape absolute",
-    onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
-    draggable: "false",
-    style: normalizeStyle({
-      width: _ctx.width,
-      height: _ctx.height,
-      left: _ctx.left,
-      top: _ctx.top,
-      background: $setup.color,
-      opacity: $setup.opacity
-    }),
-    onMousedown: _cache[1] || (_cache[1] = function () {
-      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
-    }),
-    ref: "el"
-  }, null, 36
-  /* STYLE, HYDRATE_EVENTS */
-  )), [[_directive_drag, {
-    rect: $props.node.option.matrixOption,
-    select: $props.node.select
-  }]]);
-}
-
-var css_248z$a = "\n.circle-rect-shape[data-v-d550f47a] {\n  border-radius: 50%;\n}\n";
-styleInject(css_248z$a);
-
-script$h.render = render$h;
-script$h.__scopeId = "data-v-d550f47a";
-script$h.__file = "src/components/shape/CircleShape.vue";
-
-var script$g = {
+var script$j = {
     name: 'TriangleShape',
     props: ['node'],
     emits: ['select', 'append'],
@@ -324,14 +427,18 @@ var script$g = {
         var opacity = computed(function () {
             return (props.node.option.transparency / 100).toFixed(2);
         });
+        var boxShadow = computed(function () {
+            return "".concat(props.node.option.shadowX, "px ").concat(props.node.option.shadowY, "px ").concat(props.node.option.shadowBlur, "px ").concat(props.node.option.shadowColor);
+        });
         return {
             color: color,
-            opacity: opacity
+            opacity: opacity,
+            boxShadow: boxShadow
         };
     }
 };
 
-function render$g(_ctx, _cache, $props, $setup, $data, $options) {
+function render$j(_ctx, _cache, $props, $setup, $data, $options) {
   var _directive_drag = resolveDirective("drag");
 
   return withDirectives((openBlock(), createElementBlock("div", {
@@ -344,7 +451,8 @@ function render$g(_ctx, _cache, $props, $setup, $data, $options) {
       left: _ctx.left,
       top: _ctx.top,
       background: $setup.color,
-      opacity: $setup.opacity
+      opacity: $setup.opacity,
+      boxShadow: $setup.boxShadow
     }),
     onMousedown: _cache[1] || (_cache[1] = function () {
       return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
@@ -357,14 +465,14 @@ function render$g(_ctx, _cache, $props, $setup, $data, $options) {
   }]]);
 }
 
-var css_248z$9 = "\n.triangle-shape[data-v-54d47dea] {\r\n  clip-path: polygon(0 0, 0% 100%, 100% 100%);\n}\r\n";
-styleInject(css_248z$9);
+var css_248z$b = "\n.triangle-shape[data-v-54d47dea] {\r\n  clip-path: polygon(0 0, 0% 100%, 100% 100%);\n}\r\n";
+styleInject(css_248z$b);
 
-script$g.render = render$g;
-script$g.__scopeId = "data-v-54d47dea";
-script$g.__file = "src/components/shape/TriangleShape.vue";
+script$j.render = render$j;
+script$j.__scopeId = "data-v-54d47dea";
+script$j.__file = "src/components/shape/TriangleShape.vue";
 
-var script$f = {
+var script$i = {
     name: 'ImageMedia',
     props: ['node'],
     mixins: [matrixMixin],
@@ -400,7 +508,7 @@ var _hoisted_3$2 = /*#__PURE__*/_withScopeId$1(function () {
 });
 
 var _hoisted_4$2 = [_hoisted_3$2];
-function render$f(_ctx, _cache, $props, $setup, $data, $options) {
+function render$i(_ctx, _cache, $props, $setup, $data, $options) {
   var _directive_drag = resolveDirective("drag");
 
   return withDirectives((openBlock(), createElementBlock("div", {
@@ -432,14 +540,14 @@ function render$f(_ctx, _cache, $props, $setup, $data, $options) {
   }]]);
 }
 
-var css_248z$8 = "\n.image-media-wrap[data-v-dcb9cef8] {\n  position: absolute;\n}\n.image-media[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n.img-placeholder-box[data-v-dcb9cef8] {\n  width: 100%;\n  height: 100%;\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n";
-styleInject(css_248z$8);
+var css_248z$a = "\n.image-media-wrap[data-v-dcb9cef8] {\n  position: absolute;\n}\n.image-media[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n.img-placeholder-box[data-v-dcb9cef8] {\n  width: 100%;\n  height: 100%;\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-dcb9cef8]{\n  width: 100%;\n  height: 100%;\n  object-fit: fill;\n}\n";
+styleInject(css_248z$a);
 
-script$f.render = render$f;
-script$f.__scopeId = "data-v-dcb9cef8";
-script$f.__file = "src/components/media/ImageMedia.vue";
+script$i.render = render$i;
+script$i.__scopeId = "data-v-dcb9cef8";
+script$i.__file = "src/components/media/ImageMedia.vue";
 
-var script$e = {
+var script$h = {
     name: 'VideoMedia',
     props: ['node'],
     emits: ['select', 'append'],
@@ -475,7 +583,7 @@ var _hoisted_3$1 = /*#__PURE__*/_withScopeId(function () {
 });
 
 var _hoisted_4$1 = [_hoisted_3$1];
-function render$e(_ctx, _cache, $props, $setup, $data, $options) {
+function render$h(_ctx, _cache, $props, $setup, $data, $options) {
   var _directive_drag = resolveDirective("drag");
 
   return withDirectives((openBlock(), createElementBlock("div", {
@@ -509,15 +617,420 @@ function render$e(_ctx, _cache, $props, $setup, $data, $options) {
   }]]);
 }
 
-var css_248z$7 = "\n.video-media-wrap[data-v-6ff79d38] {\r\n  position: absolute;\n}\n.video-media[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\n.img-placeholder[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-6ff79d38]{\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\r\n";
+var css_248z$9 = "\n.video-media-wrap[data-v-6ff79d38] {\r\n  position: absolute;\n}\n.video-media[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\n.img-placeholder[data-v-6ff79d38] {\r\n  width: 100%;\r\n  height: 100%;\r\n  /*background: url(~@/assets/images/clip-1406.png) center/100% 100% no-repeat;*/\n}\n.i-p[data-v-6ff79d38]{\r\n  width: 100%;\r\n  height: 100%;\r\n  object-fit: fill;\n}\r\n";
+styleInject(css_248z$9);
+
+script$h.render = render$h;
+script$h.__scopeId = "data-v-6ff79d38";
+script$h.__file = "src/components/media/VideoMedia.vue";
+
+var script$g = {
+    name: 'BigTitle',
+    props: ['node'],
+    emits: ['select', 'append'],
+    mixins: [matrixMixin],
+    setup: function setup(props) {
+        var h1 = ref(); // exterior
+        var color = computed(function () {
+            return getColor(props.node);
+        });
+        var opacity = computed(function () {
+            return (props.node.option.transparency / 100).toFixed(2);
+        }); // font
+        var fontColor = computed(function () {
+            return props.node.option.textOption.color;
+        });
+        var fontSize = computed(function () {
+            return toPx(props.node.option.textOption.fontSize);
+        });
+        var fontFamily = computed(function () {
+            return props.node.option.textOption.fontFamily;
+        });
+        var fontStyle = computed(function () {
+            return props.node.option.textOption.fontStyle;
+        });
+        var align = computed(function () {
+            return props.node.option.textOption.align;
+        });
+        var verticalAlign = computed(function () {
+            return props.node.option.textOption.verticalAlign;
+        }); // value
+        var value = computed(function () {
+            return props.node.option.value;
+        });
+        var dbClickText;
+        var textElInput; // editor
+        {
+            dbClickText = function dbClickText(ev) {
+                ev.target;
+                props.node.contentEditable = true;
+            };
+            watch(function () {
+                return props.node.contentEditable;
+            }, function (newVal, oldVal) {
+                var _h1$value;
+                h1.value.contentEditable = String(newVal);
+                if (newVal)
+                    (_h1$value = h1.value) === null || _h1$value === void 0 ? void 0 : _h1$value.focus();
+            });
+            textElInput = function textElInput(ev) {
+                props.node.option.value = ev.target.innerText;
+            };
+        }
+        return {
+            color: color,
+            opacity: opacity,
+            value: value,
+            fontColor: fontColor,
+            fontSize: fontSize,
+            fontFamily: fontFamily,
+            fontStyle: fontStyle,
+            align: align,
+            verticalAlign: verticalAlign,
+            dbClickText: dbClickText,
+            h1: h1,
+            textElInput: textElInput
+        };
+    }
+};
+
+function render$g(_ctx, _cache, $props, $setup, $data, $options) {
+  var _directive_drag = resolveDirective("drag");
+
+  return withDirectives((openBlock(), createElementBlock("div", {
+    class: "text-wrapper absolute flex",
+    draggable: "false",
+    style: normalizeStyle({
+      width: _ctx.width,
+      height: _ctx.height,
+      left: _ctx.left,
+      top: _ctx.top,
+      background: $setup.color,
+      opacity: $setup.opacity,
+      textAlign: $setup.align,
+      alignItems: $setup.verticalAlign
+    }),
+    onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
+    onMousedown: _cache[6] || (_cache[6] = function () {
+      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+    }),
+    onWheelPassive: _cache[7] || (_cache[7] = withModifiers(function () {}, ["stop"])),
+    onScroll: _cache[8] || (_cache[8] = withModifiers(function () {}, ["stop"])),
+    ref: "el"
+  }, [createElementVNode("h1", {
+    class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
+    style: normalizeStyle({
+      color: $setup.fontColor,
+      fontSize: $setup.fontSize,
+      fontFamily: $setup.fontFamily
+    }),
+    onDblclick: _cache[0] || (_cache[0] = withModifiers(function () {
+      return $setup.dbClickText && $setup.dbClickText.apply($setup, arguments);
+    }, ["stop"])),
+    ref: "h1",
+    onInput: _cache[1] || (_cache[1] = function () {
+      return $setup.textElInput && $setup.textElInput.apply($setup, arguments);
+    }),
+    onKeydown: _cache[2] || (_cache[2] = withModifiers(function () {}, ["stop"])),
+    onKeyup: _cache[3] || (_cache[3] = withModifiers(function () {}, ["stop"])),
+    onKeypress: _cache[4] || (_cache[4] = withModifiers(function () {}, ["stop"]))
+  }, toDisplayString($setup.value), 39
+  /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */
+  )], 36
+  /* STYLE, HYDRATE_EVENTS */
+  )), [[_directive_drag, {
+    rect: $props.node.option.matrixOption,
+    select: $props.node.select
+  }]]);
+}
+
+var css_248z$8 = "\n.text-wrapper[data-v-5c83e1cc] {\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y: contain;\n}\n.weight[data-v-5c83e1cc] {\r\n  font-weight: bold;\n}\n.underline[data-v-5c83e1cc] {\r\n  text-decoration: underline;\n}\n.italic[data-v-5c83e1cc] {\r\n  font-style: oblique;\n}\n.big-title[data-v-5c83e1cc] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
+styleInject(css_248z$8);
+
+script$g.render = render$g;
+script$g.__scopeId = "data-v-5c83e1cc";
+script$g.__file = "src/components/text/BigTitle.vue";
+
+var script$f = {
+    name: 'SmallTitle',
+    props: ['node'],
+    emits: ['select', 'append'],
+    mixins: [matrixMixin],
+    setup: function setup(props) {
+        var h1 = ref(); // exterior
+        var color = computed(function () {
+            return getColor(props.node);
+        });
+        var opacity = computed(function () {
+            return (props.node.option.transparency / 100).toFixed(2);
+        }); // font
+        var fontColor = computed(function () {
+            return props.node.option.textOption.color;
+        });
+        var fontSize = computed(function () {
+            return toPx(props.node.option.textOption.fontSize);
+        });
+        var fontFamily = computed(function () {
+            return props.node.option.textOption.fontFamily;
+        });
+        var fontStyle = computed(function () {
+            return props.node.option.textOption.fontStyle;
+        });
+        var align = computed(function () {
+            return props.node.option.textOption.align;
+        });
+        var verticalAlign = computed(function () {
+            return props.node.option.textOption.verticalAlign;
+        }); // value
+        var value = computed(function () {
+            return props.node.option.value;
+        });
+        var dbClickText;
+        var textElInput; // editor
+        {
+            dbClickText = function dbClickText(ev) {
+                ev.target;
+                props.node.contentEditable = true;
+            };
+            watch(function () {
+                return props.node.contentEditable;
+            }, function (newVal, oldVal) {
+                var _h1$value;
+                h1.value.contentEditable = String(newVal);
+                if (newVal)
+                    (_h1$value = h1.value) === null || _h1$value === void 0 ? void 0 : _h1$value.focus();
+            });
+            textElInput = function textElInput(ev) {
+                props.node.option.value = ev.target.innerText;
+            };
+        }
+        return {
+            color: color,
+            opacity: opacity,
+            value: value,
+            fontColor: fontColor,
+            fontSize: fontSize,
+            fontFamily: fontFamily,
+            fontStyle: fontStyle,
+            align: align,
+            verticalAlign: verticalAlign,
+            dbClickText: dbClickText,
+            h1: h1,
+            textElInput: textElInput
+        };
+    }
+};
+
+function render$f(_ctx, _cache, $props, $setup, $data, $options) {
+  var _directive_drag = resolveDirective("drag");
+
+  return withDirectives((openBlock(), createElementBlock("div", {
+    class: "text-wrapper absolute flex",
+    draggable: "false",
+    style: normalizeStyle({
+      width: _ctx.width,
+      height: _ctx.height,
+      left: _ctx.left,
+      top: _ctx.top,
+      background: $setup.color,
+      opacity: $setup.opacity,
+      textAlign: $setup.align,
+      alignItems: $setup.verticalAlign
+    }),
+    onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
+    onMousedown: _cache[6] || (_cache[6] = function () {
+      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+    }),
+    onWheelPassive: _cache[7] || (_cache[7] = withModifiers(function () {}, ["stop"])),
+    onScroll: _cache[8] || (_cache[8] = withModifiers(function () {}, ["stop"])),
+    ref: "el"
+  }, [createElementVNode("h6", {
+    class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
+    style: normalizeStyle({
+      color: $setup.fontColor,
+      fontSize: $setup.fontSize,
+      fontFamily: $setup.fontFamily
+    }),
+    onDblclick: _cache[0] || (_cache[0] = withModifiers(function () {
+      return $setup.dbClickText && $setup.dbClickText.apply($setup, arguments);
+    }, ["stop"])),
+    ref: "h1",
+    onInput: _cache[1] || (_cache[1] = function () {
+      return $setup.textElInput && $setup.textElInput.apply($setup, arguments);
+    }),
+    onKeydown: _cache[2] || (_cache[2] = withModifiers(function () {}, ["stop"])),
+    onKeyup: _cache[3] || (_cache[3] = withModifiers(function () {}, ["stop"])),
+    onKeypress: _cache[4] || (_cache[4] = withModifiers(function () {}, ["stop"]))
+  }, toDisplayString($setup.value), 39
+  /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */
+  )], 36
+  /* STYLE, HYDRATE_EVENTS */
+  )), [[_directive_drag, {
+    rect: $props.node.option.matrixOption,
+    select: $props.node.select
+  }]]);
+}
+
+var css_248z$7 = "\n.text-wrapper[data-v-7a696473]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-7a696473] {\r\n  font-weight: bold;\n}\n.underline[data-v-7a696473] {\r\n  text-decoration: underline;\n}\n.italic[data-v-7a696473] {\r\n  font-style: oblique;\n}\n.big-title[data-v-7a696473] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
 styleInject(css_248z$7);
 
+script$f.render = render$f;
+script$f.__scopeId = "data-v-7a696473";
+script$f.__file = "src/components/text/SmallTitle.vue";
+
+//@ts-nocheck
+var emitterMixin = {
+    methods: {
+        emitterEffect(ev) {
+            for (const key of Object.keys(this.node.option.emitters)) {
+                const s = key.split(':');
+                const eventType = s[0];
+                const eventAction = s[1];
+                const effect = this.node.option.emitters[key];
+                console.log(ev.type, eventType, eventAction, effect);
+            }
+        }
+    }
+};
+
+var script$e = {
+    name: 'BaseTitle',
+    props: ['node'],
+    emits: ['select', 'append'],
+    mixins: [matrixMixin, emitterMixin],
+    setup: function setup(props) {
+        var h1 = ref(); // exterior
+        var color = computed(function () {
+            return getColor(props.node);
+        });
+        var opacity = computed(function () {
+            return (props.node.option.transparency / 100).toFixed(2);
+        }); // font
+        var fontColor = computed(function () {
+            return props.node.option.textOption.color;
+        });
+        var fontSize = computed(function () {
+            return toPx(props.node.option.textOption.fontSize);
+        });
+        var fontFamily = computed(function () {
+            return props.node.option.textOption.fontFamily;
+        });
+        var fontStyle = computed(function () {
+            return props.node.option.textOption.fontStyle;
+        });
+        var align = computed(function () {
+            return props.node.option.textOption.align;
+        });
+        var verticalAlign = computed(function () {
+            return props.node.option.textOption.verticalAlign;
+        }); // value
+        var value = computed(function () {
+            return props.node.option.value;
+        });
+        var dbClickText;
+        var textElInput; // editor
+        {
+            dbClickText = function dbClickText(ev) {
+                ev.target;
+                props.node.contentEditable = true;
+            };
+            watch(function () {
+                return props.node.contentEditable;
+            }, function (newVal, oldVal) {
+                var _h1$value;
+                h1.value.contentEditable = String(newVal);
+                if (newVal)
+                    (_h1$value = h1.value) === null || _h1$value === void 0 ? void 0 : _h1$value.focus();
+            });
+            textElInput = function textElInput(ev) {
+                props.node.option.value = ev.target.innerText;
+            };
+        }
+        return {
+            color: color,
+            opacity: opacity,
+            value: value,
+            fontColor: fontColor,
+            fontSize: fontSize,
+            fontFamily: fontFamily,
+            fontStyle: fontStyle,
+            align: align,
+            verticalAlign: verticalAlign,
+            dbClickText: dbClickText,
+            h1: h1,
+            textElInput: textElInput
+        };
+    }
+};
+
+function render$e(_ctx, _cache, $props, $setup, $data, $options) {
+  var _directive_drag = resolveDirective("drag");
+
+  return withDirectives((openBlock(), createElementBlock("div", {
+    class: "text-wrapper absolute flex",
+    draggable: "false",
+    style: normalizeStyle({
+      width: _ctx.width,
+      height: _ctx.height,
+      left: _ctx.left,
+      top: _ctx.top,
+      background: $setup.color,
+      opacity: $setup.opacity,
+      textAlign: $setup.align,
+      alignItems: $setup.verticalAlign
+    }),
+    onClick: _cache[6] || (_cache[6] = withModifiers(function () {}, ["stop"])),
+    onMousedown: _cache[7] || (_cache[7] = function () {
+      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+    }),
+    onWheelPassive: _cache[8] || (_cache[8] = withModifiers(function () {}, ["stop"])),
+    onScroll: _cache[9] || (_cache[9] = withModifiers(function () {}, ["stop"])),
+    ref: "el"
+  }, [withDirectives(createElementVNode("img", {
+    src: "",
+    class: "emitter-icon absolute",
+    draggable: "false",
+    onClick: _cache[0] || (_cache[0] = function () {
+      return _ctx.emitterEffect && _ctx.emitterEffect.apply(_ctx, arguments);
+    })
+  }, null, 512
+  /* NEED_PATCH */
+  ), [[vShow, Object.keys($props.node.option.emitters).length > 0]]), createElementVNode("h3", {
+    class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
+    style: normalizeStyle({
+      color: $setup.fontColor,
+      fontSize: $setup.fontSize,
+      fontFamily: $setup.fontFamily
+    }),
+    onDblclick: _cache[1] || (_cache[1] = withModifiers(function () {
+      return $setup.dbClickText && $setup.dbClickText.apply($setup, arguments);
+    }, ["stop"])),
+    ref: "h1",
+    onInput: _cache[2] || (_cache[2] = function () {
+      return $setup.textElInput && $setup.textElInput.apply($setup, arguments);
+    }),
+    onKeydown: _cache[3] || (_cache[3] = withModifiers(function () {}, ["stop"])),
+    onKeyup: _cache[4] || (_cache[4] = withModifiers(function () {}, ["stop"])),
+    onKeypress: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"]))
+  }, toDisplayString($setup.value), 39
+  /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */
+  )], 36
+  /* STYLE, HYDRATE_EVENTS */
+  )), [[_directive_drag, {
+    rect: $props.node.option.matrixOption,
+    select: $props.node.select
+  }]]);
+}
+
+var css_248z$6 = "\n.text-wrapper[data-v-71cfa315]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-71cfa315] {\r\n  font-weight: bold;\n}\n.underline[data-v-71cfa315] {\r\n  text-decoration: underline;\n}\n.italic[data-v-71cfa315] {\r\n  font-style: oblique;\n}\n.big-title[data-v-71cfa315] {\r\n  outline: none;\r\n  word-break: break-all;\n}\n.emitter-icon[data-v-71cfa315]{\r\n  right: 0;\r\n  top: 0;\r\n  width: 50px;\n}\r\n";
+styleInject(css_248z$6);
+
 script$e.render = render$e;
-script$e.__scopeId = "data-v-6ff79d38";
-script$e.__file = "src/components/media/VideoMedia.vue";
+script$e.__scopeId = "data-v-71cfa315";
+script$e.__file = "src/components/text/BaseTitle.vue";
 
 var script$d = {
-    name: 'BigTitle',
+    name: 'TextContent',
     props: ['node'],
     emits: ['select', 'append'],
     mixins: [matrixMixin],
@@ -609,411 +1122,6 @@ function render$d(_ctx, _cache, $props, $setup, $data, $options) {
     onWheelPassive: _cache[7] || (_cache[7] = withModifiers(function () {}, ["stop"])),
     onScroll: _cache[8] || (_cache[8] = withModifiers(function () {}, ["stop"])),
     ref: "el"
-  }, [createElementVNode("h1", {
-    class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
-    style: normalizeStyle({
-      color: $setup.fontColor,
-      fontSize: $setup.fontSize,
-      fontFamily: $setup.fontFamily
-    }),
-    onDblclick: _cache[0] || (_cache[0] = withModifiers(function () {
-      return $setup.dbClickText && $setup.dbClickText.apply($setup, arguments);
-    }, ["stop"])),
-    ref: "h1",
-    onInput: _cache[1] || (_cache[1] = function () {
-      return $setup.textElInput && $setup.textElInput.apply($setup, arguments);
-    }),
-    onKeydown: _cache[2] || (_cache[2] = withModifiers(function () {}, ["stop"])),
-    onKeyup: _cache[3] || (_cache[3] = withModifiers(function () {}, ["stop"])),
-    onKeypress: _cache[4] || (_cache[4] = withModifiers(function () {}, ["stop"]))
-  }, toDisplayString($setup.value), 39
-  /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */
-  )], 36
-  /* STYLE, HYDRATE_EVENTS */
-  )), [[_directive_drag, {
-    rect: $props.node.option.matrixOption,
-    select: $props.node.select
-  }]]);
-}
-
-var css_248z$6 = "\n.text-wrapper[data-v-5c83e1cc] {\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y: contain;\n}\n.weight[data-v-5c83e1cc] {\r\n  font-weight: bold;\n}\n.underline[data-v-5c83e1cc] {\r\n  text-decoration: underline;\n}\n.italic[data-v-5c83e1cc] {\r\n  font-style: oblique;\n}\n.big-title[data-v-5c83e1cc] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
-styleInject(css_248z$6);
-
-script$d.render = render$d;
-script$d.__scopeId = "data-v-5c83e1cc";
-script$d.__file = "src/components/text/BigTitle.vue";
-
-var script$c = {
-    name: 'SmallTitle',
-    props: ['node'],
-    emits: ['select', 'append'],
-    mixins: [matrixMixin],
-    setup: function setup(props) {
-        var h1 = ref(); // exterior
-        var color = computed(function () {
-            return getColor(props.node);
-        });
-        var opacity = computed(function () {
-            return (props.node.option.transparency / 100).toFixed(2);
-        }); // font
-        var fontColor = computed(function () {
-            return props.node.option.textOption.color;
-        });
-        var fontSize = computed(function () {
-            return toPx(props.node.option.textOption.fontSize);
-        });
-        var fontFamily = computed(function () {
-            return props.node.option.textOption.fontFamily;
-        });
-        var fontStyle = computed(function () {
-            return props.node.option.textOption.fontStyle;
-        });
-        var align = computed(function () {
-            return props.node.option.textOption.align;
-        });
-        var verticalAlign = computed(function () {
-            return props.node.option.textOption.verticalAlign;
-        }); // value
-        var value = computed(function () {
-            return props.node.option.value;
-        });
-        var dbClickText;
-        var textElInput; // editor
-        {
-            dbClickText = function dbClickText(ev) {
-                ev.target;
-                props.node.contentEditable = true;
-            };
-            watch(function () {
-                return props.node.contentEditable;
-            }, function (newVal, oldVal) {
-                var _h1$value;
-                h1.value.contentEditable = String(newVal);
-                if (newVal)
-                    (_h1$value = h1.value) === null || _h1$value === void 0 ? void 0 : _h1$value.focus();
-            });
-            textElInput = function textElInput(ev) {
-                props.node.option.value = ev.target.innerText;
-            };
-        }
-        return {
-            color: color,
-            opacity: opacity,
-            value: value,
-            fontColor: fontColor,
-            fontSize: fontSize,
-            fontFamily: fontFamily,
-            fontStyle: fontStyle,
-            align: align,
-            verticalAlign: verticalAlign,
-            dbClickText: dbClickText,
-            h1: h1,
-            textElInput: textElInput
-        };
-    }
-};
-
-function render$c(_ctx, _cache, $props, $setup, $data, $options) {
-  var _directive_drag = resolveDirective("drag");
-
-  return withDirectives((openBlock(), createElementBlock("div", {
-    class: "text-wrapper absolute flex",
-    draggable: "false",
-    style: normalizeStyle({
-      width: _ctx.width,
-      height: _ctx.height,
-      left: _ctx.left,
-      top: _ctx.top,
-      background: $setup.color,
-      opacity: $setup.opacity,
-      textAlign: $setup.align,
-      alignItems: $setup.verticalAlign
-    }),
-    onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
-    onMousedown: _cache[6] || (_cache[6] = function () {
-      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
-    }),
-    onWheelPassive: _cache[7] || (_cache[7] = withModifiers(function () {}, ["stop"])),
-    onScroll: _cache[8] || (_cache[8] = withModifiers(function () {}, ["stop"])),
-    ref: "el"
-  }, [createElementVNode("h6", {
-    class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
-    style: normalizeStyle({
-      color: $setup.fontColor,
-      fontSize: $setup.fontSize,
-      fontFamily: $setup.fontFamily
-    }),
-    onDblclick: _cache[0] || (_cache[0] = withModifiers(function () {
-      return $setup.dbClickText && $setup.dbClickText.apply($setup, arguments);
-    }, ["stop"])),
-    ref: "h1",
-    onInput: _cache[1] || (_cache[1] = function () {
-      return $setup.textElInput && $setup.textElInput.apply($setup, arguments);
-    }),
-    onKeydown: _cache[2] || (_cache[2] = withModifiers(function () {}, ["stop"])),
-    onKeyup: _cache[3] || (_cache[3] = withModifiers(function () {}, ["stop"])),
-    onKeypress: _cache[4] || (_cache[4] = withModifiers(function () {}, ["stop"]))
-  }, toDisplayString($setup.value), 39
-  /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */
-  )], 36
-  /* STYLE, HYDRATE_EVENTS */
-  )), [[_directive_drag, {
-    rect: $props.node.option.matrixOption,
-    select: $props.node.select
-  }]]);
-}
-
-var css_248z$5 = "\n.text-wrapper[data-v-7a696473]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-7a696473] {\r\n  font-weight: bold;\n}\n.underline[data-v-7a696473] {\r\n  text-decoration: underline;\n}\n.italic[data-v-7a696473] {\r\n  font-style: oblique;\n}\n.big-title[data-v-7a696473] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
-styleInject(css_248z$5);
-
-script$c.render = render$c;
-script$c.__scopeId = "data-v-7a696473";
-script$c.__file = "src/components/text/SmallTitle.vue";
-
-//@ts-nocheck
-var emitterMixin = {
-    methods: {
-        emitterEffect(ev) {
-            for (const key of Object.keys(this.node.option.emitters)) {
-                const s = key.split(':');
-                const eventType = s[0];
-                const eventAction = s[1];
-                const effect = this.node.option.emitters[key];
-                console.log(ev.type, eventType, eventAction, effect);
-            }
-        }
-    }
-};
-
-var script$b = {
-    name: 'BaseTitle',
-    props: ['node'],
-    emits: ['select', 'append'],
-    mixins: [matrixMixin, emitterMixin],
-    setup: function setup(props) {
-        var h1 = ref(); // exterior
-        var color = computed(function () {
-            return getColor(props.node);
-        });
-        var opacity = computed(function () {
-            return (props.node.option.transparency / 100).toFixed(2);
-        }); // font
-        var fontColor = computed(function () {
-            return props.node.option.textOption.color;
-        });
-        var fontSize = computed(function () {
-            return toPx(props.node.option.textOption.fontSize);
-        });
-        var fontFamily = computed(function () {
-            return props.node.option.textOption.fontFamily;
-        });
-        var fontStyle = computed(function () {
-            return props.node.option.textOption.fontStyle;
-        });
-        var align = computed(function () {
-            return props.node.option.textOption.align;
-        });
-        var verticalAlign = computed(function () {
-            return props.node.option.textOption.verticalAlign;
-        }); // value
-        var value = computed(function () {
-            return props.node.option.value;
-        });
-        var dbClickText;
-        var textElInput; // editor
-        {
-            dbClickText = function dbClickText(ev) {
-                ev.target;
-                props.node.contentEditable = true;
-            };
-            watch(function () {
-                return props.node.contentEditable;
-            }, function (newVal, oldVal) {
-                var _h1$value;
-                h1.value.contentEditable = String(newVal);
-                if (newVal)
-                    (_h1$value = h1.value) === null || _h1$value === void 0 ? void 0 : _h1$value.focus();
-            });
-            textElInput = function textElInput(ev) {
-                props.node.option.value = ev.target.innerText;
-            };
-        }
-        return {
-            color: color,
-            opacity: opacity,
-            value: value,
-            fontColor: fontColor,
-            fontSize: fontSize,
-            fontFamily: fontFamily,
-            fontStyle: fontStyle,
-            align: align,
-            verticalAlign: verticalAlign,
-            dbClickText: dbClickText,
-            h1: h1,
-            textElInput: textElInput
-        };
-    }
-};
-
-function render$b(_ctx, _cache, $props, $setup, $data, $options) {
-  var _directive_drag = resolveDirective("drag");
-
-  return withDirectives((openBlock(), createElementBlock("div", {
-    class: "text-wrapper absolute flex",
-    draggable: "false",
-    style: normalizeStyle({
-      width: _ctx.width,
-      height: _ctx.height,
-      left: _ctx.left,
-      top: _ctx.top,
-      background: $setup.color,
-      opacity: $setup.opacity,
-      textAlign: $setup.align,
-      alignItems: $setup.verticalAlign
-    }),
-    onClick: _cache[6] || (_cache[6] = withModifiers(function () {}, ["stop"])),
-    onMousedown: _cache[7] || (_cache[7] = function () {
-      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
-    }),
-    onWheelPassive: _cache[8] || (_cache[8] = withModifiers(function () {}, ["stop"])),
-    onScroll: _cache[9] || (_cache[9] = withModifiers(function () {}, ["stop"])),
-    ref: "el"
-  }, [withDirectives(createElementVNode("img", {
-    src: "",
-    class: "emitter-icon absolute",
-    draggable: "false",
-    onClick: _cache[0] || (_cache[0] = function () {
-      return _ctx.emitterEffect && _ctx.emitterEffect.apply(_ctx, arguments);
-    })
-  }, null, 512
-  /* NEED_PATCH */
-  ), [[vShow, Object.keys($props.node.option.emitters).length > 0]]), createElementVNode("h3", {
-    class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
-    style: normalizeStyle({
-      color: $setup.fontColor,
-      fontSize: $setup.fontSize,
-      fontFamily: $setup.fontFamily
-    }),
-    onDblclick: _cache[1] || (_cache[1] = withModifiers(function () {
-      return $setup.dbClickText && $setup.dbClickText.apply($setup, arguments);
-    }, ["stop"])),
-    ref: "h1",
-    onInput: _cache[2] || (_cache[2] = function () {
-      return $setup.textElInput && $setup.textElInput.apply($setup, arguments);
-    }),
-    onKeydown: _cache[3] || (_cache[3] = withModifiers(function () {}, ["stop"])),
-    onKeyup: _cache[4] || (_cache[4] = withModifiers(function () {}, ["stop"])),
-    onKeypress: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"]))
-  }, toDisplayString($setup.value), 39
-  /* TEXT, CLASS, STYLE, HYDRATE_EVENTS */
-  )], 36
-  /* STYLE, HYDRATE_EVENTS */
-  )), [[_directive_drag, {
-    rect: $props.node.option.matrixOption,
-    select: $props.node.select
-  }]]);
-}
-
-var css_248z$4 = "\n.text-wrapper[data-v-71cfa315]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-71cfa315] {\r\n  font-weight: bold;\n}\n.underline[data-v-71cfa315] {\r\n  text-decoration: underline;\n}\n.italic[data-v-71cfa315] {\r\n  font-style: oblique;\n}\n.big-title[data-v-71cfa315] {\r\n  outline: none;\r\n  word-break: break-all;\n}\n.emitter-icon[data-v-71cfa315]{\r\n  right: 0;\r\n  top: 0;\r\n  width: 50px;\n}\r\n";
-styleInject(css_248z$4);
-
-script$b.render = render$b;
-script$b.__scopeId = "data-v-71cfa315";
-script$b.__file = "src/components/text/BaseTitle.vue";
-
-var script$a = {
-    name: 'TextContent',
-    props: ['node'],
-    emits: ['select', 'append'],
-    mixins: [matrixMixin],
-    setup: function setup(props) {
-        var h1 = ref(); // exterior
-        var color = computed(function () {
-            return getColor(props.node);
-        });
-        var opacity = computed(function () {
-            return (props.node.option.transparency / 100).toFixed(2);
-        }); // font
-        var fontColor = computed(function () {
-            return props.node.option.textOption.color;
-        });
-        var fontSize = computed(function () {
-            return toPx(props.node.option.textOption.fontSize);
-        });
-        var fontFamily = computed(function () {
-            return props.node.option.textOption.fontFamily;
-        });
-        var fontStyle = computed(function () {
-            return props.node.option.textOption.fontStyle;
-        });
-        var align = computed(function () {
-            return props.node.option.textOption.align;
-        });
-        var verticalAlign = computed(function () {
-            return props.node.option.textOption.verticalAlign;
-        }); // value
-        var value = computed(function () {
-            return props.node.option.value;
-        });
-        var dbClickText;
-        var textElInput; // editor
-        {
-            dbClickText = function dbClickText(ev) {
-                ev.target;
-                props.node.contentEditable = true;
-            };
-            watch(function () {
-                return props.node.contentEditable;
-            }, function (newVal, oldVal) {
-                var _h1$value;
-                h1.value.contentEditable = String(newVal);
-                if (newVal)
-                    (_h1$value = h1.value) === null || _h1$value === void 0 ? void 0 : _h1$value.focus();
-            });
-            textElInput = function textElInput(ev) {
-                props.node.option.value = ev.target.innerText;
-            };
-        }
-        return {
-            color: color,
-            opacity: opacity,
-            value: value,
-            fontColor: fontColor,
-            fontSize: fontSize,
-            fontFamily: fontFamily,
-            fontStyle: fontStyle,
-            align: align,
-            verticalAlign: verticalAlign,
-            dbClickText: dbClickText,
-            h1: h1,
-            textElInput: textElInput
-        };
-    }
-};
-
-function render$a(_ctx, _cache, $props, $setup, $data, $options) {
-  var _directive_drag = resolveDirective("drag");
-
-  return withDirectives((openBlock(), createElementBlock("div", {
-    class: "text-wrapper absolute flex",
-    draggable: "false",
-    style: normalizeStyle({
-      width: _ctx.width,
-      height: _ctx.height,
-      left: _ctx.left,
-      top: _ctx.top,
-      background: $setup.color,
-      opacity: $setup.opacity,
-      textAlign: $setup.align,
-      alignItems: $setup.verticalAlign
-    }),
-    onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
-    onMousedown: _cache[6] || (_cache[6] = function () {
-      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
-    }),
-    onWheelPassive: _cache[7] || (_cache[7] = withModifiers(function () {}, ["stop"])),
-    onScroll: _cache[8] || (_cache[8] = withModifiers(function () {}, ["stop"])),
-    ref: "el"
   }, [createElementVNode("p", {
     class: normalizeClass(["big-title flex-1", $setup.fontStyle]),
     style: normalizeStyle({
@@ -1041,45 +1149,50 @@ function render$a(_ctx, _cache, $props, $setup, $data, $options) {
   }]]);
 }
 
-var css_248z$3 = "\n.text-wrapper[data-v-3a41379a]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-3a41379a] {\r\n  font-weight: bold;\n}\n.underline[data-v-3a41379a] {\r\n  text-decoration: underline;\n}\n.italic[data-v-3a41379a] {\r\n  font-style: oblique;\n}\n.big-title[data-v-3a41379a] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
-styleInject(css_248z$3);
+var css_248z$5 = "\n.text-wrapper[data-v-3a41379a]{\r\n  overflow-y: scroll;\r\n  overscroll-behavior-y:contain;\n}\n.weight[data-v-3a41379a] {\r\n  font-weight: bold;\n}\n.underline[data-v-3a41379a] {\r\n  text-decoration: underline;\n}\n.italic[data-v-3a41379a] {\r\n  font-style: oblique;\n}\n.big-title[data-v-3a41379a] {\r\n  outline: none;\r\n  word-break: break-all;\n}\r\n";
+styleInject(css_248z$5);
 
-script$a.render = render$a;
-script$a.__scopeId = "data-v-3a41379a";
-script$a.__file = "src/components/text/TextContent.vue";
+script$d.render = render$d;
+script$d.__scopeId = "data-v-3a41379a";
+script$d.__file = "src/components/text/TextContent.vue";
 
 var chartMixin = {
   methods: {
     updateEchartsSize() {
       this.myChart.resize();
     },
-    updateEchartsOption(notMerge) {
-      if (this.node.option.dataType === 'api' && this.node.option.apiUrl) {
-        const echartsOpt = clone(this.node.option.echartsOption);
-        const tempSeries = echartsOpt.series[0];
-        echartsOpt.series = [];
-        fetch(this.node.option.apiUrl)
-          .then((res) => res.json())
-          .then((data) => {
-            this.node.option.apiMapping.forEach((item) => {
-              if (item.target === 'x') {
-                echartsOpt.xAxis.data = valueHandle(data, item.path);
-              } else {
-                let series = clone(tempSeries);
-                series.data = valueHandle(data, item.path);
-                series.name = valueHandle(data, item.name) || item.name;
-                echartsOpt.series.push(series);
-              }
-            });
+    async setApiData(option) {
+      const echartsOpt = clone(option || this.node.option.echartsOption);
+      const tempSeries = echartsOpt.series[0];
+      echartsOpt.series = [];
+      const data = await (await fetch(this.node.option.apiUrl)).json();
+      this.node.option.apiMapping.forEach((item) => {
+        if (item.target === 'x') {
+          echartsOpt.xAxis.data = valueHandle(data, item.path);
+        } else {
+          let series = clone(tempSeries);
+          series.data = valueHandle(data, item.path);
+          series.name = valueHandle(data, item.name) || item.name;
+          echartsOpt.series.push(series);
+        }
+      });
 
-            this.myChart.setOption(echartsOpt, notMerge);
-
-          });
-
-      } else {
-        this.myChart.setOption(this.node.option.echartsOption, notMerge);
+      return echartsOpt
+    },
+    updateEchartsOption(option, notMerge = false, resize = false) {
+      if (typeof option === 'boolean') {
+        option = null;
+        notMerge = option;
       }
-      this.computedTop(this.node.option.echartsOption);
+      if (resize) this.myChart.resize();
+      if (this.node.option.dataType === 'api' && this.node.option.apiUrl) {
+        this.setApiData(option).then((echartsOption) => {
+          this.myChart.setOption(option || this.node.option.echartsOption, notMerge);
+        });
+      } else {
+        this.myChart.setOption(option || this.node.option.echartsOption, notMerge);
+      }
+      this.computedTop(option || this.node.option.echartsOption);
     },
     computedTop(option) {
       let top = 50;
@@ -1094,7 +1207,7 @@ var chartMixin = {
   }
 };
 
-var script$9 = {
+var script$c = {
   name: 'ChartBar',
   mixins: [matrixMixin, chartMixin],
   props: ['node'],
@@ -1182,6 +1295,343 @@ var script$9 = {
   }
 };
 
+function render$c(_ctx, _cache, $props, $setup, $data, $options) {
+  var _directive_drag = resolveDirective("drag");
+
+  return withDirectives((openBlock(), createElementBlock("div", {
+    class: "chart-bar absolute",
+    onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
+    draggable: "false",
+    onMousedown: _cache[1] || (_cache[1] = function () {
+      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+    }),
+    style: normalizeStyle({
+      width: _ctx.width,
+      height: _ctx.height,
+      left: _ctx.left,
+      top: _ctx.top
+    }),
+    ref: "chartWrap"
+  }, null, 36
+  /* STYLE, HYDRATE_EVENTS */
+  )), [[_directive_drag, {
+    rect: $props.node.option.matrixOption,
+    select: $props.node.select,
+    change: _ctx.updateEchartsSize
+  }]]);
+}
+
+script$c.render = render$c;
+script$c.__file = "src/components/chart/ChartBar.vue";
+
+var script$b = {
+  name: 'ChartLine',
+  mixins: [matrixMixin, chartMixin],
+  props: ['node'],
+  mounted: function mounted() {
+    this.myChart = echarts.init(this.$refs.chartWrap);
+    this.myChart.setOption(this.node.option.echartsOption);
+  },
+  methods: {
+    debounceSetOption: debounce(function () {
+      this.updateEchartsOption.apply(this, arguments);
+    }, 300)
+  },
+  setup: function setup(props) {
+    var instance = getCurrentInstance(); // title watcher
+
+    watch(function () {
+      return props.node.option.echartsOption.title;
+    }, function (newVal, oldVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.unit;
+    }, function (newVal, oldVal) {
+      if (newVal.show) {
+        var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
+
+        props.node.option.echartsOption.graphic = {
+          elements: [{
+            type: 'text',
+            left: unit.left,
+            right: unit.right,
+            top: unit.top,
+            style: {
+              text: unit.text,
+              fill: unit.textStyle.color,
+              font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
+            }
+          }]
+        };
+      } else {
+        // eslint-disable-next-line vue/no-mutating-props
+        delete props.node.option.echartsOption.graphic;
+      }
+
+      instance.ctx.debounceSetOption(true);
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.series;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.yAxis;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.legend;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.apiMapping;
+    }, function () {
+      instance.ctx.debounceSetOption();
+    });
+  },
+  watch: {
+    'node.option.echartsOption.color': {
+      handler: function handler(newVal, oldVal) {
+        this.debounceSetOption();
+      },
+      deep: true
+    }
+  }
+};
+
+function render$b(_ctx, _cache, $props, $setup, $data, $options) {
+  var _directive_drag = resolveDirective("drag");
+
+  return withDirectives((openBlock(), createElementBlock("div", {
+    class: "chart-bar absolute",
+    onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
+    draggable: "false",
+    onMousedown: _cache[1] || (_cache[1] = function () {
+      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+    }),
+    style: normalizeStyle({
+      width: _ctx.width,
+      height: _ctx.height,
+      left: _ctx.left,
+      top: _ctx.top
+    }),
+    ref: "chartWrap"
+  }, null, 36
+  /* STYLE, HYDRATE_EVENTS */
+  )), [[_directive_drag, {
+    rect: $props.node.option.matrixOption,
+    select: $props.node.select,
+    change: _ctx.updateEchartsSize
+  }]]);
+}
+
+script$b.render = render$b;
+script$b.__file = "src/components/chart/ChartLine.vue";
+
+var script$a = {
+  name: 'ChartPie',
+  mixins: [matrixMixin, chartMixin],
+  props: ['node'],
+  mounted: function mounted() {
+    this.myChart = echarts.init(this.$refs.chartWrap);
+    this.myChart.setOption(this.node.option.echartsOption);
+  },
+  methods: {
+    debounceSetOption: debounce(function () {
+      this.updateEchartsOption.apply(this, arguments);
+    }, 300)
+  },
+  setup: function setup(props) {
+    var instance = getCurrentInstance(); // title watcher
+
+    watch(function () {
+      return props.node.option.echartsOption.title;
+    }, function (newVal, oldVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.unit;
+    }, function (newVal, oldVal) {
+      if (newVal.show) {
+        var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
+
+        props.node.option.echartsOption.graphic = {
+          elements: [{
+            type: 'text',
+            left: unit.left,
+            right: unit.right,
+            top: unit.top,
+            style: {
+              text: unit.text,
+              fill: unit.textStyle.color,
+              font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
+            }
+          }]
+        };
+      } else {
+        // eslint-disable-next-line vue/no-mutating-props
+        delete props.node.option.echartsOption.graphic;
+      }
+
+      instance.ctx.debounceSetOption(true);
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.series;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.legend;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.apiMapping;
+    }, function () {
+      instance.ctx.debounceSetOption();
+    });
+  },
+  watch: {
+    'node.option.echartsOption.color': {
+      handler: function handler(newVal, oldVal) {
+        this.debounceSetOption();
+      },
+      deep: true
+    }
+  }
+};
+
+function render$a(_ctx, _cache, $props, $setup, $data, $options) {
+  var _directive_drag = resolveDirective("drag");
+
+  return withDirectives((openBlock(), createElementBlock("div", {
+    class: "chart-bar absolute",
+    onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
+    draggable: "false",
+    onMousedown: _cache[1] || (_cache[1] = function () {
+      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+    }),
+    style: normalizeStyle({
+      width: _ctx.width,
+      height: _ctx.height,
+      left: _ctx.left,
+      top: _ctx.top
+    }),
+    ref: "chartWrap"
+  }, null, 36
+  /* STYLE, HYDRATE_EVENTS */
+  )), [[_directive_drag, {
+    rect: $props.node.option.matrixOption,
+    select: $props.node.select,
+    change: _ctx.updateEchartsSize
+  }]]);
+}
+
+script$a.render = render$a;
+script$a.__file = "src/components/chart/ChartPie.vue";
+
+var script$9 = {
+  name: 'ChartGauge',
+  mixins: [matrixMixin, chartMixin],
+  props: ['node'],
+  mounted: function mounted() {
+    this.myChart = echarts.init(this.$refs.chartWrap);
+    this.myChart.setOption(this.node.option.echartsOption);
+  },
+  methods: {
+    debounceSetOption: debounce(function () {
+      this.updateEchartsOption.apply(this, arguments);
+    }, 300)
+  },
+  setup: function setup(props) {
+    var instance = getCurrentInstance(); // title watcher
+
+    watch(function () {
+      return props.node.option.echartsOption.title;
+    }, function (newVal, oldVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.unit;
+    }, function (newVal, oldVal) {
+      if (newVal.show) {
+        var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
+
+        props.node.option.echartsOption.graphic = {
+          elements: [{
+            type: 'text',
+            left: unit.left,
+            right: unit.right,
+            top: unit.top,
+            style: {
+              text: unit.text,
+              fill: unit.textStyle.color,
+              font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
+            }
+          }]
+        };
+      } else {
+        // eslint-disable-next-line vue/no-mutating-props
+        delete props.node.option.echartsOption.graphic;
+      }
+
+      instance.ctx.debounceSetOption(true);
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.series;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.legend;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.apiMapping;
+    }, function () {
+      instance.ctx.debounceSetOption();
+    });
+  },
+  watch: {
+    'node.option.echartsOption.color': {
+      handler: function handler(newVal, oldVal) {
+        this.debounceSetOption();
+      },
+      deep: true
+    }
+  }
+};
+
 function render$9(_ctx, _cache, $props, $setup, $data, $options) {
   var _directive_drag = resolveDirective("drag");
 
@@ -1209,10 +1659,10 @@ function render$9(_ctx, _cache, $props, $setup, $data, $options) {
 }
 
 script$9.render = render$9;
-script$9.__file = "src/components/chart/ChartBar.vue";
+script$9.__file = "src/components/chart/ChartGauge.vue";
 
 var script$8 = {
-  name: 'ChartLine',
+  name: 'ChartCurve',
   mixins: [matrixMixin, chartMixin],
   props: ['node'],
   mounted: function mounted() {
@@ -1326,10 +1776,10 @@ function render$8(_ctx, _cache, $props, $setup, $data, $options) {
 }
 
 script$8.render = render$8;
-script$8.__file = "src/components/chart/ChartLine.vue";
+script$8.__file = "src/components/chart/ChartCurve.vue";
 
 var script$7 = {
-  name: 'ChartPie',
+  name: 'ChartRadar',
   mixins: [matrixMixin, chartMixin],
   props: ['node'],
   mounted: function mounted() {
@@ -1436,346 +1886,9 @@ function render$7(_ctx, _cache, $props, $setup, $data, $options) {
 }
 
 script$7.render = render$7;
-script$7.__file = "src/components/chart/ChartPie.vue";
+script$7.__file = "src/components/chart/ChartRadar.vue";
 
 var script$6 = {
-  name: 'ChartGauge',
-  mixins: [matrixMixin, chartMixin],
-  props: ['node'],
-  mounted: function mounted() {
-    this.myChart = echarts.init(this.$refs.chartWrap);
-    this.myChart.setOption(this.node.option.echartsOption);
-  },
-  methods: {
-    debounceSetOption: debounce(function () {
-      this.updateEchartsOption.apply(this, arguments);
-    }, 300)
-  },
-  setup: function setup(props) {
-    var instance = getCurrentInstance(); // title watcher
-
-    watch(function () {
-      return props.node.option.echartsOption.title;
-    }, function (newVal, oldVal) {
-      instance.ctx.debounceSetOption();
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.echartsOption.unit;
-    }, function (newVal, oldVal) {
-      if (newVal.show) {
-        var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
-
-        props.node.option.echartsOption.graphic = {
-          elements: [{
-            type: 'text',
-            left: unit.left,
-            right: unit.right,
-            top: unit.top,
-            style: {
-              text: unit.text,
-              fill: unit.textStyle.color,
-              font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
-            }
-          }]
-        };
-      } else {
-        // eslint-disable-next-line vue/no-mutating-props
-        delete props.node.option.echartsOption.graphic;
-      }
-
-      instance.ctx.debounceSetOption(true);
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.echartsOption.series;
-    }, function (newVal) {
-      instance.ctx.debounceSetOption();
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.echartsOption.legend;
-    }, function (newVal) {
-      instance.ctx.debounceSetOption();
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.apiMapping;
-    }, function () {
-      instance.ctx.debounceSetOption();
-    });
-  },
-  watch: {
-    'node.option.echartsOption.color': {
-      handler: function handler(newVal, oldVal) {
-        this.debounceSetOption();
-      },
-      deep: true
-    }
-  }
-};
-
-function render$6(_ctx, _cache, $props, $setup, $data, $options) {
-  var _directive_drag = resolveDirective("drag");
-
-  return withDirectives((openBlock(), createElementBlock("div", {
-    class: "chart-bar absolute",
-    onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
-    draggable: "false",
-    onMousedown: _cache[1] || (_cache[1] = function () {
-      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
-    }),
-    style: normalizeStyle({
-      width: _ctx.width,
-      height: _ctx.height,
-      left: _ctx.left,
-      top: _ctx.top
-    }),
-    ref: "chartWrap"
-  }, null, 36
-  /* STYLE, HYDRATE_EVENTS */
-  )), [[_directive_drag, {
-    rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
-  }]]);
-}
-
-script$6.render = render$6;
-script$6.__file = "src/components/chart/ChartGauge.vue";
-
-var script$5 = {
-  name: 'ChartCurve',
-  mixins: [matrixMixin, chartMixin],
-  props: ['node'],
-  mounted: function mounted() {
-    this.myChart = echarts.init(this.$refs.chartWrap);
-    this.myChart.setOption(this.node.option.echartsOption);
-  },
-  methods: {
-    debounceSetOption: debounce(function () {
-      this.updateEchartsOption.apply(this, arguments);
-    }, 300)
-  },
-  setup: function setup(props) {
-    var instance = getCurrentInstance(); // title watcher
-
-    watch(function () {
-      return props.node.option.echartsOption.title;
-    }, function (newVal, oldVal) {
-      instance.ctx.debounceSetOption();
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.echartsOption.unit;
-    }, function (newVal, oldVal) {
-      if (newVal.show) {
-        var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
-
-        props.node.option.echartsOption.graphic = {
-          elements: [{
-            type: 'text',
-            left: unit.left,
-            right: unit.right,
-            top: unit.top,
-            style: {
-              text: unit.text,
-              fill: unit.textStyle.color,
-              font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
-            }
-          }]
-        };
-      } else {
-        // eslint-disable-next-line vue/no-mutating-props
-        delete props.node.option.echartsOption.graphic;
-      }
-
-      instance.ctx.debounceSetOption(true);
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.echartsOption.series;
-    }, function (newVal) {
-      instance.ctx.debounceSetOption();
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.echartsOption.yAxis;
-    }, function (newVal) {
-      instance.ctx.debounceSetOption();
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.echartsOption.legend;
-    }, function (newVal) {
-      instance.ctx.debounceSetOption();
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.apiMapping;
-    }, function () {
-      instance.ctx.debounceSetOption();
-    });
-  },
-  watch: {
-    'node.option.echartsOption.color': {
-      handler: function handler(newVal, oldVal) {
-        this.debounceSetOption();
-      },
-      deep: true
-    }
-  }
-};
-
-function render$5(_ctx, _cache, $props, $setup, $data, $options) {
-  var _directive_drag = resolveDirective("drag");
-
-  return withDirectives((openBlock(), createElementBlock("div", {
-    class: "chart-bar absolute",
-    onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
-    draggable: "false",
-    onMousedown: _cache[1] || (_cache[1] = function () {
-      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
-    }),
-    style: normalizeStyle({
-      width: _ctx.width,
-      height: _ctx.height,
-      left: _ctx.left,
-      top: _ctx.top
-    }),
-    ref: "chartWrap"
-  }, null, 36
-  /* STYLE, HYDRATE_EVENTS */
-  )), [[_directive_drag, {
-    rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
-  }]]);
-}
-
-script$5.render = render$5;
-script$5.__file = "src/components/chart/ChartCurve.vue";
-
-var script$4 = {
-  name: 'ChartRadar',
-  mixins: [matrixMixin, chartMixin],
-  props: ['node'],
-  mounted: function mounted() {
-    this.myChart = echarts.init(this.$refs.chartWrap);
-    this.myChart.setOption(this.node.option.echartsOption);
-  },
-  methods: {
-    debounceSetOption: debounce(function () {
-      this.updateEchartsOption.apply(this, arguments);
-    }, 300)
-  },
-  setup: function setup(props) {
-    var instance = getCurrentInstance(); // title watcher
-
-    watch(function () {
-      return props.node.option.echartsOption.title;
-    }, function (newVal, oldVal) {
-      instance.ctx.debounceSetOption();
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.echartsOption.unit;
-    }, function (newVal, oldVal) {
-      if (newVal.show) {
-        var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
-
-        props.node.option.echartsOption.graphic = {
-          elements: [{
-            type: 'text',
-            left: unit.left,
-            right: unit.right,
-            top: unit.top,
-            style: {
-              text: unit.text,
-              fill: unit.textStyle.color,
-              font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
-            }
-          }]
-        };
-      } else {
-        // eslint-disable-next-line vue/no-mutating-props
-        delete props.node.option.echartsOption.graphic;
-      }
-
-      instance.ctx.debounceSetOption(true);
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.echartsOption.series;
-    }, function (newVal) {
-      instance.ctx.debounceSetOption();
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.echartsOption.legend;
-    }, function (newVal) {
-      instance.ctx.debounceSetOption();
-    }, {
-      deep: true
-    });
-    watch(function () {
-      return props.node.option.apiMapping;
-    }, function () {
-      instance.ctx.debounceSetOption();
-    });
-  },
-  watch: {
-    'node.option.echartsOption.color': {
-      handler: function handler(newVal, oldVal) {
-        this.debounceSetOption();
-      },
-      deep: true
-    }
-  }
-};
-
-function render$4(_ctx, _cache, $props, $setup, $data, $options) {
-  var _directive_drag = resolveDirective("drag");
-
-  return withDirectives((openBlock(), createElementBlock("div", {
-    class: "chart-bar absolute",
-    onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
-    draggable: "false",
-    onMousedown: _cache[1] || (_cache[1] = function () {
-      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
-    }),
-    style: normalizeStyle({
-      width: _ctx.width,
-      height: _ctx.height,
-      left: _ctx.left,
-      top: _ctx.top
-    }),
-    ref: "chartWrap"
-  }, null, 36
-  /* STYLE, HYDRATE_EVENTS */
-  )), [[_directive_drag, {
-    rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
-  }]]);
-}
-
-script$4.render = render$4;
-script$4.__file = "src/components/chart/ChartRadar.vue";
-
-var script$3 = {
   name: 'ChartScatter',
   mixins: [matrixMixin, chartMixin],
   props: ['node'],
@@ -1863,7 +1976,7 @@ var script$3 = {
   }
 };
 
-function render$3(_ctx, _cache, $props, $setup, $data, $options) {
+function render$6(_ctx, _cache, $props, $setup, $data, $options) {
   var _directive_drag = resolveDirective("drag");
 
   return withDirectives((openBlock(), createElementBlock("div", {
@@ -1889,43 +2002,10 @@ function render$3(_ctx, _cache, $props, $setup, $data, $options) {
   }]]);
 }
 
-script$3.render = render$3;
-script$3.__file = "src/components/chart/ChartScatter.vue";
+script$6.render = render$6;
+script$6.__file = "src/components/chart/ChartScatter.vue";
 
-function _toConsumableArray(arr) {
-  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
-}
-
-function _arrayWithoutHoles(arr) {
-  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-}
-
-function _iterableToArray(iter) {
-  if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
-}
-
-function _unsupportedIterableToArray(o, minLen) {
-  if (!o) return;
-  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-  var n = Object.prototype.toString.call(o).slice(8, -1);
-  if (n === "Object" && o.constructor) n = o.constructor.name;
-  if (n === "Map" || n === "Set") return Array.from(o);
-  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-}
-
-function _arrayLikeToArray(arr, len) {
-  if (len == null || len > arr.length) len = arr.length;
-
-  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-
-  return arr2;
-}
-
-function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}
-
-var script$2 = {
+var script$5 = {
   name: 'TableEl',
   props: ['data', 'bodyClass', 'headerClass'],
   setup: function setup(props, context) {
@@ -2034,7 +2114,7 @@ var _hoisted_4 = {
   class: "table"
 };
 var _hoisted_5 = ["width"];
-function render$2(_ctx, _cache, $props, $setup, $data, $options) {
+function render$5(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock("section", _hoisted_1$1, [createElementVNode("div", {
     class: normalizeClass(["table-header", $props.headerClass]),
     style: normalizeStyle({
@@ -2076,35 +2156,35 @@ function render$2(_ctx, _cache, $props, $setup, $data, $options) {
   );
 }
 
-var css_248z$2 = "\n.table-el[data-v-872d8798] {\n  width: 100%;\n  text-align: center;\n  color: #fff;\n}\n.table-header[data-v-872d8798] {\n  background: #1d1d1d;\n}\n.table-body[data-v-872d8798] {\n  background: #141414;\n}\n.table[data-v-872d8798] {\n  border-collapse: collapse;\n}\n.table-header[data-v-872d8798] th {\n  height: 30px;\n  border: 1px solid #313131;\n  border-bottom: none;\n  vertical-align: middle;\n}\n.table-body[data-v-872d8798] td {\n  height: 50px;\n  vertical-align: middle;\n  border: 1px solid #313131;\n}\n";
-styleInject(css_248z$2);
+var css_248z$4 = "\n.table-el[data-v-872d8798] {\n  width: 100%;\n  text-align: center;\n  color: #fff;\n}\n.table-header[data-v-872d8798] {\n  background: #1d1d1d;\n}\n.table-body[data-v-872d8798] {\n  background: #141414;\n}\n.table[data-v-872d8798] {\n  border-collapse: collapse;\n}\n.table-header[data-v-872d8798] th {\n  height: 30px;\n  border: 1px solid #313131;\n  border-bottom: none;\n  vertical-align: middle;\n}\n.table-body[data-v-872d8798] td {\n  height: 50px;\n  vertical-align: middle;\n  border: 1px solid #313131;\n}\n";
+styleInject(css_248z$4);
 
-script$2.render = render$2;
-script$2.__scopeId = "data-v-872d8798";
-script$2.__file = "src/components/2d/common/tableEl/TableEl.vue";
+script$5.render = render$5;
+script$5.__scopeId = "data-v-872d8798";
+script$5.__file = "src/components/2d/common/tableEl/TableEl.vue";
 
-var script$1 = {
+var script$4 = {
   name: "ColumnEl",
   props: ['prop', 'label', 'width'],
   setup: function setup() {}
 };
 
-function render$1(_ctx, _cache, $props, $setup, $data, $options) {
+function render$4(_ctx, _cache, $props, $setup, $data, $options) {
   return openBlock(), createElementBlock(Fragment, null, [renderSlot(_ctx.$slots, "header"), renderSlot(_ctx.$slots, "default")], 64
   /* STABLE_FRAGMENT */
   );
 }
 
-script$1.render = render$1;
-script$1.__file = "src/components/2d/common/tableEl/ColumnEl.vue";
+script$4.render = render$4;
+script$4.__file = "src/components/2d/common/tableEl/ColumnEl.vue";
 
-var script = {
+var script$3 = {
   name: 'BaseTable',
   mixins: [matrixMixin],
   props: ['node'],
   components: {
-    TableEl: script$2,
-    ColumnEl: script$1
+    TableEl: script$5,
+    ColumnEl: script$4
   },
   setup: function setup(props) {
     console.log(props.node);
@@ -2140,8 +2220,7 @@ var script = {
       ev.target.setAttribute('contenteditable', false);
     }
 
-    var cssModule = useCssModule('table-1');
-    console.log(cssModule);
+    var cssModule = useCssModule(props.node.option.style);
     return {
       tableData: tableData,
       editTableData: editTableData,
@@ -2154,7 +2233,7 @@ var script = {
 
 var _hoisted_1 = ["onBlur", "onDblclick"];
 var _hoisted_2 = ["onBlur", "onDblclick"];
-function render(_ctx, _cache, $props, $setup, $data, $options) {
+function render$3(_ctx, _cache, $props, $setup, $data, $options) {
   var _component_column_el = resolveComponent("column-el");
 
   var _component_table_el = resolveComponent("table-el");
@@ -2238,11 +2317,11 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   }]]);
 }
 
-var css_248z$1 = "\n.table-wrapper[data-v-09d5eb08] {\n  overflow: hidden;\n  box-sizing: border-box;\n}\n.col-content[data-v-09d5eb08] {\n  outline: none;\n  overflow: auto;\n}\n";
-styleInject(css_248z$1);
+var css_248z$3 = "\n.table-wrapper[data-v-09d5eb08] {\n  overflow: hidden;\n  box-sizing: border-box;\n}\n.col-content[data-v-09d5eb08] {\n  outline: none;\n  overflow: auto;\n}\n";
+styleInject(css_248z$3);
 
-var css_248z = "._table-wrapper_xzvuu_1 {\n  background: rgba(225, 231, 227, 0.6);\n}\n._table-header_xzvuu_4 {\n  background: none !important;\n}\n._table-header_xzvuu_4 th {\n  border: none !important;\n  color: rgba(138, 152, 144, 0.6);\n  font-size: 12px !important;\n}\n._table-body_xzvuu_12 {\n  background: none !important;\n}\n._table-body_xzvuu_12 td {\n  height: auto !important;\n  padding: 8px 0;\n  border: none !important;\n  color: rgba(34, 52, 41, 0.6);\n  font-size: 12px !important;\n}\n";
-styleInject(css_248z);
+var css_248z$2 = "._table-wrapper_xzvuu_1 {\n  background: rgba(225, 231, 227, 0.6);\n}\n._table-header_xzvuu_4 {\n  background: none !important;\n}\n._table-header_xzvuu_4 th {\n  border: none !important;\n  color: rgba(138, 152, 144, 0.6);\n  font-size: 12px !important;\n}\n._table-body_xzvuu_12 {\n  background: none !important;\n}\n._table-body_xzvuu_12 td {\n  height: auto !important;\n  padding: 8px 0;\n  border: none !important;\n  color: rgba(34, 52, 41, 0.6);\n  font-size: 12px !important;\n}\n";
+styleInject(css_248z$2);
 
 var style1 = {
   "table-wrapper": "_table-wrapper_xzvuu_1",
@@ -2250,14 +2329,412 @@ var style1 = {
   "table-body": "_table-body_xzvuu_12"
 };
 
-var cssModules = script.__cssModules = {};
+var css_248z$1 = "._table-wrapper_1ry2f_1 {\n  background: none;\n}\n._table-header_1ry2f_4 {\n  background: none !important;\n}\n._table-header_1ry2f_4 th {\n  border: none !important;\n  color: rgba(229, 236, 250, 0.5);\n  font-size: 12px !important;\n}\n._table-header_1ry2f_4 tr {\n  background: linear-gradient(90deg, rgba(161, 170, 192, 0) 0%, rgba(161, 170, 192, 0.99) 49%, rgba(161, 170, 192, 0) 100%) bottom / 100% 1px no-repeat;\n}\n._table-body_1ry2f_15 {\n  background: none !important;\n}\n._table-body_1ry2f_15 td {\n  height: auto !important;\n  padding: 8px 0;\n  border: none !important;\n  color: #e5ecfa;\n  font-size: 12px !important;\n}\n._table-body_1ry2f_15 tr {\n  background: linear-gradient(90deg, rgba(161, 170, 192, 0) 0%, rgba(161, 170, 192, 0.99) 49%, rgba(161, 170, 192, 0) 100%) bottom / 100% 1px no-repeat;\n}\n";
+styleInject(css_248z$1);
+
+var style2 = {
+  "table-wrapper": "_table-wrapper_1ry2f_1",
+  "table-header": "_table-header_1ry2f_4",
+  "table-body": "_table-body_1ry2f_15"
+};
+
+var css_248z = "._table-wrapper_1gh7q_1 {\n  background: none;\n}\n._table-header_1gh7q_4 {\n  background: none !important;\n}\n._table-header_1gh7q_4 th {\n  padding: 8px 0;\n  border: none !important;\n  color: rgba(255, 255, 255, 0.5);\n  font-size: 12px !important;\n}\n._table-body_1gh7q_13 {\n  background: none !important;\n}\n._table-body_1gh7q_13 td {\n  height: auto !important;\n  padding: 8px 0;\n  border: none !important;\n  color: #ffffff;\n  font-size: 12px !important;\n}\n._table-body_1gh7q_13 tr:nth-child(odd) {\n  background: rgba(57, 57, 57, 0.7);\n}\n";
+styleInject(css_248z);
+
+var style3 = {
+  "table-wrapper": "_table-wrapper_1gh7q_1",
+  "table-header": "_table-header_1gh7q_4",
+  "table-body": "_table-body_1gh7q_13"
+};
+
+var cssModules = script$3.__cssModules = {};
 cssModules["table-1"] = style1;
+cssModules["table-2"] = style2;
+cssModules["table-3"] = style3;
+script$3.render = render$3;
+script$3.__scopeId = "data-v-09d5eb08";
+script$3.__file = "src/components/table/BaseTable.vue";
+
+var script$2 = {
+  name: 'ChartPolarBar',
+  mixins: [matrixMixin, chartMixin],
+  props: ['node'],
+  mounted: function mounted() {
+    this.myChart = echarts.init(this.$refs.chartWrap);
+    this.myChart.setOption(this.node.option.echartsOption);
+  },
+  methods: {
+    debounceSetOption: debounce(function () {
+      this.updateEchartsOption.apply(this, arguments);
+    }, 300)
+  },
+  setup: function setup(props) {
+    var instance = getCurrentInstance(); // title watcher
+
+    watch(function () {
+      return props.node.option.echartsOption.title;
+    }, function (newVal, oldVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.unit;
+    }, function (newVal, oldVal) {
+      if (newVal.show) {
+        var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
+
+        props.node.option.echartsOption.graphic = {
+          elements: [{
+            type: 'text',
+            left: unit.left,
+            right: unit.right,
+            top: unit.top,
+            style: {
+              text: unit.text,
+              fill: unit.textStyle.color,
+              font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
+            }
+          }]
+        };
+      } else {
+        // eslint-disable-next-line vue/no-mutating-props
+        delete props.node.option.echartsOption.graphic;
+      }
+
+      instance.ctx.debounceSetOption(true);
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.series;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.yAxis;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.legend;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.apiMapping;
+    }, function () {
+      instance.ctx.debounceSetOption();
+    });
+  },
+  watch: {
+    'node.option.echartsOption.color': {
+      handler: function handler(newVal, oldVal) {
+        this.debounceSetOption();
+      },
+      deep: true
+    }
+  }
+};
+
+function render$2(_ctx, _cache, $props, $setup, $data, $options) {
+  var _directive_drag = resolveDirective("drag");
+
+  return withDirectives((openBlock(), createElementBlock("div", {
+    class: "chart-polar-bar absolute",
+    onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
+    draggable: "false",
+    onMousedown: _cache[1] || (_cache[1] = function () {
+      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+    }),
+    style: normalizeStyle({
+      width: _ctx.width,
+      height: _ctx.height,
+      left: _ctx.left,
+      top: _ctx.top
+    }),
+    ref: "chartWrap"
+  }, null, 36
+  /* STYLE, HYDRATE_EVENTS */
+  )), [[_directive_drag, {
+    rect: $props.node.option.matrixOption,
+    select: $props.node.select,
+    change: _ctx.updateEchartsSize
+  }]]);
+}
+
+script$2.render = render$2;
+script$2.__file = "src/components/chart/ChartPolarBar.vue";
+
+var script$1 = {
+  name: 'ChartMultiPolarBar',
+  mixins: [matrixMixin, chartMixin],
+  props: ['node'],
+  mounted: function mounted() {
+    this.myChart = echarts.init(this.$refs.chartWrap);
+    this.myChart.setOption(this.node.option.echartsOption);
+  },
+  methods: {
+    debounceSetOption: debounce(function () {
+      this.updateEchartsOption.apply(this, arguments);
+    }, 300)
+  },
+  setup: function setup(props) {
+    var instance = getCurrentInstance(); // title watcher
+
+    watch(function () {
+      return props.node.option.echartsOption.title;
+    }, function (newVal, oldVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.unit;
+    }, function (newVal, oldVal) {
+      if (newVal.show) {
+        var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
+
+        props.node.option.echartsOption.graphic = {
+          elements: [{
+            type: 'text',
+            left: unit.left,
+            right: unit.right,
+            top: unit.top,
+            style: {
+              text: unit.text,
+              fill: unit.textStyle.color,
+              font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
+            }
+          }]
+        };
+      } else {
+        // eslint-disable-next-line vue/no-mutating-props
+        delete props.node.option.echartsOption.graphic;
+      }
+
+      instance.ctx.debounceSetOption(true);
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.series;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.yAxis;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.legend;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.apiMapping;
+    }, function () {
+      instance.ctx.debounceSetOption();
+    });
+  },
+  watch: {
+    'node.option.echartsOption.color': {
+      handler: function handler(newVal, oldVal) {
+        this.debounceSetOption();
+      },
+      deep: true
+    }
+  }
+};
+
+function render$1(_ctx, _cache, $props, $setup, $data, $options) {
+  var _directive_drag = resolveDirective("drag");
+
+  return withDirectives((openBlock(), createElementBlock("div", {
+    class: "chart-polar-bar absolute",
+    onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
+    draggable: "false",
+    onMousedown: _cache[1] || (_cache[1] = function () {
+      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+    }),
+    style: normalizeStyle({
+      width: _ctx.width,
+      height: _ctx.height,
+      left: _ctx.left,
+      top: _ctx.top
+    }),
+    ref: "chartWrap"
+  }, null, 36
+  /* STYLE, HYDRATE_EVENTS */
+  )), [[_directive_drag, {
+    rect: $props.node.option.matrixOption,
+    select: $props.node.select,
+    change: _ctx.updateEchartsSize
+  }]]);
+}
+
+script$1.render = render$1;
+script$1.__file = "src/components/chart/ChartMultiPolarBar.vue";
+
+var script = {
+  name: 'ChartMultiGauge',
+  mixins: [matrixMixin, chartMixin],
+  props: ['node'],
+  mounted: function mounted() {
+    this.myChart = echarts.init(this.$refs.chartWrap);
+    this.myChart.setOption(this.preprocessEchartsOption());
+  },
+  methods: {
+    debounceSetOption: debounce(function () {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      var option = args[0] || this.node.option.echartsOption; // 处理option
+
+      this.updateEchartsOption.apply(this, [this.preprocessEchartsOption(option)].concat(_toConsumableArray(args.slice(1))));
+    }, 300),
+    changeMatrix: function changeMatrix() {
+      this.debounceSetOption(this.node.option.echartsOption, false, true);
+    },
+    preprocessEchartsOption: function preprocessEchartsOption(echartsOption) {
+      var option = clone(echartsOption || this.node.option.echartsOption);
+      var seriesLength = option.series.length;
+      var matrix = this.node.option.matrixOption;
+      var radius = Math.min(matrix.width * 0.9 / Math.min(seriesLength, 3) / 2, matrix.height * 0.8 / Math.ceil(seriesLength / 3) / 2);
+
+      option.series.forEach(function (gauge, index) {
+        gauge.center = [['18%', '50%', '82%'][index % Math.min(seriesLength, 3)], seriesLength <= 3 ? '60%' : 100 / Math.ceil(seriesLength / 3) * Math.ceil((index + 1) / 3) - 100 / Math.ceil(seriesLength / 3) / 2 + 5 + '%'];
+        console.log(gauge.center);
+        gauge.progress.itemStyle = gauge.progress.itemStyle || {};
+        gauge.progress.itemStyle.color = option.color[index];
+        gauge.progress.width = radius / 10;
+        gauge.detail = gauge.detail || {};
+        gauge.detail.color = option.color[index];
+        gauge.axisLine = gauge.axisLine || {};
+        gauge.axisLine.lineStyle = gauge.axisLine.lineStyle || {};
+        gauge.axisLine.lineStyle.width = radius / 10;
+        gauge.radius = parseInt(radius);
+      });
+      console.log(option);
+      return option;
+    }
+  },
+  setup: function setup(props) {
+    var instance = getCurrentInstance(); // title watcher
+
+    watch(function () {
+      return props.node.option.echartsOption.title;
+    }, function (newVal, oldVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.unit;
+    }, function (newVal, oldVal) {
+      if (newVal.show) {
+        var unit = props.node.option.echartsOption.unit; // eslint-disable-next-line vue/no-mutating-props
+
+        props.node.option.echartsOption.graphic = {
+          elements: [{
+            type: 'text',
+            left: unit.left,
+            right: unit.right,
+            top: unit.top,
+            style: {
+              text: unit.text,
+              fill: unit.textStyle.color,
+              font: "".concat(unit.textStyle.fontStyle, " ").concat(unit.textStyle.fontWeight, " ").concat(unit.textStyle.fontSize, "px ").concat(unit.textStyle.fontFamily)
+            }
+          }]
+        };
+      } else {
+        // eslint-disable-next-line vue/no-mutating-props
+        delete props.node.option.echartsOption.graphic;
+      }
+
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.series;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.echartsOption.legend;
+    }, function (newVal) {
+      instance.ctx.debounceSetOption();
+    }, {
+      deep: true
+    });
+    watch(function () {
+      return props.node.option.apiMapping;
+    }, function () {
+      instance.ctx.debounceSetOption();
+    });
+  },
+  watch: {
+    'node.option.echartsOption.color': {
+      handler: function handler(newVal, oldVal) {
+        this.debounceSetOption();
+      },
+      deep: true
+    }
+  }
+};
+
+function render(_ctx, _cache, $props, $setup, $data, $options) {
+  var _directive_drag = resolveDirective("drag");
+
+  return withDirectives((openBlock(), createElementBlock("div", {
+    class: "chart-bar absolute",
+    onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
+    draggable: "false",
+    onMousedown: _cache[1] || (_cache[1] = function () {
+      return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
+    }),
+    style: normalizeStyle({
+      width: _ctx.width,
+      height: _ctx.height,
+      left: _ctx.left,
+      top: _ctx.top
+    }),
+    ref: "chartWrap"
+  }, null, 36
+  /* STYLE, HYDRATE_EVENTS */
+  )), [[_directive_drag, {
+    rect: $props.node.option.matrixOption,
+    select: $props.node.select,
+    change: $options.changeMatrix
+  }]]);
+}
+
 script.render = render;
-script.__scopeId = "data-v-09d5eb08";
-script.__file = "src/components/table/BaseTable.vue";
+script.__file = "src/components/chart/ChartMultiGauge.vue";
 
 var index = {
     install(app) {
+        app.component(script$m.name, script$m);
+        app.component(script$l.name, script$l);
+        app.component(script$k.name, script$k);
         app.component(script$j.name, script$j);
         app.component(script$i.name, script$i);
         app.component(script$h.name, script$h);
@@ -2270,13 +2747,14 @@ var index = {
         app.component(script$a.name, script$a);
         app.component(script$9.name, script$9);
         app.component(script$8.name, script$8);
+        app.component(script$3.name, script$3);
         app.component(script$7.name, script$7);
         app.component(script$6.name, script$6);
-        app.component(script$5.name, script$5);
+        app.component(script$2.name, script$2);
+        app.component('ChartYCategoryBar', script$c);
+        app.component(script$1.name, script$1);
         app.component(script.name, script);
-        app.component(script$4.name, script$4);
-        app.component(script$3.name, script$3);
     }
 };
 
-export { script as BaseTable, script$b as BaseTitle, script$d as BigTitle, script$9 as ChartBar, script$5 as ChartCurve, script$6 as ChartGauge, script$8 as ChartLine, script$7 as ChartPie, script$h as CircleShape, script$f as ImageMedia, script$j as RectShape, script$i as RoundedRectShape, script$c as SmallTitle, script$a as TextContent, script$g as TriangleShape, script$e as VideoMedia, index as default };
+export { script$3 as BaseTable, script$e as BaseTitle, script$g as BigTitle, script$c as ChartBar, script$8 as ChartCurve, script$9 as ChartGauge, script$b as ChartLine, script$a as ChartPie, script$2 as ChartPolarBar, script$k as CircleShape, script$i as ImageMedia, script$m as RectShape, script$l as RoundedRectShape, script$f as SmallTitle, script$d as TextContent, script$j as TriangleShape, script$h as VideoMedia, index as default };

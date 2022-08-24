@@ -1,7 +1,7 @@
-import {BaseChart} from "./base";
+import { BaseChart } from './base'
 
 let i = 1
-class Gauge  extends BaseChart{
+class Gauge extends BaseChart {
   name: string
   option: any
   icon = ''
@@ -55,13 +55,15 @@ class Gauge  extends BaseChart{
       echartsOption: notMerge
         ? option.echartsOption
         : this.merge(defaultEchartsOpt, option.echartsOption),
-      dataType:'table'
-
+      dataType: 'table'
     }
     this.mergeLabel(this.option)
   }
 }
 
+class MultiGauge extends Gauge{
+    type = "ChartMultiGauge"
+}
 export const gaugeChartList = [
   new Gauge({
     echartsOption: {
@@ -82,11 +84,12 @@ export const gaugeChartList = [
       ]
     }
   }),
-  new Gauge({echartsOption:{
-      color: ["#7CAF8B", "#91cc75", "#fac858", "#ee6666", "#73c0de", "#3ba272"],
+  new Gauge({
+    echartsOption: {
+      color: ['#7CAF8B', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272'],
       series: [
         {
-          type: "gauge",
+          type: 'gauge',
 
           progress: {
             show: true,
@@ -96,7 +99,7 @@ export const gaugeChartList = [
           axisLine: {
             show: true,
             lineStyle: {
-              color: [[1, "#FFF"]],
+              color: [[1, '#FFF']],
               width: 6
             }
           },
@@ -130,5 +133,174 @@ export const gaugeChartList = [
           ]
         }
       ]
-    }})
+    }
+  }),
+  new MultiGauge({
+    type: 'multi-gauge-1',
+    echartsOption:{
+      series: [
+        {
+          name: 'Pressure',
+          type: 'gauge',
+          startAngle:90,
+          endAngle:-270,
+          detail: {
+            formatter: '{value}',
+            offsetCenter:[0,0],
+            fontSize:16,
+          },
+          progress:{show:true},
+          splitLine:{show:false},
+          axisTick:{show:false},
+          axisLabel:{show:false},
+          pointer:{show:false},
+          data: [50]
+        },
+        {
+          name: 'Pressure2',
+          type: 'gauge',
+          startAngle:90,
+          endAngle:-270,
+          detail: {
+            formatter: '{value}',
+            offsetCenter:[0,0],
+            fontSize:16,
+          },
+          progress:{show:true},
+          splitLine:{show:false},
+          axisTick:{show:false},
+          axisLabel:{show:false},
+          pointer:{show:false},
+          data: [50]
+        },
+        {
+          name: 'Pressure3',
+          type: 'gauge',
+          startAngle:90,
+          endAngle:-270,
+          detail: {
+            formatter: '{value}',
+            offsetCenter:[0,0],
+            fontSize:16,
+          },
+          progress:{show:true},
+          splitLine:{show:false},
+          axisTick:{show:false},
+          axisLabel:{show:false},
+          pointer:{show:false},
+          data: [50]
+        },
+      ]
+    }
+  }),
+  new MultiGauge({
+    type: 'multi-gauge-2',
+    echartsOption:{
+      series: [
+        {
+          name: 'Pressure',
+          type: 'gauge',
+          startAngle:90,
+          endAngle:-270,
+          detail: {
+            formatter: '{value}',
+            offsetCenter:[0,0],
+            fontSize:16,
+          },
+          progress:{show:true},
+          splitLine:{show:false},
+          axisTick:{show:false},
+          axisLabel:{show:false},
+          pointer:{show:false},
+          data: [50]
+        },
+        {
+          name: 'Pressure3',
+          type: 'gauge',
+          startAngle:90,
+          endAngle:-270,
+          detail: {
+            formatter: '{value}',
+            offsetCenter:[0,0],
+            fontSize:16,
+          },
+          progress:{show:true},
+          splitLine:{show:false},
+          axisTick:{show:false},
+          axisLabel:{show:false},
+          pointer:{show:false},
+          data: [50]
+        },
+        {
+          name: 'Pressure4',
+          type: 'gauge',
+          startAngle:90,
+          endAngle:-270,
+          detail: {
+            formatter: '{value}',
+            offsetCenter:[0,0],
+            fontSize:16,
+          },
+          progress:{show:true},
+          splitLine:{show:false},
+          axisTick:{show:false},
+          axisLabel:{show:false},
+          pointer:{show:false},
+          data: [50]
+        },
+        {
+          name: 'Pressure2',
+          type: 'gauge',
+          startAngle:90,
+          endAngle:-270,
+          detail: {
+            formatter: '{value}',
+            offsetCenter:[0,0],
+            fontSize:16,
+          },
+          progress:{show:true},
+          splitLine:{show:false},
+          axisTick:{show:false},
+          axisLabel:{show:false},
+          pointer:{show:false},
+          data: [50]
+        },
+        {
+          name: 'Pressure2',
+          type: 'gauge',
+          startAngle:90,
+          endAngle:-270,
+          detail: {
+            formatter: '{value}',
+            offsetCenter:[0,0],
+            fontSize:16,
+          },
+          progress:{show:true},
+          splitLine:{show:false},
+          axisTick:{show:false},
+          axisLabel:{show:false},
+          pointer:{show:false},
+          data: [50]
+        },
+        {
+          name: 'Pressure2',
+          type: 'gauge',
+          startAngle:90,
+          endAngle:-270,
+          detail: {
+            formatter: '{value}',
+            offsetCenter:[0,0],
+            fontSize:16,
+          },
+          progress:{show:true},
+          splitLine:{show:false},
+          axisTick:{show:false},
+          axisLabel:{show:false},
+          pointer:{show:false},
+          data: [50]
+        },
+      ]
+    }
+  }),
+
 ]

@@ -1,41 +1,5 @@
 import { clone } from '@/share/util/base'
-const axisLineChartTypes = ['ChartLine', 'ChartCurve', 'ChartBar']
 
-const defaultEchartsOpt = {
-  color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272'],
-  title: {
-    text: '标题123456',
-    show: false,
-    left: '10%',
-    top: 20,
-    right: 'auto',
-    textStyle: {
-      fontFamily: 'microsoft YaHei',
-      color: '#FFFFFF',
-      fontSize: 18,
-      fontWeight: 'normal',
-      fontStyle: 'normal'
-    }
-  },
-  grid: {
-    top: '20%',
-    bottom: '15%'
-  },
-  unit: {
-    text: '单位',
-    show: false,
-    left: '10%',
-    top: 50,
-    right: 'auto',
-    textStyle: {
-      fontFamily: 'microsoft YaHei',
-      color: '#FFFFFF',
-      fontSize: 18,
-      fontWeight: 'normal',
-      fontStyle: 'normal'
-    }
-  }
-}
 export class BaseChart {
   defaultMatrixOpt = {
     left: 0,
@@ -60,7 +24,7 @@ export class BaseChart {
     for (const key of Object.keys(target)) {
       if (!Object.prototype.hasOwnProperty.call(custom,key)) custom[key] = target[key]
       else {
-        if (typeof custom[key] === 'object') custom[key] = this.merge(target[key], custom[key])
+        if (typeof custom[key] === 'object'&&typeof target[key] === 'object') custom[key] = this.merge(target[key], custom[key])
       }
     }
     return custom
@@ -70,10 +34,11 @@ export class BaseChart {
     const label = {
       color: '#FFFFFF',
       fontFamily: 'microsoft YaHei',
-      fontSize: 18,
+      fontSize: 12,
       fontStyle: 'normal',
       fontWeight: 'normal',
-      show: true
+      show: true,
+      position:"top"
     }
     for (const series of option.echartsOption.series) {
       if (!series.label) series.label = {}

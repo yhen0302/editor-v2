@@ -386,7 +386,7 @@ export const pieChartList = [
           data: [
             {
               name: '北京',
-              value: [25,0],
+              value: [25, 0],
               lineStyle: {
                 width: 1,
                 color: '#33C0CD'
@@ -394,7 +394,7 @@ export const pieChartList = [
             },
             {
               name: '上海',
-              value: [20,1],
+              value: [20, 1],
               lineStyle: {
                 width: 1,
                 color: '#73ACFF'
@@ -402,7 +402,7 @@ export const pieChartList = [
             },
             {
               name: '广州',
-              value: [18,2],
+              value: [18, 2],
               lineStyle: {
                 width: 1,
                 color: '#9E87FF'
@@ -410,7 +410,7 @@ export const pieChartList = [
             },
             {
               name: '深圳',
-              value: [15,3],
+              value: [15, 3],
               lineStyle: {
                 width: 1,
                 color: '#FE6969'
@@ -418,7 +418,7 @@ export const pieChartList = [
             },
             {
               name: '未知',
-              value: [13,4],
+              value: [13, 4],
               lineStyle: {
                 width: 1,
                 color: '#FDB36A'
@@ -426,7 +426,7 @@ export const pieChartList = [
             },
             {
               name: '海外',
-              value: [9,5],
+              value: [9, 5],
               lineStyle: {
                 width: 1,
                 color: '#FECE43'
@@ -437,5 +437,5 @@ export const pieChartList = [
         }
       ]
     }
-  })
+  }),
 ]

@@ -300,6 +300,7 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
         name: '表格样式-001-',
         type: 'BaseTable',
         option: {
+          style:'table-1',
           emitters: {},
           matrixOption: {
             left: 0,
@@ -347,8 +348,117 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
             sex:'不良状态'
           },
         },
+      },
+      {
+        icon: require('../../../assets/images/table-style1.png'),
+        name: '表格样式-002-',
+        type: 'BaseTable',
+        option: {
+          style:'table-2',
+          emitters: {},
+          matrixOption: {
+            left: 0,
+            top: 0,
+            height: 100,
+            width: 200,
+            angle: 0
+          },
+          tableData: [
+            {
+              name:'1',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'无不良'
+            },{
+              name:'2',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'无不良'
+            },{
+              name:'3',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'无不良'
+            },{
+              name:'4',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'无不良'
+            },{
+              name:'5',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'无不良'
+            },{
+              name:'6',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'不良'
+            }],
+          tableMap:{
+            name:'序号',
+            age:'姓名',
+            hobby:'位置',
+            sex:'不良状态'
+          },
+        },
+      },
+      {
+        icon: require('../../../assets/images/table-style1.png'),
+        name: '表格样式-003-',
+        type: 'BaseTable',
+        option: {
+          style:'table-3',
+          emitters: {},
+          matrixOption: {
+            left: 0,
+            top: 0,
+            height: 100,
+            width: 200,
+            angle: 0
+          },
+          tableData: [
+            {
+              name:'1',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'无不良'
+            },{
+              name:'2',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'无不良'
+            },{
+              name:'3',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'无不良'
+            },{
+              name:'4',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'无不良'
+            },{
+              name:'5',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'无不良'
+            },{
+              name:'6',
+              age:"王小虎",
+              sex:'分拣区',
+              hobby:'不良'
+            }],
+          tableMap:{
+            name:'序号',
+            age:'姓名',
+            hobby:'位置',
+            sex:'不良状态'
+          },
+        },
       }
-    ]
+
+    ] as Array<any>
   }
 }
 

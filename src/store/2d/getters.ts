@@ -39,11 +39,18 @@ export default {
         case 'ChartLine':
         case 'ChartCurve':
         case 'ChartScatter':
+        case 'ChartYCategoryBar':
           return 'AxisLineChartConfigurator'
         case 'ChartPie':
         case 'ChartGauge':
         case 'ChartRadar':
           return 'PieChartConfigurator'
+        case 'ChartPolarBar':
+          return 'AxisPolarChartConfigurator'
+        case 'ChartMultiPolarBar':
+          return 'MultiPolarChartConfigurator'
+        case 'ChartMultiGauge':
+          return 'MultiGaugeChartConfigurator'
         case 'BaseTable':
           return 'TableConfigurator'
       }

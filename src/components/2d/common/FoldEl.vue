@@ -19,7 +19,7 @@
       class="fold-content-wrapper box-border"
       ref="foldContent"
       :style="{
-        height: realHeight,
+        maxHeight: realHeight,
         overflow: controlFold ? 'hidden' : 'visible'
       }"
     >
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { computed, nextTick, onMounted, ref, watch, isRef, onUpdated } from 'vue'
+import { computed, nextTick, onMounted, ref, watch, isRef, onUpdated, onUnmounted } from 'vue'
 import LineEl from './LineEl'
 import { cssUnitToNumber } from '@/share/util/base'
 
@@ -70,13 +70,16 @@ export default {
       if (foldContent.value) cacheHeight.value = foldContent.value.scrollHeight
     }
 
-    /*  watch(
-      () => props.heightUpdate,
-      (newVal) => {
-        newVal && updateHeight()
-      },
-      { flush: 'sync' }
-    )*/
+    const task = ()=>{
+      updateHeight()
+      requestAnimationFrame(task)
+    }
+    onMounted(()=>{
+      requestAnimationFrame(task)
+    })
+    onUnmounted(()=>{
+      requestAnimationFrame(task)
+    })
 
     if (isRef(fold)) {
       onUpdated(updateHeight)
@@ -115,7 +118,7 @@ export default {
 .fold-content-wrapper {
   will-change: height;
   overflow: hidden;
-  transition: 0.2s height ease-out;
+  transition: 0.2s max-height ease-out;
 }
 
 .fold-content {

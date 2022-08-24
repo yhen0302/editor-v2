@@ -12,8 +12,16 @@ export const baseShapeList = [
         top: 0,
         height: 100,
         width: 200,
-        angle: 0
+        angle: 0,
+        borderTopLeftRadius:20,
+        borderTopRightRadius:20,
+        borderBottomLeftRadius:20,
+        borderBottomRightRadius:20,
       },
+      shadowColor:toColor('rgba(0,0,0,0)'),
+      shadowX:0,
+      shadowY:0,
+      shadowBlur:0,
       transparency: 100,
       color:toColor('#6582fe'),
       value: ''
@@ -30,8 +38,16 @@ export const baseShapeList = [
         top: 0,
         height: 100,
         width: 200,
-        angle: 0
+        angle: 0,
+        borderTopLeftRadius:0,
+        borderTopRightRadius:0,
+        borderBottomLeftRadius:0,
+        borderBottomRightRadius:0,
       },
+      shadowColor:toColor('rgba(0,0,0,0)'),
+      shadowX:0,
+      shadowY:0,
+      shadowBlur:0,
       transparency: 100,
       color:toColor('#6582fe'),
       value: ''
@@ -50,6 +66,10 @@ export const baseShapeList = [
         width: 200,
         angle: 0
       },
+      shadowColor:toColor('rgba(0,0,0,0)'),
+      shadowX:0,
+      shadowY:0,
+      shadowBlur:0,
       transparency: 100,
       color:toColor('#6582fe'),
       value: ''
@@ -68,6 +88,10 @@ export const baseShapeList = [
         width: 200,
         angle: 0
       },
+      // shadowColor:toColor('rgba(0,0,0,0)'),
+      // shadowX:0,
+      // shadowY:0,
+      // shadowBlur:0,
       transparency: 100,
       color:toColor('#6582fe'),
       value: ''

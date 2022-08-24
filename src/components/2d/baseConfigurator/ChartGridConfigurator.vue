@@ -6,11 +6,7 @@
           <template #header>
             <div class="sub-fold-header title-cnf flex items-center">
               <span class="config-item-pre pl-16 text-12">绘图坐标</span>
-              <check-el
-                style="flex-shrink: 0"
-                label="标签"
-                v-model:value="labelShow"
-              ></check-el>
+              <check-el style="flex-shrink: 0" label="标签" v-model:value="labelShow"></check-el>
             </div>
           </template>
           <template #default>
@@ -30,14 +26,8 @@
                     style="flex-shrink: 0"
                     v-model:value="labelColor"
                   ></color-picker-el>
-                  <input-el
-                    style="height: 32px"
-                    type="number"
-                    v-model:value="labelFontSize"
-                  >
-                    <template #prefix
-                      ><span class="inp-prefix text-12">px</span></template
-                    >
+                  <input-el style="height: 32px" type="number" v-model:value="labelFontSize">
+                    <template #prefix><span class="inp-prefix text-12">px</span></template>
                   </input-el>
                 </div>
               </div>
@@ -59,11 +49,7 @@
           <template #header>
             <div class="sub-fold-header title-cnf flex items-center">
               <span class="config-item-pre pl-16 text-12">刻度</span>
-              <check-el
-                style="flex-shrink: 0"
-                label="网格线"
-                v-model:value="gridShow"
-              ></check-el>
+              <check-el style="flex-shrink: 0" label="网格线" v-model:value="gridShow"></check-el>
             </div>
           </template>
           <template #default>
@@ -75,14 +61,9 @@
                     style="flex-shrink: 0"
                     v-model:value="gridColor"
                   ></color-picker-el>
-                  <input-el
-                    style="height: 32px"
-                    v-model:value="gridColor"
-                  ></input-el>
+                  <input-el style="height: 32px" v-model:value="gridColor"></input-el>
                   <input-el style="height: 32px" v-model:value="gridOpacity">
-                    <template #suffix
-                      ><span class="inp-suf text-12">%</span></template
-                    >
+                    <template #suffix><span class="inp-suf text-12">%</span></template>
                   </input-el>
                 </div>
               </div>
@@ -136,78 +117,67 @@ export default {
 
     const labelShow = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption
-          .series[0].label.show
+        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series[0].label.show
       },
       set(newVal) {
-        editorGetter[
-          'GET_SELECT_NODE'
-        ].value.option.echartsOption.series[0].label.show = newVal
+        editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series.forEach((s) => {
+          s.label.show = newVal
+        })
       }
     })
     const labelFontFamily = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption
-          .series[0].label.fontFamily
+        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series[0].label.fontFamily
       },
       set(newVal) {
-        editorGetter[
-          'GET_SELECT_NODE'
-        ].value.option.echartsOption.series[0].label.fontFamily = newVal
+        editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series.forEach((s) => {
+          s.label.fontFamily = newVal
+        })
       }
     })
     const labelColor = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption
-          .series[0].label.color
+        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series[0].label.color
       },
       set(newVal) {
-        editorGetter[
-          'GET_SELECT_NODE'
-        ].value.option.echartsOption.series[0].label.color = newVal
+        editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series.forEach((s) => {
+          s.label.color = newVal
+        })
       }
     })
     const labelFontSize = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption
-          .series[0].label.fontSize
+        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series[0].label.fontSize
       },
       set(newVal) {
-        editorGetter[
-          'GET_SELECT_NODE'
-        ].value.option.echartsOption.series[0].label.fontSize = newVal
+        editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series.forEach((s) => {
+          s.label.fontSize = newVal
+        })
       }
     })
     const labelFontStyle = computed<Array<any>>({
       get() {
         const weight =
-          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series[0]
-            .label.fontWeight === 'bold'
+          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series[0].label.fontWeight ===
+          'bold'
         const italic =
-          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series[0]
-            .label.fontStyle === 'italic'
+          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series[0].label.fontStyle ===
+          'italic'
         return weight ? (italic ? ['weight', 'italic'] : ['weight']) : []
       },
       set(newVal) {
-        console.log(newVal)
-        editorGetter[
-          'GET_SELECT_NODE'
-        ].value.option.echartsOption.series[0].label.fontWeight = 'normal'
-        editorGetter[
-          'GET_SELECT_NODE'
-        ].value.option.echartsOption.series[0].label.fontStyle = 'normal'
-        newVal.forEach((item) => {
-          switch (item) {
-            case 'weight':
-              editorGetter[
-                'GET_SELECT_NODE'
-              ].value.option.echartsOption.series[0].label.fontWeight = 'bold'
-              break
-            case 'italic':
-              editorGetter[
-                'GET_SELECT_NODE'
-              ].value.option.echartsOption.series[0].label.fontStyle = 'italic'
-          }
+        editorGetter['GET_SELECT_NODE'].value.option.echartsOption.series.forEach((s) => {
+          s.label.fontWeight = 'normal'
+          s.label.fontStyle = 'normal'
+          newVal.forEach((item) => {
+            switch (item) {
+              case 'weight':
+                s.label.fontWeight = 'bold'
+                break
+              case 'italic':
+                s.label.fontStyle = 'italic'
+            }
+          })
         })
       }
     })
@@ -215,19 +185,16 @@ export default {
     // 网格线
     const gridShow = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.yAxis
-          .splitLine.show
+        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.yAxis.splitLine.show
       },
       set(newVal) {
-        editorGetter[
-          'GET_SELECT_NODE'
-        ].value.option.echartsOption.yAxis.splitLine.show = newVal
+        editorGetter['GET_SELECT_NODE'].value.option.echartsOption.yAxis.splitLine.show = newVal
       }
     })
     const gridColor = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.yAxis
-          .splitLine.lineStyle.color[0]
+        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.yAxis.splitLine.lineStyle
+          .color[0]
       },
       set(newVal) {
         return (editorGetter[
@@ -238,13 +205,15 @@ export default {
 
     const gridOpacity = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.yAxis
-          .splitLine.lineStyle.opacity * 100
+        return (
+          editorGetter['GET_SELECT_NODE'].value.option.echartsOption.yAxis.splitLine.lineStyle
+            .opacity * 100
+        )
       },
       set(newVal) {
         editorGetter[
           'GET_SELECT_NODE'
-        ].value.option.echartsOption.yAxis.splitLine.lineStyle.opacity = newVal/100
+        ].value.option.echartsOption.yAxis.splitLine.lineStyle.opacity = newVal / 100
       }
     })
 

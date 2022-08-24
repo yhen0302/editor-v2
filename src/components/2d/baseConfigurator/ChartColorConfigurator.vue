@@ -64,8 +64,6 @@ export default {
         clone(color.colors)
           .sort((a, b) => a.pst - b.pst)
           .forEach(mappingStyle)
-        console.log('echartsColor', echartsColor)
-        console.log('deg', deg)
         style += ')'
         color.style = style
         return color
@@ -102,7 +100,6 @@ export default {
       const node = editorGetter['GET_SELECT_NODE'].value
       const tempColors = node.option.echartsOption.color
       const mappingColors = tempColors.map(echartsColorToPickerColor)
-      console.log(node)
       return mappingColors
     })
     function updateColor({ value, index }) {

@@ -18,31 +18,7 @@ class Bar extends BaseChart {
       angle: 0
     }
     const defaultEchartsOpt = {
-      color: [
-        {
-          type: 'linear',
-          x: 0,
-          y: 1,
-          x2: 0,
-          y2: 0,
-          colorStops: [
-            {
-              offset: 0,
-              color: '#ff0000' // 0% 处的颜色
-            },
-            {
-              offset: 1,
-              color: '#0000ff' // 100% 处的颜色
-            }
-          ],
-          global: false // 缺省为 false
-        },
-        '#91cc75',
-        '#fac858',
-        '#ee6666',
-        '#73c0de',
-        '#3ba272'
-      ],
+      color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272'],
       title: {
         text: '标题123456',
         show: false,
@@ -102,10 +78,19 @@ class Bar extends BaseChart {
     this.mergeLabel(this.option)
   }
 }
-
+class PolarBar extends Bar {
+  type = 'ChartPolarBar'
+}
+class YCategoryBar extends Bar {
+  type = 'ChartYCategoryBar'
+}
+class MultiPolarBar extends Bar {
+  type = 'ChartMultiPolarBar'
+}
 export const barChartList = [
   new Bar({
     echartsOption: {
+      xAxis: { data: ['2012', '2013', '2014', '2015', '2016', '2017', '2018'] },
       series: [
         {
           data: [10, 40, 50, 80, 100, 25, 40],
@@ -118,8 +103,50 @@ export const barChartList = [
             fontFamily: 'microsoft YaHei',
             fontStyle: 'normal',
             fontWeight: 'normal',
-            fontSize: 18
+            fontSize: 12
           }
+        }
+      ]
+    }
+  }),
+  new Bar({
+    echartsOption: {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        },
+        formatter: function (params) {
+          var tar = params[1]
+          return tar.name + '<br/>' + tar.seriesName + ' : ' + tar.value
+        }
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        splitLine: { show: false },
+        data: ['Total', 'Rent', 'Utilities', 'Transportation', 'Meals', 'Other']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          name: 'Placeholder',
+          type: 'bar',
+          stack: 'Total',
+          data: [0, 1700, 1400, 1200, 300, 0]
+        },
+        {
+          name: 'Life Cost',
+          type: 'bar',
+          stack: 'Total',
+          data: [2900, 1200, 300, 200, 900, 300]
         }
       ]
     }
@@ -204,12 +231,12 @@ export const barChartList = [
         {
           type: 'bar',
           data: [35, 50, 30, 40, 50, 60],
+          name: '图表一',
           barWidth: 10,
           itemStyle: {
             shadowColor: 'rgba(5, 213, 255, 1)',
             shadowBlur: 4,
-            barBorderRadius: 11,
-
+            barBorderRadius: 11
           },
           label: {
             show: true,
@@ -229,7 +256,7 @@ export const barChartList = [
     echartsOption: {
       color: [
         {
-          type:'linear',
+          type: 'linear',
           x: 0,
           y: 0,
           x2: 0,
@@ -246,7 +273,7 @@ export const barChartList = [
           ]
         },
         {
-          type:'linear',
+          type: 'linear',
           x: 0,
           y: 0,
           x2: 0,
@@ -263,7 +290,7 @@ export const barChartList = [
           ]
         },
         {
-          type:'linear',
+          type: 'linear',
           x: 0,
           y: 0,
           x2: 0,
@@ -342,8 +369,8 @@ export const barChartList = [
           type: 'bar',
           barWidth: '15%',
           label: { show: false },
-          itemStyle:{
-            barBorderRadius: 11,
+          itemStyle: {
+            barBorderRadius: 11
           },
           data: [400, 400, 300, 300, 300, 400, 400, 400, 300]
         },
@@ -352,8 +379,8 @@ export const barChartList = [
           type: 'bar',
           barWidth: '15%',
           label: { show: false },
-          itemStyle:{
-            barBorderRadius: 11,
+          itemStyle: {
+            barBorderRadius: 11
           },
           data: [400, 500, 500, 500, 500, 400, 400, 500, 500]
         },
@@ -362,10 +389,421 @@ export const barChartList = [
           type: 'bar',
           barWidth: '15%',
           label: { show: false },
-          itemStyle:{
-            barBorderRadius: 11,
+          itemStyle: {
+            barBorderRadius: 11
           },
           data: [400, 600, 700, 700, 1000, 400, 400, 600, 700]
+        }
+      ]
+    }
+  }),
+  new Bar({
+    echartsOption: {
+      color: [
+        {
+          type: 'linear',
+          x: 0,
+          y: 1,
+          x2: 0,
+          y2: 0,
+          colorStops: [
+            {
+              color: 'rgba(255, 255, 255, 0.03)',
+              offset: 0
+            },
+            {
+              color: 'rgba(0, 255, 255, 1)',
+              offset: 1
+            }
+          ]
+        }
+      ],
+      backgroundColor: '#05224d',
+      grid: {
+        top: '8%',
+        left: '1%',
+        right: '1%',
+        bottom: '8%',
+        containLabel: true
+      },
+      legend: {
+        itemGap: 50,
+        data: ['注册总量', '最新注册量'],
+        textStyle: {
+          color: '#f9f9f9',
+          borderColor: '#fff'
+        }
+      },
+      xAxis: {
+        type: 'category',
+        boundaryGap: true,
+        axisLine: {
+          //坐标轴轴线相关设置。数学上的x轴
+          show: true,
+          lineStyle: {
+            color: '#f9f9f9'
+          }
+        },
+        axisLabel: {
+          //坐标轴刻度标签的相关设置
+          textStyle: {
+            color: '#d1e6eb',
+            margin: 15
+          }
+        },
+        axisTick: {
+          show: false
+        },
+        data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月']
+      },
+      yAxis: {
+        type: 'value',
+        splitLine: {
+          show: true,
+          lineStyle: {
+            color: '#0a3256'
+          }
+        },
+        axisLine: {
+          show: false
+        },
+        axisLabel: {
+          margin: 20,
+          textStyle: {
+            color: '#d1e6eb'
+          }
+        },
+        axisTick: {
+          show: false
+        }
+      },
+      series: [
+        {
+          name: '注册总量',
+          type: 'line',
+          // smooth: true, //是否平滑曲线显示
+          // 			symbol:'circle',  // 默认是空心圆（中间是白色的），改成实心圆
+          showAllSymbol: true,
+          symbol: 'emptyCircle',
+          symbolSize: 6,
+          lineStyle: {
+            normal: {
+              color: '#28ffb3' // 线条颜色
+            },
+            borderColor: '#f0f'
+          },
+          label: {
+            show: true,
+            position: 'top',
+            textStyle: {
+              color: '#fff'
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: '#28ffb3'
+            }
+          },
+          tooltip: {
+            show: false
+          },
+          areaStyle: {
+            //区域填充样式
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                {
+                  offset: 0,
+                  color: 'rgba(0,154,120,1)'
+                },
+                {
+                  offset: 1,
+                  color: 'rgba(0,0,0, 0)'
+                }
+              ]
+            }
+          },
+          data: [393, 438, 485, 631, 689, 824, 987]
+        },
+        {
+          name: '最新注册量',
+          type: 'bar',
+          barWidth: 20,
+          tooltip: {
+            show: false
+          },
+          label: {
+            show: true,
+            position: 'top',
+            textStyle: {
+              color: '#fff'
+            }
+          },
+          data: [200, 382, 102, 267, 186, 315, 316]
+        }
+      ]
+    }
+  }),
+  new Bar({
+    echartsOption: {
+      backgroundColor: '#00265f',
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: [
+          '喀什市',
+          '疏附县',
+          '疏勒县',
+          '英吉沙县',
+          '泽普县',
+          '岳普湖县',
+          '巴楚县',
+          '伽师县',
+          '叶城县',
+          '莎车县 '
+        ],
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: '#063374',
+            width: 1,
+            type: 'solid'
+          }
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel: {
+          show: true,
+          textStyle: {
+            color: '#00c7ff'
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        axisLabel: {
+          formatter: '{value} %'
+        },
+        axisLine: {
+          show: false,
+          lineStyle: {
+            color: '#00c7ff',
+            width: 1,
+            type: 'solid'
+          }
+        },
+        axisTick: {
+          show: false
+        },
+        splitLine: {
+          lineStyle: {
+            color: '#063374'
+          }
+        }
+      },
+      series: [
+        {
+          type: 'bar',
+          data: [20, 50, 80, 58, 83, 68, 57, 80, 42, 66],
+          //barWidth: 50, //柱子宽度
+          //barGap: 1, //柱子之间间距
+          itemStyle: {
+            color: {
+              x: 0,
+              y: 0,
+              y2: 1,
+              x2: 0,
+              colorStops: [
+                { offset: 0, color: '#00fcae' },
+                { offset: 1, color: '#006388' }
+              ]
+            },
+            opacity: 1
+          }
+        }
+      ]
+    }
+  }),
+  new Bar({
+    echartsOption:{
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'aaa', 'bbbb']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      legend: {
+        icon: 'circle',
+        show: true,
+        itemWidth: 4,
+        itemHeight: 4
+      },
+      series: [
+        {
+          name: 'zhangsan',
+          data: [120, 200, 150, -50, -30],
+          type: 'bar',
+          barWidth: 4,
+          itemStyle: {
+            borderRadius: 2
+          }
+        },
+        {
+          name: 'lisi',
+          data: [120, 200, 150, -50, -30],
+          type: 'bar',
+          itemStyle: {
+            borderRadius: 2
+          },
+          barGap: 0.5,
+          barWidth: 4
+        }
+      ]
+    }
+  }),
+  new PolarBar({
+    echartsOption: {
+      xAxis: { axisLine: { show: false } },
+      polar: {
+        radius: [30, '80%']
+      },
+      angleAxis: {
+        max: 4,
+        startAngle: 75
+      },
+      radiusAxis: {
+        type: 'category',
+        data: ['a', 'b', 'c', 'd']
+      },
+      series: [
+        {
+          type: 'bar',
+          name: '图表一',
+          data: [2, 1.2, 2.4, 3.6],
+          coordinateSystem: 'polar',
+          label: {
+            show: true,
+            position: 'middle',
+            formatter: '{b}: {c}'
+          }
+        }
+      ]
+    }
+  }),
+  new YCategoryBar({
+    echartsOption: {
+      grid: { containLabel: true, left: '5%', top: '20%', bottom: '5%' },
+      xAxis: {
+        show: false, //是否显示x轴
+        type: 'value'
+      },
+      yAxis: {
+        type: 'category',
+        inverse: true, //让y轴数据逆向
+        axisLabel: {
+          show: true,
+          textStyle: {
+            color: '#666' //y轴字体颜色
+          }
+          //定义富文本标签
+        },
+        splitLine: { show: false }, //横向的线
+        axisTick: { show: false }, //y轴的端点
+        axisLine: { show: false }, //y轴的线
+        data: ['闽DZ0175', '闽DZ6027', '闽D83876', '闽DZ1377', '闽DZ8825']
+      },
+      series: [
+        {
+          name: '数据内框',
+          type: 'bar',
+          itemStyle: {
+            barBorderRadius: 30,
+            color: '#00b5eb'
+          },
+          showBackground: true,
+          backgroundStyle: {
+            color: 'rgba(255, 255, 255, 0.14)',
+            borderRadius: 30
+          },
+          barWidth: '18%',
+          data: [11, 33, 77, 39, 55]
+        }
+      ]
+    }
+  }),
+  new YCategoryBar({
+    echartsOption: {
+      color: ['#3CB371', '#3fa7d3', '#FF6347'],
+      backgroundColor: '#ffffff',
+      grid: { left: '5%', containLabel: true },
+      legend: {
+        data: ['优秀', '良好', '一般']
+      },
+      yAxis: {
+        type: 'category',
+        data: ['区局', '南宁市', '南宁市', '柳州市', '柳州市', '桂林市'],
+        inside: true,
+        axisLabel: { width: 70, overflow: 'truncate' }
+      },
+      xAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          name: '优秀',
+          type: 'bar',
+          stack: '总量',
+          itemStyle: {
+            normal: {
+              label: {
+                show: true,
+                position: 'inside'
+              },
+              color: '#3CB371'
+            }
+          },
+          data: [133, 333, 222, 541, 341, 133]
+        },
+        {
+          name: '良好',
+          type: 'bar',
+          stack: '总量',
+          itemStyle: {
+            normal: {
+              label: {
+                show: true,
+                position: 'inside'
+              },
+              color: '#3fa7d3'
+            }
+          },
+          data: [120, 132, 101, 134, 90, 120]
+        },
+        {
+          name: '一般',
+          type: 'bar',
+          stack: '总量',
+          itemStyle: {
+            normal: {
+              label: {
+                show: true,
+                position: 'inside'
+              },
+              color: '#FF6347'
+            }
+          },
+          data: [120, 132, 101, 134, 90, 120]
         }
       ]
     }

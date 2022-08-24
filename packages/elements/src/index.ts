@@ -16,6 +16,10 @@ import ChartCurve from './components/chart/ChartCurve.vue'
 import ChartRadar from './components/chart/ChartRadar.vue'
 import ChartScatter from './components/chart/ChartScatter.vue'
 import BaseTable from './components/table/BaseTable.vue'
+import ChartPolarBar from './components/chart/ChartPolarBar.vue'
+import ChartMultiPolarBar from './components/chart/ChartMultiPolarBar.vue'
+import ChartMultiGauge from './components/chart/ChartMultiGauge.vue'
+
 
 import { App } from 'vue'
 
@@ -39,6 +43,10 @@ export default {
     app.component(BaseTable.name, BaseTable)
     app.component(ChartRadar.name, ChartRadar)
     app.component(ChartScatter.name, ChartScatter)
+    app.component(ChartPolarBar.name,ChartPolarBar)
+    app.component('ChartYCategoryBar',ChartBar)
+    app.component(ChartMultiPolarBar.name,ChartMultiPolarBar)
+    app.component(ChartMultiGauge.name,ChartMultiGauge)
   }
 }
 
@@ -58,3 +66,4 @@ export { ChartPie }
 export { ChartGauge }
 export { ChartCurve }
 export { BaseTable }
+export {ChartPolarBar}

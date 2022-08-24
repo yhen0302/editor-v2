@@ -1,7 +1,7 @@
 <template>
   <div class="select-detail bg-gray-dark" v-show="editorStore.selectBarToolType" v-memo="[editorStore.selectBarToolType, navIndex]">
-    <nav-tab v-model:index="navIndex" :title="activeTitle">
-      <nav-tab-item v-for="select in stack" :key="select.key">
+    <nav-tab v-model:index="navIndex" :title="activeTitle" style='height: 100%'>
+      <nav-tab-item v-for="select in stack" :key="select.key" style='height: calc(100% - 65px)'>
         <ul class="select-detail-list grid grid-cols-2 box-border p-16" v-if="select.viewType === 'block'">
           <li class="select-detail-item flex flex-col items-center border-box justify-between" v-for="item in select.list" :key="item.type" @click="clickSelectItem(item)">
             <img :src="item.icon" class="select-detail-sub-icon flex-shrink-0" draggable="false" v-if="item.children" />
@@ -172,6 +172,9 @@ export default {
 /* 添加元素区域 列表的样式 */
 .select-detail-list-l {
   gap: 16px;
+  height: 100%;
+  overflow: auto;
+  align-content: start;
 }
 
 .select-detail-list-l-item {

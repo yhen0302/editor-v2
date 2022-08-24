@@ -105,6 +105,7 @@ export default {
     watch(()=>props.node.option.apiMapping,()=>{
       instance.ctx.debounceSetOption()
     })
+
   },
   watch: {
     'node.option.echartsOption.color': {

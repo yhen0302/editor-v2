@@ -5,33 +5,38 @@ export default {
     updateEchartsSize() {
       this.myChart.resize()
     },
-    updateEchartsOption(notMerge) {
-      if (this.node.option.dataType === 'api' && this.node.option.apiUrl) {
-        const echartsOpt = clone(this.node.option.echartsOption)
-        const tempSeries = echartsOpt.series[0]
-        echartsOpt.series = []
-        fetch(this.node.option.apiUrl)
-          .then((res) => res.json())
-          .then((data) => {
-            this.node.option.apiMapping.forEach((item) => {
-              if (item.target === 'x') {
-                echartsOpt.xAxis.data = valueHandle(data, item.path)
-              } else {
-                let series = clone(tempSeries)
-                series.data = valueHandle(data, item.path)
-                series.name = valueHandle(data, item.name) || item.name
-                echartsOpt.series.push(series)
-              }
-            })
+    async setApiData(option) {
+      const echartsOpt = clone(option || this.node.option.echartsOption)
+      const tempSeries = echartsOpt.series[0]
+      echartsOpt.series = []
+      const data = await (await fetch(this.node.option.apiUrl)).json()
+      this.node.option.apiMapping.forEach((item) => {
+        if (item.target === 'x') {
+          echartsOpt.xAxis.data = valueHandle(data, item.path)
+        } else {
+          let series = clone(tempSeries)
+          series.data = valueHandle(data, item.path)
+          series.name = valueHandle(data, item.name) || item.name
+          echartsOpt.series.push(series)
+        }
+      })
 
-            this.myChart.setOption(echartsOpt, notMerge)
-
-          })
-
-      } else {
-        this.myChart.setOption(this.node.option.echartsOption, notMerge)
+      return echartsOpt
+    },
+    updateEchartsOption(option, notMerge = false, resize = false) {
+      if (typeof option === 'boolean') {
+        option = null
+        notMerge = option
       }
-      this.computedTop(this.node.option.echartsOption)
+      if (resize) this.myChart.resize()
+      if (this.node.option.dataType === 'api' && this.node.option.apiUrl) {
+        this.setApiData(option).then((echartsOption) => {
+          this.myChart.setOption(option || this.node.option.echartsOption, notMerge)
+        })
+      } else {
+        this.myChart.setOption(option || this.node.option.echartsOption, notMerge)
+      }
+      this.computedTop(option || this.node.option.echartsOption)
     },
     computedTop(option) {
       let top = 50

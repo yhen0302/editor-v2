@@ -10,7 +10,8 @@
       left,
       top,
       background: color,
-      opacity
+      opacity,
+      boxShadow
     }"
     @mousedown="onMouseDown"
   ></div>
@@ -35,10 +36,13 @@ export default {
     const opacity = computed(() => {
       return (props.node.option.transparency / 100).toFixed(2)
     })
-
+    const boxShadow = computed(() => {
+      return `${props.node.option.shadowX}px ${props.node.option.shadowY}px ${props.node.option.shadowBlur}px ${props.node.option.shadowColor}`
+    })
     return {
       color,
-      opacity
+      opacity,
+      boxShadow
     }
   },
 }

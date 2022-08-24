@@ -392,6 +392,104 @@ export const curveChartList = [
         }
       ]
     }
+  }),
+  new Curve({
+    echartsOption:{
+      color:['#FF862A'],
+      xAxis: {
+        type: 'category',
+        data: [15, 16, 17, 18, 19, 20, 21],
+        splitLine:{show:true,lineStyle:{color:'rgba(70,68,71,0.2)'}},
+        axisLine:{lineStyle:{color:'#464447'}},
+        boundaryGap:false
+      },
+      yAxis: {
+        type: 'value',
+        splitLine:{show:true,lineStyle:{color:'rgba(70,68,71,0.2)'}},
+      },
+      series: [
+        {
+          data: [150, 230, 224, 218, 135, 147, 260],
+          type: 'line',
+          smooth:true,
+          symbol:'circle',
+          symbolSize:6,
+          lineStyle:{
+            color:'#FFFFFF'
+          }
+        }
+      ]
+    }
+  }),
+  new Curve({
+    echartsOption:{
+      color: ['#80FFA5', '#00DDFF', '#37A2FF', '#FF0087', '#FFBF00'],
+      legend:{
+        icon:'rect',
+        itemWidth:18,
+        itemHeight:4,
+        top:'bottom'
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          label: {
+            backgroundColor: '#6a7985'
+          }
+        }
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: 50,
+        containLabel: true
+      },
+      xAxis:
+        {
+          type: 'category',
+          boundaryGap: false,
+          data: ['15', '16', '17', '18', '19', '20', '21']
+        }
+      ,
+      yAxis:
+        {
+          type: 'value'
+        }
+      ,
+      series: [
+        {
+          name: 'Line 1',
+          type: 'line',
+          smooth: true,
+          lineStyle: {
+            width: 1
+          },
+          showSymbol: false,
+          data: [140, 232, 101, 264, 90, 340, 250]
+        },
+        {
+          name: 'Line 2',
+          type: 'line',
+          smooth: true,
+          lineStyle: {
+            width: 1
+          },
+          showSymbol: false,
+          data: [120, 282, 111, 234, 220, 340, 310]
+        },
+        {
+          name: 'Line 3',
+          type: 'line',
+          smooth: true,
+          lineStyle: {
+            width:1
+          },
+          showSymbol: false,
+          data: [320, 132, 201, 334, 190, 130, 220]
+        },
+      ]
+    }
   })
 
 ]

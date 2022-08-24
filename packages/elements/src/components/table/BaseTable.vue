@@ -90,8 +90,8 @@ export default {
       props.node.option.tableMap[key] = ev.target.innerText
       ev.target.setAttribute('contenteditable', false)
     }
-    const cssModule = useCssModule('table-1')
-    console.log(cssModule)
+
+    const cssModule = useCssModule(props.node.option.style)
     return { tableData, editTableData, editTableContentBlur, editTableHeaderBlur, cssModule }
   }
 }
@@ -131,7 +131,62 @@ export default {
   }
 }
 </style>
-<style></style>
-<style></style>
+<style module="table-2" lang="less">
+.table-wrapper {
+  background:none;
+}
+.table-header {
+  background: none !important;
+  th {
+    border: none !important;
+    color: rgba(229, 236, 250, .5);
+    font-size: 12px !important;
+  }
+  tr{
+    background: linear-gradient(90deg, rgba(161,170,192,0) 0%, rgba(161,170,192,0.9900) 49%, rgba(161,170,192,0) 100%) bottom/100% 1px no-repeat;
+  }
+}
+.table-body {
+  background: none !important;
+  td {
+    height: auto !important;
+    padding: 8px 0;
+    border: none !important;
+    color: rgb(229, 236, 250);
+    font-size: 12px !important;
+  }
+  tr{
+    background: linear-gradient(90deg, rgba(161,170,192,0) 0%, rgba(161,170,192,0.9900) 49%, rgba(161,170,192,0) 100%) bottom/100% 1px no-repeat;
+  }
+}
+
+</style>
+<style module="table-3" lang="less">
+.table-wrapper {
+  background:none;
+}
+.table-header {
+  background: none !important;
+  th {
+    padding: 8px 0;
+    border: none !important;
+    color: rgba(255, 255, 255, .5);
+    font-size: 12px !important;
+  }
+}
+.table-body {
+  background: none !important;
+  td {
+    height: auto !important;
+    padding: 8px 0;
+    border: none !important;
+    color: rgb(255, 255, 255);
+    font-size: 12px !important;
+  }
+  tr:nth-child(odd){
+    background: rgba(57, 57, 57, .7);
+  }
+}
+</style>
 <style></style>
 <style></style>

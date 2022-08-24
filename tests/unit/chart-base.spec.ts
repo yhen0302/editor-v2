@@ -3,11 +3,76 @@ import { BaseChart } from '../../src/components/2d/localData/chart/base'
 
 describe('chart/base', () => {
   it('test base handle value', () => {
-    const obj = {bb:"cc",aa:{dd:'ccc',kk:'aaa'},number:[1,2,3,4,5]}
-    const obj1 = {bb:"c",aa:{dd:'cc2',},number:[2,2,3,4,5]}
+
+    const obj = {color: [
+      {
+        type: 'linear',
+        x: 0,
+        y: 1,
+        x2: 0,
+        y2: 0,
+        colorStops: [
+          {
+            offset: 0,
+            color: '#ff0000' // 0% 处的颜色
+          },
+          {
+            offset: 1,
+            color: '#0000ff' // 100% 处的颜色
+          }
+        ],
+        global: false // 缺省为 false
+      },
+      '#91cc75',
+      '#fac858',
+      '#ee6666',
+      '#73c0de',
+      '#3ba272'
+    ],}
+    const obj1 = {color:[{
+        "type": "linear",
+        "x": 0,
+        "y": 1,
+        "x2": 0,
+        "y2": 0,
+        "colorStops": [
+          {
+            "color": "rgba(255, 255, 255, 0.03)",
+            "offset": 0,
+          },
+          {
+            "color": "rgba(0, 255, 255, 1)",
+            "offset": 1,
+          }
+        ]
+      }]}
 
     const chart = new BaseChart()
-    assert.deepEqual(chart.merge(obj,obj1),{bb:"c",aa:{dd:'cc2',kk:'aaa'},number:[2,2,3,4,5]})
+    assert.deepEqual(chart.merge(obj,obj1),{color: [
+        {
+          "type": "linear",
+          "x": 0,
+          "y": 1,
+          "x2": 0,
+          "y2": 0,
+          "colorStops": [
+            {
+              "color": "rgba(255, 255, 255, 0.03)",
+              "offset": 0,
+            },
+            {
+              "color": "rgba(0, 255, 255, 1)",
+              "offset": 1,
+            }
+          ],
+          "global": false
+        },
+        '#91cc75',
+        '#fac858',
+        '#ee6666',
+        '#73c0de',
+        '#3ba272'
+      ],})
   })
 })
 

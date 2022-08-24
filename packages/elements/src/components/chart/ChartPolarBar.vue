@@ -1,6 +1,6 @@
 <template>
   <div
-    class="chart-bar absolute"
+    class="chart-polar-bar absolute"
     @click.stop
     draggable="false"
     @mousedown="onMouseDown"
@@ -27,13 +27,14 @@ import { getCurrentInstance, watch } from 'vue'
 import chartMixin from "./chartMixin";
 
 export default {
-  name: 'ChartGauge',
+  name: 'ChartPolarBar',
   mixins: [matrixMixin,chartMixin],
   props: ['node'],
   mounted() {
     this.myChart = echarts.init(this.$refs.chartWrap)
     this.myChart.setOption(this.node.option.echartsOption)
   },
+
   methods: {
     debounceSetOption: debounce(function (...args) {
       this.updateEchartsOption(...args)
@@ -49,6 +50,7 @@ export default {
       },
       { deep: true }
     )
+
     watch(
       () => props.node.option.echartsOption.unit,
       (newVal, oldVal) => {
@@ -87,6 +89,13 @@ export default {
       { deep: true }
     )
     watch(
+      () => props.node.option.echartsOption.yAxis,
+      (newVal) => {
+        instance.ctx.debounceSetOption()
+      },
+      { deep: true }
+    )
+    watch(
       () => props.node.option.echartsOption.legend,
       (newVal) => {
         instance.ctx.debounceSetOption()
@@ -96,8 +105,8 @@ export default {
     watch(()=>props.node.option.apiMapping,()=>{
       instance.ctx.debounceSetOption()
     })
-  },
 
+  },
   watch: {
     'node.option.echartsOption.color': {
       handler(newVal, oldVal) {

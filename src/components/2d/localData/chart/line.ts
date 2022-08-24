@@ -143,4 +143,48 @@ export const lineChartList = [
       legend: { show: true }
     }
   }),
+  new Line({
+    echartsOption:{
+      color: [  {
+        type:'linear',
+        x: 0,
+        y: 0,
+        x2: 0,
+        y2: 1,
+        colorStops: [{color:'#ffb02c',offset:0,},{color:'rgba(255,255,255,0)',offset:1,}]
+      },{
+        type:'linear',
+        x: 0,
+        y: 0,
+        x2: 0,
+        y2: 1,
+        colorStops: [{color:'#19f1ec',offset:0,},{color:'rgba(255,255,255,0)',offset:1,}]
+      }],
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          data: [80, 190, 150, 200, 210, 223, 258],
+          type: 'line',
+          stack: 'Total',
+          areaStyle: {
+            opacity:.15
+          }
+        },
+        {
+          data: [150, 230, 224, 218, 135, 147, 260],
+          type: 'line',
+          stack: 'Total',
+          areaStyle: {
+            opacity:.15
+          }
+        },
+      ]
+    }
+  })
 ]

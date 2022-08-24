@@ -3,13 +3,19 @@
     <nav-tab v-model:index="propertyEditIndex" class="h-full">
       <template v-slot:header>
         <ul class="nav-tab-header items-center flex text-14">
-          <li class="nav-tab-h-item cursor-pointer" v-for="(item, index) in ['基础设置', '交互事件']" :class="{ active: propertyEditIndex === index }" @click="propertyEditIndex = index" :key="item">
+          <li
+            class="nav-tab-h-item cursor-pointer"
+            v-for="(item, index) in ['基础设置', '交互事件']"
+            :class="{ active: propertyEditIndex === index }"
+            @click="propertyEditIndex = index"
+            :key="item"
+          >
             {{ item }}
           </li>
         </ul>
       </template>
       <nav-tab-item class="pb-16px" style="height: calc(100% - 65px); overflow: auto">
-        <component :is="GET_CONFIGURATOR?GET_CONFIGURATOR:'i'"></component>
+        <component :is="GET_CONFIGURATOR ? GET_CONFIGURATOR : 'i'"></component>
         <!--<axis-line-chart-configurator></axis-line-chart-configurator>-->
         <!--<text-configurator></text-configurator> -->
         <!--<shape-configurator></shape-configurator>-->
@@ -40,6 +46,9 @@ import ShapeConfigurator from './configurator/ShapeConfigurator.vue'
 import MediaConfigurator from './configurator/MediaConfigurator.vue'
 import PieChartConfigurator from './configurator/PieChartConfigurator.vue'
 import TableConfigurator from './configurator/TableConfigurator.vue'
+import AxisPolarChartConfigurator from './configurator/AxisPolarChartConfigurator.vue'
+import MultiPolarChartConfigurator from './configurator/MultiPolarChartConfigurator.vue'
+import MultiGaugeChartConfigurator from './configurator/MultiGaugeChartConfigurator.vue'
 
 import LineEl from '@/components/utils/common/LineEl.vue'
 export default {
@@ -54,7 +63,10 @@ export default {
     ShapeConfigurator,
     MediaConfigurator,
     PieChartConfigurator,
-    TableConfigurator
+    TableConfigurator,
+    AxisPolarChartConfigurator,
+    MultiPolarChartConfigurator,
+    MultiGaugeChartConfigurator
   },
   setup() {
     const store = useStore()

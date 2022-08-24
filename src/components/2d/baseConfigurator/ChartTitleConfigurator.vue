@@ -338,12 +338,13 @@ export default {
         const u =
           editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit
 
+        console.log('uuuuu',u)
         u.textStyle.fontWeight = 'normal'
         u.textStyle.fontStyle = 'normal'
         newVal.forEach((item) => {
           switch (item) {
             case 'weight':
-              u.unit.textStyle.fontWeight = 'bold'
+              u.textStyle.fontWeight = 'bold'
               break
             case 'italic':
               u.textStyle.fontStyle = 'italic'
