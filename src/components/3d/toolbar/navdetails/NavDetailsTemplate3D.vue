@@ -1,7 +1,13 @@
 <template>
   <div class="nav-details-template-3d-main">
     <div class="content">
-      <ToolBarItem v-for="item in detailsList" :key="item.type" :icon="item.icon" :name="item.name" @click="chooseItem(item)" />
+      <ToolBarItem
+        v-for="item in detailsList"
+        :key="item.type"
+        :icon="item.icon"
+        :name="item.name"
+        @click="chooseItem(item)"
+      />
     </div>
 
     <div class="upload">
@@ -19,6 +25,8 @@ import { useStore } from 'vuex'
 import { EventsBus } from '@/core/EventsBus'
 import ToolBarItem from '@/components/utils/toolbar/ToolBarItem.vue'
 import { parseModelNode, reloadThreeDimensionPassesByTemplate } from '@/core/3d/util'
+
+declare const Bol3D: any
 
 export default defineComponent({
   name: 'NavDetailsTemplate3D',
@@ -42,6 +50,20 @@ export default defineComponent({
     const uploadFiles = () => {
       uploadFileInput.value.click()
     }
+
+    // 递归找出上面所有父级元素 并乘以相应矩阵
+    function recursiveCalParentsMat(obj, v, mat) {
+      mat.compose(
+        obj.position,
+        new Bol3D.Quaternion().setFromEuler(new Bol3D.Euler().setFromVector3(obj.rotation)),
+        obj.scale
+      )
+      v.applyMatrix4(mat)
+      if (!obj.parent || obj.parent.type == 'Scene') return
+      recursiveCalParentsMat(obj.parent, v, mat)
+    }
+    var max = new Bol3D.Vector3()
+    var min = new Bol3D.Vector3()
 
     const loadFiles = (e: any) => {
       // console.log('e', e.target.files)
@@ -68,7 +90,29 @@ export default defineComponent({
 
       container.loadModels({
         fileList,
+        onProgress: (model: any) => {
+          model.traverse((child: any) => {
+            if (child.isMesh) {
+              const v = new Bol3D.Vector3()
+              child.geometry.boundingBox.getCenter(v)
+              const _v = v.clone()
+              recursiveCalParentsMat(child, _v, new Bol3D.Matrix4())
+              const _max = child.geometry.boundingBox.max.clone()
+              recursiveCalParentsMat(child, _max, new Bol3D.Matrix4())
+              const _min = child.geometry.boundingBox.min.clone()
+              recursiveCalParentsMat(child, _min, new Bol3D.Matrix4())
+              const __max = new Bol3D.Vector3().subVectors(_v, _max)
+              const __min = new Bol3D.Vector3().subVectors(_v, _min)
+              if (__max.lengthSq() > max.lengthSq()) max.copy(__max)
+              if (__min.lengthSq() > min.lengthSq()) min.copy(__min)
+            }
+          })
+        },
         onLoad: () => {
+          ;(store as any).state.elementScaleInterval.x = Math.abs(max.x) + Math.abs(min.x)
+          ;(store as any).state.elementScaleInterval.y = Math.abs(max.y) + Math.abs(min.y)
+          ;(store as any).state.elementScaleInterval.z = Math.abs(max.z) + Math.abs(min.z)
+
           // console.log('finish models', container)
 
           // 1.remove old node
@@ -143,13 +187,17 @@ export default defineComponent({
             const node: any = {}
             const index = 0
             // 3d模板 存入缓存
-            parseModelNode(model, index, node)
+            parseModelNode({ name: model.name }, model, index, node)
             store.state.template.threeDimension.push(node)
           })
           store.state.template.threeDimension.forEach((c: any) => {
             if (c.type === 'Camera') {
               const camera = container.orbitControls.object
-              c.options.position = [parseFloat(camera.position.x.toFixed(4)), parseFloat(camera.position.y.toFixed(4)), parseFloat(camera.position.z.toFixed(4))]
+              c.options.position = [
+                parseFloat(camera.position.x.toFixed(4)),
+                parseFloat(camera.position.y.toFixed(4)),
+                parseFloat(camera.position.z.toFixed(4))
+              ]
             }
           })
           // 2).container:children,clickObjects,  (mixers,mixerActions,sceneAnimations ---- todo animations)

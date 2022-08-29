@@ -99,3 +99,4 @@ export function debounce(func: any, wait: number, immediate: boolean) {
 
   exec()
 }
+

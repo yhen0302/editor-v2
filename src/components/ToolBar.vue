@@ -1,20 +1,15 @@
 <template>
   <div class="left-main">
     <div class="left1">
-      <div class="title">
-        <p>{{ store.state.dimensionType }}</p>
-      </div>
       <div class="nav">
-        <Nav2D v-if="store.state.dimensionType === '2d'" />
-        <Nav3D v-else-if="store.state.dimensionType === '3d'" />
+        <Nav2D />
+        <Nav3D />
       </div>
     </div>
 
     <transition name="bounceInLeft">
-      <div class="left2" v-if="store.state.dimensionType === '2d' && store.state.selectBarToolType != ''">
-        <NavMenu2D />
-      </div>
-      <div class="left2" v-else-if="store.state.dimensionType === '3d' && store.state.selectBarToolType != ''">
+      <NavMenu2D v-if="store.state.selectBarToolType" />
+      <div class="left2" v-else-if="store.state.dimensionType === '3d' && store.state.selectBarToolType === ''">
         <NavMenu3D />
       </div>
     </transition>

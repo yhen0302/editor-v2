@@ -14,12 +14,18 @@ import ToolBarItem from '@/components/utils/toolbar/ToolBarItem.vue'
 import { EventsBus } from '@/core/EventsBus'
 
 import NavDetailsTemplate3D from '../navdetails/NavDetailsTemplate3D.vue'
+import NavDetailsThreeDimensionIcon3D from '../navdetails/NavDetailsThreeDimensionIcon3D.vue'
+import NavDetailsThreeDimensionText3D from '../navdetails/NavDetailsThreeDimensionText3D.vue'
+import NavDetailsFlyLine3D from '../navdetails/NavDetailsFlyLine3D.vue'
 
 export default defineComponent({
   name: 'NavMenuElement3D',
   components: {
     ToolBarItem,
-    NavDetailsTemplate3D
+    NavDetailsTemplate3D,
+    NavDetailsThreeDimensionIcon3D,
+    NavDetailsThreeDimensionText3D,
+    NavDetailsFlyLine3D
   },
   setup() {
     const pageIndex = ref(0)

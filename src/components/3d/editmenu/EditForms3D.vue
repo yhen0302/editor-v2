@@ -40,6 +40,12 @@ import DofPassForms3D from './editForms/DofPassForms3D.vue'
 import GammaPassForms3D from './editForms/GammaPassForms3D.vue'
 // 5.msaa pass
 import MSAAPassForms3D from './editForms/MSAAPassForms3D.vue'
+// 添加元素图标模块
+import Icon from '../rightKanBan/Icon.vue'
+import Text from '../rightKanBan/Text.vue'
+import FlyLine from '../rightKanBan/FlyLine.vue'
+// 模型动画操作模块
+import MixerActions from '../rightKanBan/MixerActions.vue'
 
 import { EventsBus } from '@/core/EventsBus'
 
@@ -67,7 +73,13 @@ export default defineComponent({
     OutlinePassForms3D,
     DofPassForms3D,
     GammaPassForms3D,
-    MSAAPassForms3D
+    MSAAPassForms3D,
+    // 添加元素图标板块
+    Icon,
+    Text,
+    FlyLine,
+    // 模型动画操作模块
+    MixerActions
   },
   setup() {
     const store = useStore()
@@ -96,6 +108,10 @@ export default defineComponent({
         case 'Object3D':
           type.value = 'ObjectForms3D'
           node.value = e.node
+          break
+        case 'None':
+          type.value = ''
+          node.value = ''
           break
       }
     })
@@ -173,6 +189,22 @@ export default defineComponent({
           break
         case 'MSAAPass':
           type.value = 'MSAAPassForms3D'
+          node.value = e.node
+          break
+        case 'MixerActions':
+          type.value = 'MixerActions'
+          node.value = e.node
+          break
+        case 'icon3D':
+          type.value = 'Icon'
+          node.value = e.node
+          break
+        case 'text3D':
+          type.value = 'Text'
+          node.value = e.node
+          break
+        case 'flyLine':
+          type.value = 'FlyLine'
           node.value = e.node
           break
       }

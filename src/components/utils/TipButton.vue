@@ -1,6 +1,8 @@
 <template>
   <div class="tip-button relative" :class="{ active: props.active }" :key="props.icon">
-    <img class="select-icon" :src="props.icon" />
+    <slot>
+      <img class="select-icon" :src="props.icon" />
+    </slot>
     <div class="select-tip absolute text-12 pointer-events-none" :class="props.tipPosition" v-show="props.name">
       <slot name="tip" :tipName="name">
         {{ props.name }}

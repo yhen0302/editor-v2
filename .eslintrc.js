@@ -1,4 +1,8 @@
+const env = process.env.NODE_ENV
 module.exports = {
+  globals: {
+    IS_EDITOR:true
+  },
   root: true,
   env: {
     node: true
@@ -18,8 +22,10 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/camelcase': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    "no-empty-function": "off",
-    "@typescript-eslint/no-empty-function":"off",
-    "vue/no-unused-components":"off"
+    'no-empty-function': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
+    'vue/no-unused-components': 'off',
+    '@typescript-eslint/ban-ts-comment': 'warn',
+    "prefer-const":'warn'
   }
 }

@@ -10,7 +10,11 @@
 import { defineComponent, onMounted, ref } from 'vue'
 import { EventsBus } from '@/core/EventsBus'
 import PageTreeNode3D from '@/components/utils/editmenu/PageTreeNode3D.vue'
-import { traverseFindNodeById, traverseResetSelectedOfNodes, traverseResetSpreadOfNodes } from '@/core/3d/util'
+import {
+  traverseFindNodeById,
+  traverseResetSelectedOfNodes,
+  traverseResetSpreadOfNodes
+} from '@/core/3d/util'
 import { useStore } from 'vuex'
 
 export default defineComponent({
@@ -24,8 +28,7 @@ export default defineComponent({
 
     // 查看详情页
     EventsBus.on('pageEnter', (e: any) => {
-      // console.log('trees3d', e.node.trees)
-
+      console.log('trees3d', e.node)
       nodes.value = e.node.trees.threeDimension
     })
 

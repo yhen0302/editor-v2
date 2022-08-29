@@ -1,0 +1,159 @@
+<template>
+  <div class="nav-details-test-3d-box">
+    <div v-for="(item, key) in detailsList" :key="key">
+      <NavDetailsSelectItem
+        :name="item.name"
+        :type="key"
+        :selected="item.selected"
+        @click="selectItem({ key, target: item })"
+      />
+      <div class="escButton" v-if="visible" @click="escOut()">Esc退出文本模式</div>
+      <div class="escButton1" v-if="visible" @click="changeInModel">{{ addModeText }}</div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onUnmounted, nextTick } from 'vue'
+import { useStore } from 'vuex'
+import NavDetailsSelectItem from '@/components/utils/navdetails/NavDetailsSelectItem.vue'
+import { EventsBus } from '@/core/EventsBus'
+
+const store = useStore()
+const visible = ref(false)
+const addModeType = ref(true)
+const addModeText = ref('添加至当前页')
+const detailsList = ref({
+  FixedText: {
+    name: '固定式文本',
+    selected: false
+  },
+  RotateText: {
+    name: '自定义旋转文本',
+    selected: false
+  }
+})
+
+const changeInModel = () => {
+  if (addModeType.value) {
+    addModeText.value = '添加至全局'
+  } else {
+    addModeText.value = '添加至当前页'
+  }
+  addModeType.value = !addModeType.value
+
+  if (store.state.addElementType) {
+    store.state.addElementType.modelType = addModeType.value
+  }
+}
+
+const mouseEnter = () => {
+  document.querySelector('body').style.cursor = 'pointer'
+}
+const mouseLeave = () => {
+  document.querySelector('body').style.cursor = 'default'
+}
+
+const escOut = () => {
+  for (let key in detailsList.value) {
+    detailsList.value[key].selected = false
+  }
+  visible.value = false
+  store.state.addElementType = {
+    mesh: store.state.addElementType.mesh,
+    moving: store.state.addElementType.moving,
+    lightMesh: store.state.addElementType.lightMesh
+  }
+  document.onkeydown = null
+  document.querySelector('body').style.cursor = 'default'
+  document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseenter', mouseEnter)
+  document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseleave', mouseLeave)
+}
+
+onUnmounted(() => {
+  EventsBus.emit('toolBarSelected', { node: {} })
+  document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseenter', mouseEnter)
+  document.getElementsByClassName('scene-3d')[0].removeEventListener('mouseleave', mouseLeave)
+  document.onkeydown = null
+  nextTick(() => {
+    store.state.addElementType = null
+  })
+})
+
+const selectItem = (options) => {
+  if (!visible.value) {
+    document.getElementsByClassName('scene-3d')[0].addEventListener('mouseenter', mouseEnter)
+    document.getElementsByClassName('scene-3d')[0].addEventListener('mouseleave', mouseLeave)
+    document.onkeydown = function (event) {
+      if (event.keyCode == 27) {
+        escOut()
+      }
+    }
+  }
+
+  const { key, target } = options
+  let flag = target.selected
+  for (const k in detailsList.value) {
+    const detail = detailsList.value[k]
+    detail.selected = false
+  }
+  target.selected = !flag
+
+  visible.value = true
+
+  store.state.addElementType = {
+    type: 'text',
+    smallType: key,
+    mesh: null,
+    moving: false,
+    lightMesh: null,
+    modelType: addModeType.value
+  }
+  let node = { type: 'text3D', selected: key, name: target.name }
+  EventsBus.emit('toolBarSelected', { node })
+}
+</script>
+
+<style lang="postcss" scoped>
+.nav-details-test-3d-box {
+  @apply w-full h-full flex-row;
+}
+
+.escButton {
+  position: absolute;
+  width: auto;
+  padding: 0 10px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  top: 10px;
+  left: 290px;
+  border-radius: 2px;
+  background: #5475ff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  word-break: keep-all;
+  white-space: nowrap;
+}
+
+.escButton1 {
+  position: absolute;
+  width: 90px;
+  padding: 0 10px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  top: 10px;
+  left: 410px;
+  border-radius: 2px;
+  background: #5475ff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  word-break: keep-all;
+  white-space: nowrap;
+}
+</style>

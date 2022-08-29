@@ -2,7 +2,12 @@
   <div class="group-forms-3d-main">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
-        <EditFormsNavItem :active="item.active" :name="item.name" :type="item.type" />
+        <EditFormsNavItem
+          :active="item.active"
+          :name="item.name"
+          :type="item.type"
+          @mouseup.stop="chooseNav(item)"
+        />
       </div>
     </div>
 
@@ -12,7 +17,7 @@
 
     <LineEl :color="'#363741'" />
 
-    <div class="content group">
+    <div class="content group" v-show="headerItems[0].active">
       <div v-for="(item, key) in formSettings" :key="key" class="content-item">
         <div class="setting-item">
           <BaseTitle :value="key" :height="56" :width="72" :marginRight="8" />
@@ -38,6 +43,10 @@
         <LineEl class="division" :color="'#363741'" />
       </div>
     </div>
+
+    <div class="content object" v-show="headerItems[1].active">
+      <EventBind :node="node"></EventBind>
+    </div>
   </div>
 </template>
 
@@ -49,6 +58,7 @@ import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
+import EventBind from '../../rightKanBan/EventBind.vue'
 
 export default defineComponent({
   name: 'GroupForms3D',
@@ -56,7 +66,8 @@ export default defineComponent({
     LineEl,
     EditFormsNavItem,
     BaseTitle,
-    BaseInput
+    BaseInput,
+    EventBind
   },
   props: ['node'],
   setup(props: any) {
@@ -68,6 +79,11 @@ export default defineComponent({
         active: true,
         name: '基础设置',
         type: 'basicSetting'
+      },
+      {
+        active: false,
+        name: '事件设置',
+        type: 'eventSetting'
       }
     ])
 
@@ -187,9 +203,21 @@ export default defineComponent({
       }
 
       // update pageTreeNode
-      const position = [formSettings.value['position'][0].value, formSettings.value['position'][1].value, formSettings.value['position'][2].value]
-      const rotation = [formSettings.value['rotation'][0].value, formSettings.value['rotation'][1].value, formSettings.value['rotation'][2].value]
-      const scale = [formSettings.value['scale'][0].value, formSettings.value['scale'][1].value, formSettings.value['scale'][2].value]
+      const position = [
+        formSettings.value['position'][0].value,
+        formSettings.value['position'][1].value,
+        formSettings.value['position'][2].value
+      ]
+      const rotation = [
+        formSettings.value['rotation'][0].value,
+        formSettings.value['rotation'][1].value,
+        formSettings.value['rotation'][2].value
+      ]
+      const scale = [
+        formSettings.value['scale'][0].value,
+        formSettings.value['scale'][1].value,
+        formSettings.value['scale'][2].value
+      ]
 
       Object.assign(store.state.selectedPageTreeNode.options, {
         position,
@@ -198,11 +226,23 @@ export default defineComponent({
       })
     }
 
+    const chooseNav = (item: any) => {
+      const e = event as any
+      if (e.button !== 0) return
+
+      headerItems.value.forEach((nav: any) => {
+        nav.active = false
+      })
+
+      item.active = true
+    }
+
     return {
       store,
       headerItems,
       formSettings,
-      inputChange
+      inputChange,
+      chooseNav
     }
   }
 })
@@ -240,5 +280,39 @@ export default defineComponent({
 .division {
   bottom: 0;
   @apply absolute;
+}
+
+.leftHead {
+  width: 80px;
+  font-size: 12px;
+  line-height: 48px;
+}
+
+.settingLineList {
+  margin-top: 8px;
+  color: #fff;
+  width: 181px;
+  vertical-align: top;
+}
+.btnBox {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin-top: 12px;
+}
+.btnStyle {
+  width: 60px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.sureBtn {
+  background-color: #6582fe;
+}
+.recelBtn {
+  background-color: #808080;
 }
 </style>
