@@ -1,5 +1,5 @@
 module.exports = {
-  publicPath: '/demo/editorV2',
+  publicPath: '/demo/2206/editor',
 
   css: {
     loaderOptions: {
