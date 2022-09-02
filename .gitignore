@@ -3,6 +3,7 @@ node_modules
 /dist
 sdk
 dist
+packages/elements/dist
 
 # local env files
 .env.local

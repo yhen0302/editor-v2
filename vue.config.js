@@ -12,8 +12,8 @@ module.exports = {
       }
     }
   },
-  configureWebpack:{
-/*    module:{
+  configureWebpack: {
+    /*    module:{
       rules:[
         {
           test:/\.html$/,
@@ -21,10 +21,11 @@ module.exports = {
         }
       ]
     },*/
-    plugins:[  new webpack.DefinePlugin({
-      IS_EDITOR:true,
-      'process.env.NODE_ENV':env
-    })
+    plugins: [
+      new webpack.DefinePlugin({
+        IS_EDITOR: true,
+        'process.env.NODE_ENV': env
+      })
     ]
   },
   transpileDependencies: []
