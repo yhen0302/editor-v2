@@ -23,7 +23,7 @@
           </div>
           <div class="base-p-c-c-content flex position items-center">
             <p class="text-12 config-pre">旋转角度</p>
-            <input-el type="number" class="inp-wrap">
+            <input-el type="number" class="inp-wrap" v-model:value='rotate'>
               <template #prefix><img src="~@/assets/images/editor_angle_icn_dark.png" alt="" /></template>
             </input-el>
             <div></div>
@@ -49,7 +49,7 @@ export default {
   setup() {
     const store = useStore()
     const editorGetters = useGetter(store, 'global', ['GET_SELECT_NODE'])
-    const computedFns = { left: '', top: '', width: '', height: '' }
+    const computedFns = { left: '', top: '', width: '', height: '',rotate: 0}
     Object.keys(computedFns).map((key) => {
       computedFns[key] = computed({
         get() {

@@ -19,6 +19,6 @@ export async function previewHandle() {
       drawingBoard: store.state.drawingBoard
     })}))`
   )
-  console.log(window.open(htmlToUrl(html)))
+  window.open(htmlToUrl(html))
 }
 

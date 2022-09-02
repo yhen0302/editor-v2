@@ -7,7 +7,7 @@ export const bigTitle = {
     top: 0,
     height: 40,
     width: 300,
-    angle: 0
+    rotate: 0
   },
   transparency: 100,
   color:toColor('#6582fe'),
@@ -30,7 +30,7 @@ export const smallTitle = {
     top: 0,
     height: 30,
     width: 300,
-    angle: 0
+    rotate: 0
   },
   transparency: 100,
   color:toColor('#6582fe'),
@@ -53,7 +53,7 @@ export const baseTitle = {
     top: 0,
     height: 30,
     width: 300,
-    angle: 0
+    rotate: 0
   },
   transparency: 100,
   color:toColor('#6582fe'),
@@ -77,7 +77,7 @@ export const textContent = {
     top: 0,
     height: 30,
     width: 300,
-    angle: 0
+    rotate: 0
   },
   transparency: 100,
   color:toColor('#6582fe'),

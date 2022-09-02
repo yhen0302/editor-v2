@@ -11,6 +11,7 @@
       background: color,
       opacity,
       textAlign: align,
+      transform: rotate,
       alignItems: verticalAlign
     }"
     @click.stop

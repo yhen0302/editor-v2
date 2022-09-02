@@ -12,7 +12,7 @@ export const baseShapeList = [
         top: 0,
         height: 100,
         width: 200,
-        angle: 0,
+        rotate: 0,
         borderTopLeftRadius:20,
         borderTopRightRadius:20,
         borderBottomLeftRadius:20,
@@ -38,7 +38,7 @@ export const baseShapeList = [
         top: 0,
         height: 100,
         width: 200,
-        angle: 0,
+        rotate: 0,
         borderTopLeftRadius:0,
         borderTopRightRadius:0,
         borderBottomLeftRadius:0,
@@ -64,7 +64,7 @@ export const baseShapeList = [
         top: 0,
         height: 200,
         width: 200,
-        angle: 0
+        rotate: 0
       },
       shadowColor:toColor('rgba(0,0,0,0)'),
       shadowX:0,
@@ -86,7 +86,7 @@ export const baseShapeList = [
         top: 0,
         height: 100,
         width: 200,
-        angle: 0
+        rotate: 0
       },
       // shadowColor:toColor('rgba(0,0,0,0)'),
       // shadowX:0,

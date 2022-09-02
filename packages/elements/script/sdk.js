@@ -13,6 +13,7 @@ const less = require('postcss-less')
 const path = require('path')
 
 const env = process.env.NODE_ENV
+console.log(env)
 const inputConf = {
   input: path.resolve(__dirname, '../src/main.ts'),
   external: ['@/assets/icon/clip-1406.svg'],

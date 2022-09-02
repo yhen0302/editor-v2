@@ -2,7 +2,7 @@
   <div
     class="art-board-content w-full h-full absolute z-10 pointer-events-none"
   >
-    <drag-wrapper></drag-wrapper>
+    <drag-wrapper :scale='scale' :isShow='!editorStore.addDragging'></drag-wrapper>
     <element-node
       v-for="item in [...nodes].reverse()"
       :key="item.id"
@@ -28,6 +28,7 @@ import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { EditorStore, LayerTree2dNode } from '@/store/type'
 import ElementNode from '@/components/2d/ElementNode.vue'
+
 import { computed } from 'vue'
 import GroupNode from '@/components/2d/GroupNode.vue'
 
@@ -49,6 +50,7 @@ export default {
     function appendSelectNode(node: LayerTree2dNode) {
       mutation['SELECT_2D_TREE_NODE']({ node })
     }
+    const scale =computed(()=>editorStore.drawingBoard.scale)
 
     const nodes = computed(()=>{
       return editorStore?.selectedSceneTreeNode?.trees?.twoDimension || []
@@ -56,6 +58,7 @@ export default {
     return {
       editorStore,
       selectNode,
+      scale,
       appendSelectNode,
       nodes
     }

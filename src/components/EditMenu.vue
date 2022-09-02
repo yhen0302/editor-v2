@@ -1,8 +1,8 @@
 <template>
   <div class="right-main">
     <div class="forms">
-      <EditForms2D v-show="store.state.dimensionType === '2d'" />
-      <EditForms3D v-show="store.state.dimensionType === '3d'" />
+      <EditForms2D v-show="store.state.select2dNodes.size>0" />
+      <EditForms3D />
     </div>
   </div>
 </template>

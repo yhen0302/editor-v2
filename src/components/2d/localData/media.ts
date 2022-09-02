@@ -5,7 +5,7 @@ export const imageOption = {
     top: 0,
     height: 100,
     width: 200,
-    angle: 0
+    rotate: 0
   },
   src: ''
 }
@@ -17,7 +17,7 @@ export const videoOption = {
     top: 0,
     height: 100,
     width: 200,
-    angle: 0
+    rotate: 0
   },
   src: ''
 }

@@ -3,7 +3,7 @@
     <li
       class="select-item relative"
       :class="{ active: item.type === editorStore.selectBarToolType }"
-      v-for="item in selectBarData[editorStore.dimensionType]"
+      v-for="item in selectBarData['2d']"
       @click="mutations.CHANGE_SELECT_BAR_TOOL_TYPE({ selectBarToolType: item.type })"
       :key="item.type"
     >

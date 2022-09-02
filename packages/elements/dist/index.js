@@ -1,4 +1,4 @@
-import { computed, resolveDirective, withDirectives, openBlock, createElementBlock, withModifiers, normalizeStyle, pushScopeId, popScopeId, createElementVNode, ref, watch, normalizeClass, toDisplayString, vShow, getCurrentInstance, Fragment, reactive, onMounted, onUpdated, onUnmounted, createVNode, renderList, createBlock, resolveDynamicComponent, createCommentVNode, renderSlot, useCssModule, resolveComponent, withCtx } from 'vue';
+import { nextTick, computed, resolveDirective, withDirectives, openBlock, createElementBlock, withModifiers, normalizeStyle, pushScopeId, popScopeId, createElementVNode, ref, watch, normalizeClass, toDisplayString, vShow, getCurrentInstance, Fragment, reactive, onMounted, onUpdated, onUnmounted, createVNode, renderList, createBlock, resolveDynamicComponent, createCommentVNode, renderSlot, useCssModule, resolveComponent, withCtx } from 'vue';
 import * as echarts from 'echarts';
 import _imports_0 from '@/assets/icon/clip-1406.svg';
 
@@ -121,6 +121,19 @@ var matrixMixin = {
         },
         top() {
             return toPx(this.node.option.matrixOption.top);
+        },
+        rotate() {
+            return `rotate(${this.node.option.matrixOption.rotate}deg)`;
+        }
+    },
+    watch: {
+        'node.option.matrixOption': {
+            handler() {
+                nextTick().then(() => {
+                    this.$updateRect();
+                });
+            },
+            deep: true
         }
     }
 };
@@ -249,7 +262,8 @@ function render$m(_ctx, _cache, $props, $setup, $data, $options) {
       top: _ctx.top,
       background: $setup.color,
       opacity: $setup.opacity,
-      boxShadow: $setup.boxShadow
+      boxShadow: $setup.boxShadow,
+      transform: _ctx.rotate
     }, $setup.borderRadius)),
     onMousedown: _cache[1] || (_cache[1] = function () {
       return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
@@ -312,7 +326,8 @@ function render$l(_ctx, _cache, $props, $setup, $data, $options) {
       top: _ctx.top,
       background: $setup.color,
       opacity: $setup.opacity,
-      boxShadow: $setup.boxShadow
+      boxShadow: $setup.boxShadow,
+      transform: _ctx.rotate
     }, $setup.borderRadius)),
     onMousedown: _cache[1] || (_cache[1] = function () {
       return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
@@ -366,6 +381,7 @@ function render$k(_ctx, _cache, $props, $setup, $data, $options) {
       top: _ctx.top,
       background: $setup.color,
       boxShadow: $setup.boxShadow,
+      transform: _ctx.rotate,
       opacity: $setup.opacity
     }),
     onMousedown: _cache[1] || (_cache[1] = function () {
@@ -451,6 +467,7 @@ function render$j(_ctx, _cache, $props, $setup, $data, $options) {
       left: _ctx.left,
       top: _ctx.top,
       background: $setup.color,
+      transform: _ctx.rotate,
       opacity: $setup.opacity,
       boxShadow: $setup.boxShadow
     }),
@@ -517,6 +534,7 @@ function render$i(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "el",
@@ -592,6 +610,7 @@ function render$h(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "el",
@@ -708,6 +727,7 @@ function render$g(_ctx, _cache, $props, $setup, $data, $options) {
       background: $setup.color,
       opacity: $setup.opacity,
       textAlign: $setup.align,
+      transform: _ctx.rotate,
       alignItems: $setup.verticalAlign
     }),
     onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
@@ -835,6 +855,7 @@ function render$f(_ctx, _cache, $props, $setup, $data, $options) {
       background: $setup.color,
       opacity: $setup.opacity,
       textAlign: $setup.align,
+      transform: _ctx.rotate,
       alignItems: $setup.verticalAlign
     }),
     onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
@@ -977,6 +998,7 @@ function render$e(_ctx, _cache, $props, $setup, $data, $options) {
       background: $setup.color,
       opacity: $setup.opacity,
       textAlign: $setup.align,
+      transform: _ctx.rotate,
       alignItems: $setup.verticalAlign
     }),
     onClick: _cache[6] || (_cache[6] = withModifiers(function () {}, ["stop"])),
@@ -1113,6 +1135,7 @@ function render$d(_ctx, _cache, $props, $setup, $data, $options) {
       background: $setup.color,
       opacity: $setup.opacity,
       textAlign: $setup.align,
+      transform: _ctx.rotate,
       alignItems: $setup.verticalAlign
     }),
     onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
@@ -1158,9 +1181,9 @@ script$d.__file = "src/components/text/TextContent.vue";
 
 var chartMixin = {
   methods: {
-    updateEchartsSize() {
+    updateEchartsSize:debounce(function() {
       this.myChart.resize();
-    },
+    },200),
     async setApiData(option) {
       const echartsOpt = clone(option || this.node.option.echartsOption);
       const tempSeries = echartsOpt.series[0];
@@ -1203,6 +1226,14 @@ var chartMixin = {
         top += option.title.textStyle.fontSize;
       }
       option.grid.top = top;
+    }
+  },
+  watch:{
+    'node.option.matrixOption':{
+      handler(newVal,oldVal){
+        this.updateEchartsSize();
+      },
+      deep:true
     }
   }
 };
@@ -1309,6 +1340,7 @@ function render$c(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "chartWrap"
@@ -1316,8 +1348,7 @@ function render$c(_ctx, _cache, $props, $setup, $data, $options) {
   /* STYLE, HYDRATE_EVENTS */
   )), [[_directive_drag, {
     rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
+    select: $props.node.select
   }]]);
 }
 
@@ -1426,6 +1457,7 @@ function render$b(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "chartWrap"
@@ -1433,8 +1465,7 @@ function render$b(_ctx, _cache, $props, $setup, $data, $options) {
   /* STYLE, HYDRATE_EVENTS */
   )), [[_directive_drag, {
     rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
+    select: $props.node.select
   }]]);
 }
 
@@ -1536,6 +1567,7 @@ function render$a(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "chartWrap"
@@ -1543,8 +1575,7 @@ function render$a(_ctx, _cache, $props, $setup, $data, $options) {
   /* STYLE, HYDRATE_EVENTS */
   )), [[_directive_drag, {
     rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
+    select: $props.node.select
   }]]);
 }
 
@@ -1646,6 +1677,7 @@ function render$9(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "chartWrap"
@@ -1653,8 +1685,7 @@ function render$9(_ctx, _cache, $props, $setup, $data, $options) {
   /* STYLE, HYDRATE_EVENTS */
   )), [[_directive_drag, {
     rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
+    select: $props.node.select
   }]]);
 }
 
@@ -1763,6 +1794,7 @@ function render$8(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "chartWrap"
@@ -1770,8 +1802,7 @@ function render$8(_ctx, _cache, $props, $setup, $data, $options) {
   /* STYLE, HYDRATE_EVENTS */
   )), [[_directive_drag, {
     rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
+    select: $props.node.select
   }]]);
 }
 
@@ -1873,6 +1904,7 @@ function render$7(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "chartWrap"
@@ -1880,8 +1912,7 @@ function render$7(_ctx, _cache, $props, $setup, $data, $options) {
   /* STYLE, HYDRATE_EVENTS */
   )), [[_directive_drag, {
     rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
+    select: $props.node.select
   }]]);
 }
 
@@ -1990,6 +2021,7 @@ function render$6(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "chartWrap"
@@ -1997,8 +2029,7 @@ function render$6(_ctx, _cache, $props, $setup, $data, $options) {
   /* STYLE, HYDRATE_EVENTS */
   )), [[_directive_drag, {
     rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
+    select: $props.node.select
   }]]);
 }
 
@@ -2247,7 +2278,8 @@ function render$3(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
-      top: _ctx.top
+      top: _ctx.top,
+      transform: _ctx.rotate
     }),
     onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
     onMousedown: _cache[1] || (_cache[1] = function () {
@@ -2457,6 +2489,7 @@ function render$2(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "chartWrap"
@@ -2464,8 +2497,7 @@ function render$2(_ctx, _cache, $props, $setup, $data, $options) {
   /* STYLE, HYDRATE_EVENTS */
   )), [[_directive_drag, {
     rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
+    select: $props.node.select
   }]]);
 }
 
@@ -2574,6 +2606,7 @@ function render$1(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "chartWrap"
@@ -2581,8 +2614,7 @@ function render$1(_ctx, _cache, $props, $setup, $data, $options) {
   /* STYLE, HYDRATE_EVENTS */
   )), [[_directive_drag, {
     rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: _ctx.updateEchartsSize
+    select: $props.node.select
   }]]);
 }
 
@@ -2715,6 +2747,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       width: _ctx.width,
       height: _ctx.height,
       left: _ctx.left,
+      transform: _ctx.rotate,
       top: _ctx.top
     }),
     ref: "chartWrap"
@@ -2722,8 +2755,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   /* STYLE, HYDRATE_EVENTS */
   )), [[_directive_drag, {
     rect: $props.node.option.matrixOption,
-    select: $props.node.select,
-    change: $options.changeMatrix
+    select: $props.node.select
   }]]);
 }
 

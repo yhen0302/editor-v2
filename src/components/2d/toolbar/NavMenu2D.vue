@@ -83,7 +83,7 @@ export default {
       }
     )
     const activeTitle = computed(() => {
-      return selectTitle.value || selectBarData[editorStore.dimensionType].find((item ) => item.type === editorStore.selectBarToolType)?.name
+      return selectTitle.value || selectBarData['2d'].find((item ) => item.type === editorStore.selectBarToolType)?.name
     })
 
     return {

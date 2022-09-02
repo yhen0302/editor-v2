@@ -8,7 +8,8 @@
       width,
       height,
       left,
-      top
+      top,
+      transform: rotate,
     }"
     @click.stop
     @mousedown="onMouseDown"

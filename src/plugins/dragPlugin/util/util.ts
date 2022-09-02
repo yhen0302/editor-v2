@@ -44,10 +44,7 @@ export function getCss(
   }
 }
 
-export function findParentPathHasEl(
-  target: HTMLElement | null,
-  el: HTMLElement | null
-): boolean {
+export function findParentPathHasEl(target: HTMLElement | null, el: HTMLElement | null): boolean {
   do {
     if (target === el) return true
     // eslint-disable-next-line no-cond-assign
@@ -75,10 +72,7 @@ export function debounce<T extends Function>(
   }
 }
 
-export function computedElementsRect(
-  els: HTMLElement[],
-  type: 'css' | 'bounding' = 'bounding'
-) {
+export function computedElementsRect(els: HTMLElement[], type: 'css' | 'bounding' = 'bounding') {
   const leftNumSet: Set<number> = new Set<number>(),
     rightNumSet: Set<number> = new Set<number>(),
     topNumSet: Set<number> = new Set<number>(),
@@ -96,10 +90,10 @@ export function computedElementsRect(
         height: any
         [key: string]: any
       }
-      for (const key of Object.keys(rect)) {
+      for (const key of Object.keys(rect))
         // @ts-ignore
         rect[key] = cssUnitToNumber(rect[key])
-      }
+
       rect.right = rect.left + rect.width
       rect.bottom = rect.top + rect.height
     }
@@ -123,4 +117,17 @@ export function computedElementsRect(
     width: right - left,
     height: bottom - top
   }
+}
+
+export function triangleFnToAngle(sin, cos):number {
+  // console.log('sin,cos',sin,cos)
+  // console.log(Math.asin(sin)/Math.PI*180,Math.acos(cos)/Math.PI*180)
+  if (sin > 0) {
+    return (Math.acos(cos) / Math.PI) * 180
+  } else if (sin < 0 && cos < 0) {
+    return 180 - (Math.asin(sin) / Math.PI) * 180
+  } else if (cos > 0 && sin < 0) {
+    return 360 + (Math.asin(sin) / Math.PI) * 180
+  }
+  return 0
 }

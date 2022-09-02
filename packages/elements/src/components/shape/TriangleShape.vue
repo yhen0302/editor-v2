@@ -10,6 +10,7 @@
       left,
       top,
       background: color,
+      transform: rotate,
       opacity,
       boxShadow
     }"

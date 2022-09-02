@@ -12,6 +12,7 @@
       background: color,
       opacity,
       boxShadow,
+      transform:rotate,
       ...borderRadius
     }"
     @mousedown="onMouseDown"

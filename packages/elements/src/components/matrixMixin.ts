@@ -1,5 +1,6 @@
 //@ts-nocheck
 import { toPx } from '../../../../src/share/util/base'
+import { nextTick } from 'vue'
 
 export default {
   methods: {
@@ -16,6 +17,7 @@ export default {
     }
   },
   computed: {
+
     left() {
       return toPx(this.node.option.matrixOption.left)
     },
@@ -27,6 +29,20 @@ export default {
     },
     top() {
       return toPx(this.node.option.matrixOption.top)
+    },
+    rotate(){
+      return `rotate(${this.node.option.matrixOption.rotate}deg)`
+    }
+  },
+  watch:{
+    'node.option.matrixOption':{
+      handler(){
+        nextTick().then(()=>{
+          this.$updateRect()
+        })
+      },
+      deep:true
     }
   }
+
 }

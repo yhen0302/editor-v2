@@ -102964,6 +102964,19 @@
             },
             top() {
                 return toPx(this.node.option.matrixOption.top);
+            },
+            rotate() {
+                return `rotate(${this.node.option.matrixOption.rotate}deg)`;
+            }
+        },
+        watch: {
+            'node.option.matrixOption': {
+                handler() {
+                    nextTick().then(() => {
+                        this.$updateRect();
+                    });
+                },
+                deep: true
             }
         }
     };
@@ -103092,7 +103105,8 @@
           top: _ctx.top,
           background: $setup.color,
           opacity: $setup.opacity,
-          boxShadow: $setup.boxShadow
+          boxShadow: $setup.boxShadow,
+          transform: _ctx.rotate
         }, $setup.borderRadius)),
         onMousedown: _cache[1] || (_cache[1] = function () {
           return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
@@ -103155,7 +103169,8 @@
           top: _ctx.top,
           background: $setup.color,
           opacity: $setup.opacity,
-          boxShadow: $setup.boxShadow
+          boxShadow: $setup.boxShadow,
+          transform: _ctx.rotate
         }, $setup.borderRadius)),
         onMousedown: _cache[1] || (_cache[1] = function () {
           return _ctx.onMouseDown && _ctx.onMouseDown.apply(_ctx, arguments);
@@ -103209,6 +103224,7 @@
           top: _ctx.top,
           background: $setup.color,
           boxShadow: $setup.boxShadow,
+          transform: _ctx.rotate,
           opacity: $setup.opacity
         }),
         onMousedown: _cache[1] || (_cache[1] = function () {
@@ -103267,6 +103283,7 @@
           left: _ctx.left,
           top: _ctx.top,
           background: $setup.color,
+          transform: _ctx.rotate,
           opacity: $setup.opacity,
           boxShadow: $setup.boxShadow
         }),
@@ -103333,6 +103350,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "el",
@@ -103408,6 +103426,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "el",
@@ -103524,6 +103543,7 @@
           background: $setup.color,
           opacity: $setup.opacity,
           textAlign: $setup.align,
+          transform: _ctx.rotate,
           alignItems: $setup.verticalAlign
         }),
         onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
@@ -103651,6 +103671,7 @@
           background: $setup.color,
           opacity: $setup.opacity,
           textAlign: $setup.align,
+          transform: _ctx.rotate,
           alignItems: $setup.verticalAlign
         }),
         onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
@@ -103793,6 +103814,7 @@
           background: $setup.color,
           opacity: $setup.opacity,
           textAlign: $setup.align,
+          transform: _ctx.rotate,
           alignItems: $setup.verticalAlign
         }),
         onClick: _cache[6] || (_cache[6] = withModifiers(function () {}, ["stop"])),
@@ -103929,6 +103951,7 @@
           background: $setup.color,
           opacity: $setup.opacity,
           textAlign: $setup.align,
+          transform: _ctx.rotate,
           alignItems: $setup.verticalAlign
         }),
         onClick: _cache[5] || (_cache[5] = withModifiers(function () {}, ["stop"])),
@@ -103974,9 +103997,9 @@
 
     var chartMixin = {
       methods: {
-        updateEchartsSize() {
+        updateEchartsSize:debounce$1(function() {
           this.myChart.resize();
-        },
+        },200),
         async setApiData(option) {
           const echartsOpt = clone$1(option || this.node.option.echartsOption);
           const tempSeries = echartsOpt.series[0];
@@ -104019,6 +104042,14 @@
             top += option.title.textStyle.fontSize;
           }
           option.grid.top = top;
+        }
+      },
+      watch:{
+        'node.option.matrixOption':{
+          handler(newVal,oldVal){
+            this.updateEchartsSize();
+          },
+          deep:true
         }
       }
     };
@@ -104125,6 +104156,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "chartWrap"
@@ -104132,8 +104164,7 @@
       /* STYLE, HYDRATE_EVENTS */
       )), [[_directive_drag, {
         rect: $props.node.option.matrixOption,
-        select: $props.node.select,
-        change: _ctx.updateEchartsSize
+        select: $props.node.select
       }]]);
     }
 
@@ -104242,6 +104273,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "chartWrap"
@@ -104249,8 +104281,7 @@
       /* STYLE, HYDRATE_EVENTS */
       )), [[_directive_drag, {
         rect: $props.node.option.matrixOption,
-        select: $props.node.select,
-        change: _ctx.updateEchartsSize
+        select: $props.node.select
       }]]);
     }
 
@@ -104352,6 +104383,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "chartWrap"
@@ -104359,8 +104391,7 @@
       /* STYLE, HYDRATE_EVENTS */
       )), [[_directive_drag, {
         rect: $props.node.option.matrixOption,
-        select: $props.node.select,
-        change: _ctx.updateEchartsSize
+        select: $props.node.select
       }]]);
     }
 
@@ -104462,6 +104493,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "chartWrap"
@@ -104469,8 +104501,7 @@
       /* STYLE, HYDRATE_EVENTS */
       )), [[_directive_drag, {
         rect: $props.node.option.matrixOption,
-        select: $props.node.select,
-        change: _ctx.updateEchartsSize
+        select: $props.node.select
       }]]);
     }
 
@@ -104579,6 +104610,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "chartWrap"
@@ -104586,8 +104618,7 @@
       /* STYLE, HYDRATE_EVENTS */
       )), [[_directive_drag, {
         rect: $props.node.option.matrixOption,
-        select: $props.node.select,
-        change: _ctx.updateEchartsSize
+        select: $props.node.select
       }]]);
     }
 
@@ -104689,6 +104720,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "chartWrap"
@@ -104696,8 +104728,7 @@
       /* STYLE, HYDRATE_EVENTS */
       )), [[_directive_drag, {
         rect: $props.node.option.matrixOption,
-        select: $props.node.select,
-        change: _ctx.updateEchartsSize
+        select: $props.node.select
       }]]);
     }
 
@@ -104806,6 +104837,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "chartWrap"
@@ -104813,8 +104845,7 @@
       /* STYLE, HYDRATE_EVENTS */
       )), [[_directive_drag, {
         rect: $props.node.option.matrixOption,
-        select: $props.node.select,
-        change: _ctx.updateEchartsSize
+        select: $props.node.select
       }]]);
     }
 
@@ -105063,7 +105094,8 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
-          top: _ctx.top
+          top: _ctx.top,
+          transform: _ctx.rotate
         }),
         onClick: _cache[0] || (_cache[0] = withModifiers(function () {}, ["stop"])),
         onMousedown: _cache[1] || (_cache[1] = function () {
@@ -105273,6 +105305,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "chartWrap"
@@ -105280,8 +105313,7 @@
       /* STYLE, HYDRATE_EVENTS */
       )), [[_directive_drag, {
         rect: $props.node.option.matrixOption,
-        select: $props.node.select,
-        change: _ctx.updateEchartsSize
+        select: $props.node.select
       }]]);
     }
 
@@ -105390,6 +105422,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "chartWrap"
@@ -105397,8 +105430,7 @@
       /* STYLE, HYDRATE_EVENTS */
       )), [[_directive_drag, {
         rect: $props.node.option.matrixOption,
-        select: $props.node.select,
-        change: _ctx.updateEchartsSize
+        select: $props.node.select
       }]]);
     }
 
@@ -105531,6 +105563,7 @@
           width: _ctx.width,
           height: _ctx.height,
           left: _ctx.left,
+          transform: _ctx.rotate,
           top: _ctx.top
         }),
         ref: "chartWrap"
@@ -105538,8 +105571,7 @@
       /* STYLE, HYDRATE_EVENTS */
       )), [[_directive_drag, {
         rect: $props.node.option.matrixOption,
-        select: $props.node.select,
-        change: $options.changeMatrix
+        select: $props.node.select
       }]]);
     }
 
@@ -107287,7 +107319,7 @@
                 // 中间画布宽高
                 width: 1920,
                 height: 1080,
-                scale: 1
+                scale: .7
             },
             template: {
                 // 模板缓存

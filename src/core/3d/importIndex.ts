@@ -43,9 +43,9 @@ export const importScene = (canvas: any) => {
     MSAAPass: any
   var modelUrls: any = [],
     models: any = [],
-    production = 'production', // 不提出来过不了编译 semantic error TS2367
+    p = 'production', // 不提出来过不了编译 semantic error TS2367
     publicPath =
-      process.env.NODE_ENV === production
+      process.env.NODE_ENV === p
         ? location.protocol === 'blob:'
           ? 'https://www.kantu3d.com/edit/'
           : location.origin + location.pathname

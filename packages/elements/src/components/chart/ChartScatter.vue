@@ -8,12 +8,12 @@
       width,
       height,
       left,
+      transform: rotate,
       top
     }"
     v-drag="{
       rect: node.option.matrixOption,
       select: node.select,
-      change: updateEchartsSize
     }"
     ref="chartWrap"
   ></div>

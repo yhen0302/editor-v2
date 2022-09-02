@@ -203,7 +203,6 @@ export default {
       watch(
         () => scroll.value[k],
         (newVal, oldVal) => {
-          console.log(k, newVal)
           update = k
           draw()
         },

@@ -33,7 +33,6 @@ export function registryDragDirective(
 ) {
   app.directive('drag', {
     mounted(el: CustomElement, binding: any) {
-      console.log('drag')
       const { select, input, change, active } = parseBinding(binding)
       let effect: EffectScope
 

@@ -66,6 +66,13 @@ class MultiGauge extends Gauge{
 }
 export const gaugeChartList = [
   new Gauge({
+    matrixOption:{
+      left: 0,
+      top: 0,
+      height: 300,
+      width: 300,
+      rotate: 0
+    },
     echartsOption: {
       series: [
         {
@@ -85,6 +92,13 @@ export const gaugeChartList = [
     }
   }),
   new Gauge({
+    matrixOption:{
+      left: 0,
+      top: 0,
+      height: 300,
+      width: 300,
+      rotate: 0
+    },
     echartsOption: {
       color: ['#7CAF8B', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272'],
       series: [

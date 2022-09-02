@@ -6,7 +6,13 @@ class Pie extends BaseChart {
   option: any
   icon = ''
   type = 'ChartPie'
-
+  defaultMatrixOpt={
+    left: 0,
+    top: 0,
+    height: 300,
+    width: 300,
+    rotate: 0
+  }
   constructor(option: any, notMerge = false) {
     super()
     this.name = '饼图' + i++
