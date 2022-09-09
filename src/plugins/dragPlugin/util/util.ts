@@ -119,15 +119,14 @@ export function computedElementsRect(els: HTMLElement[], type: 'css' | 'bounding
   }
 }
 
+
 export function triangleFnToAngle(sin, cos):number {
-  // console.log('sin,cos',sin,cos)
-  // console.log(Math.asin(sin)/Math.PI*180,Math.acos(cos)/Math.PI*180)
-  if (sin > 0) {
-    return (Math.acos(cos) / Math.PI) * 180
-  } else if (sin < 0 && cos < 0) {
-    return 180 - (Math.asin(sin) / Math.PI) * 180
-  } else if (cos > 0 && sin < 0) {
-    return 360 + (Math.asin(sin) / Math.PI) * 180
+  if (cos > 0) {
+    return (Math.acos(sin) / Math.PI) * 180
+  } else if (cos < 0 && sin <= 0) {
+    return 180 - (Math.asin(cos) / Math.PI) * 180
+  } else if (sin > 0 && cos < 0) {
+    return 360 + (Math.asin(cos) / Math.PI) * 180
   }
   return 0
 }

@@ -57,10 +57,10 @@ function watchRect(
           if (blockingUpdate.value) return
 
           input &&
-          input({
-            el,
-            rect: toRaw<RectProperty>(rectProperties)
-          })
+            input({
+              el,
+              rect: toRaw<RectProperty>(rectProperties)
+            })
           change && change({ el, rect: toRaw<RectProperty>(rectProperties) })
 
           let rect = el.rect
@@ -108,21 +108,21 @@ export function clearEl(): void {
   activeEl.value.splice(0, activeEl.value.length)
 }
 
-let updateRectProcessFn:Function = t=>t
+let updateRectProcessFn: Function = (t) => t
 // 手动跟新
 export function updateRect() {
   // 跟新的时候监听器不能变化
   blockingUpdate.value = true
   let rect
-    if( activeEl.value.length === 1 ){
-      rect = computedElementsRect(activeEl.value,'css')
-      rect.rotate = activeEl.value[0].rect.rotate
-    }else {
-      // bounding的计算可能和实际的形状属性存在差异,
-      rect = computedElementsRect(activeEl.value,'bounding')
-      rect.rotate = 0
-    }
-    rect = updateRectProcessFn(rect,activeEl.value.length !== 1)
+  if (activeEl.value.length === 1) {
+    rect = computedElementsRect(activeEl.value, 'css')
+    rect.rotate = activeEl.value[0].rect.rotate
+  } else {
+    // bounding的计算可能和实际的形状属性存在差异,
+    rect = computedElementsRect(activeEl.value, 'bounding')
+    rect.rotate = 0
+  }
+  rect = updateRectProcessFn(rect, activeEl.value.length !== 1)
   for (let key of Object.keys(rectProperties)) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -133,14 +133,14 @@ export function updateRect() {
 
 const dragPlugin: Plugin = {
   install(app: App, option: Object) {
-    option.updateRectProcessFn&&(updateRectProcessFn=option.updateRectProcessFn)
+    option.updateRectProcessFn && (updateRectProcessFn = option.updateRectProcessFn)
 
     app.config.globalProperties.$updateRect = updateRect
     // function set
     const keys = Object.keys(rectProperties)
     keys.forEach((key) => {
       app.config.globalProperties['$setDragPluginRect' + key[0].toUpperCase() + key.substring(1)] =
-        function(val: number) {
+        function (val: number) {
           rectProperties[key] = val
         }
     })
@@ -152,6 +152,6 @@ const dragPlugin: Plugin = {
   }
 }
 
-export { activeEl}
+export { activeEl }
 
 export default dragPlugin

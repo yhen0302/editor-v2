@@ -10,6 +10,7 @@
     <!--  控制顶点缩放的四个圆点  -->
     <div
       class="circle drag-wrapper_left drag-wrapper_top"
+      dragType="DRAG_LEFT_TOP"
       multicontrol
       v-show="!isDrag"
       v-memo="[isDrag, scale]"
@@ -18,6 +19,7 @@
     ></div>
     <div
       class="circle drag-wrapper_right drag-wrapper_top"
+      dragType="DRAG_RIGHT_TOP"
       multicontrol
       v-show="!isDrag"
       v-memo="[isDrag, scale]"
@@ -26,6 +28,7 @@
     ></div>
     <div
       class="circle drag-wrapper_right drag-wrapper_bottom"
+      dragType="DRAG_RIGHT_BOTTOM"
       multicontrol
       v-show="!isDrag"
       v-memo="[isDrag, scale]"
@@ -34,6 +37,7 @@
     ></div>
     <div
       class="circle drag-wrapper_left drag-wrapper_bottom"
+      dragType="DRAG_LEFT_BOTTOM"
       multicontrol
       v-show="!isDrag"
       v-memo="[isDrag, scale]"
@@ -43,12 +47,14 @@
     <!--  控制上下左右拖拽的四条边  -->
     <div
       class="border drag-wrapper_top"
+      dragType="DRAG_TOP"
       v-memo="[scale]"
       :ref="tempEls"
       :style="`transform:scaleY(${1 / scale});`"
     ></div>
     <div
       class="border drag-wrapper_right"
+      dragType="DRAG_RIGHT"
       v-memo="[scale]"
       :ref="tempEls"
       :style="`transform:scaleX(${1 / scale});`"
@@ -56,17 +62,19 @@
     <div
       class="border drag-wrapper_bottom"
       v-memo="[scale]"
+      dragType="DRAG_BOTTOM"
       :ref="tempEls"
       :style="`transform:scaleY(${1 / scale});`"
     ></div>
     <div
       class="border drag-wrapper_left"
+      dragType="DRAG_LEFT"
       v-memo="[scale]"
       :ref="tempEls"
       :style="`transform:scaleX(${1 / scale});`"
     ></div>
     <!--  旋转控制点  -->
-    <div class="rotate-pointer" rotate :ref="tempEls" v-memo="[scale]">
+    <div class="rotate-pointer" dragType="ROTATE" :ref="tempEls" v-memo="[scale]">
       <svg
         style="pointer-events: none"
         t="1661823888621"
@@ -102,6 +110,13 @@ import {
 import { Ref } from '@vue/reactivity'
 import { activeEl, updateRect } from './index'
 import { rectProperties, RectProperty } from '@/plugins/dragPlugin/convert'
+import {
+  getCenterPointerCoordinate,
+  getPointerLineDistance,
+  getPointerLineDistanceByRotate,
+  getRadian,
+  getSinCos
+} from '@/share/util/math'
 
 enum DRAG_STATUS {
   IDLE,
@@ -128,107 +143,159 @@ export default defineComponent({
     const isRunning = ref<boolean>(false)
     const dragStatus = ref<DRAG_STATUS>(DRAG_STATUS.IDLE)
     const isDrag = ref<boolean>(false)
-
+    // elements
     const dragEl: Ref<HTMLElement | null> = ref<HTMLElement | null>(null)
-
     const dragElList = ref<Set<HTMLElement>>(new Set())
     let tempEls = (el: HTMLElement) => {
       ;(dragElList.value as Set<HTMLElement>).add(el)
     }
 
-    init()
-    function isRotateHalfPI(angle: number) {
-      return Math.round(angle) % 90 === 0
+    listen()
+
+    function listen() {
+      let preX: number, preY: number
+
+      // 监听的鼠标按下事件
+      function wrapperDragDown(ev: MouseEvent) {
+        // isDrag.value = false
+        let target: HTMLElement = ev.target as HTMLElement
+        // 是否操作的是角，如果是角控制的是两个维度的变化
+        let dragType = target.getAttribute('dragType') as keyof typeof DRAG_STATUS
+        isRunning.value = verifyDragWrapperActive(target)
+
+        if (isRunning.value) {
+          dragStatus.value = DRAG_STATUS[dragType] || DRAG_STATUS.DRAG_MOVE
+          if (dragStatus.value !== DRAG_STATUS.ROTATE && dragStatus.value !== DRAG_STATUS.DRAG_MOVE)
+            modifyMouseShape(
+              getMouseShape(
+                getCenterPointerCoordinate(dragEl.value?.getBoundingClientRect()),
+                getCenterPointerCoordinate(target.getBoundingClientRect())
+              )
+            )
+
+          isDrag.value = dragStatus.value === DRAG_STATUS.DRAG_MOVE
+          preX = ev.pageX
+          preY = ev.pageY
+        }
+      }
+
+      // 监听的鼠标抬起事件
+      function wrapperDragUp(ev: MouseEvent) {
+        let target: HTMLElement = ev.target as HTMLElement
+        isDrag.value = isRunning.value = false
+        dragStatus.value = DRAG_STATUS.IDLE
+        modifyMouseShape('auto')
+        preX = preY = 0
+      }
+
+      // 监听的鼠标移动事件
+      function wrapperDragMove(ev: MouseEvent) {
+        if (!isRunning.value) return
+        let { pageX, pageY } = ev
+        transformHandle(pageX, pageY, preX, preY, props.scale)
+        preX = pageX
+        preY = pageY
+      }
+
+      document.documentElement.addEventListener('mousedown', wrapperDragDown)
+      document.documentElement.addEventListener('mouseup', wrapperDragUp)
+      document.documentElement.addEventListener('mousemove', wrapperDragMove)
     }
 
-    function getPointerCoordinate(rect) {
-      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+    function transformHandle(curX, curY, preX, preY, scale) {
+      let offsetX = curX - preX
+      let offsetY = curY - preY
+      switch (dragStatus.value) {
+        case DRAG_STATUS.DRAG_MOVE:
+          dragMove(offsetX / scale, offsetY / scale)
+          break
+        case DRAG_STATUS.ROTATE:
+          rotate(preX, preY)
+          break
+        default:
+          dragSizeTransformHandle(offsetX, offsetY, scale)
+      }
     }
 
-    function init() {
-      let offsetX: number, offsetY: number, preX: number, preY: number
-
-      listen()
-
-      function listen() {
-        // 监听的鼠标按下事件
-        function wrapperDragDown(ev: MouseEvent) {
-          // isDrag.value = false
-          let target: HTMLElement = ev.target as HTMLElement
-          // 是否操作的是角，如果是角控制的是两个维度的变化
-          const isMultiControl = target.getAttribute('multicontrol') !== null
-          const isRotate = target.getAttribute('rotate') !== null
-          isRunning.value = verifyDragWrapperActive(target)
-
-          if (isRunning.value) {
-            if (isRotate) {
-              dragStatus.value = DRAG_STATUS.ROTATE
-            } else if (!dragElList.value.has(target)) {
-              dragStatus.value = DRAG_STATUS.DRAG_MOVE
-            } else {
-              modifyMouseShape(getMouseShape(target, rectProperties, isMultiControl))
-            }
-            isDrag.value = dragStatus.value === DRAG_STATUS.DRAG_MOVE
-            preX = ev.pageX
-            preY = ev.pageY
-          }
+    function dragSizeTransformHandle(offsetX, offsetY, scale) {
+      const isX = isHorizontal(dragStatus.value)
+      const isY = isVertical(dragStatus.value)
+      const reverse =
+        dragStatus.value === DRAG_STATUS.DRAG_LEFT || dragStatus.value === DRAG_STATUS.DRAG_TOP
+          ? 180
+          : 0
+      const sizeTransformObj = {
+        xDistance: 0,
+        yDistance: 0,
+        xOffset: 0,
+        yOffset: 0
+      }
+      let centerXOffset = 0
+      let centerYOffset = 0
+      const { sin, cos } = getSinCos(getRadian(rectProperties.rotate))
+      if (isX) {
+        sizeTransformObj.xDistance = getPointerLineDistanceByRotate(
+          offsetX,
+          offsetY,
+          rectProperties.rotate + reverse
+        )
+        centerXOffset = sizeTransformObj.xDistance / 2
+        if (reverse) {
+          sizeTransformObj.xOffset -= sizeTransformObj.xDistance
+          centerXOffset *= -1
         }
-
-        // 监听的鼠标抬起事件
-        function wrapperDragUp(ev: MouseEvent) {
-          let target: HTMLElement = ev.target as HTMLElement
-          isDrag.value = isRunning.value = false
-          dragStatus.value = DRAG_STATUS.IDLE
-          modifyMouseShape('auto')
-          preX = preY = offsetY = offsetX = 0
-        }
-
-        // 监听的鼠标移动事件
-        function wrapperDragMove(ev: MouseEvent) {
-          let { pageX, pageY } = ev
-          if (isRunning.value) {
-            offsetX = pageX - preX
-            offsetY = pageY - preY
-
-            offsetX /= props.scale
-            offsetY /= props.scale
-
-            preX = pageX
-            preY = pageY
-
-            switch (dragStatus.value) {
-              case DRAG_STATUS.DRAG_MOVE:
-                dragMove()
-                break
-              case DRAG_STATUS.ROTATE:
-                rotate()
-            }
-          }
-        }
-
-        document.documentElement.addEventListener('mousedown', wrapperDragDown)
-        document.documentElement.addEventListener('mouseup', wrapperDragUp)
-        document.documentElement.addEventListener('mousemove', wrapperDragMove)
       }
 
-      // 控制移动
-      function dragMove() {
-        rectProperties.left += offsetX
-        rectProperties.top += offsetY
+      if (isY) {
+        sizeTransformObj.yDistance = getPointerLineDistanceByRotate(
+          offsetX,
+          offsetY,
+          rectProperties.rotate + 90 + reverse
+        )
+        centerYOffset = sizeTransformObj.yDistance / 2
+        if (reverse) {
+          sizeTransformObj.yOffset -= sizeTransformObj.yDistance
+          centerYOffset *= -1
+        }
       }
 
-      function rotate() {
-        const wrapRect = dragEl.value!.getBoundingClientRect()
-        const center = [wrapRect.left + wrapRect.width / 2, wrapRect.top + wrapRect.height / 2]
+      sizeTransformObj.xOffset -= -cos * centerXOffset + sin * centerYOffset + centerXOffset
+      sizeTransformObj.yOffset -= -centerXOffset * sin - centerYOffset * cos + centerYOffset
 
-        let x = preX - center[0],
-          y = (preY - center[1]) * -1
-        const hypotenuse = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))
-        const sin = x / hypotenuse
-        const cos = y / hypotenuse
-        let rotate = triangleFnToAngle(sin, cos)
-        rectProperties.rotate = rotate
-      }
+      sizeTransform(sizeTransformObj.xDistance / scale, sizeTransformObj.yDistance / scale)
+      dragMove(sizeTransformObj.xOffset / scale, sizeTransformObj.yOffset / scale)
+    }
+
+    function isHorizontal(curStatus: DRAG_STATUS) {
+      return curStatus === DRAG_STATUS.DRAG_LEFT || dragStatus.value === DRAG_STATUS.DRAG_RIGHT
+    }
+
+    function isVertical(curStatus: DRAG_STATUS) {
+      return curStatus === DRAG_STATUS.DRAG_TOP || dragStatus.value === DRAG_STATUS.DRAG_BOTTOM
+    }
+
+    // 控制移动
+    function dragMove(offsetX, offsetY) {
+      rectProperties.left += offsetX
+      rectProperties.top += offsetY
+    }
+
+    function rotate(preX, preY) {
+      const wrapRect = dragEl.value!.getBoundingClientRect()
+      const center = [wrapRect.left + wrapRect.width / 2, wrapRect.top + wrapRect.height / 2]
+
+      let x = preX - center[0],
+        y = (preY - center[1]) * -1
+      const hypotenuse = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))
+      const cos = x / hypotenuse
+      const sin = y / hypotenuse
+      let rotate = triangleFnToAngle(sin, cos)
+      rectProperties.rotate = parseInt(rotate.toString())
+    }
+
+    function sizeTransform(offsetX, offsetY) {
+      rectProperties.width += offsetX
+      rectProperties.height += offsetY
     }
 
     function verifyDragWrapperActive(el: HTMLElement | null) {
@@ -241,15 +308,45 @@ export default defineComponent({
     }
 
     // 获取鼠标形态
-    function getMouseShape(el: HTMLElement, rotate: RectProperty, isMultiControl: boolean): string {
-      const elRect = el.getBoundingClientRect()
-      console.log('elRect', elRect, isMultiControl)
-      return ''
+    function getMouseShape(centerPointer: { x; y }, pointer): string {
+      let cursor = ''
+      let { x, y } = {
+        x: pointer.x - centerPointer.x,
+        y: (pointer.y - centerPointer.y) * -1
+      }
+      const hypotenuse = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))
+      const angle = triangleFnToAngle(y / hypotenuse, x / hypotenuse)
+      if (angle <= 15) cursor = 'n-resize'
+      else if (angle <= 75) cursor = 'ne-resize'
+      else if (angle <= 105) cursor = 'e-resize'
+      else if (angle <= 165) cursor = 'se-resize'
+      else if (angle <= 195) cursor = 's-resize'
+      else if (angle <= 255) cursor = 'sw-resize'
+      else if (angle <= 285) cursor = 'w-resize'
+      else if (angle <= 345) cursor = 'nw-resize'
+      else if (angle <= 360) cursor = 'n-resize'
+      return cursor
     }
 
     // 修改鼠标形态
     function modifyMouseShape(dragType: string) {
       document.documentElement.style.cursor = dragType
+    }
+
+    function getCurrentReverseCursor(el = document.documentElement) {
+      const cursors = [
+        'n-resize',
+        's-resize',
+        'e-resize',
+        'w-resize',
+        'ne-resize',
+        'sw-resize',
+        'nw-resize',
+        'se-resize'
+      ]
+      const c = getComputedStyle(el).cursor
+      const curI = cursors.indexOf(c)
+      return cursors[curI % 2 === 0 ? curI + 1 : curI - 1]
     }
 
     const isActive = ref<boolean>(false)
