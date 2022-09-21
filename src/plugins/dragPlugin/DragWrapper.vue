@@ -117,6 +117,7 @@ import {
   getRadian,
   getSinCos
 } from '@/share/util/math'
+import { clone } from '@/share/util/base'
 
 enum DRAG_STATUS {
   IDLE,
@@ -202,6 +203,7 @@ export default defineComponent({
       document.documentElement.addEventListener('mousemove', wrapperDragMove)
     }
 
+    // 处理变化
     function transformHandle(curX, curY, preX, preY, scale) {
       let offsetX = curX - preX
       let offsetY = curY - preY
@@ -217,67 +219,136 @@ export default defineComponent({
       }
     }
 
+    // 改变大小变化的函数
     function dragSizeTransformHandle(offsetX, offsetY, scale) {
-      const isX = isHorizontal(dragStatus.value)
-      const isY = isVertical(dragStatus.value)
-      const reverse =
-        dragStatus.value === DRAG_STATUS.DRAG_LEFT || dragStatus.value === DRAG_STATUS.DRAG_TOP
-          ? 180
-          : 0
-      const sizeTransformObj = {
-        xDistance: 0,
-        yDistance: 0,
-        xOffset: 0,
-        yOffset: 0
-      }
-      let centerXOffset = 0
-      let centerYOffset = 0
-      const { sin, cos } = getSinCos(getRadian(rectProperties.rotate))
-      if (isX) {
-        sizeTransformObj.xDistance = getPointerLineDistanceByRotate(
-          offsetX,
-          offsetY,
-          rectProperties.rotate + reverse
-        )
-        centerXOffset = sizeTransformObj.xDistance / 2
-        if (reverse) {
-          sizeTransformObj.xOffset -= sizeTransformObj.xDistance
-          centerXOffset *= -1
+      const isHorizontal = (curStatus: DRAG_STATUS) =>
+        curStatus !== DRAG_STATUS.DRAG_TOP && dragStatus.value !== DRAG_STATUS.DRAG_BOTTOM
+      const isVertical = (curStatus: DRAG_STATUS) =>
+        curStatus !== DRAG_STATUS.DRAG_LEFT && dragStatus.value !== DRAG_STATUS.DRAG_RIGHT
+      const getDistance = (offsetX, offsetY, rotate) =>
+        getPointerLineDistanceByRotate(offsetX, offsetY, rotate)
+      const getTransformRotate = (rotate, isY, isReverse) =>
+        rotate + Number(isY) * 90 + Number(isReverse) * 180
+
+      function createSizeTransformObj(dragStatus: DRAG_STATUS, offsetX, offsetY, scale) {
+        const isX = isHorizontal(dragStatus)
+        const isY = isVertical(dragStatus)
+        const sizeTransformObj = {
+          xDistance: 0,
+          yDistance: 0,
+          xOffset: 0,
+          yOffset: 0
         }
-      }
+        let centerXOffset = 0
+        let centerYOffset = 0
 
-      if (isY) {
-        sizeTransformObj.yDistance = getPointerLineDistanceByRotate(
-          offsetX,
-          offsetY,
-          rectProperties.rotate + 90 + reverse
-        )
-        centerYOffset = sizeTransformObj.yDistance / 2
-        if (reverse) {
-          sizeTransformObj.yOffset -= sizeTransformObj.yDistance
-          centerYOffset *= -1
+        const { sin, cos } = getSinCos(getRadian(rectProperties.rotate))
+        if (isX) {
+          const reverse = (
+            [
+              DRAG_STATUS.DRAG_LEFT,
+              DRAG_STATUS.DRAG_LEFT_TOP,
+              DRAG_STATUS.DRAG_LEFT_BOTTOM
+            ] as Array<DRAG_STATUS>
+          ).includes(dragStatus)
+          const distance = getDistance(
+            offsetX,
+            offsetY,
+            getTransformRotate(rectProperties.rotate, false, reverse)
+          )
+          sizeTransformObj.xDistance += distance
+          centerXOffset = distance / 2
+          if (reverse) {
+            sizeTransformObj.xOffset -= distance
+            centerXOffset *= -1
+          }
         }
+
+        if (isY) {
+          const reverse = (
+            [
+              DRAG_STATUS.DRAG_TOP,
+              DRAG_STATUS.DRAG_LEFT_TOP,
+              DRAG_STATUS.DRAG_RIGHT_TOP
+            ] as Array<DRAG_STATUS>
+          ).includes(dragStatus)
+          const distance = getDistance(
+            offsetX,
+            offsetY,
+            getTransformRotate(rectProperties.rotate, true, reverse)
+          )
+          sizeTransformObj.yDistance += distance
+          centerYOffset = distance / 2
+          if (reverse) {
+            sizeTransformObj.yOffset -= distance
+            centerYOffset *= -1
+          }
+        }
+
+        // left,top 减去中心点的偏差值
+        sizeTransformObj.xOffset -= -cos * centerXOffset + sin * centerYOffset + centerXOffset
+        sizeTransformObj.yOffset -= -centerXOffset * sin - centerYOffset * cos + centerYOffset
+
+        // 边界判断
+        return sizeTransformObj
       }
 
-      sizeTransformObj.xOffset -= -cos * centerXOffset + sin * centerYOffset + centerXOffset
-      sizeTransformObj.yOffset -= -centerXOffset * sin - centerYOffset * cos + centerYOffset
+      const transform = createSizeTransformObj(dragStatus.value, offsetX, offsetY, scale)
 
-      sizeTransform(sizeTransformObj.xDistance / scale, sizeTransformObj.yDistance / scale)
-      dragMove(sizeTransformObj.xOffset / scale, sizeTransformObj.yOffset / scale)
+      let realTransform = {} as any
+      Object.keys(transform).forEach((key) => (realTransform[key] = transform[key] / scale))
+      // 边界判断
+      realTransform = boundaryVerification(realTransform)
+      sizeTransform(realTransform.xDistance, realTransform.yDistance)
+      dragMove(realTransform.xOffset, realTransform.yOffset)
     }
+    function boundaryVerification(transform) {
+      const obj = clone(transform)
+      if (rectProperties.width + obj.xDistance < 0) {
+        obj.xDistance = Math.abs(rectProperties.width + obj.xDistance) - rectProperties.width
+        obj.xOffset -= Math.abs(rectProperties.width + obj.xDistance)
+        dragStatus.value = xDragStatusReverse(dragStatus.value)
+      }
+      if (rectProperties.height + obj.yDistance < 0) {
+        obj.yDistance = Math.abs(rectProperties.height + obj.yDistance) - rectProperties.height
+        obj.yOffset -= Math.abs(rectProperties.height + obj.yDistance)
 
-    function isHorizontal(curStatus: DRAG_STATUS) {
-      return curStatus === DRAG_STATUS.DRAG_LEFT || dragStatus.value === DRAG_STATUS.DRAG_RIGHT
+        dragStatus.value = yDragStatusReverse(dragStatus.value)
+
+      }
+      return obj
     }
-
-    function isVertical(curStatus: DRAG_STATUS) {
-      return curStatus === DRAG_STATUS.DRAG_TOP || dragStatus.value === DRAG_STATUS.DRAG_BOTTOM
+    function xDragStatusReverse(dragStatus) {
+      const status = [
+        DRAG_STATUS.DRAG_LEFT,
+        DRAG_STATUS.DRAG_RIGHT,
+        DRAG_STATUS.DRAG_LEFT_TOP,
+        DRAG_STATUS.DRAG_RIGHT_TOP,
+        DRAG_STATUS.DRAG_LEFT_BOTTOM,
+        DRAG_STATUS.DRAG_RIGHT_BOTTOM
+      ]
+      return getReverseByList(status, dragStatus)
+    }
+    function getReverseByList(list, cur) {
+      const i = list.indexOf(cur)
+      return list[i + ((i % 2) ? -1:1)]
+    }
+    function yDragStatusReverse(dragStatus) {
+      const status = [
+        DRAG_STATUS.DRAG_TOP,
+        DRAG_STATUS.DRAG_BOTTOM,
+        DRAG_STATUS.DRAG_LEFT_TOP,
+        DRAG_STATUS.DRAG_LEFT_BOTTOM,
+        DRAG_STATUS.DRAG_RIGHT_TOP,
+        DRAG_STATUS.DRAG_RIGHT_BOTTOM
+      ]
+      return getReverseByList(status, dragStatus)
     }
 
     // 控制移动
-    function dragMove(offsetX, offsetY) {
-      rectProperties.left += offsetX
-      rectProperties.top += offsetY
+    function dragMove(x, y) {
+      rectProperties.left += x
+      rectProperties.top += y
     }
 
     function rotate(preX, preY) {
