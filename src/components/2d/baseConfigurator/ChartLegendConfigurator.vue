@@ -1,12 +1,10 @@
 <template>
   <section class="chart-legend-configurator-wrap">
-    <fold-el title="图例" :line-show="false" :show='false'>
+    <fold-el title="图例" :line-show="false" :show="false">
       <template #default>
         <fold-el :line-show="false">
           <template #header>
-            <div
-              class="sub-fold-header title-cnf flex justify-between items-center"
-            >
+            <div class="sub-fold-header title-cnf flex justify-between items-center">
               <span class="text-12">图例显示</span>
               <switch-el v-model:value="legendShow"></switch-el>
             </div>
@@ -21,10 +19,10 @@
 </template>
 
 <script>
-import FoldEl from '@/components/2d/common/FoldEl'
-import SwitchEl from '@/components/2d/common/SwitchEl'
-import LineEl from '@/components/2d/common/LineEl'
-import { useGetter, useState } from '@/store/helper'
+import FoldEl from '@/components/2d/common/FoldEl.vue'
+import SwitchEl from '@/components/2d/common/SwitchEl.vue'
+import LineEl from '@/components/2d/common/LineEl.vue'
+import { useGetter } from '@/store/helper'
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 
@@ -36,17 +34,14 @@ export default {
   },
   setup() {
     const store = useStore()
-    const editorStore = store.state
-    const editorGetter = useGetter(store, 'global', ['GET_SELECT_NODE'])
+    const getters2D = useGetter(store, '2d', ['GET_SELECT_NODE'])
 
     const legendShow = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.echartsOption.legend
-          .show
+        return getters2D['GET_SELECT_NODE'].value.option.echartsOption.legend.show
       },
       set(newVal) {
-        editorGetter['GET_SELECT_NODE'].value.option.echartsOption.legend.show =
-          newVal
+        getters2D['GET_SELECT_NODE'].value.option.echartsOption.legend.show = newVal
       }
     })
 

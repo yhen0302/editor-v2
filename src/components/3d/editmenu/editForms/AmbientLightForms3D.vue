@@ -63,6 +63,7 @@ import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
 import { hex2rgb } from '@/core/utils/base'
+import { useGetter, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'AmbientLightForms3D',
@@ -76,6 +77,10 @@ export default defineComponent({
   props: ['node'],
   setup(props: any) {
     const store = useStore()
+
+    const state3D = useState(store, '3d')
+
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     // header nav
     const headerItems = ref([
@@ -92,9 +97,9 @@ export default defineComponent({
     let currentObj: any
 
     onMounted(() => {
-      const { type, options } = props.node
+      const { options } = props.node
 
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
 
       threeDimensionContainer.scene.traverse((c: any) => {
         if (c.type == 'AmbientLight') currentObj = c
@@ -145,7 +150,7 @@ export default defineComponent({
       const color = [formSettings.value['color'][0].value[0], formSettings.value['color'][0].value[1], formSettings.value['color'][0].value[2]]
       const intensity = formSettings.value['intensity'][0].value
 
-      Object.assign(store.state.selectedPageTreeNode.options, {
+      Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
         color,
         intensity
       })

@@ -19,22 +19,14 @@
       <slider-el v-model:value="scroll.x" :max="18" :tip="false"></slider-el>
     </div>
     <div class="editor-inp-wrap absolute" :style="toPx(editInpRect)" v-show="showEditInp">
-      <input
-        type="text"
-        class="editor-inp block w-full h-full"
-        ref="editInp"
-        v-model="inpVal"
-        @blur="showEditInp = false"
-        @keyup.stop
-        @keydown.stop
-      />
+      <input type="text" class="editor-inp block w-full h-full" ref="editInp" v-model="inpVal" @blur="showEditInp = false" @keyup.stop @keydown.stop />
     </div>
   </section>
 </template>
 
 <script lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, onUpdated, Ref, ref, watch } from 'vue'
-import SliderEl from './SliderEl'
+import SliderEl from './SliderEl.vue'
 import { clone, toPx } from '@/share/util/base'
 import { WatchOptions } from '@vue/runtime-core'
 
@@ -132,14 +124,8 @@ export default {
       let dataOffsetX = defaultOffsetX
       let dataOffsetY = defaultOffsetY
 
-      function computedValidRangeForText(
-        text,
-        containerWidth,
-        ctx,
-        fontSize = 16,
-        isEllipsis = true
-      ) {
-        let m = ctx.measureText(text)
+      function computedValidRangeForText(text, containerWidth, ctx, fontSize = 16, isEllipsis = true) {
+        const m = ctx.measureText(text)
         // overflow
         if (m.width < containerWidth) return text
         if (isEllipsis) containerWidth -= (fontSize / 2) * 3
@@ -160,11 +146,7 @@ export default {
             i += subText.length
             containerWidth -= subText.length * num
           }
-          if (
-            c(matcher![1], matcher.index, fontSize / 2) ||
-            c(matcher![2], matcher.index + matcher![1].length, fontSize)
-          )
-            break
+          if (c(matcher![1], matcher.index, fontSize / 2) || c(matcher![2], matcher.index + matcher![1].length, fontSize)) break
         }
         return isEllipsis ? res + '...' : res
       }
@@ -175,7 +157,7 @@ export default {
           // 解析列
           if (props.data[i]) {
             for (let j = 0; j < props.data[i].length; j++) {
-              let t = computedValidRangeForText(props.data[i][j], widths[i + scroll.value.x]-4, ctx)
+              const t = computedValidRangeForText(props.data[i][j], widths[i + scroll.value.x] - 4, ctx)
 
               if (scroll.value.x <= j) {
                 if (props.data[i][j] !== undefined)
@@ -203,7 +185,7 @@ export default {
       watch(
         () => scroll.value[k],
         (newVal, oldVal) => {
-          console.log(k, newVal)
+          // console.log(k, newVal)
           update = k
           draw()
         },
@@ -266,7 +248,7 @@ export default {
       excelEl.value.focus()
       hiddenInp()
       const cellRect = findCellRectByXY(ev.offsetX, ev.offsetY)
-      for (let key of Object.keys(cellRect)) {
+      for (const key of Object.keys(cellRect)) {
         selectorRect.value[key] = cellRect[key]
       }
     }
@@ -295,11 +277,7 @@ export default {
       },
       set(newVal) {
         // eslint-disable-next-line vue/no-mutating-props
-        context.emit('update:data', [
-          selectorRect.value.j,
-          selectorRect.value.i,
-          isNaN(newVal) ? newVal : Number(newVal)
-        ])
+        context.emit('update:data', [selectorRect.value.j, selectorRect.value.i, isNaN(newVal) ? newVal : Number(newVal)])
         // props.data[selectorRect.value.j][selectorRect.value.i] = newVal
       }
     })

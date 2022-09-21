@@ -1,41 +1,46 @@
-import { mapGetters, mapMutations, MutationMethod, Store } from 'vuex'
+import { mapState as baseMapState, mapActions as baseMapActions, mapGetters, mapMutations, MutationMethod, Store, ActionMethod } from 'vuex'
 import { computed, ComputedRef } from 'vue'
 
-export type moduleState = keyof MutationsMapper
-export interface EditorMutationI {
-  // 2d
-  CHANGE_DIMENSION: 'CHANGE_DIMENSION'
-  CHANGE_SELECT_BAR_TOOL_TYPE: 'CHANGE_SELECT_BAR_TOOL_TYPE'
-  CHANGE_ART_BOARD_SCALE: 'CHANGE_ART_BOARD_SCALE'
-  ADD_2D_TREE_NODE: 'ADD_2D_TREE_NODE'
+import { Actions2DI, State2DI } from './2d'
+import { Actions3DI, State3DI } from './3d'
+import { ActionsGlobalI, GettersGlobalI, MutationGlobalI, StateGlobalI } from './index'
+import { Getters2DI } from './2d/getters'
+import { Mutation2DI } from './2d/mutations'
+import { Mutation3DI } from './3d/mutations'
+import { Getters3DI } from './3d/getters'
 
-  // SELECT NODES
-  SELECT_2D_TREE_NODE: 'SELECT_2D_TREE_NODE'
-  CANCEL_SELECT_2D_NODE: 'CANCEL_SELECT_2D_NODE'
-  CLEAR_SELECT_2D_NODES: 'CLEAR_SELECT_2D_NODES'
-  // 3d
-  ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
-}
 export interface MutationsMapper {
-  editor: EditorMutationI
-  global: GlobalMutationsI
-}
-interface GlobalMutationsI {
-  [key: string]: any
-}
-export interface EditorGetterI {
-  // 2d
-  GET_CONFIGURATOR: 'GET_CONFIGURATOR'
-  GET_SELECT_STATUS: 'GET_SELECT_STATUS'
-  GET_SELECT_NODE: 'GET_SELECT_NODE'
+  global: MutationGlobalI
+  '2d': Mutation2DI
+  '3d': Mutation3DI
 }
 
-export interface GetterMapper {
-  editor: EditorGetterI
+// mapState hooks
+export type StateMapper = {
+  global: StateGlobalI
+  '2d': State2DI
+  '3d': State3DI
+}
+export function mapState<K extends keyof StateMapper, T extends keyof StateMapper[K], M extends StateMapper[K]>(store: Store<any>, namespace: K, keys: T[]): M {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const storeStateFns = namespace && namespace !== 'global' ? baseMapState(namespace, keys) : baseMapState(keys)
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const storeState = {}
+  Object.keys(storeStateFns).forEach((fnKey) => {
+    const fn = storeStateFns[fnKey].bind({ $store: store })
+
+    storeState[fnKey] = computed(fn)
+  })
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return storeState
 }
 
-export function useState(store: Store<any>, namespace: moduleState) {
-  if (namespace === 'global') return store
+export function useState<K extends keyof StateMapper, M extends StateMapper[K]>(store: Store<any>, namespace: K): M {
+  if (namespace === 'global') return store.state
   return store.state[namespace]
 }
 
@@ -52,7 +57,13 @@ export function useMutation<K extends keyof MutationsMapper, T extends Mutations
   return mutations
 }
 
-export function useGetter<K extends keyof GetterMapper, T extends GetterMapper[K]>(store: Store<any>, namespace: string, getterList: Array<keyof T>): { [key in keyof T]: ComputedRef<any> } {
+export interface GetterMapper {
+  global: GettersGlobalI
+  '2d': Getters2DI
+  '3d': Getters3DI
+}
+
+export function useGetter<K extends keyof GetterMapper, T extends keyof GetterMapper[K]>(store: Store<any>, namespace: K, getterList: T[]): { [key in T]: any } {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const storeGettersFns = namespace && namespace !== 'global' ? mapGetters(namespace, getterList) : mapGetters(getterList)
@@ -74,5 +85,22 @@ export function useGetter<K extends keyof GetterMapper, T extends GetterMapper[K
     storeGetter[fnKey] = computed(fn)
   })
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return storeGetter
+}
+
+// mapAction hooks
+type ActionsMapper = {
+  global: ActionsGlobalI
+  '2d': Actions2DI
+  '3d': Actions3DI
+}
+export function mapActions<T extends keyof ActionsMapper>(store: Store<any>, namespace: keyof ActionsMapper, keys: T[]): { [k in T]: ActionMethod } {
+  const actionsFn = namespace && namespace !== 'global' ? baseMapActions(namespace, keys) : baseMapActions(keys)
+
+  for (const key of Object.keys(actionsFn)) {
+    actionsFn[key] = actionsFn[key].bind({ $store: store })
+  }
+  return actionsFn
 }

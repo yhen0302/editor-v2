@@ -10,10 +10,9 @@ interface DragDirectiveOpt {
   select?: Ref<boolean>
 }
 function parseBinding(binding: any) {
-  let dragOpt: DragDirectiveOpt = binding.value || Object.create(null)
+  const dragOpt: DragDirectiveOpt = binding.value || Object.create(null)
 
-  const changeCb =
-    dragOpt?.change && debounce(dragOpt.change, dragOpt?.inputDelay || 300)
+  const changeCb = dragOpt?.change && debounce(dragOpt.change, dragOpt?.inputDelay || 300)
   const select = dragOpt?.select
   const inputCb = dragOpt?.input
 
@@ -25,15 +24,10 @@ function parseBinding(binding: any) {
   }
 }
 
-export function registryDragDirective(
-  app: App,
-  watchRect: Function,
-  effectTotalSet: Set<EffectScope>,
-  stopEffect: Function
-) {
+export function registryDragDirective(app: App, watchRect: any, effectTotalSet: Set<EffectScope>, stopEffect: any) {
   app.directive('drag', {
     mounted(el: CustomElement, binding: any) {
-      console.log('drag')
+      // console.log('drag')
       const { select, input, change, active } = parseBinding(binding)
       let effect: EffectScope
 

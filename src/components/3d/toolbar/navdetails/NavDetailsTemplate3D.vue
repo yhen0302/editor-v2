@@ -1,13 +1,7 @@
 <template>
   <div class="nav-details-template-3d-main">
     <div class="content">
-      <ToolBarItem
-        v-for="item in detailsList"
-        :key="item.type"
-        :icon="item.icon"
-        :name="item.name"
-        @click="chooseItem(item)"
-      />
+      <ToolBarItem v-for="item in detailsList" :key="item.type" :icon="item.icon" :name="item.name" @click="chooseItem(item)" />
     </div>
 
     <div class="upload">
@@ -53,11 +47,7 @@ export default defineComponent({
 
     // 递归找出上面所有父级元素 并乘以相应矩阵
     function recursiveCalParentsMat(obj, v, mat) {
-      mat.compose(
-        obj.position,
-        new Bol3D.Quaternion().setFromEuler(new Bol3D.Euler().setFromVector3(obj.rotation)),
-        obj.scale
-      )
+      mat.compose(obj.position, new Bol3D.Quaternion().setFromEuler(new Bol3D.Euler().setFromVector3(obj.rotation)), obj.scale)
       v.applyMatrix4(mat)
       if (!obj.parent || obj.parent.type == 'Scene') return
       recursiveCalParentsMat(obj.parent, v, mat)
@@ -73,7 +63,7 @@ export default defineComponent({
 
       // validate filesList
       let validateFlag = true
-      let validateTypes = ['glb', 'gltf']
+      const validateTypes = ['glb', 'gltf']
       for (const i in fileList) {
         const file = fileList[i]
         if (file instanceof File) {
@@ -193,11 +183,7 @@ export default defineComponent({
           store.state.template.threeDimension.forEach((c: any) => {
             if (c.type === 'Camera') {
               const camera = container.orbitControls.object
-              c.options.position = [
-                parseFloat(camera.position.x.toFixed(4)),
-                parseFloat(camera.position.y.toFixed(4)),
-                parseFloat(camera.position.z.toFixed(4))
-              ]
+              c.options.position = [parseFloat(camera.position.x.toFixed(4)), parseFloat(camera.position.y.toFixed(4)), parseFloat(camera.position.z.toFixed(4))]
             }
           })
           // 2).container:children,clickObjects,  (mixers,mixerActions,sceneAnimations ---- todo animations)

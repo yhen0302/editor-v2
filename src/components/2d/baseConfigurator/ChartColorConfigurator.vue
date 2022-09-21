@@ -3,11 +3,7 @@
     <fold-el title="配色方案" :line-show="false">
       <template #default>
         <div class="color-picker-wrap">
-          <multi-gradient-color-picker
-            :key="node.id"
-            :value="colors"
-            @update="updateColor"
-          ></multi-gradient-color-picker>
+          <multi-gradient-color-picker :key="node.id" :value="colors" @update="updateColor"></multi-gradient-color-picker>
         </div>
       </template>
     </fold-el>
@@ -20,35 +16,30 @@ import MultiGradientColorPicker from '@/components/2d/common/MultiGradientColorP
 import FoldEl from '@/components/2d/common/FoldEl'
 import LineEl from '@/components/2d/common/LineEl'
 import { useStore } from 'vuex'
-import { useGetter, useMutation, useState } from '@/store/helper'
-import { computed, toRaw } from 'vue'
+import { useGetter } from '@/store/helper'
+import { computed } from 'vue'
 import { Color, toColor } from '@/share/util/node'
 import { rotatePointer, clone } from '@/share/util/base'
 
 export default {
   name: 'ChartColorConfigurator',
   components: { LineEl, FoldEl, MultiGradientColorPicker },
-  setup(props) {
+  setup() {
     const store = useStore()
-    const editorStore = store.state
-    const editorGetter = useGetter(store, 'global', ['GET_SELECT_NODE'])
+    const getters2D = useGetter(store, '2d', ['GET_SELECT_NODE'])
 
     function getDegFromEchartsColor(echartsColor) {
       let deg
-      if (echartsColor.x === 0 && echartsColor.y2 === 0)
-        deg = Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180) + 90
-      else if (echartsColor.x === 0 && echartsColor.y === 0)
-        deg = Math.round((Math.acos(echartsColor.x2) / Math.PI) * 180) + 90
-      else if (echartsColor.x2 === 0 && echartsColor.y === 0)
-        deg = 270 - Math.round((Math.acos(echartsColor.x) / Math.PI) * 180)
-      else if (echartsColor.x2 === 0 && echartsColor.y2 === 0)
-        deg = 270 - Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180)
+      if (echartsColor.x === 0 && echartsColor.y2 === 0) deg = Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180) + 90
+      else if (echartsColor.x === 0 && echartsColor.y === 0) deg = Math.round((Math.acos(echartsColor.x2) / Math.PI) * 180) + 90
+      else if (echartsColor.x2 === 0 && echartsColor.y === 0) deg = 270 - Math.round((Math.acos(echartsColor.x) / Math.PI) * 180)
+      else if (echartsColor.x2 === 0 && echartsColor.y2 === 0) deg = 270 - Math.round((Math.asin(-echartsColor.y) / Math.PI) * 180)
       return deg
     }
     function echartsColorToPickerColor(echartsColor) {
       if (!echartsColor.type) return toColor(echartsColor)
       else {
-        let deg = getDegFromEchartsColor(echartsColor)
+        const deg = getDegFromEchartsColor(echartsColor)
 
         // gradient
         const color = toColor('#FF00FF')
@@ -97,16 +88,15 @@ export default {
       }
     }
     const colors = computed(() => {
-      const node = editorGetter['GET_SELECT_NODE'].value
+      const node = getters2D['GET_SELECT_NODE'].value
       const tempColors = node.option.echartsOption.color
       const mappingColors = tempColors.map(echartsColorToPickerColor)
       return mappingColors
     })
     function updateColor({ value, index }) {
-      editorGetter['GET_SELECT_NODE'].value.option.echartsOption.color[index] =
-        pickerColorToEchartsColor(value)
+      getters2D['GET_SELECT_NODE'].value.option.echartsOption.color[index] = pickerColorToEchartsColor(value)
     }
-    const node = computed(() => editorGetter['GET_SELECT_NODE'].value)
+    const node = computed(() => getters2D['GET_SELECT_NODE'].value)
 
     return { colors, updateColor, node }
   }

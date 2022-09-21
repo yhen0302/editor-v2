@@ -1,15 +1,20 @@
 import { clone } from '../../share/util/base'
-import { toRaw } from 'vue'
-import store from '../../store'
+import store, { SceneTreeNode } from '../../store'
 import { deleteTreeParentQuote } from '@/core/2d/util/tree'
+import { useState } from '@/store/helper'
 
-export function getAvailablePageTreeNodes() {
-  const pageTreeNodes = clone(toRaw(store.state.pageTreeNodes))
-  for (const scene of pageTreeNodes) {
+export function getAvailableSceneTreeNodes() {
+  const stateGlobal = useState(store, 'global')
+
+  const sceneTreeNodes: SceneTreeNode[] = clone(stateGlobal.sceneTreeNodes)
+
+  console.log('stateGlobal.sceneTreeNodes', stateGlobal.sceneTreeNodes)
+
+  for (const scene of sceneTreeNodes) {
     for (const page of scene.children) {
       deleteTreeParentQuote(page.trees.twoDimension)
     }
   }
-  return pageTreeNodes
-}
 
+  return sceneTreeNodes
+}

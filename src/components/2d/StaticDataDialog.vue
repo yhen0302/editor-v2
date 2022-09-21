@@ -4,23 +4,11 @@
       <header class="static-data-header flex">
         <div class="title-area items-center flex">
           <span class="header-name">标题</span>
-          <input
-            type="text"
-            class="header-inp flex-1"
-            placeholder="输入标题"
-            :value="title"
-            @input="title = $event.target.value"
-          />
+          <input type="text" class="header-inp flex-1" placeholder="输入标题" :value="title" @input="title = $event.target.value" />
         </div>
         <div class="unit-area items-center flex">
           <span class="header-name">单位</span>
-          <input
-            type="text"
-            class="header-inp flex-1"
-            placeholder="输入单位"
-            :value="unit"
-            @input="unit = $event.target.value"
-          />
+          <input type="text" class="header-inp flex-1" placeholder="输入单位" :value="unit" @input="unit = $event.target.value" />
         </div>
       </header>
       <div class="static-data-content">
@@ -35,9 +23,8 @@
 import Dialog from '@/components/2d/common/Dialog.vue'
 import ExcelTable from '@/components/2d/common/ExcelTable.vue'
 import { useStore } from 'vuex'
-import { useGetter, useState } from '@/store/helper'
+import { useGetter } from '@/store/helper'
 import { computed, ref } from 'vue'
-import { clone } from '@/share/util/base'
 import getStaticHandle from '@/components/2d/staticDataEchartDataToTableHandle'
 
 export default {
@@ -46,10 +33,10 @@ export default {
   props: ['visible'],
   setup(props, context) {
     const store = useStore()
-    const editorGetter = useGetter(store, 'global', ['GET_SELECT_NODE'])
+    const getters2D = useGetter(store, '2d', ['GET_SELECT_NODE'])
 
-    const title = ref(editorGetter['GET_SELECT_NODE'].value.option.echartsOption.title.text)
-    const unit = ref(editorGetter['GET_SELECT_NODE'].value.option.echartsOption.unit.text)
+    const title = ref(getters2D['GET_SELECT_NODE'].value.option.echartsOption.title.text)
+    const unit = ref(getters2D['GET_SELECT_NODE'].value.option.echartsOption.unit.text)
     const show = computed({
       get() {
         return props.visible
@@ -59,14 +46,15 @@ export default {
       }
     })
 
-
     const handle = computed(() => {
-      const node = editorGetter['GET_SELECT_NODE'].value
-      console.log(getStaticHandle(node))
-      return getStaticHandle(node)||{
-        echartsDataToTableHandle: new Function(),
-        tableDataAssignEchartsHandle: new Function()
-      }
+      const node = getters2D['GET_SELECT_NODE'].value
+      // console.log(getStaticHandle(node))
+      return (
+        getStaticHandle(node) || {
+          echartsDataToTableHandle: new Function(),
+          tableDataAssignEchartsHandle: new Function()
+        }
+      )
     })
     function echartsDataToTableByNode(node) {
       return handle.value.echartsDataToTableHandle(node)
@@ -78,7 +66,7 @@ export default {
     let cacheVal
     const data = computed({
       get() {
-        cacheVal = echartsDataToTableByNode(editorGetter['GET_SELECT_NODE'].value)
+        cacheVal = echartsDataToTableByNode(getters2D['GET_SELECT_NODE'].value)
         return cacheVal
       },
       set(payload) {
@@ -88,7 +76,7 @@ export default {
     })
 
     function saveData() {
-      const node = editorGetter['GET_SELECT_NODE'].value
+      const node = getters2D['GET_SELECT_NODE'].value
       tableDataAssignEcharts(cacheVal, node)
       node.option.echartsOption.title.text = title.value
       node.option.echartsOption.unit.text = unit.value

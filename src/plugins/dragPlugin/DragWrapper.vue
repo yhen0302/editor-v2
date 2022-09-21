@@ -1,66 +1,66 @@
 <template>
-  <section id="drag-wrapper" v-show="isActive&&!editorStore.addDragging" dragType="DRAG_MOVE" :style="{ ...toPx(rectProperties)}" ref="dragEl" @click.stop.prevent>
+  <section id="drag-wrapper" v-show="isActive && !state2D.addDragging" dragType="DRAG_MOVE" :style="{ ...toPx(rectProperties) }" ref="dragEl" @click.stop.prevent>
     <!--  控制顶点缩放的四个圆点  -->
     <div
       class="circle nw-resize drag-wrapper_left drag-wrapper_top"
       dragType="DRAG_LEFT_TOP"
       v-show="!isDrag"
-      v-memo="[isDrag, editorStore.drawingBoard.scale]"
+      v-memo="[isDrag, stateGlobal.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
+      :style="`transform:scale(${1 / stateGlobal.drawingBoard.scale});`"
     ></div>
     <div
       class="circle ne-resize drag-wrapper_right drag-wrapper_top"
       dragType="DRAG_RIGHT_TOP"
       v-show="!isDrag"
-      v-memo="[isDrag, editorStore.drawingBoard.scale]"
+      v-memo="[isDrag, stateGlobal.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
+      :style="`transform:scale(${1 / stateGlobal.drawingBoard.scale});`"
     ></div>
     <div
       class="circle se-resize drag-wrapper_right drag-wrapper_bottom"
       dragType="DRAG_RIGHT_BOTTOM"
       v-show="!isDrag"
-      v-memo="[isDrag, editorStore.drawingBoard.scale]"
+      v-memo="[isDrag, stateGlobal.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
+      :style="`transform:scale(${1 / stateGlobal.drawingBoard.scale});`"
     ></div>
     <div
       class="circle sw-resize drag-wrapper_left drag-wrapper_bottom"
       dragType="DRAG_LEFT_BOTTOM"
       v-show="!isDrag"
-      v-memo="[isDrag, editorStore.drawingBoard.scale]"
+      v-memo="[isDrag, stateGlobal.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scale(${1 / editorStore.drawingBoard.scale});`"
+      :style="`transform:scale(${1 / stateGlobal.drawingBoard.scale});`"
     ></div>
     <!--  控制上下左右拖拽的四条边  -->
     <div
       class="border n-resize drag-wrapper_top"
       dragType="DRAG_TOP"
-      v-memo="[editorStore.drawingBoard.scale]"
+      v-memo="[stateGlobal.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleY(${1 / editorStore.drawingBoard.scale});`"
+      :style="`transform:scaleY(${1 / stateGlobal.drawingBoard.scale});`"
     ></div>
     <div
       class="border e-resize drag-wrapper_right"
       dragType="DRAG_RIGHT"
-      v-memo="[editorStore.drawingBoard.scale]"
+      v-memo="[stateGlobal.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleX(${1 / editorStore.drawingBoard.scale});`"
+      :style="`transform:scaleX(${1 / stateGlobal.drawingBoard.scale});`"
     ></div>
     <div
       class="border n-resize drag-wrapper_bottom"
       dragType="DRAG_BOTTOM"
-      v-memo="[editorStore.drawingBoard.scale]"
+      v-memo="[stateGlobal.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleY(${1 / editorStore.drawingBoard.scale});`"
+      :style="`transform:scaleY(${1 / stateGlobal.drawingBoard.scale});`"
     ></div>
     <div
       class="border e-resize drag-wrapper_left"
       dragType="DRAG_LEFT"
-      v-memo="[editorStore.drawingBoard.scale]"
+      v-memo="[stateGlobal.drawingBoard.scale]"
       :ref="tempEls"
-      :style="`transform:scaleX(${1 / editorStore.drawingBoard.scale});`"
+      :style="`transform:scaleX(${1 / stateGlobal.drawingBoard.scale});`"
     ></div>
   </section>
 </template>
@@ -71,7 +71,6 @@ import { toPx, findParentPathHasEl, computedElementsRect } from '@/plugins/dragP
 import { Ref } from '@vue/reactivity'
 import { activeEl, isCalculating } from './index'
 import { rectProperties } from '@/plugins/dragPlugin/convert'
-import { EditorStore } from '@/store/type'
 import { useState } from '@/store/helper'
 import store from '@/store'
 
@@ -98,12 +97,13 @@ export default defineComponent({
     const isRunning = ref<boolean>(false)
     const dragStatus = ref<DRAG_STATUS>(DRAG_STATUS.IDLE)
     const isDrag = ref<boolean>(false)
-    const editorStore = useState(store, 'global').state as any
+    const stateGlobal = useState(store, 'global')
+    const state2D = useState(store, '2d')
 
-    let dragEl: Ref<HTMLElement | null> = ref<HTMLElement | null>(null)
+    const dragEl: Ref<HTMLElement | null> = ref<HTMLElement | null>(null)
 
     const dragElList = ref<Array<HTMLElement>>([])
-    let tempEls = (el: HTMLElement) => {
+    const tempEls = (el: HTMLElement) => {
       ;(dragElList.value as Array<HTMLElement>).push(el)
     }
 
@@ -118,8 +118,8 @@ export default defineComponent({
         // 监听的鼠标按下事件
         function wrapperDragDown(ev: MouseEvent) {
           isDrag.value = false
-          let target: HTMLElement = ev.target as HTMLElement
-          let dragType = target.getAttribute('dragType') as keyof typeof DRAG_STATUS
+          const target: HTMLElement = ev.target as HTMLElement
+          const dragType = target.getAttribute('dragType') as keyof typeof DRAG_STATUS
 
           isRunning.value = verifyDragWrapperActive(target)
 
@@ -135,7 +135,7 @@ export default defineComponent({
 
         // 监听的鼠标抬起事件
         function wrapperDragUp(ev: MouseEvent) {
-          let target: HTMLElement = ev.target as HTMLElement
+          const target: HTMLElement = ev.target as HTMLElement
           isDrag.value = isRunning.value = false
           dragStatus.value = DRAG_STATUS.IDLE
           modifyMouseShape('auto')
@@ -144,12 +144,12 @@ export default defineComponent({
 
         // 监听的鼠标移动事件
         function wrapperDragMove(ev: MouseEvent) {
-          let { pageX, pageY } = ev
+          const { pageX, pageY } = ev
           if (isRunning.value) {
             offsetX = pageX - preX
             offsetY = pageY - preY
 
-            const scale = editorStore.drawingBoard.scale
+            const scale = stateGlobal.drawingBoard.scale
             offsetX /= scale
             offsetY /= scale
 
@@ -206,7 +206,7 @@ export default defineComponent({
       function dragRight() {
         // 边界处理
         if (rectProperties.width + offsetX < 0) {
-          let wTemp = rectProperties.width
+          const wTemp = rectProperties.width
           rectProperties.width = Math.abs(offsetX) - wTemp
           rectProperties.left -= Math.abs(offsetX) - wTemp
           switch (dragStatus.value) {
@@ -229,7 +229,7 @@ export default defineComponent({
 
       function dragLeft() {
         if (rectProperties.width - offsetX < 0) {
-          let wTemp = rectProperties.width
+          const wTemp = rectProperties.width
           rectProperties.width = Math.abs(offsetX) - wTemp
           rectProperties.left += Math.abs(offsetX) - rectProperties.width
           switch (dragStatus.value) {
@@ -252,7 +252,7 @@ export default defineComponent({
 
       function dragTop() {
         if (rectProperties.height - offsetY < 0) {
-          let hTemp = rectProperties.height
+          const hTemp = rectProperties.height
           rectProperties.height = Math.abs(offsetY) - hTemp
           rectProperties.top += Math.abs(offsetY) - rectProperties.height
 
@@ -279,7 +279,7 @@ export default defineComponent({
 
       function dragBottom() {
         if (rectProperties.height + offsetY < 0) {
-          let hTemp = rectProperties.height
+          const hTemp = rectProperties.height
           rectProperties.height = Math.abs(offsetY) - hTemp
           rectProperties.top -= Math.abs(offsetY) - hTemp
 
@@ -302,7 +302,7 @@ export default defineComponent({
     }
 
     function verifyDragWrapperActive(el: HTMLElement | null) {
-      for (let aEl of activeEl.value) {
+      for (const aEl of activeEl.value) {
         if (findParentPathHasEl(el, aEl)) {
           return true
         }
@@ -343,12 +343,12 @@ export default defineComponent({
     watch(
       () => activeEl.value,
       (els: HTMLElement[], oldEl) => {
-        console.log(els.length)
+        // console.log(els.length)
         if (els.length) {
           isCalculating.value = true
           isActive.value = true
-          let rect = computedElementsRect(els, 'css')
-          for (let key of Object.keys(rectProperties)) {
+          const rect = computedElementsRect(els, 'css')
+          for (const key of Object.keys(rectProperties)) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             rectProperties[key] = rect[key]
@@ -367,7 +367,8 @@ export default defineComponent({
       isDrag,
       dragEl,
       tempEls,
-      editorStore
+      stateGlobal,
+      state2D
     }
   }
 })

@@ -48,21 +48,21 @@ export default {
   components: { LineEl, InputEl, FoldEl },
   setup() {
     const store = useStore()
-    const editorGetters = useGetter(store, 'global', ['GET_SELECT_NODE'])
+    const getters2D = useGetter(store, '2d', ['GET_SELECT_NODE'])
     const computedFns = { left: '', top: '', width: '', height: '' }
     Object.keys(computedFns).map((key) => {
       computedFns[key] = computed({
         get() {
-          return editorGetters['GET_SELECT_NODE'].value.option.matrixOption[key]
+          return getters2D['GET_SELECT_NODE'].value.option.matrixOption[key]
         },
         set(val) {
-          editorGetters['GET_SELECT_NODE'].value.option.matrixOption[key] = val
+          getters2D['GET_SELECT_NODE'].value.option.matrixOption[key] = val
         }
       })
     })
 
     return {
-      ...editorGetters,
+      ...getters2D,
       ...computedFns
     }
   }

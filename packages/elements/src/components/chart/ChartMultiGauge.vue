@@ -47,23 +47,15 @@ export default {
       const option = clone(echartsOption || this.node.option.echartsOption)
       const seriesLength = option.series.length
       const matrix = this.node.option.matrixOption
-      const radius = Math.min(
-        (matrix.width * 0.9) / Math.min(seriesLength, 3) / 2,
-        (matrix.height * 0.8) / Math.ceil(seriesLength / 3) / 2
-      )
+      const radius = Math.min((matrix.width * 0.9) / Math.min(seriesLength, 3) / 2, (matrix.height * 0.8) / Math.ceil(seriesLength / 3) / 2)
       const NaNToZero = (n) => (isNaN(n) ? 0 : n)
 
       option.series.forEach((gauge, index) => {
         gauge.center = [
           ['18%', '50%', '82%'][index % Math.min(seriesLength, 3)],
-          seriesLength <= 3
-            ? '60%'
-            : (100 / Math.ceil(seriesLength / 3)) * Math.ceil((index + 1) / 3) -
-              100 / Math.ceil(seriesLength / 3) / 2 +
-              5 +
-              '%'
+          seriesLength <= 3 ? '60%' : (100 / Math.ceil(seriesLength / 3)) * Math.ceil((index + 1) / 3) - 100 / Math.ceil(seriesLength / 3) / 2 + 5 + '%'
         ]
-        console.log(gauge.center)
+        // console.log(gauge.center)
         gauge.progress.itemStyle = gauge.progress.itemStyle || {}
         gauge.progress.itemStyle.color = option.color[index]
         gauge.progress.width = radius / 10
@@ -74,7 +66,7 @@ export default {
         gauge.axisLine.lineStyle.width = radius / 10
         gauge.radius = parseInt(radius)
       })
-      console.log(option)
+      // console.log(option)
       return option
     }
   },

@@ -16,28 +16,16 @@
     @scroll.stop
     ref="el"
   >
-    <table-el
-      :data="tableData"
-      :body-class="cssModule['table-body']"
-      :header-class="cssModule['table-header']"
-    >
+    <table-el :data="tableData" :body-class="cssModule['table-body']" :header-class="cssModule['table-header']">
       <template #default>
         <column-el :prop="key" :label="val" v-for="(val, key) in node.option.tableMap" :key="key">
           <template v-slot:default="data">
-            <div
-              class="col-content"
-              @blur="editTableContentBlur($event, data, key)"
-              @dblclick="editTableData($event, data)"
-            >
+            <div class="col-content" @blur="editTableContentBlur($event, data, key)" @dblclick="editTableData($event, data)">
               {{ data.row[key] }}
             </div>
           </template>
           <template v-slot:header="data">
-            <div
-              class="col-header"
-              @blur="editTableHeaderBlur($event, data, key)"
-              @dblclick="editTableData($event, data)"
-            >
+            <div class="col-header" @blur="editTableHeaderBlur($event, data, key)" @dblclick="editTableData($event, data)">
               {{ val }}
             </div>
           </template>
@@ -62,7 +50,7 @@ export default {
     ColumnEl
   },
   setup(props) {
-    console.log(props.node)
+    // console.log(props.node)
     const tableData = computed(() => props.node.option.tableData)
     let _enableEdit = false
     const enableEdit = computed({
@@ -133,17 +121,17 @@ export default {
 </style>
 <style module="table-2" lang="less">
 .table-wrapper {
-  background:none;
+  background: none;
 }
 .table-header {
   background: none !important;
   th {
     border: none !important;
-    color: rgba(229, 236, 250, .5);
+    color: rgba(229, 236, 250, 0.5);
     font-size: 12px !important;
   }
-  tr{
-    background: linear-gradient(90deg, rgba(161,170,192,0) 0%, rgba(161,170,192,0.9900) 49%, rgba(161,170,192,0) 100%) bottom/100% 1px no-repeat;
+  tr {
+    background: linear-gradient(90deg, rgba(161, 170, 192, 0) 0%, rgba(161, 170, 192, 0.99) 49%, rgba(161, 170, 192, 0) 100%) bottom/100% 1px no-repeat;
   }
 }
 .table-body {
@@ -155,22 +143,21 @@ export default {
     color: rgb(229, 236, 250);
     font-size: 12px !important;
   }
-  tr{
-    background: linear-gradient(90deg, rgba(161,170,192,0) 0%, rgba(161,170,192,0.9900) 49%, rgba(161,170,192,0) 100%) bottom/100% 1px no-repeat;
+  tr {
+    background: linear-gradient(90deg, rgba(161, 170, 192, 0) 0%, rgba(161, 170, 192, 0.99) 49%, rgba(161, 170, 192, 0) 100%) bottom/100% 1px no-repeat;
   }
 }
-
 </style>
 <style module="table-3" lang="less">
 .table-wrapper {
-  background:none;
+  background: none;
 }
 .table-header {
   background: none !important;
   th {
     padding: 8px 0;
     border: none !important;
-    color: rgba(255, 255, 255, .5);
+    color: rgba(255, 255, 255, 0.5);
     font-size: 12px !important;
   }
 }
@@ -183,8 +170,8 @@ export default {
     color: rgb(255, 255, 255);
     font-size: 12px !important;
   }
-  tr:nth-child(odd){
-    background: rgba(57, 57, 57, .7);
+  tr:nth-child(odd) {
+    background: rgba(57, 57, 57, 0.7);
   }
 }
 </style>

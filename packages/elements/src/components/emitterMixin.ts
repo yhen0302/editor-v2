@@ -7,7 +7,7 @@ export default {
         const eventType = s[0]
         const eventAction = s[1]
         const effect = this.node.option.emitters[key]
-        console.log(ev.type, eventType, eventAction, effect)
+        // console.log(ev.type, eventType, eventAction, effect)
       }
     }
   }

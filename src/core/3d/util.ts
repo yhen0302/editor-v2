@@ -1,14 +1,11 @@
 import { toRaw } from 'vue'
-import store from '../../store'
+import store, { LayerTreeNode3D } from '../../store'
 import * as UnderScore from 'underscore'
-import { upDateForText } from '../utils/text3D'
-import { reviseFlyLine } from '../utils/flyLine'
+import { mapState, useState } from '../../store/helper'
 
 declare const Bol3D: any
 
 export function parseModelNode(opt: any, node: any, index: number, result: any) {
-  node.uuid = findParentName(node)
-
   result.uuid = node.uuid
   result.name = node.name
   result.visible = node.visible
@@ -16,46 +13,21 @@ export function parseModelNode(opt: any, node: any, index: number, result: any) 
   result.index = index
   result.spread = false
   result.type = node.type
-  result.event = {}
   result.children = []
   result.options = {}
   result.show = true
   if (node.type === 'Group') {
     result.options = {
-      position: [
-        parseFloat(node.position.x.toFixed(4)),
-        parseFloat(node.position.y.toFixed(4)),
-        parseFloat(node.position.z.toFixed(4))
-      ],
-      rotation: [
-        parseFloat(((node.rotation.x * 180) / Math.PI).toFixed(4)),
-        parseFloat(((node.rotation.y * 180) / Math.PI).toFixed(4)),
-        parseFloat(((node.rotation.z * 180) / Math.PI).toFixed(4))
-      ],
-      scale: [
-        parseFloat(node.scale.x.toFixed(4)),
-        parseFloat(node.scale.y.toFixed(4)),
-        parseFloat(node.scale.z.toFixed(4))
-      ]
+      position: [parseFloat(node.position.x.toFixed(4)), parseFloat(node.position.y.toFixed(4)), parseFloat(node.position.z.toFixed(4))],
+      rotation: [parseFloat(((node.rotation.x * 180) / Math.PI).toFixed(4)), parseFloat(((node.rotation.y * 180) / Math.PI).toFixed(4)), parseFloat(((node.rotation.z * 180) / Math.PI).toFixed(4))],
+      scale: [parseFloat(node.scale.x.toFixed(4)), parseFloat(node.scale.y.toFixed(4)), parseFloat(node.scale.z.toFixed(4))]
     }
   } else if (node.type === 'Mesh') {
     // console.log(node.material.type, node.material.map)
     result.options = {
-      position: [
-        parseFloat(node.position.x.toFixed(4)),
-        parseFloat(node.position.y.toFixed(4)),
-        parseFloat(node.position.z.toFixed(4))
-      ],
-      rotation: [
-        parseFloat(((node.rotation.x * 180) / Math.PI).toFixed(4)),
-        parseFloat(((node.rotation.y * 180) / Math.PI).toFixed(4)),
-        parseFloat(((node.rotation.z * 180) / Math.PI).toFixed(4))
-      ],
-      scale: [
-        parseFloat(node.scale.x.toFixed(4)),
-        parseFloat(node.scale.y.toFixed(4)),
-        parseFloat(node.scale.z.toFixed(4))
-      ],
+      position: [parseFloat(node.position.x.toFixed(4)), parseFloat(node.position.y.toFixed(4)), parseFloat(node.position.z.toFixed(4))],
+      rotation: [parseFloat(((node.rotation.x * 180) / Math.PI).toFixed(4)), parseFloat(((node.rotation.y * 180) / Math.PI).toFixed(4)), parseFloat(((node.rotation.z * 180) / Math.PI).toFixed(4))],
+      scale: [parseFloat(node.scale.x.toFixed(4)), parseFloat(node.scale.y.toFixed(4)), parseFloat(node.scale.z.toFixed(4))],
       castShadow: node.castShadow,
       receiveShadow: node.receiveShadow
     }
@@ -95,21 +67,9 @@ export function parseModelNode(opt: any, node: any, index: number, result: any) 
     }
   } else if (node.type === 'Object3D') {
     result.options = {
-      position: [
-        parseFloat(node.position.x.toFixed(4)),
-        parseFloat(node.position.y.toFixed(4)),
-        parseFloat(node.position.z.toFixed(4))
-      ],
-      rotation: [
-        parseFloat(((node.rotation.x * 180) / Math.PI).toFixed(4)),
-        parseFloat(((node.rotation.y * 180) / Math.PI).toFixed(4)),
-        parseFloat(((node.rotation.z * 180) / Math.PI).toFixed(4))
-      ],
-      scale: [
-        parseFloat(node.scale.x.toFixed(4)),
-        parseFloat(node.scale.y.toFixed(4)),
-        parseFloat(node.scale.z.toFixed(4))
-      ]
+      position: [parseFloat(node.position.x.toFixed(4)), parseFloat(node.position.y.toFixed(4)), parseFloat(node.position.z.toFixed(4))],
+      rotation: [parseFloat(((node.rotation.x * 180) / Math.PI).toFixed(4)), parseFloat(((node.rotation.y * 180) / Math.PI).toFixed(4)), parseFloat(((node.rotation.z * 180) / Math.PI).toFixed(4))],
+      scale: [parseFloat(node.scale.x.toFixed(4)), parseFloat(node.scale.y.toFixed(4)), parseFloat(node.scale.z.toFixed(4))]
     }
   }
   if (node.children.length > 0) {
@@ -122,28 +82,8 @@ export function parseModelNode(opt: any, node: any, index: number, result: any) 
   }
 }
 
-const findParentName = (obj: any) => {
-  let name: any = obj.name
-  function findName(objs: any) {
-    if (objs.parent.type != 'Scene') {
-      name = objs.parent.name + '-' + name
-      findName(objs.parent)
-    } else {
-      return false
-    }
-  }
-
-  if (obj.parent.type != 'Scene') {
-    name = obj.parent.name + '-' + name
-    findName(obj.parent)
-    return name
-  } else {
-    return name
-  }
-}
-
 // 所有节点selected属性重置为false
-export function traverseResetSelectedOfNodes(nodes: any) {
+export function traverseResetSelectedOfNodes(nodes: LayerTreeNode3D[] = []) {
   nodes.forEach((n: any) => {
     n.selected = false
     if (n.children.length > 0) traverseResetSelectedOfNodes(n.children)
@@ -164,7 +104,7 @@ export function reloadThreeDimensionPassesByTemplate() {
   const flatSceneNodes: any = []
   flatTreeNodes(sceneNodes, flatSceneNodes)
 
-  const container: any = toRaw(store.state.threeDimensionContainer)
+  const container: any = toRaw(mapState(store, '3d', ['threeDimensionContainer']))
 
   for (const k in flatSceneNodes) {
     const n = flatSceneNodes[k]
@@ -182,15 +122,7 @@ export function reloadThreeDimensionPassesByTemplate() {
       container.bokehPass.uniforms.maxblur.value = maxblur
     } else if (n.type === 'OutlinePass') {
       const { options } = n
-      const {
-        enabled,
-        edgeStrength,
-        edgeGlow,
-        edgeThickness,
-        pulsePeriod,
-        visibleEdgeColor,
-        hiddenEdgeColor
-      } = options
+      const { enabled, edgeStrength, edgeGlow, edgeThickness, pulsePeriod, visibleEdgeColor, hiddenEdgeColor } = options
       container.outlinePass.enabled = enabled
       container.outlinePass.edgeStrength = edgeStrength
       container.outlinePass.edgeGlow = edgeGlow
@@ -202,9 +134,7 @@ export function reloadThreeDimensionPassesByTemplate() {
       const { options } = n
       const { enabled, radius, strength, threshold } = options
       container.bloomPass.enabled = enabled
-      container.finalbloomPass.material.uniforms.bloomTexture.value = enabled
-        ? container.bloomComposer.renderTarget2.texture
-        : null
+      container.finalbloomPass.material.uniforms.bloomTexture.value = enabled ? container.bloomComposer.renderTarget2.texture : null
       container.bloomPass.radius = radius
       container.bloomPass.compositeMaterial.uniforms['bloomRadius'].value = radius
       container.bloomPass.strength = strength
@@ -221,7 +151,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
   const flatSceneNodes: any = []
   flatTreeNodes(sceneNodes, flatSceneNodes)
 
-  const container: any = toRaw(store.state.threeDimensionContainer)
+  const container: any = toRaw(mapState(store, '3d', ['threeDimensionContainer']))
 
   for (const k in flatSceneNodes) {
     const n = flatSceneNodes[k]
@@ -240,15 +170,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
       container.bokehPass.uniforms.maxblur.value = maxblur
     } else if (n.type === 'OutlinePass') {
       const { options } = n
-      const {
-        enabled,
-        edgeStrength,
-        edgeGlow,
-        edgeThickness,
-        pulsePeriod,
-        visibleEdgeColor,
-        hiddenEdgeColor
-      } = options
+      const { enabled, edgeStrength, edgeGlow, edgeThickness, pulsePeriod, visibleEdgeColor, hiddenEdgeColor } = options
       container.outlinePass.enabled = enabled
       container.outlinePass.edgeStrength = edgeStrength
       container.outlinePass.edgeGlow = edgeGlow
@@ -260,9 +182,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
       const { options } = n
       const { enabled, radius, strength, threshold } = options
       container.bloomPass.enabled = enabled
-      container.finalbloomPass.material.uniforms.bloomTexture.value = enabled
-        ? container.bloomComposer.renderTarget2.texture
-        : null
+      container.finalbloomPass.material.uniforms.bloomTexture.value = enabled ? container.bloomComposer.renderTarget2.texture : null
       container.bloomPass.radius = radius
       container.bloomPass.compositeMaterial.uniforms['bloomRadius'].value = radius
       container.bloomPass.strength = strength
@@ -329,11 +249,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
                   const s = opts[i]
                   container.sky.scale.set(s, s, s)
                 } else if (i === 'rotation') {
-                  container.sky.rotation.set(
-                    (opts[i][0] * Math.PI) / 180,
-                    (opts[i][1] * Math.PI) / 180,
-                    (opts[i][2] * Math.PI) / 180
-                  )
+                  container.sky.rotation.set((opts[i][0] * Math.PI) / 180, (opts[i][1] * Math.PI) / 180, (opts[i][2] * Math.PI) / 180)
                 }
               }
             } else {
@@ -344,11 +260,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
                     const s = opts[i]
                     sbox.scale.set(s, s, s)
                   } else if (i === 'rotation') {
-                    sbox.rotation.set(
-                      (opts[i][0] * Math.PI) / 180,
-                      (opts[i][1] * Math.PI) / 180,
-                      (opts[i][2] * Math.PI) / 180
-                    )
+                    sbox.rotation.set((opts[i][0] * Math.PI) / 180, (opts[i][1] * Math.PI) / 180, (opts[i][2] * Math.PI) / 180)
                   }
                 }
               })
@@ -361,11 +273,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
                   const s = opts[i]
                   sbox.scale.set(s, s, s)
                 } else if (i === 'rotation') {
-                  sbox.rotation.set(
-                    (opts[i][0] * Math.PI) / 180,
-                    (opts[i][1] * Math.PI) / 180,
-                    (opts[i][2] * Math.PI) / 180
-                  )
+                  sbox.rotation.set((opts[i][0] * Math.PI) / 180, (opts[i][1] * Math.PI) / 180, (opts[i][2] * Math.PI) / 180)
                 }
               }
             })
@@ -386,16 +294,8 @@ export function reloadThreeDimensionScene(pageNode: any) {
             rectAreaLight.color.r = rectAreaLightOpts.options.color[0] / 255
             rectAreaLight.color.g = rectAreaLightOpts.options.color[1] / 255
             rectAreaLight.color.b = rectAreaLightOpts.options.color[2] / 255
-            rectAreaLight.position.set(
-              rectAreaLightOpts.options.position[0],
-              rectAreaLightOpts.options.position[1],
-              rectAreaLightOpts.options.position[2]
-            )
-            rectAreaLight.lookAt(
-              rectAreaLightOpts.options.target[0],
-              rectAreaLightOpts.options.target[1],
-              rectAreaLightOpts.options.target[2]
-            )
+            rectAreaLight.position.set(rectAreaLightOpts.options.position[0], rectAreaLightOpts.options.position[1], rectAreaLightOpts.options.position[2])
+            rectAreaLight.lookAt(rectAreaLightOpts.options.target[0], rectAreaLightOpts.options.target[1], rectAreaLightOpts.options.target[2])
             rectAreaLight.userData.target = rectAreaLightOpts.options.target
           }
         })
@@ -412,11 +312,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
             pointLight.color.r = pointLightOpts.options.color[0] / 255
             pointLight.color.g = pointLightOpts.options.color[1] / 255
             pointLight.color.b = pointLightOpts.options.color[2] / 255
-            pointLight.position.set(
-              pointLightOpts.options.position[0],
-              pointLightOpts.options.position[1],
-              pointLightOpts.options.position[2]
-            )
+            pointLight.position.set(pointLightOpts.options.position[0], pointLightOpts.options.position[1], pointLightOpts.options.position[2])
             // shadow
             pointLight.castShadow = pointLightOpts.options.castShadow
             pointLight.shadow.bias = pointLightOpts.options.bias
@@ -442,16 +338,8 @@ export function reloadThreeDimensionScene(pageNode: any) {
             spotLight.color.r = spotLightOpts.options.color[0] / 255
             spotLight.color.g = spotLightOpts.options.color[1] / 255
             spotLight.color.b = spotLightOpts.options.color[2] / 255
-            spotLight.position.set(
-              spotLightOpts.options.position[0],
-              spotLightOpts.options.position[1],
-              spotLightOpts.options.position[2]
-            )
-            spotLight.target.position.set(
-              spotLightOpts.options.target[0],
-              spotLightOpts.options.target[1],
-              spotLightOpts.options.target[2]
-            )
+            spotLight.position.set(spotLightOpts.options.position[0], spotLightOpts.options.position[1], spotLightOpts.options.position[2])
+            spotLight.target.position.set(spotLightOpts.options.target[0], spotLightOpts.options.target[1], spotLightOpts.options.target[2])
             // shadow
             spotLight.castShadow = spotLightOpts.options.castShadow
             spotLight.shadow.mapSize.width = spotLightOpts.options.size
@@ -476,16 +364,8 @@ export function reloadThreeDimensionScene(pageNode: any) {
             dirLight.color.r = dirLightOpts.options.color[0] / 255
             dirLight.color.g = dirLightOpts.options.color[1] / 255
             dirLight.color.b = dirLightOpts.options.color[2] / 255
-            dirLight.position.set(
-              dirLightOpts.options.position[0],
-              dirLightOpts.options.position[1],
-              dirLightOpts.options.position[2]
-            )
-            dirLight.target.position.set(
-              dirLightOpts.options.target[0],
-              dirLightOpts.options.target[1],
-              dirLightOpts.options.target[2]
-            )
+            dirLight.position.set(dirLightOpts.options.position[0], dirLightOpts.options.position[1], dirLightOpts.options.position[2])
+            dirLight.target.position.set(dirLightOpts.options.target[0], dirLightOpts.options.target[1], dirLightOpts.options.target[2])
             // shadow
             dirLight.castShadow = dirLightOpts.options.castShadow
             dirLight.shadow.camera.left = -dirLightOpts.options.distance
@@ -509,11 +389,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
       container.hemiLight.groundColor.r = n.options.groundColor[0] / 255
       container.hemiLight.groundColor.g = n.options.groundColor[1] / 255
       container.hemiLight.groundColor.b = n.options.groundColor[2] / 255
-      container.hemiLight.position.set(
-        n.options.position[0],
-        n.options.position[1],
-        n.options.position[2]
-      )
+      container.hemiLight.position.set(n.options.position[0], n.options.position[1], n.options.position[2])
     } else if (n.type === 'AmbientLight') {
       container.ambientLight.intensity = n.options.intensity
       container.ambientLight.color.r = n.options.color[0] / 255
@@ -522,11 +398,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
     } else if (n.type === 'Camera') {
       // todo 正交相机,墨卡托相机 , 相机重置（动画）
       // 1. update camera
-      container.orbitControls.object.position.set(
-        n.options.position[0],
-        n.options.position[1],
-        n.options.position[2]
-      )
+      container.orbitControls.object.position.set(n.options.position[0], n.options.position[1], n.options.position[2])
       container.orbitControls.object.near = n.options.near
       container.orbitControls.object.far = n.options.far
       container.orbitControls.object.fov = n.options.fov
@@ -555,19 +427,13 @@ export function reloadThreeDimensionScene(pageNode: any) {
         node.visible = n.visible
         // 2.trs
         node.position.set(n.options.position[0], n.options.position[1], n.options.position[2])
-        node.rotation.set(
-          (n.options.rotation[0] * Math.PI) / 180,
-          (n.options.rotation[1] * Math.PI) / 180,
-          (n.options.rotation[2] * Math.PI) / 180
-        )
+        node.rotation.set((n.options.rotation[0] * Math.PI) / 180, (n.options.rotation[1] * Math.PI) / 180, (n.options.rotation[2] * Math.PI) / 180)
         node.scale.set(n.options.scale[0], n.options.scale[1], n.options.scale[2])
       }
 
       n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
       n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
-      n.event && n.event.dbclick
-        ? (node.userData.dbclick = n.event.dbclick)
-        : (node.userData.dbclick = {})
+      n.event && n.event.dbclick ? (node.userData.dbclick = n.event.dbclick) : (node.userData.dbclick = {})
     } else if (n.type === 'Mesh') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
@@ -581,11 +447,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
       node.visible = n.visible
       // 2.trs
       node.position.set(n.options.position[0], n.options.position[1], n.options.position[2])
-      node.rotation.set(
-        (n.options.rotation[0] * Math.PI) / 180,
-        (n.options.rotation[1] * Math.PI) / 180,
-        (n.options.rotation[2] * Math.PI) / 180
-      )
+      node.rotation.set((n.options.rotation[0] * Math.PI) / 180, (n.options.rotation[1] * Math.PI) / 180, (n.options.rotation[2] * Math.PI) / 180)
       node.scale.set(n.options.scale[0], n.options.scale[1], n.options.scale[2])
       // 3.shadow
       node.castShadow = n.options.castShadow
@@ -609,9 +471,7 @@ export function reloadThreeDimensionScene(pageNode: any) {
 
       n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
       n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
-      n.event && n.event.dbclick
-        ? (node.userData.dbclick = n.event.dbclick)
-        : (node.userData.dbclick = {})
+      n.event && n.event.dbclick ? (node.userData.dbclick = n.event.dbclick) : (node.userData.dbclick = {})
     } else if (n.type === 'Object3D') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
@@ -625,109 +485,12 @@ export function reloadThreeDimensionScene(pageNode: any) {
       node.visible = n.visible
       // 2.trs
       node.position.set(n.options.position[0], n.options.position[1], n.options.position[2])
-      node.rotation.set(
-        (n.options.rotation[0] * Math.PI) / 180,
-        (n.options.rotation[1] * Math.PI) / 180,
-        (n.options.rotation[2] * Math.PI) / 180
-      )
+      node.rotation.set((n.options.rotation[0] * Math.PI) / 180, (n.options.rotation[1] * Math.PI) / 180, (n.options.rotation[2] * Math.PI) / 180)
       node.scale.set(n.options.scale[0], n.options.scale[1], n.options.scale[2])
 
       n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
       n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
-      n.event && n.event.dbclick
-        ? (node.userData.dbclick = n.event.dbclick)
-        : (node.userData.dbclick = {})
-    } else if (n.type === 'Icon') {
-      const resultNode: any = []
-      traverseFindNodeById(container.scene.children, n.uuid, resultNode)
-      if (resultNode.length === 0) {
-        console.warn('can not find object which uuid is ' + n.uuid)
-        continue
-      }
-      const node = resultNode[0]
-
-      // 1.visibility
-      node.visible = n.visible
-      // 2.trs
-      node.position.set(...n.options.meshPosition)
-      node.scale.set(n.options.meshScale, n.options.meshScale, n.options.meshScale)
-      node.material.opacity = n.options.meshOpacity / 100
-
-      n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
-      n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
-      n.event && n.event.dbclick
-        ? (node.userData.dbclick = n.event.dbclick)
-        : (node.userData.dbclick = {})
-
-      animationToBeat(node, false)
-      if (n.animation && n.animation.beat) {
-        node.userData.beat = n.animation.beat
-      } else {
-        node.userData.beat = {}
-      }
-      if (Object.keys(node.userData.beat).length != 0) {
-        animationToBeat(node, true)
-      }
-    } else if (n.type === 'Text') {
-      const resultNode: any = []
-      traverseFindNodeById(container.scene.children, n.uuid, resultNode)
-      if (resultNode.length === 0) {
-        console.warn('can not find object which uuid is ' + n.uuid)
-        continue
-      }
-      const node = resultNode[0]
-      // 1.visibility
-      node.visible = n.visible
-      // 2.trs
-      const obj = {
-        text: n.options.textText,
-        color: n.options.textColor,
-        fontFamily: n.options.textFontFamily,
-        fontSize: n.options.textFontSize,
-        fontWeight: n.options.textFontWeight,
-        textScale: n.options.textTextScale,
-        bgColor: n.options.textBGColor,
-        bgOpcity: n.options.textBGOpacity,
-        bgImage: n.options.textBGImage,
-        textOffset: n.options.textTextOffset,
-        textAlign: n.options.textTextAlign,
-        lineAlign: n.options.textLineAlign,
-        position: n.options.meshPosition,
-        scale: n.options.meshScale,
-        opacity: n.options.meshOpacity,
-        rotation: n.options.meshRotation,
-        center: n.options.meshCenter
-      }
-      upDateForText(obj, node, n.options.type)
-
-      n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
-      n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
-      n.event && n.event.dbclick
-        ? (node.userData.dbclick = n.event.dbclick)
-        : (node.userData.dbclick = {})
-    } else if (n.type === 'FlyLine') {
-      const resultNode: any = []
-      traverseFindNodeById(container.scene.children, n.uuid, resultNode)
-      if (resultNode.length === 0) {
-        console.warn('can not find object which uuid is ' + n.uuid)
-        continue
-      }
-      const node = resultNode[0]
-      // 1.visibility
-      node.visible = n.visible
-      // 2.trs
-      reviseFlyLine(
-        {
-          source: new Bol3D.Vector3(n.options.source.x, n.options.source.y, n.options.source.z),
-          target: new Bol3D.Vector3(n.options.target.x, n.options.target.y, n.options.target.z),
-          height: n.options.height,
-          size: n.options.size,
-          color: n.options.color,
-          range: n.options.range,
-          speed: n.options.speed
-        },
-        node
-      )
+      n.event && n.event.dbclick ? (node.userData.dbclick = n.event.dbclick) : (node.userData.dbclick = {})
     }
   }
 }
@@ -758,35 +521,461 @@ export function removeTweenNode(page: any) {
   })
 }
 
-export function animationToBeat(obj, bool) {
-  const intervalTween = (upNum, downNum, time, type) => {
-    obj.userData.beat.tweenSwitch = new Bol3D.TWEEN.Tween(obj.position)
-      .to({ y: type ? upNum : downNum }, time)
-      .start()
-      .onComplete(function () {
-        intervalTween(upNum, downNum, time, !type)
-      })
+// 加载场景配置节点(光照/相机/后处理等)
+export function loadSceneNodes(evt: any) {
+  const stateGlobal = useState(store, 'global')
+
+  // filterPass(单个) todo
+
+  // msaaPass(单个)
+  const msaaPassOptions = {
+    supersampling: evt.supersampling
   }
+  const msaaPassNode: any = {
+    uuid: -1,
+    name: 'MSAAPass',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'MSAAPass',
+    children: [],
+    show: false,
+    options: msaaPassOptions
+  }
+  stateGlobal.template.threeDimension.unshift(msaaPassNode)
 
-  if (bool) {
-    const up = obj.userData.beat.options.up
-    const down = Math.abs(obj.userData.beat.options.down)
-    const time = obj.userData.beat.options.time
-    const position = obj.userData.beat.position
-    const upNum = position[1] + up
-    const downNum = position[1] - down
+  // gammaPass(单个)
+  const gammaPassOptions = {
+    enabled: evt.gammaPass.enabled,
+    factor: evt.gammaPass.uniforms.factor.value
+  }
+  const gammaPassNode: any = {
+    uuid: -1,
+    name: 'GammaPass',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'GammaPass',
+    children: [],
+    show: false,
+    options: gammaPassOptions
+  }
+  stateGlobal.template.threeDimension.unshift(gammaPassNode)
 
-    obj.position.y = downNum
-    obj.userData.beat.tweenSwitch = new Bol3D.TWEEN.Tween(obj.position)
-      .to({ y: upNum }, time)
-      .start()
-      .onComplete(function () {
-        intervalTween(upNum, downNum, time, false)
-      })
-  } else {
-    if (obj.userData.beat && obj.userData.beat.tweenSwitch) {
-      obj.userData.beat.tweenSwitch.stop()
-      obj.userData.beat = {}
+  // dofPass(单个)
+  const dofPassOptions = {
+    enabled: evt.bokehPass.enabled,
+    focus: evt.bokehPass.uniforms.focus.value,
+    aperture: evt.bokehPass.uniforms.aperture.value,
+    maxblur: evt.bokehPass.uniforms.maxblur.value
+  }
+  const dofPassNode: any = {
+    uuid: -1,
+    name: 'DOFPass',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'DOFPass',
+    children: [],
+    show: false,
+    options: dofPassOptions
+  }
+  stateGlobal.template.threeDimension.unshift(dofPassNode)
+
+  // outlinePass(单个)
+  const outlinePassOptions = {
+    enabled: evt.outlinePass.enabled,
+    edgeStrength: evt.outlinePass.edgeStrength,
+    edgeGlow: evt.outlinePass.edgeGlow,
+    edgeThickness: evt.outlinePass.edgeThickness,
+    pulsePeriod: evt.outlinePass.pulsePeriod,
+    visibleEdgeColor: '#' + evt.outlinePass.visibleEdgeColor.getHexString(),
+    hiddenEdgeColor: '#' + evt.outlinePass.hiddenEdgeColor.getHexString()
+  }
+  const outlinePassNode: any = {
+    uuid: -1,
+    name: 'OutlinePass',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'OutlinePass',
+    children: [],
+    show: false,
+    options: outlinePassOptions
+  }
+  stateGlobal.template.threeDimension.unshift(outlinePassNode)
+
+  // bloomPass(单个)
+  const bloomPassOptions = {
+    enabled: evt.bloomPass.enabled,
+    strength: evt.bloomPass.strength,
+    radius: evt.bloomPass.radius,
+    threshold: evt.bloomPass.threshold
+  }
+  const bloomPassNode: any = {
+    uuid: -1,
+    name: 'BloomPass',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'BloomPass',
+    children: [],
+    show: false,
+    options: bloomPassOptions
+  }
+  stateGlobal.template.threeDimension.unshift(bloomPassNode)
+
+  // 雾节点(单个)
+  const fogOptions = {
+    intensity: evt.fog.density,
+    color: '#' + evt.fog.color.getHexString()
+  }
+  const fogNode: any = {
+    uuid: -1,
+    name: 'Fog',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'Fog',
+    children: [],
+    show: false,
+    options: fogOptions
+  }
+  stateGlobal.template.threeDimension.unshift(fogNode)
+
+  // HDR节点(单个)
+  const hdrOptions = {
+    value: evt.hdrUrls
+  }
+  const hdrNode: any = {
+    uuid: -1,
+    name: 'HDR',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'HDR',
+    children: [],
+    show: false,
+    options: hdrOptions
+  }
+  stateGlobal.template.threeDimension.unshift(hdrNode)
+
+  // 背景节点(单个)
+  let bgGroundVal: any
+  let bgGroundOpts = {}
+  if (evt.bgType === 'color') {
+    const bgColor = '#' + new Bol3D.Color(evt.bgColor).getHexString()
+    bgGroundVal = bgColor
+  } else if (evt.bgType === 'texture') {
+    const valArr = evt.scene.background.image.src.split('//')
+    bgGroundVal = '/' + valArr[valArr.length - 1]
+    bgGroundOpts = {
+      encoding: evt.scene.background.encoding,
+      wrapping: evt.scene.background.wrapS,
+      repeat: [evt.scene.background.repeat.x, evt.scene.background.repeat.y]
+    }
+  } else if (evt.bgType === 'panorama') {
+    bgGroundVal = evt.sky.userData.value
+    bgGroundOpts = {
+      scale: evt.sky.scale.x,
+      rotation: [
+        parseFloat(((evt.sky.rotation.x * 180) / Math.PI).toFixed(4)),
+        parseFloat(((evt.sky.rotation.y * 180) / Math.PI).toFixed(4)),
+        parseFloat(((evt.sky.rotation.z * 180) / Math.PI).toFixed(4))
+      ]
     }
   }
+  const backgroundOptions = {
+    type: evt.bgType,
+    value: bgGroundVal,
+    options: bgGroundOpts
+  }
+  const backgroundNode: any = {
+    uuid: -1,
+    name: 'Background',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'Background',
+    children: [],
+    show: false,
+    options: backgroundOptions
+  }
+  stateGlobal.template.threeDimension.unshift(backgroundNode)
+
+  // 阴影节点(单个)
+  const shadowOptions = {
+    enabled: evt.renderer.shadowMap.enabled,
+    type: evt.renderer.shadowMap.type
+  }
+  const shadowNode: any = {
+    uuid: -1,
+    name: 'Shadow',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'Shadow',
+    children: [],
+    show: false,
+    options: shadowOptions
+  }
+
+  stateGlobal.template.threeDimension.unshift(shadowNode)
+
+  // 面光源节点(多个)
+  const rectAreaLights = evt.rectAreaLights
+  const rectAreaLightNodes: any = {
+    uuid: -1,
+    name: 'RectAreaLights',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'RectAreaLights',
+    children: [],
+    show: false,
+    options: {}
+  }
+  rectAreaLights.forEach((rectAreaLight: any) => {
+    const rectAreaLightOptions = {
+      color: [rectAreaLight.color.r * 255, rectAreaLight.color.g * 255, rectAreaLight.color.b * 255],
+      intensity: rectAreaLight.intensity,
+      width: rectAreaLight.width,
+      height: rectAreaLight.height,
+      position: [parseFloat(rectAreaLight.position.x.toFixed(4)), parseFloat(rectAreaLight.position.y.toFixed(4)), parseFloat(rectAreaLight.position.z.toFixed(4))],
+      target: [parseFloat(rectAreaLight.userData.target[0].toFixed(4)), parseFloat(rectAreaLight.userData.target[1].toFixed(4)), parseFloat(rectAreaLight.userData.target[2].toFixed(4))]
+    }
+
+    const rectAreaLightNode = {
+      uuid: rectAreaLight.uuid,
+      name: 'RectAreaLight',
+      selected: false,
+      index: 1,
+      spread: false,
+      type: 'RectAreaLight',
+      children: [],
+      show: false,
+      options: rectAreaLightOptions
+    }
+
+    rectAreaLightNodes.children.push(rectAreaLightNode)
+  })
+  stateGlobal.template.threeDimension.unshift(rectAreaLightNodes)
+
+  // 点光源节点(多个)
+  const pointLights = evt.pointLights
+  const pointLightNodes: any = {
+    uuid: -1,
+    name: 'PointLights',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'PointLights',
+    children: [],
+    show: false,
+    options: {}
+  }
+  pointLights.forEach((pointLight: any) => {
+    const pointLightOptions = {
+      color: [pointLight.color.r * 255, pointLight.color.g * 255, pointLight.color.b * 255],
+      intensity: pointLight.intensity,
+      decay: pointLight.decay,
+      distance: pointLight.distance,
+      position: [parseFloat(pointLight.position.x.toFixed(4)), parseFloat(pointLight.position.y.toFixed(4)), parseFloat(pointLight.position.z.toFixed(4))],
+      castShadow: pointLight.castShadow,
+      near: pointLight.shadow.camera.near,
+      far: pointLight.shadow.camera.far,
+      bias: pointLight.shadow.bias,
+      size: pointLight.shadow.mapSize.x
+    }
+
+    const pointLightNode = {
+      uuid: pointLight.uuid,
+      name: 'PointLight',
+      selected: false,
+      index: 1,
+      spread: false,
+      type: 'PointLight',
+      children: [],
+      show: false,
+      options: pointLightOptions
+    }
+
+    pointLightNodes.children.push(pointLightNode)
+  })
+  stateGlobal.template.threeDimension.unshift(pointLightNodes)
+
+  // 聚光灯节点(多个)
+  const spotLights = evt.spotLights
+  const spotLightNodes: any = {
+    uuid: -1,
+    name: 'SpotLights',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'SpotLights',
+    children: [],
+    show: false,
+    options: {}
+  }
+  spotLights.forEach((spotLight: any) => {
+    const spotLightOptions = {
+      color: [spotLight.color.r * 255, spotLight.color.g * 255, spotLight.color.b * 255],
+      intensity: spotLight.intensity,
+      decay: spotLight.decay,
+      distance: spotLight.distance,
+      penumbra: spotLight.penumbra,
+      position: [parseFloat(spotLight.position.x.toFixed(4)), parseFloat(spotLight.position.y.toFixed(4)), parseFloat(spotLight.position.z.toFixed(4))],
+      target: [parseFloat(spotLight.target.position.x.toFixed(4)), parseFloat(spotLight.target.position.y.toFixed(4)), parseFloat(spotLight.target.position.z.toFixed(4))],
+      castShadow: spotLight.castShadow,
+      angle: spotLight.angle,
+      near: spotLight.shadow.camera.near,
+      far: spotLight.shadow.camera.far,
+      focus: spotLight.shadow.focus,
+      bias: spotLight.shadow.bias,
+      size: spotLight.shadow.mapSize.x
+    }
+
+    const spotLightNode = {
+      uuid: spotLight.uuid,
+      name: 'SpotLight',
+      selected: false,
+      index: 1,
+      spread: false,
+      type: 'SpotLight',
+      children: [],
+      show: false,
+      options: spotLightOptions
+    }
+
+    spotLightNodes.children.push(spotLightNode)
+  })
+  stateGlobal.template.threeDimension.unshift(spotLightNodes)
+
+  // 平行光节点(多个)
+  const directionLights = evt.directionLights
+  const directionLightNodes: any = {
+    uuid: -1,
+    name: 'DirectionLights',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'DirectionLights',
+    children: [],
+    show: false,
+    options: {}
+  }
+  directionLights.forEach((directionLight: any) => {
+    const directionLightOptions = {
+      color: [directionLight.color.r * 255, directionLight.color.g * 255, directionLight.color.b * 255],
+      intensity: directionLight.intensity,
+      position: [parseFloat(directionLight.position.x.toFixed(4)), parseFloat(directionLight.position.y.toFixed(4)), parseFloat(directionLight.position.z.toFixed(4))],
+      // shadow options
+      near: directionLight.shadow.camera.near,
+      far: directionLight.shadow.camera.far,
+      bias: directionLight.shadow.bias,
+      distance: directionLight.shadow.camera.top,
+      size: directionLight.shadow.mapSize.width,
+      castShadow: directionLight.castShadow,
+      // target options
+      target: [parseFloat(directionLight.target.position.x.toFixed(4)), parseFloat(directionLight.target.position.y.toFixed(4)), parseFloat(directionLight.target.position.z.toFixed(4))]
+    }
+
+    const directionLightNode = {
+      uuid: directionLight.uuid,
+      name: 'DirectionLight',
+      selected: false,
+      index: 1,
+      spread: false,
+      type: 'DirectionLight',
+      children: [],
+      show: false,
+      options: directionLightOptions
+    }
+
+    directionLightNodes.children.push(directionLightNode)
+  })
+  stateGlobal.template.threeDimension.unshift(directionLightNodes)
+
+  // 半球光节点(单个)
+  const hemisphereLight = evt.hemiLight
+  const hemisphereLightOptions = {
+    color: [hemisphereLight.color.r * 255, hemisphereLight.color.g * 255, hemisphereLight.color.b * 255],
+    groundColor: [hemisphereLight.groundColor.r * 255, hemisphereLight.groundColor.g * 255, hemisphereLight.groundColor.b * 255],
+    intensity: hemisphereLight.intensity,
+    position: [parseFloat(hemisphereLight.position.x.toFixed(4)), parseFloat(hemisphereLight.position.y.toFixed(4)), parseFloat(hemisphereLight.position.z.toFixed(4))]
+  }
+
+  const hemisphereLightNode = {
+    uuid: -1,
+    name: 'HemisphereLight',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: hemisphereLight.type,
+    children: [],
+    show: false,
+    options: hemisphereLightOptions
+  }
+
+  stateGlobal.template.threeDimension.unshift(hemisphereLightNode)
+
+  // 环境光节点(单个)
+  const ambientLight = evt.ambientLight
+  const ambientLightOptions = {
+    color: [ambientLight.color.r * 255, ambientLight.color.g * 255, ambientLight.color.b * 255],
+    intensity: ambientLight.intensity
+  }
+
+  const ambientLightNode = {
+    uuid: -1,
+    name: 'AmbientLight',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: ambientLight.type,
+    children: [],
+    show: false,
+    options: ambientLightOptions
+  }
+
+  stateGlobal.template.threeDimension.unshift(ambientLightNode)
+
+  // 相机节点(单个)
+  let camera: any
+  let controls: any
+  let cameraOptions: any = {}
+  if (evt.viewState === 'orbit') {
+    camera = evt.orbitCamera
+    controls = evt.orbitControls
+    cameraOptions = {
+      position: [parseFloat(camera.position.x.toFixed(4)), parseFloat(camera.position.y.toFixed(4)), parseFloat(camera.position.z.toFixed(4))],
+      near: camera.near,
+      far: camera.far,
+      fov: camera.fov,
+      minDistance: controls.minDistance,
+      maxDistance: controls.maxDistance,
+      minPolarAngle: (controls.minPolarAngle * 180) / Math.PI,
+      maxPolarAngle: (controls.maxPolarAngle * 180) / Math.PI
+    }
+  } else if (evt.viewState === 'firstPerson') {
+    camera = evt.firstPersonCamera
+    controls = evt.firstPersonControls
+  } else if (evt.viewState === 'map') {
+    camera = evt.mapCamera
+    controls = evt.mapControls
+  }
+
+  const cameraNode = {
+    uuid: -1,
+    name: 'Camera',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'Camera',
+    children: [],
+    show: false,
+    options: cameraOptions
+  }
+
+  stateGlobal.template.threeDimension.unshift(cameraNode)
 }

@@ -1,22 +1,22 @@
 <template>
-  <div class="drawing-borad-3d-main" v-if="domShow">
+  <div class="drawing-borad-3d-main">
     <canvas ref="scene" class="scene-3d" @contextmenu.stop></canvas>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch, nextTick } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { loadScene } from '@/core/3d'
-import { importScene } from '@/core/3d/importIndex'
-import store from '../../../store'
-import { clone } from '@/share/util/base'
+import { useMutation } from '@/store/helper'
+import store from '@/store'
 
 export default defineComponent({
   name: 'DrawingBoard3D',
   components: {},
   setup() {
     const scene = ref(null)
-    const domShow = ref(true)
+
+    const mutations3D = useMutation(store, '3d', ['TEMPLATE_3D_LOADED'])
 
     onMounted(() => {
       const publicPath = location.origin + location.pathname
@@ -58,40 +58,13 @@ export default defineComponent({
         domElement: scene.value,
         callback: (evt: any) => {
           // console.log('container', evt)
+          mutations3D.TEMPLATE_3D_LOADED({ container: evt })
         }
       })
     })
 
-    watch(
-      () => store.state.exportType,
-      (v1, v2) => {
-        domShow.value = false
-        setTimeout(() => {
-          domShow.value = true
-          store.state.template = JSON.parse(JSON.stringify(store.state.exportContent.template))
-          store.state.pageTreeNodes = JSON.parse(JSON.stringify(store.state.exportContent.tree))
-          /*;(store.state.exportContent.tree as Array<any>).forEach((_, i) => {
-            _.children.forEach((_, j) => {
-              const t = clone(_.trees.twoDimension)
-              // if(store.state.pageTreeNodes[i].children[j]===store.state.selectedSceneTreeNode){
-              //   store.state.selectedSceneTreeNode = t
-                console.log(clone(store.state.selectedSceneTreeNode))
-              // }
-              store.state.pageTreeNodes[i].children[j].trees.twoDimension = t
-            })
-          })*/
-          console.log(clone(store.state.pageTreeNodes))
-          nextTick(() => {
-            importScene(scene.value)
-          })
-        }, 200)
-      },
-      { deep: true }
-    )
-
     return {
-      scene,
-      domShow
+      scene
     }
   }
 })

@@ -30,23 +30,6 @@
             <p class="a-e-i-title">触发事件</p>
             <div class="a-e-i-edit-box">
               <div class="page-tree-box">
-                <!--                <layer-list :node="editorStore.pageTreeNodes" class="event-page-tree">-->
-                <!--                  <template v-slot:prefix>-->
-                <!--                    <div></div>-->
-                <!--                  </template>-->
-                <!--                  <template v-slot:placeholder v-once>-->
-                <!--                    <div></div>-->
-                <!--                  </template>-->
-                <!--                  <template v-slot:suffix v-once>-->
-                <!--                    <div></div>-->
-                <!--                  </template>-->
-                <!--                  <template v-slot:folderPrefix v-once>-->
-                <!--                    <div></div>-->
-                <!--                  </template>-->
-                <!--                  <template v-slot:folderSuffix>-->
-                <!--                    <div></div>-->
-                <!--                  </template>-->
-                <!--                </layer-list>-->
                 <scene-tree></scene-tree>
               </div>
             </div>
@@ -66,34 +49,34 @@
 import { ref, SetupContext } from 'vue'
 import { eventAction, eventList } from './eventConstant'
 import LineEl from '@/components/2d/common/LineEl.vue'
-import { EditorStore, LayerTree2dNode } from '@/store/type'
 import { useStore } from 'vuex'
 import SelectEl from '@/components/2d/common/SelectEl.vue'
 import NavTab from '@/components/2d/common/navTab/NavTab.vue'
 import NavTabItem from '@/components/2d/common/navTab/NavTabItem.vue'
 import SceneTree from '@/components/utils/editmenu/SceneTree.vue'
-import { useGetter, useMutation } from '@/store/helper'
+import { useGetter, useMutation, useState } from '@/store/helper'
 
 export default {
   name: 'Event',
   components: { SceneTree, NavTabItem, NavTab, SelectEl, LineEl },
-  setup(props: any, context: SetupContext) {
+  setup() {
+    const store = useStore()
     const navIndex = ref(0)
     const selectEvent = ref('click')
     const selectEventAction = ref('linkToPage')
-    const editorStore = useStore().state
-    const mutation = useMutation(useStore(),'global',['ADD_EMITTER_TO_NODE'])
-    const editorGetter = useGetter(useStore(), 'global', ['GET_SELECT_NODE'])
+    const stateGlobal = useState(store, 'global')
+    const mutation = useMutation(store, '2d', ['ADD_EMITTER_TO_NODE'])
+    const getters2D = useGetter(store, '2d', ['GET_SELECT_NODE'])
 
     function saveEventBehavior() {
       const eventType = selectEvent.value as string
       const eventAction = selectEventAction.value
-      const node = editorGetter['GET_SELECT_NODE'].value as LayerTree2dNode
-      const effect = {effect:editorStore.selectedSceneTreeNode.uuid}
-      mutation['ADD_EMITTER_TO_NODE']({node,eventType,eventAction,effect:effect})
+      const node = getters2D.GET_SELECT_NODE.value
+      const effect = { effect: stateGlobal.selectedPageTreeNode?.uuid }
+      mutation['ADD_EMITTER_TO_NODE']({ node, eventType, eventAction, effect: effect })
       navIndex.value = 0
     }
-    return { navIndex, eventList, selectEvent, eventAction, selectEventAction, editorStore, saveEventBehavior }
+    return { navIndex, eventList, selectEvent, eventAction, selectEventAction, stateGlobal, saveEventBehavior }
   }
 }
 </script>

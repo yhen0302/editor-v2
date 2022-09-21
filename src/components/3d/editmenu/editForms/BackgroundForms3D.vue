@@ -239,12 +239,12 @@ export default defineComponent({
             data: [
               {
                 name: 'X',
-                value: options.opts.repeat ? options.opts.repeat[0] : 1,
+                value: options.options.repeat ? options.options.repeat[0] : 1,
                 type: 'input'
               },
               {
                 name: 'Y',
-                value: options.opts.repeat ? options.opts.repeat[1] : 1,
+                value: options.options.repeat ? options.options.repeat[1] : 1,
                 type: 'input'
               }
             ]
@@ -272,13 +272,13 @@ export default defineComponent({
         })
         // encoding
         formSettings.value.encoding.data[0].options.forEach((op: any) => {
-          if (UnderScore.isEqual(op.value, options.opts.encoding)) {
+          if (UnderScore.isEqual(op.value, options.options.encoding)) {
             formSettings.value.encoding.data[0].selected = op
           }
         })
         // wrapping
         formSettings.value.wrapping.data[0].options.forEach((op: any) => {
-          if (UnderScore.isEqual(op.value, options.opts.wrapping)) {
+          if (UnderScore.isEqual(op.value, options.options.wrapping)) {
             formSettings.value.wrapping.data[0].selected = op
           }
         })
@@ -314,7 +314,7 @@ export default defineComponent({
             show: true,
             data: [
               {
-                value: options.opts.scale ? options.opts.scale : 1,
+                value: options.options.scale ? options.options.scale : 1,
                 type: 'input'
               }
             ]
@@ -324,17 +324,17 @@ export default defineComponent({
             data: [
               {
                 name: 'X',
-                value: options.opts.rotation ? options.opts.rotation[0] : 0,
+                value: options.options.rotation ? options.options.rotation[0] : 0,
                 type: 'input'
               },
               {
                 name: 'Y',
-                value: options.opts.rotation ? options.opts.rotation[1] : 0,
+                value: options.options.rotation ? options.options.rotation[1] : 0,
                 type: 'input'
               },
               {
                 name: 'Z',
-                value: options.opts.rotation ? options.opts.rotation[2] : 0,
+                value: options.options.rotation ? options.options.rotation[2] : 0,
                 type: 'input'
               }
             ]

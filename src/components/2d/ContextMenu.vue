@@ -1,14 +1,14 @@
 <template>
-  <section class="context-menu-wrap" v-show="editorStore.contextmenu.show" :style="{ left: toPx(editorStore.contextmenu.x), top: toPx(editorStore.contextmenu.y) }">
+  <section class="context-menu-wrap" v-show="stateGlobal.contextmenu.show" :style="{ left: toPx(stateGlobal.contextmenu.x), top: toPx(stateGlobal.contextmenu.y) }">
     <ul class="context-menu-list">
-      <li @click='layerMoveToBottomHandle'>移动到底层(Ctrl+alt+[)</li>
-      <li @click='layerMoveToTopHandle'>移动到顶层(Ctrl+alt+])</li>
-      <li @click='layerMoveDownward'>移动到下一层(Ctrl+[)</li>
-      <li @click='layerMoveUp'>移动到上一层(Ctrl+])</li>
-      <li @click='cancelMarshalling2dNodesHandle'>取消分组(Ctrl+Shift+g)</li>
-      <li @click='marshalling2dNodesHandle'>分组(Ctrl+g)</li>
+      <li @click="layerMoveToBottomHandle">移动到底层(Ctrl+alt+[)</li>
+      <li @click="layerMoveToTopHandle">移动到顶层(Ctrl+alt+])</li>
+      <li @click="layerMoveDownward">移动到下一层(Ctrl+[)</li>
+      <li @click="layerMoveUp">移动到上一层(Ctrl+])</li>
+      <li @click="cancelMarshalling2dNodesHandle">取消分组(Ctrl+Shift+g)</li>
+      <li @click="marshalling2dNodesHandle">分组(Ctrl+g)</li>
       <li @click="deleteNodeHandle">删除图层(delete)</li>
-      <li @click='toggleLock'>图层锁</li>
+      <li @click="toggleLock">图层锁</li>
     </ul>
   </section>
 </template>
@@ -18,18 +18,23 @@ import { useStore } from 'vuex'
 import { toPx } from '@/share/util/base'
 import {
   cancelMarshalling2dNodesHandle,
-  deleteNodeHandle, layerMoveDownward, layerMoveToBottomHandle, layerMoveToTopHandle, layerMoveUp,
-  marshalling2dNodesHandle, toggleLock
+  deleteNodeHandle,
+  layerMoveDownward,
+  layerMoveToBottomHandle,
+  layerMoveToTopHandle,
+  layerMoveUp,
+  marshalling2dNodesHandle,
+  toggleLock
 } from '@/core/2d/features/hotKeyHandle'
-import { useMutation } from '@/store/helper'
+import { useMutation, useState } from '@/store/helper'
 
 export default {
   name: 'ContextMenu',
   setup() {
-    const editorStore = useStore().state
+    const stateGlobal = useState(useStore(), 'global')
 
     return {
-      editorStore,
+      stateGlobal,
       toPx,
       // 快捷方式
       deleteNodeHandle,

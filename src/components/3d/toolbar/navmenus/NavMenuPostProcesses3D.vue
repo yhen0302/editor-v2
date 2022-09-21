@@ -7,11 +7,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { useStore } from 'vuex'
-import { EventsBus } from '@/core/EventsBus'
 
 import NavDetailsSelectItem from '@/components/utils/navdetails/NavDetailsSelectItem.vue'
+import { useMutation, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'NavMenuPostProcesses3D',
@@ -20,6 +20,9 @@ export default defineComponent({
   },
   setup() {
     const store = useStore()
+
+    const stateGlobal = useState(store, 'global')
+    const mutations3D = useMutation(store, '3d', ['SELECT_LAYER_NODE', 'TOGGLE_EDIT_FORM'])
 
     const detailsList: any = ref({
       BloomPass: {
@@ -41,7 +44,7 @@ export default defineComponent({
         name: 'gamma校正',
         selected: false,
         icon: require('@/assets/images/main/left/editor_postprocessing_btn_dark.png')
-      },
+      }
       // MSAAPass: {
       //   name: 'msaa抗锯齿',
       //   selected: false,
@@ -62,85 +65,20 @@ export default defineComponent({
     const selectItem = (options: any) => {
       const { key, target } = options
 
-      let flag = target.selected
+      const flag = target.selected
       for (const k in detailsList.value) {
         const detail = detailsList.value[k]
         detail.selected = false
       }
       target.selected = !flag
 
-      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
+      stateGlobal.selectedPageTreeNode?.trees.threeDimension.forEach((node: any) => {
         if (node.type === key) {
-          EventsBus.emit('treeSelected', { node })
-          EventsBus.emit('toolBarSelected', { node })
+          mutations3D.SELECT_LAYER_NODE({ node })
+          mutations3D.TOGGLE_EDIT_FORM({ node })
         }
       })
     }
-
-    const reloadEditForms = () => {
-      let selectedItem: any
-      let key = ''
-      for (const k in detailsList.value) {
-        const detail = detailsList.value[k]
-        if (detail.selected) {
-          selectedItem = detail
-          key = k
-          break
-        }
-      }
-
-      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
-        if (node.type === key) {
-          node.selected = selectedItem.selected
-          store.state.selectedPageTreeNode = node.selected ? node : null
-          EventsBus.emit('toolBarSelected', { node })
-        }
-      })
-    }
-
-    const validateDetails = () => {
-      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
-        for (const k in detailsList.value) {
-          if (node.type === k) {
-            const detail = detailsList.value[k]
-            detail.selected = node.selected
-          }
-        }
-      })
-    }
-
-    const navMenuGoBackReset = () => {
-      let key = ''
-      // 找出选中的元素
-      for (const k in detailsList.value) {
-        const detail = detailsList.value[k]
-        if (detail.selected) {
-          key = k
-          break
-        }
-      }
-
-      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
-        if (node.type === key) {
-          node.selected = false
-          store.state.selectedPageTreeNode = null
-          EventsBus.emit('toolBarSelected', { node })
-        }
-      })
-    }
-
-    onMounted(() => {
-      EventsBus.on('formsReload', reloadEditForms)
-      EventsBus.on('navDetailsValidate', validateDetails)
-      EventsBus.on('navMenuGoBackReset', navMenuGoBackReset)
-      validateDetails()
-    })
-
-    onUnmounted(() => {
-      EventsBus.off('formsReload', reloadEditForms)
-      EventsBus.off('navDetailsValidate', validateDetails)
-      EventsBus.off('navMenuGoBackReset', navMenuGoBackReset)
-    })
 
     return {
       store,

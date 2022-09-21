@@ -19,10 +19,10 @@
 </template>
 
 <script lang="ts">
-import FoldEl from '@/components/2d/common/FoldEl'
-import UploadEl from '@/components/2d/common/UploadEl'
+import FoldEl from '@/components/2d/common/FoldEl.vue'
+import UploadEl from '@/components/2d/common/UploadEl.vue'
 import { useStore } from 'vuex'
-import { useGetter, useState } from '@/store/helper'
+import { useGetter } from '@/store/helper'
 import { computed } from 'vue'
 import { fileToBlobUrl } from '@/share/util/base'
 import { uploadFile } from '@/api/file'
@@ -32,15 +32,14 @@ export default {
   components: { UploadEl, FoldEl },
   setup() {
     const store = useStore()
-    const editorStore = store.state
-    const editorGetter = useGetter(store, 'global', ['GET_SELECT_NODE'])
+    const getters2D = useGetter(store, '2d', ['GET_SELECT_NODE'])
 
     const src = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.src
+        return getters2D['GET_SELECT_NODE'].value.option.src
       },
       set(newVal) {
-        editorGetter['GET_SELECT_NODE'].value.option.src = newVal
+        getters2D['GET_SELECT_NODE'].value.option.src = newVal
       }
     })
     function imageMimeTypeVerification(file: File) {
@@ -48,13 +47,11 @@ export default {
     }
 
     function videoMimeTypeVerification(file: File) {
-      return (
-        file.type === 'video/x-msvideo' || file.type === 'video/mpeg' || file.type === 'video/mp4'
-      )
+      return file.type === 'video/x-msvideo' || file.type === 'video/mpeg' || file.type === 'video/mp4'
     }
 
     function typeVerification(file: File) {
-      if (editorGetter['GET_SELECT_NODE'].value.type === 'ImageMedia') {
+      if (getters2D['GET_SELECT_NODE'].value.type === 'ImageMedia') {
         return imageMimeTypeVerification(file)
       } else {
         return videoMimeTypeVerification(file)
@@ -67,18 +64,18 @@ export default {
       src.value = url
     }
     async function uploadFileToServer(files) {
-      const formData = new FormData
+      const formData = new FormData()
       formData.append('files', files[0])
       const res = (await uploadFile(formData)).data
-      console.log(res)
+      // console.log(res)
       // 上传成功
-      if(res.code === 200){
+      if (res.code === 200) {
         src.value = res.data[0]
       }
     }
 
     const tip = computed(() => {
-      if (editorGetter['GET_SELECT_NODE'].value.type === 'ImageMedia') {
+      if (getters2D['GET_SELECT_NODE'].value.type === 'ImageMedia') {
         return '*支持大小不超多5MB的PNG、JPG格式文件'
       } else {
         return '*最大可以上传10MB的 AVI、MPEG、MP4 视频文件'
@@ -86,7 +83,7 @@ export default {
     })
 
     const viewType = computed(() => {
-      return editorGetter['GET_SELECT_NODE'].value.type
+      return getters2D['GET_SELECT_NODE'].value.type
     })
     return { src, onUpdate, typeVerification, tip, viewType }
   }

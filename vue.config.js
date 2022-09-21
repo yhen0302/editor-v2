@@ -1,10 +1,7 @@
 const webpack = require('webpack')
-
 const env = process.env.NODE_ENV
-console.log(env)
 module.exports = {
   publicPath: '/edit',
-
   css: {
     loaderOptions: {
       postcss: {
@@ -13,6 +10,7 @@ module.exports = {
     }
   },
   configureWebpack: {
+    devtool: 'souce-map',
     /*    module:{
       rules:[
         {
@@ -28,5 +26,6 @@ module.exports = {
       })
     ]
   },
-  transpileDependencies: []
+
+  transpileDependencies: ['tests/*']
 }

@@ -53,17 +53,17 @@
 </template>
 
 <script lang="ts">
-import FoldEl from '@/components/2d/common/FoldEl'
-import SwitchEl from '@/components/2d/common/SwitchEl'
-import SelectEl from '@/components/2d/common/SelectEl'
-import InputEl from '@/components/2d/common/InputEl'
-import CheckBoxEl from '@/components/2d/common/CheckBoxEl'
-import LineEl from '@/components/2d/common/LineEl'
-import ColorPickerEl from '@/components/2d/common/ColorPickerEl'
-import { computed, markRaw, SetupContext } from 'vue'
+import FoldEl from '@/components/2d/common/FoldEl.vue'
+import SwitchEl from '@/components/2d/common/SwitchEl.vue'
+import SelectEl from '@/components/2d/common/SelectEl.vue'
+import InputEl from '@/components/2d/common/InputEl.vue'
+import CheckBoxEl from '@/components/2d/common/CheckBoxEl.vue'
+import LineEl from '@/components/2d/common/LineEl.vue'
+import ColorPickerEl from '@/components/2d/common/ColorPickerEl.vue'
+import { computed, markRaw } from 'vue'
 import { FONT_STYLE, FONT_ALIGN, FONT_VERTICAL_ALIGN, FONT_FAMILY } from '../../../../packages/elements/src/components/constant'
 import { useStore } from 'vuex'
-import { useGetter, useState } from '@/store/helper'
+import { useGetter } from '@/store/helper'
 import { fontType } from '../type'
 
 export default {
@@ -77,59 +77,58 @@ export default {
     SwitchEl,
     FoldEl
   },
-  setup(props: any, context: SetupContext) {
+  setup() {
     const store = useStore()
-    const editorStore = store.state
-    const editorGetter = useGetter(store, 'global', ['GET_SELECT_NODE'])
+    const getters2D = useGetter(store, '2d', ['GET_SELECT_NODE'])
 
     const fontFamily = computed<fontType>({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.textOption.fontFamily
+        return getters2D['GET_SELECT_NODE'].value.option.textOption.fontFamily
       },
       set(newVal) {
-        editorGetter['GET_SELECT_NODE'].value.option.textOption.fontFamily = newVal
+        getters2D['GET_SELECT_NODE'].value.option.textOption.fontFamily = newVal
       }
     })
     const fontColor = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.textOption.color
+        return getters2D['GET_SELECT_NODE'].value.option.textOption.color
       },
       set(newVal) {
-        editorGetter['GET_SELECT_NODE'].value.option.textOption.color = newVal
+        getters2D['GET_SELECT_NODE'].value.option.textOption.color = newVal
       }
     })
     const fontSize = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.textOption.fontSize
+        return getters2D['GET_SELECT_NODE'].value.option.textOption.fontSize
       },
       set(newVal) {
-        editorGetter['GET_SELECT_NODE'].value.option.textOption.fontSize = newVal
+        getters2D['GET_SELECT_NODE'].value.option.textOption.fontSize = newVal
       }
     })
     const fontStyle = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.textOption.fontStyle
+        return getters2D['GET_SELECT_NODE'].value.option.textOption.fontStyle
       },
       set(newVal) {
-        editorGetter['GET_SELECT_NODE'].value.option.textOption.fontStyle = newVal
+        getters2D['GET_SELECT_NODE'].value.option.textOption.fontStyle = newVal
       }
     })
 
     const align = computed({
       get() {
-        return [editorGetter['GET_SELECT_NODE'].value.option.textOption.align]
+        return [getters2D['GET_SELECT_NODE'].value.option.textOption.align]
       },
-      set(newVal) {
-        editorGetter['GET_SELECT_NODE'].value.option.textOption.align = newVal[0]
+      set(newVal: any) {
+        getters2D['GET_SELECT_NODE'].value.option.textOption.align = newVal[0]
       }
     })
     const verticalAlign = computed({
       get() {
-        return [editorGetter['GET_SELECT_NODE'].value.option.textOption.verticalAlign]
+        return [getters2D['GET_SELECT_NODE'].value.option.textOption.verticalAlign]
       },
-      set(newVal) {
-        console.log('verticalAlign', newVal)
-        editorGetter['GET_SELECT_NODE'].value.option.textOption.verticalAlign = newVal[0]
+      set(newVal: any) {
+        // console.log('verticalAlign', newVal)
+        getters2D['GET_SELECT_NODE'].value.option.textOption.verticalAlign = newVal[0]
       }
     })
     return {

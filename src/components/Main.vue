@@ -14,9 +14,7 @@
       <div class="fold-strip" :class="{ 'is-right-fold': !isRightFold }">
         <img src="~@/assets/images/fold-arrow.png" @click="isRightFold = !isRightFold" />
       </div>
-<!--      <transition name="right-fold">-->
-        <EditMenu v-if="isRightFold" class="edit-menu-wrap" />
-<!--      </transition>-->
+      <EditMenu v-if="isRightFold" class="edit-menu-wrap" />
     </section>
   </main>
 </template>

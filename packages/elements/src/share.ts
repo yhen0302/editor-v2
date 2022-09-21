@@ -1,11 +1,11 @@
-import { LayerTree2dNode } from '../../../src/store/type'
+import { LayerTreeNode2D } from '@/store'
 import { reactive } from 'vue'
 import { clone } from '../../../src/share/util/base'
 
 let id = 0
 export function createNode(data: any) {
   const { select = true } = data
-  const node: LayerTree2dNode = {
+  const node: LayerTreeNode2D = {
     name: data.name + '-' + String(id++),
     id,
     type: data.type,

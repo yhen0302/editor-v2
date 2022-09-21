@@ -2,12 +2,7 @@
   <div class="mesh-forms-3d-main">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
-        <EditFormsNavItem
-          :active="item.active"
-          :name="item.name"
-          :type="item.type"
-          @mouseup.stop="chooseNav(item)"
-        />
+        <EditFormsNavItem :active="item.active" :name="item.name" :type="item.type" @mouseup.stop="chooseNav(item)" />
       </div>
     </div>
 
@@ -38,16 +33,7 @@
                 :marginTop="12"
               />
 
-              <BaseSwitch
-                v-else-if="setting.type === 'switch'"
-                :height="32"
-                :width="108"
-                :value="setting.value"
-                :marginRight="4"
-                :marginTop="12"
-                :change="switchChange"
-                :target="{ key, setting }"
-              />
+              <BaseSwitch v-else-if="setting.type === 'switch'" :height="32" :width="108" :value="setting.value" :marginRight="4" :marginTop="12" :change="switchChange" :target="{ key, setting }" />
             </div>
           </div>
 
@@ -77,35 +63,13 @@
                 :marginTop="12"
               />
 
-              <BaseSwitch
-                v-else-if="setting.type === 'switch'"
-                :height="32"
-                :width="108"
-                :value="setting.value"
-                :marginRight="4"
-                :marginTop="12"
-                :change="switchChange"
-                :target="{ key, setting }"
-              />
-              <BaseColor
-                v-else-if="setting.type === 'color'"
-                :target="{ key, setting }"
-                :change="inputChange"
-                :value="setting.value"
-                :type="'rgb'"
-                :height="32"
-                :marginRight="4"
-                :marginTop="12"
-              />
+              <BaseSwitch v-else-if="setting.type === 'switch'" :height="32" :width="108" :value="setting.value" :marginRight="4" :marginTop="12" :change="switchChange" :target="{ key, setting }" />
+              <BaseColor v-else-if="setting.type === 'color'" :target="{ key, setting }" :change="inputChange" :value="setting.value" :type="'rgb'" :height="32" :marginRight="4" :marginTop="12" />
             </div>
           </div>
           <LineEl class="division" :color="'#363741'" />
         </div>
       </div>
-    </div>
-
-    <div class="content object" v-show="headerItems[2].active">
-      <EventBind :node="node"></EventBind>
     </div>
   </div>
 </template>
@@ -120,9 +84,9 @@ import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
 import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
-import EventBind from '../../rightKanBan/EventBind.vue'
 
 import { colorRGBtoHex, hex2rgb } from '@/core/utils/base'
+import { useGetter, useState } from '@/store/helper'
 
 declare const Bol3D: any
 
@@ -134,12 +98,14 @@ export default defineComponent({
     BaseTitle,
     BaseInput,
     BaseSwitch,
-    BaseColor,
-    EventBind
+    BaseColor
   },
   props: ['node'],
   setup(props: any) {
     const store = useStore()
+
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     // header nav
     const headerItems = ref([
@@ -181,9 +147,9 @@ export default defineComponent({
     let currentObj: any
 
     onMounted(() => {
-      const { type, options, uuid, matOptions } = props.node
+      const { options, uuid, matOptions } = props.node
 
-      const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
+      const threeDimensionContainer = state3D.threeDimensionContainer
 
       threeDimensionContainer.scene.traverse((c: any) => {
         if (c.uuid == uuid) currentObj = c
@@ -340,9 +306,7 @@ export default defineComponent({
 
       // material extends
       if (mapOpts.type === 'MeshStandardMaterial') {
-        const emissiveVal = Array.isArray(mapOpts.extends.emissive)
-          ? mapOpts.extends.emissive
-          : hex2rgb(mapOpts.extends.emissive)
+        const emissiveVal = Array.isArray(mapOpts.extends.emissive) ? mapOpts.extends.emissive : hex2rgb(mapOpts.extends.emissive)
         const extendOptions = {
           emissive: {
             show: true,
@@ -446,23 +410,11 @@ export default defineComponent({
         }
 
         // update pageTreeNode
-        const position = [
-          formSettings.value['position'].data[0].value,
-          formSettings.value['position'].data[1].value,
-          formSettings.value['position'].data[2].value
-        ]
-        const rotation = [
-          formSettings.value['rotation'].data[0].value,
-          formSettings.value['rotation'].data[1].value,
-          formSettings.value['rotation'].data[2].value
-        ]
-        const scale = [
-          formSettings.value['scale'].data[0].value,
-          formSettings.value['scale'].data[1].value,
-          formSettings.value['scale'].data[2].value
-        ]
+        const position = [formSettings.value['position'].data[0].value, formSettings.value['position'].data[1].value, formSettings.value['position'].data[2].value]
+        const rotation = [formSettings.value['rotation'].data[0].value, formSettings.value['rotation'].data[1].value, formSettings.value['rotation'].data[2].value]
+        const scale = [formSettings.value['scale'].data[0].value, formSettings.value['scale'].data[1].value, formSettings.value['scale'].data[2].value]
 
-        Object.assign(store.state.selectedPageTreeNode.options, {
+        Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
           position,
           rotation,
           scale
@@ -473,14 +425,7 @@ export default defineComponent({
         if (key === 'color' || key === 'emissive') {
           currentObj.material[key].set(val)
           setting.value = val
-        } else if (
-          key === 'opacity' ||
-          key === 'emissiveIntensity' ||
-          key === 'envMapIntensity' ||
-          key === 'lightMapIntensity' ||
-          key === 'metalness' ||
-          key === 'roughness'
-        ) {
+        } else if (key === 'opacity' || key === 'emissiveIntensity' || key === 'envMapIntensity' || key === 'lightMapIntensity' || key === 'metalness' || key === 'roughness') {
           const v = parseFloat(val)
           setting.value = v
           currentObj.material[key] = v
@@ -490,13 +435,13 @@ export default defineComponent({
         const opacity = formSettings2.value['opacity'].data[0].value
         const color = formSettings2.value['color'].data[0].value
 
-        Object.assign(store.state.selectedPageTreeNode.matOptions, {
+        Object.assign(getters3D.SELECTED_LAYER_NODE.value.matOptions, {
           opacity,
           color
         })
 
         // update pageTreeNode extends
-        if (store.state.selectedPageTreeNode.matOptions.type === 'MeshStandardMaterial') {
+        if (getters3D.SELECTED_LAYER_NODE.value.matOptions.type === 'MeshStandardMaterial') {
           const emissive = formSettings2.value['emissive'].data[0].value
           const emissiveIntensity = formSettings2.value['emissiveIntensity'].data[0].value
           const envMapIntensity = formSettings2.value['envMapIntensity'].data[0].value
@@ -504,7 +449,7 @@ export default defineComponent({
           const metalness = formSettings2.value['metalness'].data[0].value
           const roughness = formSettings2.value['roughness'].data[0].value
 
-          Object.assign(store.state.selectedPageTreeNode.matOptions.extends, {
+          Object.assign(getters3D.SELECTED_LAYER_NODE.value.matOptions.extends, {
             emissive,
             emissiveIntensity,
             envMapIntensity,
@@ -534,13 +479,7 @@ export default defineComponent({
       setting.value = value
       currentObj.material[key] = value
       // update pageTreeNode
-      if (
-        key === 'transparent' ||
-        key === 'depthWrite' ||
-        key === 'depthTest' ||
-        key === 'wireframe'
-      )
-        store.state.selectedPageTreeNode.matOptions[key] = value
+      if (key === 'transparent' || key === 'depthWrite' || key === 'depthTest' || key === 'wireframe') getters3D.SELECTED_LAYER_NODE.value.matOptions[key] = value
     }
 
     return {

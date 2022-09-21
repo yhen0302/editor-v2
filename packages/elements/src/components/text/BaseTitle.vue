@@ -19,7 +19,7 @@
     @scroll.stop
     ref="el"
   >
-    <img src='' class='emitter-icon absolute' draggable='false' @click='emitterEffect' v-show='Object.keys(node.option.emitters).length>0'>
+    <img src="" class="emitter-icon absolute" draggable="false" @click="emitterEffect" v-show="Object.keys(node.option.emitters).length > 0" />
     <h3
       class="big-title flex-1"
       :class="fontStyle"
@@ -42,17 +42,16 @@
 
 <script lang="ts">
 import { computed, ref, toRaw, watch } from 'vue'
-import { hexColorToRgba, toPx } from '../../../../../src/share/util/base'
-import matrixMixin from "../matrixMixin";
+import { toPx } from '../../../../../src/share/util/base'
+import matrixMixin from '../matrixMixin'
 import emitterMixin from '../emitterMixin'
 import { getColor } from '../../../../../src/share/util/node'
-
 
 export default {
   name: 'BaseTitle',
   props: ['node'],
   emits: ['select', 'append'],
-  mixins:[matrixMixin,emitterMixin],
+  mixins: [matrixMixin, emitterMixin],
   setup(props: any) {
     const h1 = ref<HTMLElement>()
     // exterior
@@ -120,15 +119,14 @@ export default {
       h1,
       textElInput
     }
-  },
+  }
 }
 </script>
 
 <style scoped>
-.text-wrapper{
+.text-wrapper {
   overflow-y: scroll;
-  overscroll-behavior-y:contain;
-
+  overscroll-behavior-y: contain;
 }
 .weight {
   font-weight: bold;
@@ -143,7 +141,7 @@ export default {
   outline: none;
   word-break: break-all;
 }
-.emitter-icon{
+.emitter-icon {
   right: 0;
   top: 0;
   width: 50px;

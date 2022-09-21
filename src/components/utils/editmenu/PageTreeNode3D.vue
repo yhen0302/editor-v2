@@ -1,32 +1,15 @@
 <template>
   <div class="node">
-    <div
-      class="item"
-      :class="node.selected ? 'item-selected' : ''"
-      :style="'padding-left:' + node.index * 15 + 'px'"
-      @mouseup="selectItem(node)"
-    >
-      <div
-        class="spread-btn"
-        :class="node.spread ? 'spread-btn-rotate' : ''"
-        :style="node.children.length > 0 ? '' : 'margin-left: 10px'"
-        @mouseup.stop="spread(node)"
-      >
-        <img
-          src="@/assets/images/main/right/editor_unfold_icn_dark.png"
-          v-show="node.children.length > 0"
-        />
+    <div class="item" :class="node.selected ? 'item-selected' : ''" :style="'padding-left:' + node.index * 15 + 'px'" @mouseup="selectItem(node)">
+      <div class="spread-btn" :class="node.spread ? 'spread-btn-rotate' : ''" :style="node.children.length > 0 ? '' : 'margin-left: 10px'" @mouseup.stop="spread(node)">
+        <img src="@/assets/images/main/right/editor_unfold_icn_dark.png" v-show="node.children.length > 0" />
       </div>
 
       <div class="item-name">
         <p>{{ node.name }}</p>
       </div>
 
-      <div
-        class="item-visible-btn"
-        @mouseup.stop="changeVisibility(node)"
-        v-show="node.visible !== undefined"
-      >
+      <div class="item-visible-btn" @mouseup.stop="changeVisibility(node)" v-show="node.visible !== undefined">
         <img v-show="node.visible" :src="visibleImg" />
         <img v-show="!node.visible" :src="inVisibleImg" />
       </div>
@@ -42,9 +25,9 @@
 
 <script lang="ts">
 import { defineComponent, ref, nextTick } from 'vue'
-import { EventsBus } from '@/core/EventsBus'
 import { useStore } from 'vuex'
-import { traverseResetSelectedOfNodes } from '../../../core/3d/util'
+import { useMutation, useState } from '@/store/helper'
+import { LayerTreeNode3D } from '@/store'
 
 export default defineComponent({
   name: 'PageTreeNode3D',
@@ -52,6 +35,10 @@ export default defineComponent({
   components: {},
   setup() {
     const store = useStore()
+
+    const state3D = useState(store, '3d')
+    const mutations3D = useMutation(store, '3d', ['SELECT_LAYER_NODE', 'TOGGLE_EDIT_FORM'])
+
     const visibleImg = ref(require('@/assets/images/main/right/editor_unseen_btn_dark.png'))
     const inVisibleImg = ref(require('@/assets/images/main/right/editor_seen_btn_dark.png'))
 
@@ -68,7 +55,7 @@ export default defineComponent({
 
       node.visible = !node.visible
 
-      store.state.threeDimensionContainer.scene.children.forEach((c: any) => {
+      state3D.threeDimensionContainer.scene.children.forEach((c: any) => {
         if (c.traverse)
           c.traverse((gc: any) => {
             if (gc.uuid === node.uuid) gc.visible = node.visible
@@ -76,68 +63,12 @@ export default defineComponent({
       })
     }
 
-    const selectItem = (nodes: any) => {
+    const selectItem = (node: LayerTreeNode3D) => {
       const e = event as any
       if (e.button != 0) return
 
-      if (nodes.isEdit) {
-        store.state.addElementType = null
-        EventsBus.emit('treeSelected', { node: { selected: true, type: 'None' } })
-        EventsBus.emit('navDetailsValidate', {})
-
-        EventsBus.emit('toolBarSelected', { node: {} })
-        store.state.dimensionType = null
-        store.state.selectBarToolType = ''
-        nextTick(() => {
-          store.state.addElementType = null
-          store.state.dimensionType = '3d'
-        })
-      } else {
-        if (nodes.addMeshType) {
-          const flag = nodes.selected
-          traverseResetSelectedOfNodes(store.state.selectedSceneTreeNode.trees.threeDimension)
-          nodes.selected = !flag
-          store.state.selectedPageTreeNode = nodes.selected ? e.node : null
-
-          store.state.addElementType = {
-            mesh: null,
-            moving: true,
-            lightMesh: null
-          }
-          if (nodes.addMeshType == 'Text') {
-            const node = {
-              type: 'text3D',
-              selected: nodes.options.type,
-              name: nodes.name,
-              clickObj: nodes
-            }
-            EventsBus.emit('toolBarSelected', { node })
-          } else if (nodes.addMeshType == 'Icon') {
-            const node = { type: 'icon3D', selected: nodes.name, name: nodes.name, clickObj: nodes }
-            EventsBus.emit('toolBarSelected', { node })
-          } else if (nodes.addMeshType == 'FlyLine') {
-            const node = {
-              type: 'flyLine',
-              selected: nodes.name,
-              name: nodes.name,
-              clickObj: nodes
-            }
-            EventsBus.emit('toolBarSelected', { node })
-          } else if (nodes.addMeshType == 'MixerActions') {
-            const node = {
-              type: 'MixerActions',
-              selected: true,
-              name: nodes
-            }
-            EventsBus.emit('toolBarSelected', { node })
-          }
-        } else {
-          const node = nodes
-          store.state.addElementType = null
-          EventsBus.emit('treeSelected', { node })
-          EventsBus.emit('navDetailsValidate', {})
-        }
-      }
+      mutations3D.SELECT_LAYER_NODE({ node })
+      mutations3D.TOGGLE_EDIT_FORM({ node })
     }
 
     return {

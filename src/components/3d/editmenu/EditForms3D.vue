@@ -1,11 +1,11 @@
 <template>
   <div class="edit-forms-3d-main">
-    <component :is="type" v-if="type != ''" :node="node" :key="new Date().getTime()" />
+    <component :is="editedFormType" v-if="dimensionType == '3d' && editedFormType" :node="SELECTED_LAYER_NODE" :key="new Date().getTime()" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 import { useStore } from 'vuex'
 
 // 1.page tree
@@ -40,14 +40,8 @@ import DofPassForms3D from './editForms/DofPassForms3D.vue'
 import GammaPassForms3D from './editForms/GammaPassForms3D.vue'
 // 5.msaa pass
 import MSAAPassForms3D from './editForms/MSAAPassForms3D.vue'
-// 添加元素图标模块
-import Icon from '../rightKanBan/Icon.vue'
-import Text from '../rightKanBan/Text.vue'
-import FlyLine from '../rightKanBan/FlyLine.vue'
-// 模型动画操作模块
-import MixerActions from '../rightKanBan/MixerActions.vue'
 
-import { EventsBus } from '@/core/EventsBus'
+import { mapState, useGetter } from '@/store/helper'
 
 export default defineComponent({
   name: 'EditForms3D',
@@ -73,162 +67,20 @@ export default defineComponent({
     OutlinePassForms3D,
     DofPassForms3D,
     GammaPassForms3D,
-    MSAAPassForms3D,
-    // 添加元素图标板块
-    Icon,
-    Text,
-    FlyLine,
-    // 模型动画操作模块
-    MixerActions
+    MSAAPassForms3D
   },
   setup() {
     const store = useStore()
-    const type = ref('')
-    const node: any = ref(null)
 
-    // 右方pageTree选中元素
-    EventsBus.on('treeSelected', (e: any) => {
-      // console.log('e.node.type', e.node)
-
-      if (!e.node.selected) {
-        type.value = ''
-        return
-      }
-
-      // 展示编辑表单
-      switch (e.node.type) {
-        case 'Group':
-          type.value = 'GroupForms3D'
-          node.value = e.node
-          break
-        case 'Mesh':
-          type.value = 'MeshForms3D'
-          node.value = e.node
-          break
-        case 'Object3D':
-          type.value = 'ObjectForms3D'
-          node.value = e.node
-          break
-        case 'None':
-          type.value = ''
-          node.value = ''
-          break
-      }
-    })
-
-    // 左方toolBar选中元素
-    EventsBus.on('toolBarSelected', (e: any) => {
-      // console.log('e.node.type', e.node)
-
-      if (!e.node.selected) {
-        type.value = ''
-        return
-      }
-
-      // 展示编辑表单
-      switch (e.node.type) {
-        case 'AmbientLight':
-          type.value = 'AmbientLightForms3D'
-          node.value = e.node
-          break
-        case 'HemisphereLight':
-          type.value = 'HemisphereLightForms3D'
-          node.value = e.node
-          break
-        case 'DirectionLights':
-          type.value = 'DirectionLightsForms3D'
-          node.value = e.node
-          break
-        case 'SpotLights':
-          type.value = 'SpotLightsForms3D'
-          node.value = e.node
-          break
-        case 'PointLights':
-          type.value = 'PointLightsForms3D'
-          node.value = e.node
-          break
-        case 'RectAreaLights':
-          type.value = 'RectAreaLightsForms3D'
-          node.value = e.node
-          break
-        case 'Camera':
-          type.value = 'CameraForms3D'
-          node.value = e.node
-          break
-        case 'Shadow':
-          type.value = 'ShadowForms3D'
-          node.value = e.node
-          break
-        case 'Background':
-          type.value = 'BackgroundForms3D'
-          node.value = e.node
-          break
-        case 'HDR':
-          type.value = 'HDRForms3D'
-          node.value = e.node
-          break
-        case 'Fog':
-          type.value = 'FogForms3D'
-          node.value = e.node
-          break
-        case 'BloomPass':
-          type.value = 'BloomPassForms3D'
-          node.value = e.node
-          break
-        case 'OutlinePass':
-          type.value = 'OutlinePassForms3D'
-          node.value = e.node
-          break
-        case 'DOFPass':
-          type.value = 'DofPassForms3D'
-          node.value = e.node
-          break
-        case 'GammaPass':
-          type.value = 'GammaPassForms3D'
-          node.value = e.node
-          break
-        case 'MSAAPass':
-          type.value = 'MSAAPassForms3D'
-          node.value = e.node
-          break
-        case 'MixerActions':
-          type.value = 'MixerActions'
-          node.value = e.node
-          break
-        case 'icon3D':
-          type.value = 'Icon'
-          node.value = e.node
-          break
-        case 'text3D':
-          type.value = 'Text'
-          node.value = e.node
-          break
-        case 'flyLine':
-          type.value = 'FlyLine'
-          node.value = e.node
-          break
-      }
-    })
-
-    // 重置编辑表单
-    EventsBus.on('formsReset', () => {
-      type.value = ''
-      node.value = null
-
-      // 左侧toolbar update（有可能为选中状态，此时恢复表单）
-      EventsBus.emit('formsReload', {})
-    })
-
-    // 重置模板
-    EventsBus.on('resetTemplate', () => {
-      type.value = ''
-      node.value = null
-    })
+    const stateMapperGlobal = mapState(store, 'global', ['dimensionType'])
+    const stateMapper3D = mapState(store, '3d', ['editedFormType'])
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     return {
       store,
-      type,
-      node
+      ...stateMapper3D,
+      ...stateMapperGlobal,
+      ...getters3D
     }
   }
 })

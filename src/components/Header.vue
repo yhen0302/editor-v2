@@ -8,56 +8,31 @@
     <section class="content">
       <div class="content-left">
         <div class="back-front-btn-box">
-          <img
-            src="~@/assets/images/header/editor_nav_revocation_btn_dark.png"
-            class="cursor-pointer"
-          />
-          <img
-            src="~@/assets/images/header/editor_nav_remake_btn_dark.png"
-            class="cursor-pointer"
-          />
+          <img src="~@/assets/images/header/editor_nav_revocation_btn_dark.png" class="cursor-pointer" />
+          <img src="~@/assets/images/header/editor_nav_remake_btn_dark.png" class="cursor-pointer" />
         </div>
         <div class="select-box">{{ scaleRatio }}%</div>
       </div>
       <div class="content-center">{{ pageTitle }}</div>
       <div class="content-right" v-once>
-        <tip-button
-          :icon="require('@/assets/images/header/editor_preview_btn_dark.png')"
-          name="1"
-          tip-position="tb"
-          @click="previewHandle"
-        >
+        <tip-button :icon="require('@/assets/images/header/editor_preview_btn_dark.png')" name="1" tip-position="tb" @click="previewHandle">
           <template v-slot:tip>
             <p>预览</p>
             <p>Ctrl+P</p>
           </template>
         </tip-button>
-        <tip-button
-          :icon="require('@/assets/images/header/editor_save_btn_dark.png')"
-          name="1"
-          tip-position="tb"
-        >
+        <tip-button :icon="require('@/assets/images/header/editor_save_btn_dark.png')" name="1" tip-position="tb">
           <template v-slot:tip>
             <p>保存</p>
             <p>Ctrl+S</p>
           </template>
         </tip-button>
-        <tip-button
-          :icon="require('@/assets/images/header/editor_download_btn_dark.png')"
-          name="1"
-          tip-position="middle"
-          @click="exportJSON"
-        >
+        <tip-button :icon="require('@/assets/images/header/editor_download_btn_dark.png')" name="1" tip-position="middle" @click="exportJSON">
           <template v-slot:tip>
             <p>导出配置</p>
           </template>
         </tip-button>
-        <tip-button
-          :icon="require('@/assets/images/header/editor_import_btn_dark.png')"
-          name="1"
-          tip-position="middle"
-          @click="importJSON"
-        >
+        <tip-button :icon="require('@/assets/images/header/editor_import_btn_dark.png')" name="1" tip-position="middle" @click="importJSON">
           <template v-slot:tip>
             <p>导入配置</p>
             <input type="file" ref="uploadJSON" style="display: none" @change="loadJSON" />
@@ -80,16 +55,13 @@
     </section>
 
     <aside class="auto-save">
-      <img
-        class="save-icon cursor-pointer"
-        src="~@/assets/images/header/editor_savetime_icn_dark.png"
-      />
+      <img class="save-icon cursor-pointer" src="~@/assets/images/header/editor_savetime_icn_dark.png" />
       <span class="text-gray-800 text-14">上次保存时间：<Timer formatter="hh:mm" /></span>
     </aside>
 
     <div class="trees-box flex">
-      <scene-tree class="tree-wrap" v-show="isShowSceneTree"></scene-tree>
-      <layer-tree class="tree-wrap" v-show="isShowLayerTree"></layer-tree>
+      <SceneTree class="tree-wrap" v-show="isShowSceneTree" />
+      <LayerTree class="tree-wrap" v-show="isShowLayerTree" />
     </div>
   </div>
 </template>
@@ -105,14 +77,15 @@ import htmlToUrl from '@/core/utils/htmlToUrl'
 import { clone, formatterDate } from '@/share/util/base'
 import { parseModelNode, removeTweenNode } from '@/core/3d/util'
 import { EventsBus } from '@/core/EventsBus'
-import { getAvailablePageTreeNodes } from '@/core/features/hotKeyShare'
+import { getAvailableSceneTreeNodes } from '@/core/features/hotKeyShare'
 import { previewHandle } from '@/core/features/hotKey'
 import { deleteTreeParentQuote } from '@/core/2d/util/tree'
 import SwitchEl from '@/components/utils/common/SwitchEl.vue'
 import SceneTree from '@/components/utils/editmenu/SceneTree.vue'
 import LayerTree from '@/components/utils/editmenu/LayerTree.vue'
+import { mapState, useState } from '@/store/helper'
 
-function saveJSON(data: any, filename: any) {
+function saveJSON(data: any, filename?: any) {
   if (!data) {
     alert('保存的数据为空')
     return
@@ -144,17 +117,23 @@ export default defineComponent({
     const uploadJSON: any = ref(null)
 
     const store = useStore()
+
+    const stateGlobal = useState(store, 'global')
+
+    const stateMapperGlobal = mapState(store, 'global', ['drawingBoard', 'template', 'sceneTreeNodes'])
+    const stateMapper3D = mapState(store, '3d', ['threeDimensionContainer'])
+
     const scaleRatio = computed(() => {
-      return (store.state.drawingBoard.scale * 100).toFixed()
+      return (stateMapperGlobal.drawingBoard.scale * 100).toFixed()
     })
 
     //导出 bol3d.json
     const exportJSON = () => {
       // 导出
-      let JSON_data = JSON.stringify(getAvailablePageTreeNodes())
-      console.log('isNoe')
+      const JSON_data = JSON.stringify(getAvailableSceneTreeNodes())
+      // console.log('isNoe')
 
-      saveJSON(JSON_data, `bol3d-${formatterDate()}.ktj`)
+      saveJSON(JSON_data)
     }
 
     //导入 bol3d.json
@@ -174,7 +153,7 @@ export default defineComponent({
       }
 
       let validateFlag = true
-      let validateTypes = ['ktj']
+      const validateTypes = ['ktj']
       for (const i in fileList) {
         const file = fileList[i]
         if (file instanceof File) {
@@ -209,44 +188,16 @@ export default defineComponent({
       })
     }
 
-    async function preview() {
-      // const sdk = await (await fetch('/sdk/index.js')).text()
-      // const sdk3d = await (await fetch('/static/main.js')).text()
-      const { tree: pageTreeNodes, template } = getAvailablePageTreeNodes()
-      const html = createPreviewTemplate(
-        `console.log(EDITOR_SDK(${JSON.stringify({
-          pageTreeNodes,
-          template,
-          drawingBoard: store.state.drawingBoard
-        })}))`
-      )
-      console.log(window.open(htmlToUrl(html)))
-    }
-
-    function getAvailablePageTreeNodes() {
-      const template = clone(toRaw(store.state.template))
-      const pageTreeNodes = clone(toRaw(store.state.pageTreeNodes))
-      for (const scene of pageTreeNodes) {
-        for (const page of scene.children) {
-          deleteTreeParentQuote(page.trees.twoDimension)
-          removeTweenNode(page.trees.threeDimension)
-        }
-      }
-      console.log(template)
-      console.log(pageTreeNodes)
-      return { tree: pageTreeNodes, template }
-    }
-
     function remove3Dnodes() {
-      const container = toRaw(store.state.threeDimensionContainer)
+      const container = toRaw(stateMapper3D.threeDimensionContainer)
 
       // 1.remove old node
       const removedStoreNodeUUIDs: any = []
       // 1).store:template
-      for (let i = store.state.template.threeDimension.length; i--; i >= 0) {
-        if (store.state.template.threeDimension[i].uuid !== -1) {
-          removedStoreNodeUUIDs.push(store.state.template.threeDimension[i].uuid)
-          store.state.template.threeDimension.splice(i, 1)
+      for (let i = stateMapperGlobal.template.threeDimension.length; i--; i >= 0) {
+        if (stateMapperGlobal.template.threeDimension[i].uuid !== -1) {
+          removedStoreNodeUUIDs.push(stateMapperGlobal.template.threeDimension[i].uuid)
+          stateMapperGlobal.template.threeDimension.splice(i, 1)
         }
       }
       // 2).container:sceneModel,children,clickObjects,mixers,mixerActions,sceneAnimations,lights,outlineObjects,passes
@@ -308,31 +259,17 @@ export default defineComponent({
         container.scene.remove(item)
       })
       // pass clear
-      store.state.template.threeDimension = []
+      stateMapperGlobal.template.threeDimension = []
       // 3.reset sceneTree/pageTree/editform
       EventsBus.emit('resetTemplate', {})
-
-      // clear event
-      store.state.elementClick.onclick = null
-      store.state.elementClick.onhover = null
-      // click object
-      store.state.addElementType = null
-      store.state.elementScaleInterval = {}
-      store.state.elementFlyLine = []
-      store.state.elementClick = null
     }
 
     // tree
     const isShowLayerTree = ref(false)
     const isShowSceneTree = ref(false)
 
-    const pageTitle = ref('')
-    EventsBus.on('pageEnter', (e) => {
-      const { node, parent } = e
-      // load page details --todo
-      // pageIndex.value++
-      // update title
-      pageTitle.value = parent.name + '-' + node.name
+    const pageTitle = computed(() => {
+      return stateGlobal.selectedPageTreeNode ? `场景${parseInt(stateGlobal.selectedPageTreeNode?.parent) + 1}-${stateGlobal.selectedPageTreeNode.name}` : ''
     })
     return {
       store,

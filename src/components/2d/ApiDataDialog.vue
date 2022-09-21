@@ -4,23 +4,11 @@
       <header class="static-data-header flex">
         <div class="title-area items-center flex">
           <span class="header-name">标题</span>
-          <input
-            type="text"
-            class="header-inp flex-1"
-            placeholder="输入标题"
-            :value="title"
-            @input="title = $event.target.value"
-          />
+          <input type="text" class="header-inp flex-1" placeholder="输入标题" :value="title" @input="title = $event.target.value" />
         </div>
         <div class="unit-area items-center flex">
           <span class="header-name">单位</span>
-          <input
-            type="text"
-            class="header-inp flex-1"
-            placeholder="输入单位"
-            :value="unit"
-            @input="unit = $event.target.value"
-          />
+          <input type="text" class="header-inp flex-1" placeholder="输入单位" :value="unit" @input="unit = $event.target.value" />
         </div>
       </header>
       <div class="static-data-content">
@@ -28,22 +16,14 @@
           <column-el prop="colName" label="列名">
             <template v-slot:default="{ column, $index }">
               <div class="inp-wrap">
-                <input-el
-                  :value="column"
-                  class="h-full inline-block"
-                  @update:value="yAxisData[$index].colName = $event"
-                ></input-el>
+                <input-el :value="column" class="h-full inline-block" @update:value="yAxisData[$index].colName = $event"></input-el>
               </div>
             </template>
           </column-el>
           <column-el prop="mapping" label="映射">
             <template v-slot:default="{ column, $index }">
               <div class="inp-wrap">
-                <input-el
-                  :value="column"
-                  class="h-full inline-block"
-                  @update:value="yAxisData[$index].mapping = $event"
-                ></input-el>
+                <input-el :value="column" class="h-full inline-block" @update:value="yAxisData[$index].mapping = $event"></input-el>
               </div>
             </template>
           </column-el>
@@ -62,11 +42,7 @@
           <column-el prop="mapping" label="映射">
             <template v-slot:default="{ column, $index }">
               <div class="inp-wrap">
-                <input-el
-                  :value="column"
-                  class="h-full inline-block"
-                  @update:value="xAxisData[$index].mapping = $event"
-                ></input-el>
+                <input-el :value="column" class="h-full inline-block" @update:value="xAxisData[$index].mapping = $event"></input-el>
               </div>
             </template>
           </column-el>
@@ -84,19 +60,12 @@
       <!--url inp-->
       <div class="api-uri-wrapper items-center flex mt-16">
         <span class="api-uri-desc text-12">API地址</span>
-        <input
-          type="text"
-          class="api-uri-inp flex-1 text-12"
-          placeholder="请输入自定义api"
-          v-model="apiUrl"
-        />
+        <input type="text" class="api-uri-inp flex-1 text-12" placeholder="请输入自定义api" v-model="apiUrl" />
         <button class="default-btn" @click="test">测试</button>
       </div>
       <!--success-->
       <div class="footer-wrap">
-        <button class="cancel-btn default-btn mt-16 mr-16" @click="cancel()">
-          取消
-        </button>
+        <button class="cancel-btn default-btn mt-16 mr-16" @click="cancel()">取消</button>
         <button class="default-btn mt-16" @click="saveData">完成</button>
       </div>
     </section>
@@ -120,14 +89,10 @@ export default {
   props: ['visible'],
   setup(props, context) {
     const store = useStore()
-    const editorGetter = useGetter(store, 'global', ['GET_SELECT_NODE'])
+    const getters2D = useGetter(store, '2d', ['GET_SELECT_NODE'])
 
-    const title = ref(
-      editorGetter['GET_SELECT_NODE'].value?.option.echartsOption.title.text
-    )
-    const unit = ref(
-      editorGetter['GET_SELECT_NODE'].value?.option.echartsOption.unit.text
-    )
+    const title = ref(getters2D['GET_SELECT_NODE'].value?.option.echartsOption.title.text)
+    const unit = ref(getters2D['GET_SELECT_NODE'].value?.option.echartsOption.unit.text)
     const show = computed({
       get() {
         return props.visible
@@ -178,15 +143,13 @@ export default {
       }
     }
     function saveData() {
-      const node = editorGetter['GET_SELECT_NODE'].value
+      const node = getters2D['GET_SELECT_NODE'].value
       node.option.echartsOption.title.text = title.value
       node.option.echartsOption.unit.text = unit.value
       node.option.apiMapping = []
       node.option.apiUrl = ''
       xAxisData.value.forEach((item) => {
-        item.status &&
-          node.option.apiMapping.push({ target: 'x', path: item.mapping }) &&
-          (node.option.apiUrl = apiUrl.value)
+        item.status && node.option.apiMapping.push({ target: 'x', path: item.mapping }) && (node.option.apiUrl = apiUrl.value)
       })
       yAxisData.value.forEach((item) => {
         item.status &&

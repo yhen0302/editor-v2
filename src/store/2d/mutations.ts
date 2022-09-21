@@ -1,20 +1,34 @@
-import {
-  dimensionType,
-  EditorMutationI,
-  EditorStore,
-  LayerTree2dNode,
-  LayerTree3dNode,
-  selectBarType
-} from '../type'
+import { State2DI } from '.'
 import { createNode } from '../../../packages/elements/src/share'
-import { EditorGetter } from '@/store/2d/getters'
+import { Getters2D } from '@/store/2d/getters'
 import { clone } from '@/share/util/base'
 import { deleteTreeParentQuote } from '@/core/2d/util/tree'
+import store, { LayerTreeNode2D } from '..'
+import { useState } from '../helper'
 
-export const EditorMutation: EditorMutationI = {
-  CHANGE_DIMENSION: 'CHANGE_DIMENSION',
-  CHANGE_SELECT_BAR_TOOL_TYPE: 'CHANGE_SELECT_BAR_TOOL_TYPE',
-  CHANGE_ART_BOARD_SCALE: 'CHANGE_ART_BOARD_SCALE',
+export interface Mutation2DI {
+  ADD_2D_TREE_NODE: 'ADD_2D_TREE_NODE'
+  // SELECT NODES
+  SELECT_2D_TREE_NODE: 'SELECT_2D_TREE_NODE'
+  CANCEL_SELECT_2D_NODE: 'CANCEL_SELECT_2D_NODE'
+  CLEAR_SELECT_2D_NODES: 'CLEAR_SELECT_2D_NODES'
+  TOGGLE_NODE: 'TOGGLE_NODE'
+  ADD_EMITTER_TO_NODE: 'ADD_EMITTER_TO_NODE'
+  DELETE_SELECT_NODES: 'DELETE_SELECT_NODES'
+  MARSHALLING_SELECT_NODES: 'MARSHALLING_SELECT_NODES'
+  CANCEL_MARSHALLING_SELECT_NODES: 'CANCEL_MARSHALLING_SELECT_NODES'
+  MOVE_UP_OF_NODES: 'MOVE_UP_OF_NODES'
+  MOVE_DOWNWARD_OF_NODES: 'MOVE_DOWNWARD_OF_NODES'
+  MOVE_TO_TOP_OF_NODES: 'MOVE_TO_TOP_OF_NODES'
+  MOVE_TO_BOTTOM_OF_NODES: 'MOVE_TO_BOTTOM_OF_NODES'
+  // copy
+  COPY_NODE_2D: 'COPY_NODE_2D'
+  PASTE_NODE_2D: 'PASTE_NODE_2D'
+  //Lock
+  TOGGLE_LOCK: 'TOGGLE_LOCK'
+}
+
+export const Mutation2D: Mutation2DI = {
   ADD_2D_TREE_NODE: 'ADD_2D_TREE_NODE',
   SELECT_2D_TREE_NODE: 'SELECT_2D_TREE_NODE',
   CANCEL_SELECT_2D_NODE: 'CANCEL_SELECT_2D_NODE',
@@ -32,11 +46,10 @@ export const EditorMutation: EditorMutationI = {
   COPY_NODE_2D: 'COPY_NODE_2D',
   PASTE_NODE_2D: 'PASTE_NODE_2D',
   // lock
-  TOGGLE_LOCK: 'TOGGLE_LOCK',
-  ADD_3D_TREE_NODE: 'ADD_3D_TREE_NODE'
+  TOGGLE_LOCK: 'TOGGLE_LOCK'
 }
 
-function findFirstSelectNode(tree: Array<any>, reverse = false) {
+function findFirstSelectNode(tree: LayerTreeNode2D[] = [], reverse = false) {
   const out = reverse ? Array.prototype.pop : Array.prototype.shift
   const enter = reverse ? Array.prototype.push : Array.prototype.unshift
 
@@ -54,27 +67,11 @@ function negativeIndex(index: number, length) {
 }
 
 export default {
-  [EditorMutation.CHANGE_DIMENSION](state: EditorStore, payload: { dimensionType: dimensionType }) {
-    state.dimensionType = payload.dimensionType
+  [Mutation2D.ADD_2D_TREE_NODE](state: State2DI, payload: { node: LayerTreeNode2D }) {
+    const stateGlobal = useState(store, 'global')
+    stateGlobal.selectedPageTreeNode?.trees.twoDimension.unshift(payload.node)
   },
-  [EditorMutation.CHANGE_SELECT_BAR_TOOL_TYPE](
-    state: EditorStore,
-    payload: { selectBarToolType: selectBarType | null }
-  ) {
-    if (state.selectBarToolType === payload.selectBarToolType) {
-      state.selectBarToolType = null
-      return
-    }
-    state.selectBarToolType = payload.selectBarToolType
-  },
-  [EditorMutation.CHANGE_ART_BOARD_SCALE](state: EditorStore, payload: { artBoardScale: number }) {
-    state.artBoardConfig.artBoardScale = payload.artBoardScale
-  },
-  [EditorMutation.ADD_2D_TREE_NODE](state: EditorStore, payload: { node: LayerTree2dNode }) {
-    state.selectedSceneTreeNode.trees.twoDimension.unshift(payload.node)
-  },
-  [EditorMutation.SELECT_2D_TREE_NODE](state: EditorStore, payload: { node: LayerTree2dNode }) {
-    console.log('select', payload.node.type)
+  [Mutation2D.SELECT_2D_TREE_NODE](state: State2DI, payload: { node: LayerTreeNode2D }) {
     if (payload.node.type === 'group') {
       const children = [...payload.node.children!]
       let node: any
@@ -90,7 +87,7 @@ export default {
     payload.node.select = true
     state.select2dNodes.add(payload.node)
   },
-  [EditorMutation.CANCEL_SELECT_2D_NODE](state: EditorStore, { node }: { node: LayerTree2dNode }) {
+  [Mutation2D.CANCEL_SELECT_2D_NODE](state: State2DI, { node }: { node: LayerTreeNode2D }) {
     if (node.type === 'group') {
       const children = [...node.children!]
       let child: any
@@ -106,49 +103,33 @@ export default {
     state.select2dNodes.delete(node)
   },
 
-  [EditorMutation.CLEAR_SELECT_2D_NODES](this: any, state: EditorStore) {
+  [Mutation2D.CLEAR_SELECT_2D_NODES](this: any, state: State2DI) {
     state.select2dNodes.forEach((node) => {
-      this.commit(EditorMutation.CANCEL_SELECT_2D_NODE, { node })
+      this.commit('2d/' + Mutation2D.CANCEL_SELECT_2D_NODE, { node })
       if (node.contentEditable) node.contentEditable = false
     })
     state.select2dNodes.clear()
   },
-  [EditorMutation.TOGGLE_NODE](this: any, state: EditorStore, { node }: { node: LayerTree2dNode }) {
+  [Mutation2D.TOGGLE_NODE](this: any, state: State2DI, { node }: { node: LayerTreeNode2D }) {
     if (!node.select && node.show) {
-      this.commit(EditorMutation.SELECT_2D_TREE_NODE, { node })
+      this.commit('2d/' + Mutation2D.SELECT_2D_TREE_NODE, { node })
     } else {
-      this.commit(EditorMutation.CANCEL_SELECT_2D_NODE, { node })
+      this.commit('2d/' + Mutation2D.CANCEL_SELECT_2D_NODE, { node })
     }
   },
-  [EditorMutation.ADD_EMITTER_TO_NODE](
-    state: EditorStore,
-    {
-      node,
-      eventType,
-      eventAction,
-      effect
-    }: { node: LayerTree2dNode; eventType: string; eventAction: string; effect: string }
-  ) {
+  [Mutation2D.ADD_EMITTER_TO_NODE](state: State2DI, { node, eventType, eventAction, effect }: { node: LayerTreeNode2D; eventType: string; eventAction: string; effect: string }) {
     node.option.emitters[eventType + ':' + eventAction] = { effect }
   },
-  [EditorMutation.DELETE_SELECT_NODES](
-    state: EditorStore,
-    { nodes }: { nodes: LayerTree2dNode[] }
-  ) {
+  [Mutation2D.DELETE_SELECT_NODES](state: State2DI, { nodes }: { nodes: LayerTreeNode2D[] }) {
     for (const node of nodes) {
       const parent = node.parent
       const isChildrenTree = !!node.parent.children
       const index = isChildrenTree ? node.parent.children.indexOf(node) : node.parent.indexOf(node)
-      index !== -1 &&
-        (isChildrenTree ? node.parent.children.splice(index, 1) : node.parent.splice(index, 1))
+      index !== -1 && (isChildrenTree ? node.parent.children.splice(index, 1) : node.parent.splice(index, 1))
       state.select2dNodes.delete(node)
     }
   },
-  [EditorMutation.MARSHALLING_SELECT_NODES](
-    this: any,
-    state: EditorStore,
-    { nodes }: { nodes: LayerTree2dNode[] }
-  ) {
+  [Mutation2D.MARSHALLING_SELECT_NODES](this: any, state: State2DI, { nodes }: { nodes: LayerTreeNode2D[] }) {
     // 1.获取当前的二维tree, 获取当前选中的节点 #
     // 2.创建一个group 节点,并移除原来的节点,将所有的节点放入
     //   (1) 计算
@@ -161,119 +142,73 @@ export default {
       children: [...nodes]
     })
 
-    const replaceNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension)
-    const replaceIndex = replaceNode.parent.children
-      ? replaceNode.parent.children.indexOf(replaceNode)
-      : replaceNode.parent.indexOf(replaceNode)
+    const stateGlobal = useState(store, 'global')
+    const replaceNode = findFirstSelectNode(stateGlobal.selectedPageTreeNode?.trees.twoDimension)
+    const replaceIndex = replaceNode.parent.children ? replaceNode.parent.children.indexOf(replaceNode) : replaceNode.parent.indexOf(replaceNode)
 
     // 删除节点
     for (const node of nodes) {
-      this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes })
+      this.commit('2d/' + Mutation2D.DELETE_SELECT_NODES, { nodes })
     }
-    replaceNode.parent.children
-      ? replaceNode.parent.children.splice(replaceIndex, 0, group)
-      : replaceNode.parent.splice(replaceIndex, 0, group)
-    this.commit(EditorMutation.SELECT_2D_TREE_NODE, { node: group })
+    replaceNode.parent.children ? replaceNode.parent.children.splice(replaceIndex, 0, group) : replaceNode.parent.splice(replaceIndex, 0, group)
+    this.commit('2d/' + Mutation2D.SELECT_2D_TREE_NODE, { node: group })
   },
-  [EditorMutation.CANCEL_MARSHALLING_SELECT_NODES](
-    this: any,
-    state: EditorStore,
-    { nodes }: { nodes: LayerTree2dNode[] }
-  ) {
+  [Mutation2D.CANCEL_MARSHALLING_SELECT_NODES](this: any, state: State2DI, { nodes }: { nodes: LayerTreeNode2D[] }) {
     // 取消分组只对组元素有效,并将组进行depth排序
     //@ts-ignore
     const groups = nodes.filter((item) => item.type === 'group').sort((a, b) => b.depth - a.depth)
     for (const group of groups) {
       const children = [...group.children!]
       const parent = group.parent
-      const insertIndex: number = parent.indexOf
-        ? parent.indexOf(group)
-        : parent.children.indexOf(group)
-      parent.splice
-        ? parent.splice(insertIndex, 1, ...children)
-        : parent.children.splice(insertIndex, 1, ...children)
+      const insertIndex: number = parent.indexOf ? parent.indexOf(group) : parent.children.indexOf(group)
+      parent.splice ? parent.splice(insertIndex, 1, ...children) : parent.children.splice(insertIndex, 1, ...children)
       // 取消编组后将原来所有在组中的元素添加到selectSet中
       for (const child of children) state.select2dNodes.add(child)
     }
   },
-  [EditorMutation.MOVE_UP_OF_NODES](
-    this: any,
-    state: EditorStore,
-    { nodes }: { nodes: LayerTree2dNode[] }
-  ) {
-    let firstNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension)
+  [Mutation2D.MOVE_UP_OF_NODES](this: any, state: State2DI, { nodes }: { nodes: LayerTreeNode2D[] }) {
+    const stateGlobal = useState(store, 'global')
+    const firstNode = findFirstSelectNode(stateGlobal.selectedPageTreeNode?.trees.twoDimension)
     let firstNodeParent = firstNode.parent
     let spliceIndex
     // 如果父元素是一个组
     if (firstNodeParent.type === 'group' && firstNodeParent.children[0] === firstNode) {
-      spliceIndex =
-        (firstNodeParent.parent.indexOf
-          ? firstNodeParent.parent.indexOf(firstNodeParent)
-          : firstNodeParent.parent.children.indexOf(firstNodeParent)) + 1
+      spliceIndex = (firstNodeParent.parent.indexOf ? firstNodeParent.parent.indexOf(firstNodeParent) : firstNodeParent.parent.children.indexOf(firstNodeParent)) + 1
       firstNodeParent = firstNodeParent.parent
       // 将元素出组
     } else {
-      spliceIndex = Array.prototype.indexOf.call(
-        firstNodeParent.children || firstNodeParent,
-        firstNode
-      )
+      spliceIndex = Array.prototype.indexOf.call(firstNodeParent.children || firstNodeParent, firstNode)
     }
-    this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes })
+    this.commit('2d/' + Mutation2D.DELETE_SELECT_NODES, { nodes })
 
     for (const node of nodes) state.select2dNodes.add(node)
     spliceIndex = spliceIndex - 1 < 0 ? 0 : spliceIndex - 1
 
-    Array.prototype.splice.call(
-      firstNodeParent.children || firstNodeParent,
-      spliceIndex,
-      0,
-      ...nodes
-    )
+    Array.prototype.splice.call(firstNodeParent.children || firstNodeParent, spliceIndex, 0, ...nodes)
   },
-  [EditorMutation.MOVE_DOWNWARD_OF_NODES](
-    this: any,
-    state: EditorStore,
-    { nodes }: { nodes: LayerTree2dNode[] }
-  ) {
-    let firstNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension, true)
+  [Mutation2D.MOVE_DOWNWARD_OF_NODES](this: any, state: State2DI, { nodes }: { nodes: LayerTreeNode2D[] }) {
+    const stateGlobal = useState(store, 'global')
+    const firstNode = findFirstSelectNode(stateGlobal.selectedPageTreeNode?.trees.twoDimension, true)
     let firstNodeParent = firstNode.parent
     let spliceIndex
     // 如果父元素是一个组
-    if (
-      firstNodeParent.type === 'group' &&
-      firstNodeParent.children[firstNodeParent.children.length - 1] === firstNode
-    ) {
+    if (firstNodeParent.type === 'group' && firstNodeParent.children[firstNodeParent.children.length - 1] === firstNode) {
       // 将元素出组
-      spliceIndex =
-        Array.prototype.indexOf.call(
-          firstNodeParent.parent.children || firstNodeParent.parent,
-          firstNodeParent
-        ) - 1
+      spliceIndex = Array.prototype.indexOf.call(firstNodeParent.parent.children || firstNodeParent.parent, firstNodeParent) - 1
       firstNodeParent = firstNodeParent.parent
     } else {
-      spliceIndex = Array.prototype.indexOf.call(
-        firstNodeParent.children || firstNodeParent,
-        firstNode
-      )
+      spliceIndex = Array.prototype.indexOf.call(firstNodeParent.children || firstNodeParent, firstNode)
     }
     spliceIndex += 2
     const len = (firstNodeParent.children || firstNodeParent).length // 记录一下之前的length
     spliceIndex = negativeIndex(spliceIndex, len)
-    this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes })
-    Array.prototype.splice.call(
-      firstNodeParent.children || firstNodeParent,
-      spliceIndex >= 0 ? (firstNodeParent.children || firstNodeParent).length : spliceIndex,
-      0,
-      ...nodes
-    )
+    this.commit('2d/' + Mutation2D.DELETE_SELECT_NODES, { nodes })
+    Array.prototype.splice.call(firstNodeParent.children || firstNodeParent, spliceIndex >= 0 ? (firstNodeParent.children || firstNodeParent).length : spliceIndex, 0, ...nodes)
     for (const node of nodes) state.select2dNodes.add(node)
   },
-  [EditorMutation.MOVE_TO_TOP_OF_NODES](
-    this: any,
-    state: EditorStore,
-    { nodes }: { nodes: LayerTree2dNode[] }
-  ) {
-    let firstNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension)
+  [Mutation2D.MOVE_TO_TOP_OF_NODES](this: any, state: State2DI, { nodes }: { nodes: LayerTreeNode2D[] }) {
+    const stateGlobal = useState(store, 'global')
+    const firstNode = findFirstSelectNode(stateGlobal.selectedPageTreeNode?.trees.twoDimension)
     let parent = firstNode.parent
     let parentChildren = parent.children || parent
     let inSameGroup = false,
@@ -308,18 +243,15 @@ export default {
       parentChildren = parent
     }
     // delete
-    this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes })
+    this.commit('2d/' + Mutation2D.DELETE_SELECT_NODES, { nodes })
     // do
     parentChildren.splice(0, 0, ...nodes)
     // select
     for (const node of nodes) state.select2dNodes.add(node)
   },
-  [EditorMutation.MOVE_TO_BOTTOM_OF_NODES](
-    this: any,
-    state: EditorStore,
-    { nodes }: { nodes: LayerTree2dNode[] }
-  ) {
-    let firstNode = findFirstSelectNode(state.selectedSceneTreeNode.trees.twoDimension, true)
+  [Mutation2D.MOVE_TO_BOTTOM_OF_NODES](this: any, state: State2DI, { nodes }: { nodes: LayerTreeNode2D[] }) {
+    const stateGlobal = useState(store, 'global')
+    const firstNode = findFirstSelectNode(stateGlobal.selectedPageTreeNode?.trees.twoDimension, true)
     let parent = firstNode.parent
     let parentChildren = parent.children || parent
     let inSameGroup = false,
@@ -354,21 +286,19 @@ export default {
       parentChildren = parent
     }
     // delete
-    this.commit(EditorMutation.DELETE_SELECT_NODES, { nodes })
+    this.commit('2d/' + Mutation2D.DELETE_SELECT_NODES, { nodes })
     // do
     parentChildren.splice(parentChildren.length, 0, ...nodes)
     // select
     for (const node of nodes) state.select2dNodes.add(node)
   },
-  [EditorMutation.COPY_NODE_2D](this: any, state) {
-    if (!this.getters[EditorGetter.GET_SELECT_NODE]) return
-    const nodes = Array.isArray(this.getters[EditorGetter.GET_SELECT_NODE])
-      ? this.getters[EditorGetter.GET_SELECT_NODE]
-      : [this.getters[EditorGetter.GET_SELECT_NODE]]
+  [Mutation2D.COPY_NODE_2D](this: any, state) {
+    if (!this.getters[Getters2D.GET_SELECT_NODE]) return
+    const nodes = Array.isArray(this.getters[Getters2D.GET_SELECT_NODE]) ? this.getters[Getters2D.GET_SELECT_NODE] : [this.getters[Getters2D.GET_SELECT_NODE]]
 
     state.clipboard.unshift(clone(deleteTreeParentQuote(nodes)))
   },
-  [EditorMutation.PASTE_NODE_2D](this: any, state) {
+  [Mutation2D.PASTE_NODE_2D](this: any, state) {
     if (state.clipboard.length === 0) return
     state.clipboard[0].forEach((item) => {
       console.log(item)
@@ -378,16 +308,12 @@ export default {
         ...item,
         name: item.name + '副本'
       })
-      this.commit(EditorMutation.ADD_2D_TREE_NODE, { node })
+      this.commit('2d/' + Mutation2D.ADD_2D_TREE_NODE, { node })
     })
   },
-  [EditorMutation.TOGGLE_LOCK](this: any, state, { node }) {
+  [Mutation2D.TOGGLE_LOCK](this: any, state, { node }) {
     // pass
     node.lock = !node.lock
-    this.commit(EditorMutation.CANCEL_SELECT_2D_NODE,{node})
-  },
-  // 3d
-  [EditorMutation.ADD_3D_TREE_NODE](state: EditorStore, payload: { node: LayerTree3dNode }) {
-    state.layerTree3d.push(payload.node)
+    this.commit('2d/' + Mutation2D.CANCEL_SELECT_2D_NODE, { node })
   }
 }

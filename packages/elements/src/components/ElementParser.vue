@@ -1,36 +1,21 @@
 <template>
   <section id="app" :style="{ height: toPx(drawingBoard.height), width: toPx(drawingBoard.width) }">
-    <div
-      class="box-2d"
-      :style="{ height: toPx(drawingBoard.height), width: toPx(drawingBoard.width) }"
-    >
-      <component
-        v-for="item in nodes"
-        :key="item.id"
-        :node="item"
-        :is="item.type"
-        :style="`pointer-events:${item.lock ? 'none' : 'auto'};`"
-      ></component>
+    <div class="box-2d" :style="{ height: toPx(drawingBoard.height), width: toPx(drawingBoard.width) }">
+      <component v-for="item in nodes" :key="item.id" :node="item" :is="item.type" :style="`pointer-events:${item.lock ? 'none' : 'auto'};`"></component>
     </div>
-    <canvas
-      ref="canvasRenderer"
-      class="renderer scene-3d"
-      :width="drawingBoard.width"
-      :height="drawingBoard.height"
-    ></canvas>
+    <div class="box-3d">
+      <canvas ref="canvasRenderer" class="renderer scene-3d" :width="drawingBoard.width" :height="drawingBoard.height"></canvas>
+    </div>
   </section>
 </template>
 
 <script>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, defineComponent } from 'vue'
 import { toPx } from '../../../../src/share/util/base'
-import { importScene } from '../../../../src/core/3d/importIndex'
-// editor-v2 dep
-import store from '../../../../src/store'
 
-export default {
+export default defineComponent({
   name: 'ElementParser',
-  props: ['pageTreeNodes', 'drawingBoard', 'template'],
+  props: ['sceneTreeNodes', 'drawingBoard', 'modelUrls'],
   setup(props, ctx) {
     function flatTree(tree) {
       const arr = [],
@@ -46,20 +31,42 @@ export default {
       return arr
     }
     const nodes = computed(() => {
-      return flatTree(props.pageTreeNodes[0].children[0]?.trees?.twoDimension) || []
+      return flatTree(props.sceneTreeNodes[0].children[0]?.trees?.twoDimension) || []
     })
     const canvasRenderer = ref(null)
     onMounted(() => {
-      // console.log(props.pageTreeNodes[0])
-      // console.log(store)
-      store.state.pageTreeNodes = props.pageTreeNodes
-      store.state.template = props.template
-      importScene(canvasRenderer.value)
-      // 加载三维
+      console.log(props)
+
+      const jsonParser = new Bol3D.JSONParser()
+      jsonParser.parse(props.sceneTreeNodes[0].children[0].trees.threeDimension)
+      // console.log(jsonParser.json, location.origin)
+      let json = jsonParser.json
+      // const tpParser = new Bol3D.TemplateParser()
+      // tpParser.parse()
+      // console.log('tpparser', tpParser)
+      json = Object.assign(json, {
+        modelUrls: props.modelUrls ? props.modelUrls : []
+      })
+
+      const container = new Bol3D.Container({
+        container: canvasRenderer.value,
+        publicPath: location.origin + '/edit/'
+      })
+
+      container.loadSceneByJSON({
+        data: json,
+        onProgress: (model) => {
+          console.log('progress', model)
+        },
+        onLoad: (evt) => {
+          console.log('onload', evt)
+          window.container = evt
+        }
+      })
     })
     return { nodes, toPx, canvasRenderer }
   }
-}
+})
 </script>
 
 <style scoped>
@@ -70,6 +77,14 @@ export default {
   position: absolute;
   pointer-events: none;
   z-index: 10;
+}
+.box-3d {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 .renderer {
   position: absolute;

@@ -8,8 +8,8 @@
         <img src="@/assets/images/main/right/editor_newscene_btn_dark.png" />
       </div>
     </div>
-    <div class="scene-tree-main tree-content">
-      <div class="node-item" v-for="item in nodes" :key="item">
+    <div class="scene-tree-main tree-content" v-if="stateGlobal.sceneTreeNodes">
+      <div class="node-item" v-for="item in stateGlobal.sceneTreeNodes" :key="item">
         <SceneTreeNode :node="item" />
       </div>
     </div>
@@ -24,7 +24,7 @@ import { EventsBus } from '@/core/EventsBus'
 import { useStore } from 'vuex'
 
 import { reloadThreeDimensionScene, traverseFindNodeById } from '@/core/3d/util'
-import { clone } from '@/share/util/base'
+import { useMutation, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'SceneTree',
@@ -33,59 +33,17 @@ export default defineComponent({
   },
   setup() {
     const store = useStore()
+
+    const stateGlobal = useState(store, 'global')
+
+    const mutationsGlobal = useMutation(store, 'global', ['ADD_SCENE_NODE', 'SCENE_TREE_LOADED'])
+
     // 新增场景
     const addScene = () => {
       const e = event as any
       if (e.button != 0) return
-      EventsBus.emit('sceneAdded', {})
+      mutationsGlobal.ADD_SCENE_NODE()
     }
-
-    // trees: {threeDimension, twoDimension}
-    const nodes = computed<any>({
-      get() {
-        return store.state.pageTreeNodes
-      },
-      set(val) {
-        return (store.state.pageTreeNodes = val)
-      }
-    })
-
-    // 初始化场景/页
-    EventsBus.on('sceneLoaded', (e: any) => {
-      if (e.type === '3d') {
-        nodes.value[0].children[0].trees = JSON.parse(JSON.stringify(toRaw(store.state.template)))
-        store.state.threeDimensionContainer = e.container
-      }
-
-      console.log('初始化场景')
-      console.log('tree',store.state.selectedSceneTreeNode.trees)
-      console.log('parent',store.state.pageTreeNodes[store.state.selectedSceneTreeNode.parent])
-      EventsBus.emit('pageEnter', {
-        node: store.state.selectedSceneTreeNode,
-        parent: store.state.pageTreeNodes[store.state.selectedSceneTreeNode.parent]
-      })
-    })
-
-    // 添加场景
-    EventsBus.on('sceneAdded', () => {
-      nodes.value.push({
-        name: '场景' + (nodes.value.length + 1),
-        type: 'scene',
-        uuid: '' + nodes.value.length,
-        selected: false,
-        spread: true,
-        children: [
-          {
-            name: '页1',
-            type: 'page',
-            selected: false,
-            parent: '' + nodes.value.length,
-            uuid: '' + nodes.value.length + '-0',
-            trees: JSON.parse(JSON.stringify(toRaw(store.state.template)))
-          }
-        ]
-      })
-    })
 
     // 添加页
     EventsBus.on('pageAdded', (e: any) => {
@@ -102,75 +60,12 @@ export default defineComponent({
       })
     })
 
-    // 选中页
-    EventsBus.on('pageSelected', (e: any) => {
-      const node = e.node
-
-      if (node.selected) return
-
-      store.state.selectedSceneTreeNode = null
-      nodes.value.forEach((n: any) => {
-        n.selected = false
-
-        if (n.children && n.children.length > 0) {
-          n.children.forEach((c: any) => {
-            c.selected = node.uuid === c.uuid
-            if (c.selected) {
-              n.selected = true
-              store.state.selectedSceneTreeNode = c
-            }
-          })
-        }
-      })
-
-      // reload 3d scene
-      reloadThreeDimensionScene(node)
-      // reload edit forms
-      EventsBus.emit('formsReload', {})
-    })
-
     onMounted(() => {
-      store.state.selectedSceneTreeNode = nodes.value[0].children[0]
-      console.log('onMounted')
-      console.log('tree',store.state.selectedSceneTreeNode)
-      console.log('parent',store.state.pageTreeNodes[store.state.selectedSceneTreeNode.parent])
-      EventsBus.emit('pageEnter', {
-        node: store.state.selectedSceneTreeNode,
-        parent: store.state.pageTreeNodes[store.state.selectedSceneTreeNode.parent]
-      })
-    })
-
-    // 重置模板
-    EventsBus.on('resetTemplate', () => {
-      // reset sceneTree
-      nodes.value = [
-        {
-          name: '场景1',
-          type: 'scene',
-          selected: true,
-          spread: true,
-          uuid: '0',
-          children: [
-            {
-              name: '页1',
-              type: 'page',
-              selected: true,
-              parent: '0',
-              uuid: '0-0',
-              trees: {}
-            }
-          ]
-        }
-      ]
-
-      nodes.value[0].children[0].trees = JSON.parse(JSON.stringify(toRaw(store.state.template)))
-      // reset store pageNode/SceneNode
-      store.state.selectedSceneTreeNode = nodes.value[0].children[0]
-      store.state.selectedPageTreeNode = null
+      mutationsGlobal.SCENE_TREE_LOADED()
     })
 
     return {
-      nodes,
+      stateGlobal,
       addScene
     }
   }

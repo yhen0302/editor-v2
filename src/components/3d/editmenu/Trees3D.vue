@@ -1,21 +1,16 @@
 <template>
-  <div class="trees-3d-main">
-    <div class="node-item" v-for="item in nodes" :key="item">
+  <div class="trees-3d-main" v-if="stateGlobal.selectedPageTreeNode">
+    <div class="node-item" v-for="item in stateGlobal.selectedPageTreeNode.trees.threeDimension" :key="item">
       <PageTreeNode3D :node="item" v-if="item.show" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
-import { EventsBus } from '@/core/EventsBus'
+import { defineComponent } from 'vue'
 import PageTreeNode3D from '@/components/utils/editmenu/PageTreeNode3D.vue'
-import {
-  traverseFindNodeById,
-  traverseResetSelectedOfNodes,
-  traverseResetSpreadOfNodes
-} from '@/core/3d/util'
 import { useStore } from 'vuex'
+import { useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'Trees3D',
@@ -24,38 +19,13 @@ export default defineComponent({
   },
   setup() {
     const store = useStore()
-    const nodes = ref([])
 
-    // 查看详情页
-    EventsBus.on('pageEnter', (e: any) => {
-      console.log('trees3d', e.node)
-      nodes.value = e.node.trees.threeDimension
-    })
-
-    // 选中元素:单选
-    EventsBus.on('treeSelected', (e: any) => {
-      const flag = e.node.selected
-      traverseResetSelectedOfNodes(store.state.selectedSceneTreeNode.trees.threeDimension)
-      e.node.selected = !flag
-      store.state.selectedPageTreeNode = e.node.selected ? e.node : null
-    })
-
-    // 重置page tree
-    EventsBus.on('formsReset', () => {
-      // selected attribute
-      traverseResetSelectedOfNodes(nodes.value)
-      // spread attribute
-      traverseResetSpreadOfNodes(nodes.value)
-    })
-
-    // 重置模板
-    EventsBus.on('resetTemplate', () => {
-      nodes.value = []
-    })
+    const stateGlobal = useState(store, 'global')
 
     return {
       store,
-      nodes
+      stateGlobal
+      // nodes
     }
   }
 })

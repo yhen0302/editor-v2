@@ -18,13 +18,4 @@ import 'element-plus/dist/index.css'
 import './assets/css/tailwind.css'
 import './assets/css/base.css'
 
-createApp(App)
-  .use(store)
-  .use(ElementPlus)
-  .use(router)
-  .use(dragDropPlugin)
-  .use(dragPlugin)
-  .use(elementInstaller)
-  .use(layerPlugin)
-  .use(ColorPickerGradient)
-  .mount('#app')
+createApp(App).use(store).use(ElementPlus).use(router).use(dragDropPlugin).use(dragPlugin).use(elementInstaller).use(layerPlugin).use(ColorPickerGradient).mount('#app')

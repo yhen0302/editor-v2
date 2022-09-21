@@ -1,23 +1,25 @@
 <template>
   <div class="nav-menu-3d-main">
     <div class="title">
-      <img src="@/assets/images/main/left/editor_card_backarrow_btn_dark.png" v-show="pageIndex != 0" @click="goBack" />
-      <p>{{ title }}</p>
+      <img src="@/assets/images/main/left/editor_card_backarrow_btn_dark.png" v-show="state3D.leftNavPageIndex != 0" @click="goBack" />
+      <p>{{ state3D.leftNavTitle }}</p>
     </div>
 
     <LineEl :color="'#363741'" />
 
-    <div class="content"><component :is="type" v-if="type != ''" /></div>
+    <div class="content"><component :is="stateGlobal.selectBarToolType" v-if="stateGlobal.dimensionType == '3d' && stateGlobal.selectBarToolType" /></div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 import LineEl from '@/components/utils/common/LineEl.vue'
-import { EventsBus } from '@/core/EventsBus'
 import NavMenuElement3D from './navmenus/NavMenuElement3D.vue'
 import NavMenuScenes3D from './navmenus/NavMenuScenes3D.vue'
 import NavMenuPostProcesses3D from './navmenus/NavMenuPostProcesses3D.vue'
+import { useStore } from 'vuex'
+import { useMutation, useState } from '@/store/helper'
+import { toolbarType2Title } from '@/store/util'
 
 export default defineComponent({
   name: 'NavMenu3D',
@@ -28,60 +30,21 @@ export default defineComponent({
     NavMenuPostProcesses3D
   },
   setup() {
-    const title = ref('')
-    const type = ref('')
-    const pageIndex = ref(0)
+    const store = useStore()
 
-    EventsBus.on('navMenuChanged', (e: any) => {
-      if (e.dimension != '3d') return
-
-      title.value = e.name
-      pageIndex.value = 0
-
-      switch (e.type) {
-        case 'element':
-          type.value = 'NavMenuElement3D'
-          break
-        case 'scenes':
-          type.value = 'NavMenuScenes3D'
-          break
-        case 'afterProcess':
-          type.value = 'NavMenuPostProcesses3D'
-          break
-      }
-    })
-
-    EventsBus.on('navMenuItemChoosed', (e: any) => {
-      if (e.dimension != '3d') return
-      pageIndex.value = e.pageIndex
-      title.value = e.name
-    })
+    const state3D = useState(store, '3d')
+    const stateGlobal = useState(store, 'global')
+    const mutations3D = useMutation(store, '3d', ['CHANGE_NAV_PAGE_INDEX', 'CHANGE_NAV_TITLE', 'CHANGE_NAV_DETAILS_TYPE'])
 
     const goBack = () => {
-      pageIndex.value = 0
-
-      switch (type.value) {
-        case 'NavMenuElement3D':
-          title.value = '添加元素'
-          break
-        case 'NavMenuScenes3D':
-          title.value = '场景配置'
-          break
-      }
-
-      EventsBus.emit('navMenuGoBack', {
-        dimension: '3d',
-        pageIndex: pageIndex.value
-      })
-
-      // reset nodes status and editforms
-      EventsBus.emit('navMenuGoBackReset', {})
+      mutations3D.CHANGE_NAV_PAGE_INDEX({ index: state3D.leftNavPageIndex - 1 })
+      mutations3D.CHANGE_NAV_TITLE({ name: toolbarType2Title(stateGlobal.selectBarToolType) })
+      mutations3D.CHANGE_NAV_DETAILS_TYPE({ type: '' })
     }
 
     return {
-      title,
-      type,
-      pageIndex,
+      state3D,
+      stateGlobal,
       goBack
     }
   }

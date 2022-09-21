@@ -1,6 +1,6 @@
-import { DirectiveBinding} from 'vue'
+import { DirectiveBinding } from 'vue'
 import store from '@/store'
-import { useMutation} from '@/store/helper'
+import { mapState, useMutation } from '@/store/helper'
 import { createNode } from '../../packages/elements/src/share'
 
 export default {
@@ -11,8 +11,7 @@ export default {
 
     el.addEventListener('drop', function (ev: DragEvent) {
       let { offsetX, offsetY } = ev
-      const editorStore = store.state
-      const mutations = useMutation(store, 'global', ['ADD_2D_TREE_NODE', 'SELECT_2D_TREE_NODE', 'CLEAR_SELECT_2D_NODES'])
+      const mutations = useMutation(store, '2d', ['ADD_2D_TREE_NODE', 'SELECT_2D_TREE_NODE', 'CLEAR_SELECT_2D_NODES'])
 
       // 将数据添加到树结构中
       const data = JSON.parse(<string>ev.dataTransfer?.getData('meta'))
@@ -25,7 +24,8 @@ export default {
         if (target.className.includes('art-board-wrapper')) {
           const targetRect = target.getBoundingClientRect()
           const childRect = (target.querySelector('.art-board-box') as HTMLDivElement).getBoundingClientRect()
-          const scale = editorStore.state.drawingBoard.scale
+          const drawingBoard = mapState(store, 'global', ['drawingBoard']).drawingBoard
+          const scale = drawingBoard.scale
 
           offsetX = -((targetRect.width - childRect.width) / 2 - offsetX) / scale
           offsetY = -((targetRect.height - childRect.height) / 2 - offsetY) / scale

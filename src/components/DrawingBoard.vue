@@ -3,7 +3,7 @@
     <div
       class="drawing-board-container art-board-wrapper"
       ref="drawingBoardContainer"
-      @click='clean2dSelectedNode()'
+      @click="clean2dSelectedNode()"
       v-dropable
       :style="{ width: containerWidthPx, height: containerHeightPx, transform: `translate(${drawingBoardContainerX}px,${drawingBoardContainerY}px)` }"
     >
@@ -50,7 +50,7 @@ import { computed, defineComponent, onMounted, Ref, ref } from 'vue'
 import DrawingBoard2D from '@/components/2d/ArtBoard2DContent.vue'
 import DrawingBoard3D from '@/components/3d/drawingboard/DrawingBoard3D.vue'
 import { useStore } from 'vuex'
-import { useMutation } from '@/store/helper'
+import { useMutation, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'Middle',
@@ -65,11 +65,9 @@ export default defineComponent({
     const drawingBoardContainerY = ref(0)
 
     const store = useStore()
-    const editorStore = store.state
-    const editorMutation = useMutation(store,'global',['CLEAR_SELECT_2D_NODES'])
-    const width = store.state.drawingBoard.width
-    const height = store.state.drawingBoard.height
-    const scale = store.state.drawingBoard.scale
+    const stateGlobal = useState(store, 'global')
+    const mutations2D = useMutation(store, '2d', ['CLEAR_SELECT_2D_NODES'])
+    const { width, height, scale } = stateGlobal.drawingBoard
 
     const widthPx = computed(() => width + 'px')
     const heightPx = computed(() => height + 'px')
@@ -131,8 +129,7 @@ export default defineComponent({
     })
 
     function clean2dSelectedNode() {
-      console.log('global clean!')
-      editorMutation['CLEAR_SELECT_2D_NODES']()
+      mutations2D.CLEAR_SELECT_2D_NODES()
     }
     return {
       drawingBoard,

@@ -9,21 +9,21 @@
       </div>
     </template>
     <template v-slot:suffix="node">
-      <div class='suffix-icon-box flex'>
+      <div class="suffix-icon-box flex">
         <div
           class="cursor-pointer"
           :class="{
             'opacity-50': findHasFalseShowParentNode(node)
           }"
-          @click.stop='node.lock = false'
+          @click.stop="node.lock = false"
         >
-          <img src='~@/assets/images/lock.png' width='16' height='16' v-if="node.lock" />
+          <img src="~@/assets/images/lock.png" width="16" height="16" v-if="node.lock" />
         </div>
         <div
           class="cursor-pointer"
           :class="{
-          'opacity-50': findHasFalseShowParentNode(node)
-        }"
+            'opacity-50': findHasFalseShowParentNode(node)
+          }"
           @click.stop="hiddenControl(node)"
         >
           <img src="~@/assets/images/editor_unseen_btn_dark.png" v-if="node.show" />
@@ -47,8 +47,8 @@ export default {
   name: 'LayerList2d',
   setup() {
     const store = useStore()
-    const editorStore = store.state
-    const editorMutation = useMutation(store, 'global', ['CANCEL_SELECT_2D_NODE'])
+    const stateGlobal = useState(store, 'global')
+    const mutations2D = useMutation(store, '2d', ['CANCEL_SELECT_2D_NODE'])
 
     function findHasFalseShowParentNode(node) {
       while (node.parent) {
@@ -59,25 +59,26 @@ export default {
     }
 
     function hiddenControl(node) {
-      let n = findHasFalseShowParentNode(node)
+      const n = findHasFalseShowParentNode(node)
       if (n) {
         n.show = true
       }
 
       node.show = !node.show
+      // console.log(node.show)
       if (!node.show) {
-        editorMutation['CANCEL_SELECT_2D_NODE']({ node })
+        mutations2D.CANCEL_SELECT_2D_NODE({ node })
       }
     }
     const nodes = computed(() => {
-      return editorStore?.selectedSceneTreeNode?.trees?.twoDimension || []
+      return stateGlobal?.selectedPageTreeNode?.trees?.twoDimension || []
     })
     return {
       layerIcon,
-      editorStore,
+      stateGlobal,
       hiddenControl,
       findHasFalseShowParentNode,
-      nodes,
+      nodes
     }
   }
 }

@@ -1,7 +1,7 @@
 <template>
-  <div class="select-detail bg-gray-dark" v-show="editorStore.selectBarToolType" v-memo="[editorStore.selectBarToolType, navIndex]">
-    <nav-tab v-model:index="navIndex" :title="activeTitle" style='height: 100%'>
-      <nav-tab-item v-for="select in stack" :key="select.key" style='height: calc(100% - 65px)'>
+  <div class="select-detail bg-gray-dark" v-if="stateGlobal.selectBarToolType && stateGlobal.dimensionType == '2d'" v-memo="[stateGlobal.selectBarToolType, navIndex]">
+    <nav-tab v-model:index="navIndex" :title="activeTitle" style="height: 100%">
+      <nav-tab-item v-for="select in stack" :key="select.key" style="height: calc(100% - 65px)">
         <ul class="select-detail-list grid grid-cols-2 box-border p-16" v-if="select.viewType === 'block'">
           <li class="select-detail-item flex flex-col items-center border-box justify-between" v-for="item in select.list" :key="item.type" @click="clickSelectItem(item)">
             <img :src="item.icon" class="select-detail-sub-icon flex-shrink-0" draggable="false" v-if="item.children" />
@@ -10,7 +10,7 @@
           </li>
         </ul>
         <ul class="select-detail-list-l grid grid-cols-1 box-border p-16" v-once v-else-if="select.viewType === 'list'">
-          <li class="select-detail-list-l-item w-full " v-for="item in select.list" :key="item.name">
+          <li class="select-detail-list-l-item w-full" v-for="item in select.list" :key="item.name">
             <img :src="item.icon" v-dragable="item" />
           </li>
         </ul>
@@ -22,11 +22,11 @@
 <script lang="js">
 
 import { useStore } from 'vuex'
-import { useMutation } from '@/store/helper'
 import { computed, markRaw, ref, watch } from 'vue'
 import { selectBarData, selectData } from '@/components/2d/localData'
 import NavTab from '@/components/2d/common/navTab/NavTab'
 import NavTabItem from '@/components/2d/common/navTab/NavTabItem'
+import {useState} from '@/store/helper'
 
 export default {
   name: 'NavMenu2D',
@@ -36,24 +36,22 @@ export default {
   },
   setup() {
     const store = useStore()
-    const editorStore = store.state
-    const mutations = useMutation(useStore(), '', ['CHANGE_DIMENSION', 'CHANGE_SELECT_BAR_TOOL_TYPE'])
+    const stateGlobal = useState(store, 'global')
 
 
-    const initData= markRaw(selectData[editorStore.selectBarToolType])
-    initData.key = editorStore.selectBarToolType
+    const initData= markRaw(selectData[stateGlobal.selectBarToolType])
+    initData.key = stateGlobal.selectBarToolType
     // element selector area
     const stack  = ref([initData])
     const navIndex  = ref(0)
     const selectTitle  = ref('')
 
     watch(
-      () => editorStore.selectBarToolType,
+      () => stateGlobal.selectBarToolType,
       (newVal) => {
-        if (newVal) {
-          let data = markRaw(selectData[newVal])
+        if (newVal && stateGlobal.dimensionType == '2d') {
+          const data = markRaw(selectData[newVal])
           data.key = newVal
-          console.log(data)
           stack.value.splice(0, stack.value.length, data)
           navIndex.value = 0
         }
@@ -62,7 +60,7 @@ export default {
 
     // shadow config block
     const isShadow = computed(() => {
-      return editorStore.selectBarToolType === 'scenes' && stack.value?.[1]?.key === 'shadowSwitch'
+      return stateGlobal.selectBarToolType === 'scenes' && stack.value?.[1]?.key === 'shadowSwitch'
     })
 
     function clickSelectItem(selectItem) {
@@ -83,12 +81,11 @@ export default {
       }
     )
     const activeTitle = computed(() => {
-      return selectTitle.value || selectBarData[editorStore.dimensionType].find((item ) => item.type === editorStore.selectBarToolType)?.name
+      return selectTitle.value || selectBarData['2d'].find((item ) => item.type === stateGlobal.selectBarToolType)?.name
     })
 
     return {
-      editorStore,
-      mutations,
+      stateGlobal,
       selectBarData,
       activeTitle,
       isShadow,

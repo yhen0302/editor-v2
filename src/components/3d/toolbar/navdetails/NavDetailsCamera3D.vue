@@ -12,6 +12,7 @@ import { useStore } from 'vuex'
 import { EventsBus } from '@/core/EventsBus'
 
 import NavDetailsSelectItem from '@/components/utils/navdetails/NavDetailsSelectItem.vue'
+import { useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'NavDetailsCamera3D',
@@ -20,6 +21,9 @@ export default defineComponent({
   },
   setup() {
     const store = useStore()
+
+    const stateGlobal = useState(store, 'global')
+
     const detailsList: any = ref({
       Camera: {
         name: '相机',
@@ -30,14 +34,14 @@ export default defineComponent({
     const selectItem = (options: any) => {
       const { key, target } = options
 
-      let flag = target.selected
+      const flag = target.selected
       for (const k in detailsList.value) {
         const detail = detailsList.value[k]
         detail.selected = false
       }
       target.selected = !flag
 
-      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
+      stateGlobal.selectedPageTreeNode?.trees.threeDimension.forEach((node: any) => {
         if (node.type === key) {
           EventsBus.emit('treeSelected', { node })
           EventsBus.emit('toolBarSelected', { node })
@@ -57,7 +61,7 @@ export default defineComponent({
         }
       }
 
-      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
+      stateGlobal.selectedPageTreeNode?.trees.threeDimension.forEach((node: any) => {
         if (node.type === key) {
           node.selected = selectedItem.selected
           store.state.selectedPageTreeNode = node.selected ? node : null
@@ -67,7 +71,7 @@ export default defineComponent({
     }
 
     const validateDetails = () => {
-      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
+      stateGlobal.selectedPageTreeNode?.trees.threeDimension.forEach((node: any) => {
         for (const k in detailsList.value) {
           if (node.type === k) {
             const detail = detailsList.value[k]
@@ -88,10 +92,10 @@ export default defineComponent({
         }
       }
 
-      store.state.selectedSceneTreeNode.trees.threeDimension.forEach((node: any) => {
+      stateGlobal.selectedPageTreeNode?.trees.threeDimension.forEach((node: any) => {
         if (node.type === key) {
           node.selected = false
-          store.state.selectedPageTreeNode = null
+          stateGlobal.selectedPageTreeNode = null
           EventsBus.emit('toolBarSelected', { node })
         }
       })

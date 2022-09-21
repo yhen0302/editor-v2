@@ -1,13 +1,7 @@
 <template>
   <div class="check-box-el box-border w-full">
     <ul class="check-content-list flex w-full h-full">
-      <li
-        class="check-item flex-1 h-full"
-        :class="{ checked: item.isChecked, disable: item.disable }"
-        @click="itemClick(item)"
-        v-for="item in valueRef"
-        :key="item.value"
-      >
+      <li class="check-item flex-1 h-full" :class="{ checked: item.isChecked, disable: item.disable }" @click="itemClick(item)" v-for="item in valueRef" :key="item.value">
         <slot :item="item">
           <span class="check-item-content">{{ item.label }}</span>
         </slot>
@@ -33,17 +27,17 @@ export default {
   },
   emits: ['update:modelValue'],
   setup(props, context) {
-    let valueRef = ref([])
+    const valueRef: any = ref([])
 
     initValue()
 
     function initValue() {
-      for (let item of props.list) {
+      for (const item of props.list) {
         valueRef.value.push({
           isChecked: props.modelValue.includes(item.value),
           label: item.label,
           value: item.value,
-          disable: item.disable
+          disable: (item as any).disable
         })
       }
     }
@@ -51,9 +45,9 @@ export default {
     watch(
       () => valueRef.value,
       (newVal, oldVal) => {
-        let values = toRaw(newVal),
-          newValList = []
-        for (let item of values) {
+        const values = toRaw(newVal),
+          newValList: any = []
+        for (const item of values) {
           item.isChecked ? newValList.push(item.value) : null
         }
         context.emit('update:modelValue', newValList)

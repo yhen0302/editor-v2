@@ -2,12 +2,7 @@
   <div class="object-forms-3d-main">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
-        <EditFormsNavItem
-          :active="item.active"
-          :name="item.name"
-          :type="item.type"
-          @mouseup.stop="chooseNav(item)"
-        />
+        <EditFormsNavItem :active="item.active" :name="item.name" :type="item.type" @mouseup.stop="chooseNav(item)" />
       </div>
     </div>
 
@@ -43,22 +38,17 @@
         <LineEl class="division" :color="'#363741'" />
       </div>
     </div>
-
-    <div class="content object" v-show="headerItems[1].active">
-      <EventBind :node="node"></EventBind>
-    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
 import { useStore } from 'vuex'
-import { EventsBus } from '@/core/EventsBus'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
-import EventBind from '../../rightKanBan/EventBind.vue'
+import { useGetter, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'ObjectForms3D',
@@ -66,12 +56,14 @@ export default defineComponent({
     LineEl,
     EditFormsNavItem,
     BaseTitle,
-    BaseInput,
-    EventBind
+    BaseInput
   },
   props: ['node'],
   setup(props: any) {
     const store = useStore()
+
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     // header nav
     const headerItems = ref([
@@ -90,16 +82,12 @@ export default defineComponent({
     // content settings
     const formSettings: any = ref([])
 
-    const object3DChanged = (event: any) => {
-      //
-    }
-
     let currentObj: any
 
     onMounted(() => {
-      const { type, options, uuid } = props.node
+      const { options, uuid } = props.node
 
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
 
       threeDimensionContainer.scene.traverse((c: any) => {
         if (c.uuid == uuid) currentObj = c
@@ -159,12 +147,10 @@ export default defineComponent({
           }
         ]
       }
-
-      EventsBus.on('object3DChanged', object3DChanged)
     })
 
     onUnmounted(() => {
-      EventsBus.off('object3DChanged', object3DChanged)
+      //
     })
 
     const inputChange = (target: any) => {
@@ -204,23 +190,11 @@ export default defineComponent({
       }
 
       // update pageTreeNode
-      const position = [
-        formSettings.value['position'][0].value,
-        formSettings.value['position'][1].value,
-        formSettings.value['position'][2].value
-      ]
-      const rotation = [
-        formSettings.value['rotation'][0].value,
-        formSettings.value['rotation'][1].value,
-        formSettings.value['rotation'][2].value
-      ]
-      const scale = [
-        formSettings.value['scale'][0].value,
-        formSettings.value['scale'][1].value,
-        formSettings.value['scale'][2].value
-      ]
+      const position = [formSettings.value['position'][0].value, formSettings.value['position'][1].value, formSettings.value['position'][2].value]
+      const rotation = [formSettings.value['rotation'][0].value, formSettings.value['rotation'][1].value, formSettings.value['rotation'][2].value]
+      const scale = [formSettings.value['scale'][0].value, formSettings.value['scale'][1].value, formSettings.value['scale'][2].value]
 
-      Object.assign(store.state.selectedPageTreeNode.options, {
+      Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
         position,
         rotation,
         scale

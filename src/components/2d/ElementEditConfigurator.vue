@@ -3,13 +3,7 @@
     <nav-tab v-model:index="propertyEditIndex" class="h-full">
       <template v-slot:header>
         <ul class="nav-tab-header items-center flex text-14">
-          <li
-            class="nav-tab-h-item cursor-pointer"
-            v-for="(item, index) in ['基础设置', '交互事件']"
-            :class="{ active: propertyEditIndex === index }"
-            @click="propertyEditIndex = index"
-            :key="item"
-          >
+          <li class="nav-tab-h-item cursor-pointer" v-for="(item, index) in ['基础设置', '交互事件']" :class="{ active: propertyEditIndex === index }" @click="propertyEditIndex = index" :key="item">
             {{ item }}
           </li>
         </ul>
@@ -38,7 +32,6 @@ import { ref } from 'vue'
 import { Ref } from '@vue/reactivity'
 import { useStore } from 'vuex'
 import { useGetter, useState } from '@/store/helper'
-import { EditorStore } from '@/store/type'
 // configurator
 import AxisLineChartConfigurator from './configurator/AxisLineChartConfigurator.vue'
 import TextConfigurator from './configurator/TextConfigurator.vue'
@@ -70,14 +63,13 @@ export default {
   },
   setup() {
     const store = useStore()
-    const editorStore = store.state as EditorStore
-    const editorGetter = useGetter(store, 'global', ['GET_CONFIGURATOR'])
+    const getters2D = useGetter(store, '2d', ['GET_CONFIGURATOR'])
     //property edit
     const propertyEditIndex: Ref<number> = ref<number>(0)
 
     return {
       propertyEditIndex,
-      ...editorGetter
+      ...getters2D
     }
   }
 }

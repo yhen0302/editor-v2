@@ -28,10 +28,10 @@
 import FoldEl from '@/components/2d/common/FoldEl.vue'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
-import { useGetter, useState } from '@/store/helper'
+import { useGetter } from '@/store/helper'
 import SelectEl from '@/components/2d/common/SelectEl'
 import StaticDataDialog from '../StaticDataDialog'
-import ApiDataDialog from "../ApiDataDialog";
+import ApiDataDialog from '../ApiDataDialog'
 
 export default {
   name: 'ChartDataConfigurator',
@@ -43,13 +43,13 @@ export default {
   },
   setup() {
     const store = useStore()
-    const editorGetter = useGetter(store, 'global', ['GET_SELECT_NODE'])
+    const getters2D = useGetter(store, '2d', ['GET_SELECT_NODE'])
     const dataType = computed({
       get() {
-        return editorGetter['GET_SELECT_NODE'].value.option.dataType
+        return getters2D['GET_SELECT_NODE'].value.option.dataType
       },
       set(newVal) {
-        editorGetter['GET_SELECT_NODE'].value.option.dataType = newVal
+        getters2D['GET_SELECT_NODE'].value.option.dataType = newVal
       }
     })
 
@@ -65,7 +65,7 @@ export default {
           break
       }
     }
-    return { dataType, showTableDialog, clickEditorBtn,showApiDialog}
+    return { dataType, showTableDialog, clickEditorBtn, showApiDialog }
   }
 }
 </script>

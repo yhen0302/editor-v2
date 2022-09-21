@@ -1,20 +1,18 @@
-import { EditorStore, LayerTree2dNode } from '../type'
+import { State2DI } from '.'
 
-export interface EditorGetterI {
-  // 2d
+export interface Getters2DI {
   GET_CONFIGURATOR: 'GET_CONFIGURATOR'
   GET_SELECT_STATUS: 'GET_SELECT_STATUS'
   GET_SELECT_NODE: 'GET_SELECT_NODE'
 }
-
-export const EditorGetter: EditorGetterI = {
+export const Getters2D: Getters2DI = {
   GET_CONFIGURATOR: 'GET_CONFIGURATOR',
   GET_SELECT_STATUS: 'GET_SELECT_STATUS',
   GET_SELECT_NODE: 'GET_SELECT_NODE'
 }
 
 export default {
-  [EditorGetter.GET_CONFIGURATOR](store: EditorStore) {
+  [Getters2D.GET_CONFIGURATOR](store: State2DI) {
     // 选择了多个
     if (store.select2dNodes.size > 1) {
       // pass
@@ -57,14 +55,10 @@ export default {
     }
     return ''
   },
-  [EditorGetter.GET_SELECT_STATUS](store: EditorStore): 'multiple' | 'empty' | 'single' {
-    return store.select2dNodes.size > 1
-      ? 'multiple'
-      : store.select2dNodes.size > 0
-      ? 'single'
-      : 'empty'
+  [Getters2D.GET_SELECT_STATUS](store: State2DI): 'multiple' | 'empty' | 'single' {
+    return store.select2dNodes.size > 1 ? 'multiple' : store.select2dNodes.size > 0 ? 'single' : 'empty'
   },
-  [EditorGetter.GET_SELECT_NODE](state: EditorStore) {
+  [Getters2D.GET_SELECT_NODE](state: State2DI) {
     if (state.select2dNodes.size > 1) {
       return [...state.select2dNodes]
       // pass
