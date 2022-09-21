@@ -5,6 +5,7 @@
       width,
       height,
       left,
+      transform: rotate,
       top
     }"
     ref="el"

@@ -26,6 +26,7 @@ module.exports = {
     '@typescript-eslint/no-empty-function': 'off',
     'vue/no-unused-components': 'off',
     '@typescript-eslint/ban-ts-comment': 'warn',
-    "prefer-const":'warn'
+    "prefer-const":'warn',
+    '@typescript-eslint/ban-types':'warn'
   }
 }

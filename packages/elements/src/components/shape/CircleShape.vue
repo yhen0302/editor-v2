@@ -11,6 +11,7 @@
       top,
       background: color,
       boxShadow,
+      transform: rotate,
       opacity
     }"
     @mousedown="onMouseDown"

@@ -1,26 +1,14 @@
 // @ts-nocheck
-import {
-  Plugin,
-  App,
-  watch,
-  ref,
-  toRaw,
-  effectScope,
-  EffectScope
-} from 'vue'
-import {
-  findParentPathHasEl,
-  getCss,
-  toPx
-} from './util/util'
+import { Plugin, App, watch, ref, toRaw, effectScope, EffectScope } from 'vue'
+import { computedElementsRect, findParentPathHasEl, getCss, toPx } from './util/util'
 import { Ref } from '@vue/reactivity'
 import { rectProperties, RectProperty } from './convert'
 import DragWrapper from './DragWrapper.vue'
-import {registryDragDirective} from "@/plugins/dragPlugin/dragDirective";
+import { registryDragDirective } from '@/plugins/dragPlugin/dragDirective'
 
 const activeEl: Ref<HTMLElement[]> = ref<HTMLElement[]>([])
 const effectTotalSet: Set<EffectScope> = new Set<EffectScope>()
-const isCalculating: Ref<boolean> = ref<boolean>(false) // 是否在计算中
+const blockingUpdate: Ref<boolean> = ref<boolean>(false) // 是否在计算中
 
 function listenClearEvent() {
   document.addEventListener('click', (ev) => {
@@ -38,8 +26,6 @@ interface DragEvent {
   el: HTMLElement
   rect: RectProperty
 }
-
-
 
 export interface CustomElement extends HTMLElement {
   rect: {
@@ -68,7 +54,8 @@ function watchRect(
         () => rectProperties[key],
         (newVal, oldVal) => {
           // 如果当前变化是正在计算选择区域就不做计算，防止多选时rect值变化发送事件去修改元素的大小
-          if (isCalculating.value) return
+          if (blockingUpdate.value) return
+
           input &&
             input({
               el,
@@ -77,7 +64,10 @@ function watchRect(
           change && change({ el, rect: toRaw<RectProperty>(rectProperties) })
 
           let rect = el.rect
-          if (activeEl.value.length < 2 || ['left', 'top'].includes(key)) {
+          if (key === 'rotate') {
+            el.style.transform = `rotate(${newVal}deg)`
+            el.rect.rotate = newVal
+          } else if (activeEl.value.length < 2 || ['left', 'top'].includes(key)) {
             // @ts-ignore
             el.style[key] = toPx(rect[key] + newVal - oldVal)
             el.rect[key] = rect[key] + newVal - oldVal
@@ -88,12 +78,11 @@ function watchRect(
             el.style[key] = toPx(rect[key] * ratio)
             el.rect[key] = rect[key] * ratio
 
+            // 当拖动是左上方时: left 和 top 的值相应发生变化。
             let mappingKey: keyof DOMRect = key === 'width' ? 'left' : 'top'
             let offset = rect[mappingKey] - rectProperties[mappingKey]
             el.rect[mappingKey] = offset * (ratio - 1) + rect[mappingKey]
-            el.style[mappingKey] = toPx(
-              offset * (ratio - 1) + rect[mappingKey]
-            ) as string
+            el.style[mappingKey] = toPx(offset * (ratio - 1) + rect[mappingKey]) as string
           }
         },
         { flush: 'sync' }
@@ -119,27 +108,50 @@ export function clearEl(): void {
   activeEl.value.splice(0, activeEl.value.length)
 }
 
+let updateRectProcessFn: Function = (t) => t
+// 手动跟新
+export function updateRect() {
+  // 跟新的时候监听器不能变化
+  blockingUpdate.value = true
+  let rect
+  if (activeEl.value.length === 1) {
+    rect = computedElementsRect(activeEl.value, 'css')
+    rect.rotate = activeEl.value[0].rect.rotate
+  } else {
+    // bounding的计算可能和实际的形状属性存在差异,
+    rect = computedElementsRect(activeEl.value, 'bounding')
+    rect.rotate = 0
+  }
+  rect = updateRectProcessFn(rect, activeEl.value.length !== 1)
+  for (let key of Object.keys(rectProperties)) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    rectProperties[key] = rect[key]
+  }
+  blockingUpdate.value = false
+}
+
 const dragPlugin: Plugin = {
   install(app: App, option: Object) {
+    option.updateRectProcessFn && (updateRectProcessFn = option.updateRectProcessFn)
+
+    app.config.globalProperties.$updateRect = updateRect
     // function set
     const keys = Object.keys(rectProperties)
     keys.forEach((key) => {
-      app.config.globalProperties[
-        '$setDragPluginRect' + key[0].toUpperCase() + key.substring(1)
-      ] = function (val: number) {
-        rectProperties[key] = val
-      }
+      app.config.globalProperties['$setDragPluginRect' + key[0].toUpperCase() + key.substring(1)] =
+        function (val: number) {
+          rectProperties[key] = val
+        }
     })
 
     // listenClearEvent()
-    registryDragDirective(app,watchRect,effectTotalSet,stopEffect)
+    registryDragDirective(app, watchRect, effectTotalSet, stopEffect)
 
     app.component(DragWrapper.name, DragWrapper)
-
-
   }
 }
 
-export { activeEl, isCalculating }
+export { activeEl }
 
 export default dragPlugin

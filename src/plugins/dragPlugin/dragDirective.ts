@@ -27,7 +27,6 @@ function parseBinding(binding: any) {
 export function registryDragDirective(app: App, watchRect: any, effectTotalSet: Set<EffectScope>, stopEffect: any) {
   app.directive('drag', {
     mounted(el: CustomElement, binding: any) {
-      // console.log('drag')
       const { select, input, change, active } = parseBinding(binding)
       let effect: EffectScope
 

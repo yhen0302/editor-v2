@@ -13,9 +13,9 @@ class Bar extends BaseChart {
     const defaultMatrixOpt = {
       left: 0,
       top: 0,
-      height: 100,
-      width: 200,
-      angle: 0
+      height: 200,
+      width: 400,
+      rotate: 0
     }
     const defaultEchartsOpt = {
       color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272'],

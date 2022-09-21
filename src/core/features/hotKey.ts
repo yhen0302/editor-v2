@@ -24,5 +24,5 @@ export async function previewHandle() {
       modelUrls: container.attrs.modelUrls
     })}))`
   )
-  console.log(window.open(htmlToUrl(html)))
+  window.open(htmlToUrl(html))
 }

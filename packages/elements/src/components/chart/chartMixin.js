@@ -1,10 +1,10 @@
-import { clone, valueHandle } from '../../../../../src/share/util/base'
-
+import { clone, debounce, valueHandle } from '../../../../../src/share/util/base'
+import {nextTick} from 'vue'
 export default {
   methods: {
-    updateEchartsSize() {
+    updateEchartsSize:debounce(function() {
       this.myChart.resize()
-    },
+    },200),
     async setApiData(option) {
       const echartsOpt = clone(option || this.node.option.echartsOption)
       const tempSeries = echartsOpt.series[0]
@@ -47,6 +47,14 @@ export default {
         top += option.title.textStyle.fontSize
       }
       option.grid.top = top
+    }
+  },
+  watch:{
+    'node.option.matrixOption':{
+      handler(newVal,oldVal){
+        this.updateEchartsSize()
+      },
+      deep:true
     }
   }
 }

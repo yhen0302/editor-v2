@@ -166,16 +166,3 @@ export function valueHandle(obj: any, path: string): any {
   return res
 }
 
-export function rotatePointer(deg, offsetX, offsetY) {
-  const sinVal = Math.sin(Number(getRadian(deg).toFixed(2)))
-  const cosVal = Math.cos(Number(getRadian(deg).toFixed(2)))
-
-  return {
-    x: cosVal,
-    y: sinVal
-  }
-}
-
-export function getRadian(deg: number) {
-  return (deg / 180) * Math.PI
-}

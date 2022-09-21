@@ -4,9 +4,9 @@ export class BaseChart {
   defaultMatrixOpt = {
     left: 0,
     top: 0,
-    height: 100,
-    width: 200,
-    angle: 0
+    height: 200,
+    width: 400,
+    rotate: 0
   }
 
   protected type: string | undefined

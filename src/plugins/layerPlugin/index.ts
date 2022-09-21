@@ -3,6 +3,6 @@ import {App} from "vue";
 
 export default {
   install(app: App, option: any) {
-    app.component('layer-list', LayerList)
+    app.component(LayerList.name, LayerList)
   }
 }

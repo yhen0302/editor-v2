@@ -126,6 +126,7 @@ export default {
       const isChildrenTree = !!node.parent.children
       const index = isChildrenTree ? node.parent.children.indexOf(node) : node.parent.indexOf(node)
       index !== -1 && (isChildrenTree ? node.parent.children.splice(index, 1) : node.parent.splice(index, 1))
+
       state.select2dNodes.delete(node)
     }
   },

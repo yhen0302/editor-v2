@@ -33,7 +33,6 @@ export default defineComponent({
     const store = useStore()
     const pageIndex = ref(0)
 
-
     // 返回上级
     const goBack = () => {
       const e = event as any
@@ -59,7 +58,7 @@ export default defineComponent({
     return {
       store,
       pageIndex,
-      goBack,
+      goBack
     }
   }
 })
