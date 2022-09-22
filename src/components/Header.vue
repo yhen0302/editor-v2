@@ -121,10 +121,11 @@ export default defineComponent({
     const stateGlobal = useState(store, 'global')
 
     const stateMapperGlobal = mapState(store, 'global', ['drawingBoard', 'template', 'sceneTreeNodes'])
+
     const stateMapper3D = mapState(store, '3d', ['threeDimensionContainer'])
 
     const scaleRatio = computed(() => {
-      return (stateMapperGlobal.drawingBoard.scale * 100).toFixed()
+      return (stateMapperGlobal.drawingBoard.value.scale * 100).toFixed()
     })
 
     //导出 bol3d.json
@@ -189,15 +190,15 @@ export default defineComponent({
     }
 
     function remove3Dnodes() {
-      const container = toRaw(stateMapper3D.threeDimensionContainer)
+      const container = toRaw(stateMapper3D.threeDimensionContainer.value)
 
       // 1.remove old node
       const removedStoreNodeUUIDs: any = []
       // 1).store:template
-      for (let i = stateMapperGlobal.template.threeDimension.length; i--; i >= 0) {
-        if (stateMapperGlobal.template.threeDimension[i].uuid !== -1) {
-          removedStoreNodeUUIDs.push(stateMapperGlobal.template.threeDimension[i].uuid)
-          stateMapperGlobal.template.threeDimension.splice(i, 1)
+      for (let i = stateMapperGlobal.template.value.threeDimension.length; i--; i >= 0) {
+        if (stateMapperGlobal.template.value.threeDimension[i].uuid !== -1) {
+          removedStoreNodeUUIDs.push(stateMapperGlobal.template.value.threeDimension[i].uuid)
+          stateMapperGlobal.template.value.threeDimension.splice(i, 1)
         }
       }
       // 2).container:sceneModel,children,clickObjects,mixers,mixerActions,sceneAnimations,lights,outlineObjects,passes
@@ -259,7 +260,7 @@ export default defineComponent({
         container.scene.remove(item)
       })
       // pass clear
-      stateMapperGlobal.template.threeDimension = []
+      stateMapperGlobal.template.value.threeDimension = []
       // 3.reset sceneTree/pageTree/editform
       EventsBus.emit('resetTemplate', {})
     }
@@ -281,7 +282,8 @@ export default defineComponent({
       previewHandle,
       isShowLayerTree,
       isShowSceneTree,
-      pageTitle
+      pageTitle,
+      stateGlobal
     }
   }
 })

@@ -48,7 +48,7 @@ export default defineComponent({
     const itemType = ref('')
 
     const mutations = useMutation(store, 'global', ['CHANGE_SELECT_BAR_TOOL_TYPE', 'CHANGE_DIMENSION'])
-    const mutations3D = useMutation(store, '3d', ['CHANGE_NAV_TITLE', 'CHANGE_NAV_PAGE_INDEX'])
+    const mutations3D = useMutation(store, '3d', ['CHANGE_NAV_TITLE', 'CHANGE_NAV_PAGE_INDEX', 'CLEAR_EDIT_FORM'])
 
     const barToolTypeChange = (type: string, name: string) => {
       // 样式type
@@ -57,6 +57,8 @@ export default defineComponent({
       mutations.CHANGE_DIMENSION({ dimensionType: '3d' })
       // toolbarType
       mutations.CHANGE_SELECT_BAR_TOOL_TYPE({ selectBarToolType: nodeType2ToolBarType(type) })
+      // clear editForms
+      // mutations3D.CLEAR_EDIT_FORM()
       // title
       mutations3D.CHANGE_NAV_TITLE({ name })
       // pageIndex

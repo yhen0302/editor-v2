@@ -19,7 +19,7 @@
     </div>
 
     <div v-if="node.type == 'scene' && node.spread && node.children && node.children.length > 0" class="page-nodes">
-      <div v-for="item in node.children" :key="item" class="page-node" :class="item.selected ? 'page-node-selected' : ''" @mouseup="selectPage(item)" @dblclick="enterPage(item, node)">
+      <div v-for="item in node.children" :key="item" class="page-node" :class="item.selected ? 'page-node-selected' : ''" @mouseup="selectPage(item)">
         <div class="page-icon">
           <img src="@/assets/images/main/right/editor_page_icn_dark.png" />
         </div>
@@ -33,11 +33,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, ref } from 'vue'
+import { defineComponent } from 'vue'
 import { useStore } from 'vuex'
-import { EventsBus } from '@/core/EventsBus'
-import { AnyColumns } from 'element-plus/es/components/table-v2/src/types'
-import { useMutation, useState } from '@/store/helper'
+import { useMutation } from '@/store/helper'
+import { PageTreeNode, SceneTreeNode } from '@/store'
 
 export default defineComponent({
   name: 'SceneTreeNode',
@@ -45,118 +44,34 @@ export default defineComponent({
   components: {},
   setup() {
     const store = useStore()
-    const stateGlobal = useState(store, 'global')
-    const state3D = useState(store, '3d')
-    const mutationsGlobal = useMutation(store, 'global', ['SELECT_PAGE_NODE'])
+    const mutationsGlobal = useMutation(store, 'global', ['SELECT_PAGE_NODE', 'ADD_PAGE_NODE'])
 
-    const spread = (node: any) => {
+    const spread = (node: SceneTreeNode) => {
       const e = event as any
       if (e.button != 0) return
 
       node.spread = !node.spread
     }
 
-    const addPage = (node: any) => {
+    const addPage = (node: SceneTreeNode) => {
       const e = event as any
       if (e.button != 0) return
 
-      EventsBus.emit('pageAdded', { node })
+      mutationsGlobal.ADD_PAGE_NODE({ selectedSceneTreeNode: node })
     }
 
-    const selectPage = (page: any) => {
+    const selectPage = (page: PageTreeNode) => {
       const e = event as any
       if (e.button != 0) return
       if (page.selected) return
 
       mutationsGlobal.SELECT_PAGE_NODE({ selectedPageTreeNode: page })
-
-      console.log('page', page)
-
-      // EventsBus.emit('toolBarSelected', { node: {} })
-      // nextTick(() => {
-      //   store.state.addElementType = null
-      //   store.state.dimensionType = '3d'
-      //   const scene = state3D.threeDimensionContainer.scene
-
-      //   page.trees.threeDimension.forEach((item: any) => {
-      //     if (item.isEdit) {
-      //       store.state.template.threeDimension.forEach((dev: any) => {
-      //         if (item.uuid == dev.uuid) {
-      //           const arrs: any = []
-      //           dev.children.forEach((i: any) => {
-      //             let status: any = true
-      //             item.children.forEach((b: any) => {
-      //               if (i.uuid == b.uuid) {
-      //                 status = false
-      //               }
-      //             })
-      //             if (status) {
-      //               arrs.push(JSON.parse(JSON.stringify(i)))
-      //             }
-      //           })
-      //           if (arrs.length > 0) {
-      //             item.children.push(...arrs)
-      //           }
-      //         }
-      //       })
-      //     }
-      //   })
-      //   page.trees.threeDimension.forEach((item: any) => {
-      //     if (item.uuid != -1) {
-      //       if (item.isEdit) {
-      //         store.state.threeDimensionContainer.scene.children.forEach((child: any) => {
-      //           if (child.name == item.name) {
-      //             child.children.forEach((i: any) => {
-      //               let status = true
-      //               item.children.forEach((b: any) => {
-      //                 if (i.uuid == b.uuid) {
-      //                   status = false
-      //                   i.visible = b.visible
-      //                 }
-      //               })
-      //               if (status) {
-      //                 i.visible = false
-      //               }
-      //             })
-      //           }
-      //         })
-      //       }
-      //       if (item.uuid == 'MixerActionsUuid') {
-      //         item.children.forEach((dev: any) => {
-      //           store.state.threeDimensionContainer.mixerActions.forEach((ss: any) => {
-      //             const name: any = ss._mixer.name + ss._mixer._root.uuid
-      //             if (dev.uuid == name) {
-      //               ss.paused = dev.options.paused
-      //               ss.loop = dev.options.loop
-      //               ss.timeScale = dev.options.timeScale
-      //               ss.time = 0
-      //               ss.enabled = true
-      //             }
-      //           })
-      //         })
-      //       }
-      //     }
-      //   })
-
-      //   EventsBus.emit('pageSelected', { node: page })
-      //   EventsBus.emit('toolBarSelected', { node: {} })
-      // })
-    }
-
-    const enterPage = (page: any, node: any) => {
-      const e = event as any
-      if (e.button != 0) return
-      EventsBus.emit('pageEnter', {
-        node: page,
-        parent: node
-      })
     }
 
     return {
       spread,
       addPage,
-      selectPage,
-      enterPage
+      selectPage
     }
   }
 })

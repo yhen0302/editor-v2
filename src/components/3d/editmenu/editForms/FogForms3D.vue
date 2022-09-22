@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
@@ -65,6 +65,7 @@ import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 
 import { hex2rgb } from '@/core/utils/base'
+import { useGetter, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'FogForms3D',
@@ -78,6 +79,9 @@ export default defineComponent({
   props: ['node'],
   setup(props: any) {
     const store = useStore()
+
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     // header nav
     const headerItems = ref([
@@ -118,13 +122,9 @@ export default defineComponent({
       }
     })
 
-    onUnmounted(() => {
-      //
-    })
-
     const inputChange = (target: any, type?: string) => {
       const e = event as any
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
       const { key, setting } = target
       const val = e.target.value
 
@@ -133,7 +133,7 @@ export default defineComponent({
           threeDimensionContainer.scene.fog.color.set(val)
           setting.value = val
           // update selected pageTreeNode
-          Object.assign(store.state.selectedPageTreeNode.options, {
+          Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
             color: val
           })
         }
@@ -142,7 +142,7 @@ export default defineComponent({
         const v = parseFloat(val)
         setting.value = v
         threeDimensionContainer.scene.fog.density = v
-        Object.assign(store.state.selectedPageTreeNode.options, {
+        Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
           intensity: v
         })
       }

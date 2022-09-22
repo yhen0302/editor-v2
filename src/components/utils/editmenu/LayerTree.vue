@@ -18,11 +18,10 @@
 import { useStore } from 'vuex'
 import Trees2D from '@/components/2d/editmenu/Trees2D.vue'
 import Trees3D from '@/components/3d/editmenu/Trees3D.vue'
-import { EventsBus } from '@/core/EventsBus'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import NavTab from '@/components/common/navTab/NavTab.vue'
 import NavTabItem from '@/components/common/navTab/NavTabItem.vue'
-import { useState } from '@/store/helper'
+import { useMutation, useState } from '@/store/helper'
 
 export default {
   name: 'LayerTree',
@@ -32,13 +31,11 @@ export default {
     const store = useStore()
 
     const stateGlobal = useState(store, 'global')
+    const mutations = useMutation(store, 'global', ['CHANGE_SELECT_BAR_TOOL_TYPE', 'CHANGE_DIMENSION'])
 
     const dimensionTypeChange = (type) => {
-      if (stateGlobal.dimensionType == type) return
-      stateGlobal.selectBarToolType = ''
-      stateGlobal.dimensionType = type
-      // 重置右下角表单
-      EventsBus.emit('formsReset', {})
+      mutations.CHANGE_DIMENSION({ dimensionType: type })
+      mutations.CHANGE_SELECT_BAR_TOOL_TYPE({ selectBarToolType: null })
     }
     return {
       store,

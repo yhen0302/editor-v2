@@ -44,12 +44,11 @@
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
 import { useStore } from 'vuex'
-import { EventsBus } from '@/core/EventsBus'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
-import { traverseFindNodeById } from '@/core/3d/util'
+import { useGetter, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'CameraForms3D',
@@ -62,6 +61,8 @@ export default defineComponent({
   props: ['node'],
   setup(props: any) {
     const store = useStore()
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     // header nav
     const headerItems = ref([
@@ -75,36 +76,28 @@ export default defineComponent({
     // content settings
     const formSettings: any = ref({})
 
-    const pageTreeNodeUpdate = (event: any) => {
-      const { position } = event.options
-
-      formSettings.value['position'][0].value = position[0]
-      formSettings.value['position'][1].value = position[1]
-      formSettings.value['position'][2].value = position[2]
-    }
-
     onMounted(() => {
-      const { type, options } = props.node
+      const { options } = props.node
 
       // 展示编辑表单
       formSettings.value = {
-        position: [
-          {
-            name: 'X',
-            value: options.position[0],
-            type: 'input'
-          },
-          {
-            name: 'Y',
-            value: options.position[1],
-            type: 'input'
-          },
-          {
-            name: 'Z',
-            value: options.position[2],
-            type: 'input'
-          }
-        ],
+        // position: [
+        //   {
+        //     name: 'X',
+        //     value: options.position[0],
+        //     type: 'input'
+        //   },
+        //   {
+        //     name: 'Y',
+        //     value: options.position[1],
+        //     type: 'input'
+        //   },
+        //   {
+        //     name: 'Z',
+        //     value: options.position[2],
+        //     type: 'input'
+        //   }
+        // ],
         fov: [
           {
             value: options.fov,
@@ -148,13 +141,9 @@ export default defineComponent({
           }
         ]
       }
-
-      EventsBus.on('pageTreeNodeUpdate', pageTreeNodeUpdate)
     })
 
-    onUnmounted(() => {
-      EventsBus.off('pageTreeNodeUpdate', pageTreeNodeUpdate)
-    })
+    onUnmounted(() => {})
 
     const inputChange = (target: any) => {
       const e = event as any
@@ -162,7 +151,7 @@ export default defineComponent({
       const val = e.target.value
       if (isNaN(val)) return
 
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
       const { key, setting } = target
       const { name } = setting
       setting.value = parseFloat(val)
@@ -177,13 +166,13 @@ export default defineComponent({
       }
 
       if (key === 'position') {
-        if (name === 'X') {
-          controls.object.position.x = parseFloat(val)
-        } else if (name === 'Y') {
-          controls.object.position.y = parseFloat(val)
-        } else if (name === 'Z') {
-          controls.object.position.z = parseFloat(val)
-        }
+        // if (name === 'X') {
+        //   controls.object.position.x = parseFloat(val)
+        // } else if (name === 'Y') {
+        //   controls.object.position.y = parseFloat(val)
+        // } else if (name === 'Z') {
+        //   controls.object.position.z = parseFloat(val)
+        // }
       } else if (key === 'near') {
         controls.object.near = parseFloat(val)
       } else if (key === 'far') {
@@ -208,7 +197,7 @@ export default defineComponent({
       controls.update()
 
       // update pageTreeNode
-      const position = [formSettings.value['position'][0].value, formSettings.value['position'][1].value, formSettings.value['position'][2].value]
+      // const position = [formSettings.value['position'][0].value, formSettings.value['position'][1].value, formSettings.value['position'][2].value]
       const near = formSettings.value['near'][0].value
       const far = formSettings.value['far'][0].value
       const fov = formSettings.value['fov'][0].value
@@ -217,8 +206,8 @@ export default defineComponent({
       const minPolarAngle = formSettings.value['angle'][0].value
       const maxPolarAngle = formSettings.value['angle'][1].value
 
-      Object.assign(store.state.selectedPageTreeNode.options, {
-        position,
+      Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
+        // position,
         near,
         far,
         fov,

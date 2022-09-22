@@ -113,6 +113,7 @@ export interface MutationGlobalI {
   CHANGE_ART_BOARD_SCALE: 'CHANGE_ART_BOARD_SCALE' // 改变 drawingBoard 大小
   SCENE_TREE_LOADED: 'SCENE_TREE_LOADED' // 场景树加载完成
   ADD_SCENE_NODE: 'ADD_SCENE_NODE' // 添加 SCENE NODE
+  ADD_PAGE_NODE: 'ADD_PAGE_NODE' // 添加 PAGE NODE
   SELECT_PAGE_NODE: 'SELECT_PAGE_NODE' // 选择 PAGE NODE
 }
 const MutationGlobal: MutationGlobalI = {
@@ -121,6 +122,7 @@ const MutationGlobal: MutationGlobalI = {
   CHANGE_ART_BOARD_SCALE: 'CHANGE_ART_BOARD_SCALE',
   SCENE_TREE_LOADED: 'SCENE_TREE_LOADED',
   ADD_SCENE_NODE: 'ADD_SCENE_NODE',
+  ADD_PAGE_NODE: 'ADD_PAGE_NODE',
   SELECT_PAGE_NODE: 'SELECT_PAGE_NODE'
 }
 
@@ -168,7 +170,7 @@ export default createStore({
       // 中间画布宽高
       width: 1920,
       height: 1080,
-      scale: .7
+      scale: 0.7
     },
     template: {
       // 模板缓存
@@ -227,6 +229,18 @@ export default createStore({
             trees: JSON.parse(JSON.stringify(toRaw(state.template)))
           }
         ]
+      })
+    },
+    [MutationGlobal.ADD_PAGE_NODE](state: StateGlobalI, payload: { selectedSceneTreeNode: SceneTreeNode }) {
+      const node = payload.selectedSceneTreeNode
+      node.spread = true
+      node.children.push({
+        name: '页' + (node.children.length + 1),
+        type: 'page',
+        selected: false,
+        parent: node.uuid,
+        uuid: '' + node.uuid + '-' + node.children.length,
+        trees: JSON.parse(JSON.stringify(toRaw(state.template)))
       })
     },
     [MutationGlobal.SELECT_PAGE_NODE](state: StateGlobalI, payload: { selectedPageTreeNode: PageTreeNode }) {

@@ -76,6 +76,7 @@ import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
 import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
 import { colorRGBtoHex, hex2rgb } from '@/core/utils/base'
+import { useGetter, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'OutlinePassForms3D',
@@ -90,6 +91,9 @@ export default defineComponent({
   props: ['node'],
   setup(props: any) {
     const store = useStore()
+
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     // header nav
     const headerItems = ref([
@@ -207,7 +211,7 @@ export default defineComponent({
 
       const val = e.target.value
 
-      const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
+      const threeDimensionContainer = toRaw(state3D.threeDimensionContainer)
       const { key, setting } = target
 
       if (key === 'edgeStrength') {
@@ -242,7 +246,7 @@ export default defineComponent({
       const visibleEdgeColor = colorRGBtoHex(formSettings.value['visibleEdgeColor'].data[0].value)
       const hiddenEdgeColor = colorRGBtoHex(formSettings.value['hiddenEdgeColor'].data[0].value)
 
-      Object.assign(store.state.selectedPageTreeNode.options, {
+      Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
         edgeStrength,
         edgeGlow,
         edgeThickness,
@@ -256,7 +260,7 @@ export default defineComponent({
       const { target, value } = e
       const { setting, key } = target
 
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
 
       if (key === 'enabled') {
         setting.value = value
@@ -264,7 +268,7 @@ export default defineComponent({
         threeDimensionContainer.outlinePass.enabled = value
       }
 
-      Object.assign(store.state.selectedPageTreeNode.options, {
+      Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
         enabled: value
       })
     }

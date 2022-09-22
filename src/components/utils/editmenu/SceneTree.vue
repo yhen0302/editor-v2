@@ -17,10 +17,9 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, nextTick, onMounted, ref, toRaw } from 'vue'
+import { defineComponent, onMounted } from 'vue'
 import SceneTreeNode from './SceneTreeNode.vue'
 
-import { EventsBus } from '@/core/EventsBus'
 import { useStore } from 'vuex'
 
 import { reloadThreeDimensionScene, traverseFindNodeById } from '@/core/3d/util'
@@ -44,21 +43,6 @@ export default defineComponent({
       if (e.button != 0) return
       mutationsGlobal.ADD_SCENE_NODE()
     }
-
-    // 添加页
-    EventsBus.on('pageAdded', (e: any) => {
-      const node = e.node
-
-      node.spread = true
-      node.children.push({
-        name: '页' + (node.children.length + 1),
-        type: 'page',
-        selected: false,
-        parent: node.uuid,
-        uuid: '' + node.uuid + '-' + node.children.length,
-        trees: JSON.parse(JSON.stringify(toRaw(store.state.template)))
-      })
-    })
 
     onMounted(() => {
       mutationsGlobal.SCENE_TREE_LOADED()

@@ -97,6 +97,7 @@ import BaseText from '@/components/utils/baseComponents/BaseText.vue'
 import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
 import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
 import { hex2rgb } from '@/core/utils/base'
+import { useGetter, useState } from '@/store/helper'
 
 declare const Bol3D: any
 
@@ -115,6 +116,9 @@ export default defineComponent({
   setup(props: any) {
     const store = useStore()
 
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
+
     // header nav
     const headerItems = ref([
       {
@@ -127,13 +131,13 @@ export default defineComponent({
     // content settings
     const formSettings: any = ref([])
 
-    let selectedObjs: any = []
+    const selectedObjs: any = []
 
     onMounted(() => {
       props.node.children.forEach((node: any) => {
         const { options, uuid } = node
 
-        const threeDimensionContainer = store.state.threeDimensionContainer
+        const threeDimensionContainer = state3D.threeDimensionContainer
 
         threeDimensionContainer.scene.traverse((c: any) => {
           if (c.uuid == uuid) selectedObjs.push(c)
@@ -421,8 +425,8 @@ export default defineComponent({
         }
       })
 
-      store.state.selectedPageTreeNode.children.forEach((pageTreeNode: any) => {
-        if (pageTreeNode.uuid === uuid) Object.assign(pageTreeNode.options, options)
+      getters3D.SELECTED_LAYER_NODE.value.children.forEach((node: any) => {
+        if (node.uuid === uuid) Object.assign(node.options, options)
       })
     }
 
@@ -430,7 +434,7 @@ export default defineComponent({
       const e = event as any
       if (e.button != 0) return
 
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
       // addTo 3d scene
       const sptLightOpts = {
         color: 0xffffff,
@@ -494,7 +498,7 @@ export default defineComponent({
         options: spotLightOptions
       }
 
-      store.state.selectedPageTreeNode.children.push(spotLightNode)
+      getters3D.SELECTED_LAYER_NODE.value.children.push(spotLightNode)
 
       // addTo formSettings
       const spotLightSettings = {
@@ -703,8 +707,8 @@ export default defineComponent({
         }
       })
 
-      store.state.selectedPageTreeNode.children.forEach((pageTreeNode: any) => {
-        if (pageTreeNode.uuid === uuid) Object.assign(pageTreeNode.options, options)
+      getters3D.SELECTED_LAYER_NODE.value.children.forEach((node: any) => {
+        if (node.uuid === uuid) Object.assign(node.options, options)
       })
     }
 

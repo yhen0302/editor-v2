@@ -54,15 +54,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
-import { EventsBus } from '@/core/EventsBus'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
 import { hex2rgb } from '@/core/utils/base'
+import { useGetter, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'HemisphereLightForms3D',
@@ -76,6 +76,9 @@ export default defineComponent({
   props: ['node'],
   setup(props: any) {
     const store = useStore()
+
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     // header nav
     const headerItems = ref([
@@ -92,9 +95,9 @@ export default defineComponent({
     let currentObj: any
 
     onMounted(() => {
-      const { type, options } = props.node
+      const { options } = props.node
 
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
 
       threeDimensionContainer.scene.traverse((c: any) => {
         if (c.type == 'HemisphereLight') currentObj = c
@@ -138,10 +141,6 @@ export default defineComponent({
           }
         ]
       }
-    })
-
-    onUnmounted(() => {
-      //
     })
 
     const inputChange = (target: any, type?: string) => {
@@ -189,7 +188,7 @@ export default defineComponent({
       const intensity = formSettings.value['intensity'][0].value
       const position = [formSettings.value['position'][0].value, formSettings.value['position'][1].value, formSettings.value['position'][2].value]
 
-      Object.assign(store.state.selectedPageTreeNode.options, {
+      Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
         color,
         intensity,
         groundColor,

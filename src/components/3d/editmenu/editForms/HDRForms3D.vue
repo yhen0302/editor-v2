@@ -52,6 +52,7 @@ import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseDropdown from '@/components/utils/baseComponents/BaseDropdown.vue'
 
 import * as UnderScore from 'underscore'
+import { useGetter, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'HDRForms3D',
@@ -64,6 +65,9 @@ export default defineComponent({
   props: ['node'],
   setup(props: any) {
     const store = useStore()
+
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     // header nav
     const headerItems = ref([
@@ -115,14 +119,10 @@ export default defineComponent({
       })
     })
 
-    onUnmounted(() => {
-      //
-    })
-
     const sourceChange = (e: any) => {
       const { value, target } = e
       const { setting, key } = target
-      const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
+      const threeDimensionContainer = toRaw(state3D.threeDimensionContainer)
 
       setting.selected = value
 
@@ -136,12 +136,12 @@ export default defineComponent({
             }
           })
           // update selected pageTreeNode
-          Object.assign(store.state.selectedPageTreeNode.options, {
+          Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
             value: []
           })
         } else {
           threeDimensionContainer.setHDR(value.value, () => {
-            Object.assign(store.state.selectedPageTreeNode.options, {
+            Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
               value: value.value
             })
           })

@@ -55,13 +55,14 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, onUnmounted, ref, toRaw } from 'vue'
+import { computed, defineComponent, onMounted, ref, toRaw } from 'vue'
 import { useStore } from 'vuex'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
+import { useGetter, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'GammaPassForms3D',
@@ -75,6 +76,8 @@ export default defineComponent({
   props: ['node'],
   setup(props: any) {
     const store = useStore()
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     // header nav
     const headerItems = ref([
@@ -89,7 +92,7 @@ export default defineComponent({
     const formSettings: any = ref({})
 
     onMounted(() => {
-      const { type, options } = props.node
+      const { options } = props.node
 
       // 展示编辑表单
       formSettings.value = {
@@ -118,17 +121,13 @@ export default defineComponent({
       })
     })
 
-    onUnmounted(() => {
-      //
-    })
-
     const inputChange = (target: any) => {
       const e = event as any
 
       const val = e.target.value
       if (isNaN(val)) return
 
-      const threeDimensionContainer = toRaw(store.state.threeDimensionContainer)
+      const threeDimensionContainer = toRaw(state3D.threeDimensionContainer)
       const { key, setting } = target
       setting.value = parseFloat(val)
 
@@ -139,7 +138,7 @@ export default defineComponent({
       // update pageTreeNode
       const factor = formSettings.value['factor'].data[0].value
 
-      Object.assign(store.state.selectedPageTreeNode.options, {
+      Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
         factor
       })
     }
@@ -148,7 +147,7 @@ export default defineComponent({
       const { target, value } = e
       const { setting, key } = target
 
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
 
       if (key === 'enabled') {
         setting.value = value
@@ -156,7 +155,7 @@ export default defineComponent({
         threeDimensionContainer.gammaPass.enabled = value
       }
 
-      Object.assign(store.state.selectedPageTreeNode.options, {
+      Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
         enabled: value
       })
     }

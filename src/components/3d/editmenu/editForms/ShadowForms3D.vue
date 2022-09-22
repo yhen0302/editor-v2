@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
@@ -40,6 +40,7 @@ import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import BaseText from '@/components/utils/baseComponents/BaseText.vue'
 import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
+import { useGetter, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'ShadowForms3D',
@@ -54,6 +55,9 @@ export default defineComponent({
   props: ['node'],
   setup(props: any) {
     const store = useStore()
+
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     // header nav
     const headerItems = ref([
@@ -76,15 +80,11 @@ export default defineComponent({
       }
     })
 
-    onUnmounted(() => {
-      //
-    })
-
     const switchChange = (e: any) => {
       const { target, value } = e
       const { setting, key } = target
 
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
 
       if (key === 'enabled') {
         setting.value = value
@@ -92,7 +92,7 @@ export default defineComponent({
       }
 
       // update pageTreeNode
-      store.state.selectedPageTreeNode.options.enabled = value
+      getters3D.SELECTED_LAYER_NODE.value.options.enabled = value
     }
 
     return {

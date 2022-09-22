@@ -45,7 +45,7 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         enableDamping: false
       }
     },
-    stats: false,
+    stats: true,
     hdrUrls: ['/hdr/dikhololo_night_1k.hdr'],
     background: {
       type: 'panorama',
@@ -68,12 +68,4 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       callback && callback(evt)
     }
   })
-}
-
-// 递归找出上面所有父级元素 并乘以相应矩阵
-function recursiveCalParentsMat(obj, v, mat) {
-  mat.compose(obj.position, new Bol3D.Quaternion().setFromEuler(new Bol3D.Euler().setFromVector3(obj.rotation)), obj.scale)
-  v.applyMatrix4(mat)
-  if (!obj.parent || obj.parent.type == 'Scene') return
-  recursiveCalParentsMat(obj.parent, v, mat)
 }

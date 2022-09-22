@@ -1,23 +1,22 @@
 <template>
   <div class="right-main">
     <div class="forms">
-      <EditForms2D v-show="store.state.dimensionType === '2d'" />
-      <EditForms3D v-show="store.state.dimensionType === '3d'" />
+      <EditForms2D v-show="dimensionType === '2d'" />
+      <EditForms3D v-show="dimensionType === '3d'" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
-import { useStore } from 'vuex'
+import { defineComponent } from 'vue'
 import LineEl from './utils/common/LineEl.vue'
 import SceneTree from '@/components/utils/editmenu/SceneTree.vue'
 import Trees2D from '@/components/2d/editmenu/Trees2D.vue'
 import Trees3D from '@/components/3d/editmenu/Trees3D.vue'
 import EditForms2D from '@/components/2d/editmenu/EditForms2D.vue'
 import EditForms3D from '@/components/3d/editmenu/EditForms3D.vue'
-
-import { EventsBus } from '@/core/EventsBus'
+import { mapState } from '@/store/helper'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'Right',
@@ -31,34 +30,10 @@ export default defineComponent({
   },
   setup() {
     const store = useStore()
-    const pageIndex = ref(0)
-
-    // 返回上级
-    const goBack = () => {
-      const e = event as any
-      if (e.button != 0) return
-      pageIndex.value--
-      // 重置右下角表单
-      EventsBus.emit('formsReset', {})
-    }
-
-    // 查看详情页
-    EventsBus.on('pageEnter', (e: any) => {
-      const { node, parent } = e
-      // load page details --todo
-      pageIndex.value++
-      // update title
-    })
-
-    // 重置模板
-    EventsBus.on('resetTemplate', () => {
-      pageIndex.value = 0
-    })
+    const stateMapper = mapState(store, 'global', ['dimensionType'])
 
     return {
-      store,
-      pageIndex,
-      goBack
+      ...stateMapper
     }
   }
 })

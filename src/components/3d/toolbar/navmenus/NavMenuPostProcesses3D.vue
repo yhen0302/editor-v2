@@ -7,11 +7,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
 import { useStore } from 'vuex'
 
 import NavDetailsSelectItem from '@/components/utils/navdetails/NavDetailsSelectItem.vue'
-import { useMutation, useState } from '@/store/helper'
+import { useGetter, useMutation, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'NavMenuPostProcesses3D',
@@ -23,26 +23,45 @@ export default defineComponent({
 
     const stateGlobal = useState(store, 'global')
     const mutations3D = useMutation(store, '3d', ['SELECT_LAYER_NODE', 'TOGGLE_EDIT_FORM'])
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     const detailsList: any = ref({
       BloomPass: {
         name: '泛光',
-        selected: false,
+        selected: computed(() => {
+          if (!getters3D.SELECTED_LAYER_NODE.value) return false
+          if (getters3D.SELECTED_LAYER_NODE.value.type == 'BloomPass') {
+            return getters3D.SELECTED_LAYER_NODE.value.selected
+          }
+          return false
+        }),
         icon: require('@/assets/images/main/left/editor_postprocessing_btn_dark.png')
       },
-      OutlinePass: {
-        name: '轮廓',
-        selected: false,
-        icon: require('@/assets/images/main/left/editor_postprocessing_btn_dark.png')
-      },
+      // OutlinePass: {
+      //   name: '轮廓',
+      //   selected: false,
+      //   icon: require('@/assets/images/main/left/editor_postprocessing_btn_dark.png')
+      // },
       DOFPass: {
         name: '景深',
-        selected: false,
+        selected: computed(() => {
+          if (!getters3D.SELECTED_LAYER_NODE.value) return false
+          if (getters3D.SELECTED_LAYER_NODE.value.type == 'DOFPass') {
+            return getters3D.SELECTED_LAYER_NODE.value.selected
+          }
+          return false
+        }),
         icon: require('@/assets/images/main/left/editor_postprocessing_btn_dark.png')
       },
       GammaPass: {
         name: 'gamma校正',
-        selected: false,
+        selected: computed(() => {
+          if (!getters3D.SELECTED_LAYER_NODE.value) return false
+          if (getters3D.SELECTED_LAYER_NODE.value.type == 'GammaPass') {
+            return getters3D.SELECTED_LAYER_NODE.value.selected
+          }
+          return false
+        }),
         icon: require('@/assets/images/main/left/editor_postprocessing_btn_dark.png')
       }
       // MSAAPass: {
@@ -63,14 +82,7 @@ export default defineComponent({
     })
 
     const selectItem = (options: any) => {
-      const { key, target } = options
-
-      const flag = target.selected
-      for (const k in detailsList.value) {
-        const detail = detailsList.value[k]
-        detail.selected = false
-      }
-      target.selected = !flag
+      const { key } = options
 
       stateGlobal.selectedPageTreeNode?.trees.threeDimension.forEach((node: any) => {
         if (node.type === key) {

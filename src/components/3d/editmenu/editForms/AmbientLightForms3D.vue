@@ -54,9 +54,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
-import { EventsBus } from '@/core/EventsBus'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
@@ -120,10 +119,6 @@ export default defineComponent({
           }
         ]
       }
-    })
-
-    onUnmounted(() => {
-      //
     })
 
     const inputChange = (target: any, type?: string) => {

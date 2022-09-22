@@ -21,7 +21,7 @@ export type StateMapper = {
   '2d': State2DI
   '3d': State3DI
 }
-export function mapState<K extends keyof StateMapper, T extends keyof StateMapper[K], M extends StateMapper[K]>(store: Store<any>, namespace: K, keys: T[]): M {
+export function mapState<K extends keyof StateMapper, T extends keyof StateMapper[K], M extends { [k in keyof StateMapper[K]]: ComputedRef<any> }>(store: Store<any>, namespace: K, keys: T[]): M {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const storeStateFns = namespace && namespace !== 'global' ? baseMapState(namespace, keys) : baseMapState(keys)

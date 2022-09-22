@@ -24,7 +24,7 @@ export default {
         if (target.className.includes('art-board-wrapper')) {
           const targetRect = target.getBoundingClientRect()
           const childRect = (target.querySelector('.art-board-box') as HTMLDivElement).getBoundingClientRect()
-          const drawingBoard = mapState(store, 'global', ['drawingBoard']).drawingBoard
+          const drawingBoard = mapState(store, 'global', ['drawingBoard']).drawingBoard.value
           const scale = drawingBoard.scale
 
           offsetX = -((targetRect.width - childRect.width) / 2 - offsetX) / scale

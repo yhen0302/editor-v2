@@ -34,12 +34,13 @@ export default defineComponent({
 
     const state3D = useState(store, '3d')
     const stateGlobal = useState(store, 'global')
-    const mutations3D = useMutation(store, '3d', ['CHANGE_NAV_PAGE_INDEX', 'CHANGE_NAV_TITLE', 'CHANGE_NAV_DETAILS_TYPE'])
+    const mutations3D = useMutation(store, '3d', ['CHANGE_NAV_PAGE_INDEX', 'CHANGE_NAV_TITLE', 'CHANGE_NAV_DETAILS_TYPE', 'CLEAR_EDIT_FORM'])
 
     const goBack = () => {
       mutations3D.CHANGE_NAV_PAGE_INDEX({ index: state3D.leftNavPageIndex - 1 })
       mutations3D.CHANGE_NAV_TITLE({ name: toolbarType2Title(stateGlobal.selectBarToolType) })
       mutations3D.CHANGE_NAV_DETAILS_TYPE({ type: '' })
+      // mutations3D.CLEAR_EDIT_FORM()
     }
 
     return {

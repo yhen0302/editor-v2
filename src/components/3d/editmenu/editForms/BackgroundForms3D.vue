@@ -79,9 +79,8 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, onUnmounted, ref, toRaw } from 'vue'
+import { computed, defineComponent, onMounted, onUnmounted, ref } from 'vue'
 import { useStore } from 'vuex'
-import { EventsBus } from '@/core/EventsBus'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
@@ -91,6 +90,7 @@ import BaseColor from '@/components/utils/baseComponents/BaseColor.vue'
 import { hex2rgb } from '@/core/utils/base'
 
 import * as UnderScore from 'underscore'
+import { useGetter, useState } from '@/store/helper'
 
 export default defineComponent({
   name: 'BackgroundForms3D',
@@ -105,6 +105,8 @@ export default defineComponent({
   props: ['node'],
   setup(props: any) {
     const store = useStore()
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
 
     // header nav
     const headerItems = ref([
@@ -359,13 +361,9 @@ export default defineComponent({
       }
     })
 
-    onUnmounted(() => {
-      //
-    })
-
     const inputChange = (target: any, type?: string) => {
       const e = event as any
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
       const { key, setting } = target
       const val = e.target.value
       // 更新过后的options
@@ -446,13 +444,13 @@ export default defineComponent({
       }
 
       // update selected pageTreeNode
-      Object.assign(store.state.selectedPageTreeNode.options, changedOptions)
+      Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, changedOptions)
     }
 
     const typeChange = (e: any) => {
       const { value } = e
       selectType.value = value
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
 
       // console.log('selectType.value.value', selectType.value.value)
       threeDimensionContainer.bgType = selectType.value.value
@@ -479,7 +477,7 @@ export default defineComponent({
           opts: {}
         }
         // update selected pageTreeNode
-        Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+        Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, backgroundOptions)
       } else if (selectType.value.value === 'texture') {
         if (threeDimensionContainer.sky) threeDimensionContainer.sky.visible = false
         formSettings.value = {
@@ -595,7 +593,7 @@ export default defineComponent({
           opts: {}
         }
         // update selected pageTreeNode
-        Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+        Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, backgroundOptions)
       } else if (selectType.value.value === 'panorama') {
         if (threeDimensionContainer.scene.background) threeDimensionContainer.scene.background = null
         formSettings.value = {
@@ -672,14 +670,14 @@ export default defineComponent({
           opts: {}
         }
         // update selected pageTreeNode
-        Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+        Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, backgroundOptions)
       }
     }
 
     const sourceChange = (e: any) => {
       const { value, target } = e
       const { setting, key } = target
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
 
       setting.selected = value
 
@@ -697,7 +695,7 @@ export default defineComponent({
               opts: bgGroundOpts
             }
             // update selected pageTreeNode
-            Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+            Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, backgroundOptions)
           } else {
             threeDimensionContainer.texLoader.load(threeDimensionContainer.publicPath + value.value, (texture: any) => {
               threeDimensionContainer.scene.background = texture
@@ -714,7 +712,7 @@ export default defineComponent({
                 opts: bgGroundOpts
               }
               // update selected pageTreeNode
-              Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+              Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, backgroundOptions)
             })
           }
         } else if (key === 'encoding') {
@@ -733,7 +731,7 @@ export default defineComponent({
             opts: bgGroundOpts
           }
           // update selected pageTreeNode
-          Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+          Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, backgroundOptions)
         } else if (key === 'wrapping') {
           threeDimensionContainer.scene.background.wrapS = threeDimensionContainer.scene.background.wrapT = value.value
           threeDimensionContainer.scene.background.needsUpdate = true
@@ -750,7 +748,7 @@ export default defineComponent({
             opts: bgGroundOpts
           }
           // update selected pageTreeNode
-          Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+          Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, backgroundOptions)
         }
       } else if (selectType.value.value === 'panorama') {
         bgGroundVal = []
@@ -763,7 +761,7 @@ export default defineComponent({
               opts: bgGroundOpts
             }
             // update selected pageTreeNode
-            Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+            Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, backgroundOptions)
           } else {
             threeDimensionContainer.setSkyBox(value.value, (sbox: any) => {
               sbox.visible = true
@@ -782,7 +780,7 @@ export default defineComponent({
                 opts: bgGroundOpts
               }
               // update selected pageTreeNode
-              Object.assign(store.state.selectedPageTreeNode.options, backgroundOptions)
+              Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, backgroundOptions)
             })
           }
         }

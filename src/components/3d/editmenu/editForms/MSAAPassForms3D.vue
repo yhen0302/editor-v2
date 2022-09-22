@@ -42,12 +42,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, onUnmounted, ref, toRaw } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseSwitch from '@/components/utils/baseComponents/BaseSwitch.vue'
+import { useGetter, useState } from '@/store/helper'
 
 declare const Bol3D: any
 
@@ -63,6 +64,9 @@ export default defineComponent({
   setup(props: any) {
     const store = useStore()
 
+    const state3D = useState(store, '3d')
+    const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
+
     // header nav
     const headerItems = ref([
       {
@@ -76,7 +80,7 @@ export default defineComponent({
     const formSettings: any = ref({})
 
     onMounted(() => {
-      const { type, options } = props.node
+      const { options } = props.node
 
       // 展示编辑表单
       formSettings.value = {
@@ -92,15 +96,11 @@ export default defineComponent({
       }
     })
 
-    onUnmounted(() => {
-      //
-    })
-
     const switchChange = (e: any) => {
       const { target, value } = e
       const { setting, key } = target
 
-      const threeDimensionContainer = store.state.threeDimensionContainer
+      const threeDimensionContainer = state3D.threeDimensionContainer
 
       if (key === 'supersampling') {
         setting.value = value
@@ -115,7 +115,7 @@ export default defineComponent({
         }
       }
 
-      Object.assign(store.state.selectedPageTreeNode.options, {
+      Object.assign(getters3D.SELECTED_LAYER_NODE.value.options, {
         supersampling: value
       })
     }

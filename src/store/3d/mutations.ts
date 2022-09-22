@@ -11,6 +11,7 @@ export interface Mutation3DI {
   CHANGE_NAV_TITLE: 'CHANGE_NAV_TITLE' // 3D 改变左侧导航标题
   CHANGE_NAV_PAGE_INDEX: 'CHANGE_NAV_PAGE_INDEX' // 3D 改变左侧导航页码
   CHANGE_NAV_DETAILS_TYPE: 'CHANGE_NAV_DETAILS_TYPE' // 3D 改变左侧二级导航标题
+  CLEAR_EDIT_FORM: 'CLEAR_EDIT_FORM' // 清空右侧表单内容
 }
 export const Mutation3D = {
   TEMPLATE_3D_LOADED: 'TEMPLATE_3D_LOADED',
@@ -18,7 +19,8 @@ export const Mutation3D = {
   TOGGLE_EDIT_FORM: 'TOGGLE_EDIT_FORM',
   CHANGE_NAV_TITLE: 'CHANGE_NAV_TITLE',
   CHANGE_NAV_PAGE_INDEX: 'CHANGE_NAV_PAGE_INDEX',
-  CHANGE_NAV_DETAILS_TYPE: 'CHANGE_NAV_DETAILS_TYPE'
+  CHANGE_NAV_DETAILS_TYPE: 'CHANGE_NAV_DETAILS_TYPE',
+  CLEAR_EDIT_FORM: 'CLEAR_EDIT_FORM'
 }
 
 export default {
@@ -40,6 +42,9 @@ export default {
   },
   [Mutation3D.TOGGLE_EDIT_FORM](state: State3DI, payload: { node: LayerTreeNode3D }) {
     state.editedFormType = nodeType2IsType(payload.node.type)
+  },
+  [Mutation3D.CLEAR_EDIT_FORM](state: State3DI) {
+    state.editedFormType = null
   },
   [Mutation3D.CHANGE_NAV_TITLE](state: State3DI, payload: { name: string }) {
     state.leftNavTitle = payload.name
