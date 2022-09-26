@@ -1,10 +1,16 @@
-import store from '@/store';
-document.addEventListener('contextmenu',function(ev){
-  store.state.contextmenu.show = true
-  store.state.contextmenu.x = ev.pageX
-  store.state.contextmenu.y = ev.pageY
+import store from '@/store'
+import { useState } from '@/store/helper'
+
+const stateGlobal = useState(store, 'global')
+
+document.addEventListener('contextmenu', function (ev) {
+  if (stateGlobal.dimensionType == '3d') return
+  stateGlobal.contextmenu.show = true
+  stateGlobal.contextmenu.x = ev.pageX
+  stateGlobal.contextmenu.y = ev.pageY
 })
 
-document.addEventListener('click',function(){
-  store.state.contextmenu.show = false
+document.addEventListener('click', function () {
+  if (stateGlobal.dimensionType == '3d') return
+  stateGlobal.contextmenu.show = false
 })

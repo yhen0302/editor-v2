@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from 'vue'
+import { defineComponent, onMounted, watch, ref } from 'vue'
 import { useStore } from 'vuex'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
@@ -64,6 +64,33 @@ export default defineComponent({
 
     const state3D = useState(store, '3d')
     const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
+
+    watch(
+      () => props.node.options.position,
+      (nVal) => {
+        formSettings.value.position[0].value = nVal[0]
+        formSettings.value.position[1].value = nVal[1]
+        formSettings.value.position[2].value = nVal[2]
+      }
+    )
+
+    watch(
+      () => props.node.options.rotation,
+      (nVal) => {
+        formSettings.value.rotation[0].value = nVal[0]
+        formSettings.value.rotation[1].value = nVal[1]
+        formSettings.value.rotation[2].value = nVal[2]
+      }
+    )
+
+    watch(
+      () => props.node.options.scale,
+      (nVal) => {
+        formSettings.value.scale[0].value = nVal[0]
+        formSettings.value.scale[1].value = nVal[1]
+        formSettings.value.scale[2].value = nVal[2]
+      }
+    )
 
     // header nav
     const headerItems = ref([
@@ -147,10 +174,6 @@ export default defineComponent({
           }
         ]
       }
-    })
-
-    onUnmounted(() => {
-      //
     })
 
     const inputChange = (target: any) => {

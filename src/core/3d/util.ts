@@ -1,11 +1,11 @@
 import { toRaw } from 'vue'
-import store, { LayerTreeNode3D } from '../../store'
+import store, { LayerTreeNode3D, PageTreeNode } from '../../store'
 import * as UnderScore from 'underscore'
 import { mapState, useState } from '../../store/helper'
 
 declare const Bol3D: any
 
-export function parseModelNode(opt: any, node: any, index: number, result: any) {
+export function parseModelNode(node: any, index: number, result: LayerTreeNode3D, parent: string | number = '') {
   result.uuid = node.uuid
   result.name = node.name
   result.visible = node.visible
@@ -16,6 +16,7 @@ export function parseModelNode(opt: any, node: any, index: number, result: any) 
   result.children = []
   result.options = {}
   result.show = true
+  result.parent = parent
   if (node.type === 'Group') {
     result.options = {
       position: [parseFloat(node.position.x.toFixed(4)), parseFloat(node.position.y.toFixed(4)), parseFloat(node.position.z.toFixed(4))],
@@ -75,9 +76,9 @@ export function parseModelNode(opt: any, node: any, index: number, result: any) 
   if (node.children.length > 0) {
     index++
     node.children.forEach((n: any) => {
-      const child = {}
+      const child: any = {}
       result.children.push(child)
-      parseModelNode(opt, n, index, child)
+      parseModelNode(n, index, child, result.uuid)
     })
   }
 }
@@ -146,7 +147,7 @@ export function reloadThreeDimensionPassesByTemplate() {
 }
 
 // 根据pageNode重载3d scene
-export function reloadThreeDimensionScene(pageNode: any) {
+export function reloadThreeDimensionScene(pageNode: PageTreeNode) {
   const sceneNodes = pageNode.trees.threeDimension
   const flatSceneNodes: any = []
   flatTreeNodes(sceneNodes, flatSceneNodes)
@@ -430,10 +431,6 @@ export function reloadThreeDimensionScene(pageNode: any) {
         node.rotation.set((n.options.rotation[0] * Math.PI) / 180, (n.options.rotation[1] * Math.PI) / 180, (n.options.rotation[2] * Math.PI) / 180)
         node.scale.set(n.options.scale[0], n.options.scale[1], n.options.scale[2])
       }
-
-      n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
-      n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
-      n.event && n.event.dbclick ? (node.userData.dbclick = n.event.dbclick) : (node.userData.dbclick = {})
     } else if (n.type === 'Mesh') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
@@ -468,10 +465,6 @@ export function reloadThreeDimensionScene(pageNode: any) {
           }
         }
       }
-
-      n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
-      n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
-      n.event && n.event.dbclick ? (node.userData.dbclick = n.event.dbclick) : (node.userData.dbclick = {})
     } else if (n.type === 'Object3D') {
       const resultNode: any = []
       traverseFindNodeById(container.scene.children, n.uuid, resultNode)
@@ -487,37 +480,48 @@ export function reloadThreeDimensionScene(pageNode: any) {
       node.position.set(n.options.position[0], n.options.position[1], n.options.position[2])
       node.rotation.set((n.options.rotation[0] * Math.PI) / 180, (n.options.rotation[1] * Math.PI) / 180, (n.options.rotation[2] * Math.PI) / 180)
       node.scale.set(n.options.scale[0], n.options.scale[1], n.options.scale[2])
-
-      n.event && n.event.hover ? (node.userData.hover = n.event.hover) : (node.userData.hover = {})
-      n.event && n.event.click ? (node.userData.click = n.event.click) : (node.userData.click = {})
-      n.event && n.event.dbclick ? (node.userData.dbclick = n.event.dbclick) : (node.userData.dbclick = {})
     }
   }
 }
 
-export function flatTreeNodes(nodes: any, result: Array<any>) {
-  nodes.forEach((n: any) => {
+export function flatTreeNodes(nodes: Array<LayerTreeNode3D>, result: Array<LayerTreeNode3D>) {
+  nodes.forEach((n: LayerTreeNode3D) => {
     result.push(n)
     if (n.children && n.children.length > 0) flatTreeNodes(n.children, result)
   })
 }
 
-export function traverseFindNodeById(nodes: any, id: string, result: Array<any>) {
+// 根据当前节点展开其关联的所有父节点
+export function spreadChainNodes(flattenNodes: LayerTreeNode3D[], node: LayerTreeNode3D) {
+  if (node.parent !== '') {
+    const result: any = []
+
+    for (const fnode of flattenNodes) {
+      if (fnode.uuid == node.parent) {
+        result.push(fnode)
+        break
+      }
+    }
+    if (result[0]) {
+      result[0].spread = true
+      spreadChainNodes(flattenNodes, result[0])
+    }
+  }
+}
+
+export function traverseFindRootNodeById(node: LayerTreeNode3D, result: Array<LayerTreeNode3D>) {
+  if (node.parent !== '') {
+    traverseFindRootNodeById(node, result)
+  } else {
+    result.push()
+  }
+}
+
+// 根据uuid查找节点
+export function traverseFindNodeById(nodes: Array<any>, id: string, result: Array<LayerTreeNode3D>) {
   nodes.forEach((n: any) => {
     if (n.uuid === id) result.push(n)
     if (n.children && n.children.length > 0) traverseFindNodeById(n.children, id, result)
-  })
-}
-
-export function removeTweenNode(page: any) {
-  page.forEach((item: any) => {
-    if (item.uuid == 'IconIndex-uuid-2CC79AFB' || item.uuid == 'TextIndex-uuid-F4763805') {
-      item.children.forEach((dev: any) => {
-        if (dev.animation && dev.animation.beat && Object.keys(dev.animation.beat).length > 0) {
-          dev.animation.beat.tweenSwitch = null
-        }
-      })
-    }
   })
 }
 

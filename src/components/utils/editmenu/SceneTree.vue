@@ -22,7 +22,6 @@ import SceneTreeNode from './SceneTreeNode.vue'
 
 import { useStore } from 'vuex'
 
-import { reloadThreeDimensionScene, traverseFindNodeById } from '@/core/3d/util'
 import { useMutation, useState } from '@/store/helper'
 
 export default defineComponent({

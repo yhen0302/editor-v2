@@ -3,6 +3,9 @@ import { store2D as module2d } from '@/store/2d'
 import { store3D as module3d } from '@/store/3d'
 import { toRaw } from 'vue'
 import { selectSceneNodeByUUID } from './util'
+import { useState } from './helper'
+import { Mutation3D } from './3d/mutations'
+import { traverseResetSpreadOfNodes } from '@/core/3d/util'
 
 type DrawingBoardOpts = {
   width: number
@@ -59,6 +62,7 @@ export interface LayerTreeNode3D {
   uuid: string | number
   name: string
   visible?: boolean
+  parent?: string | number
   selected: boolean
   index: number
   spread: boolean
@@ -66,6 +70,7 @@ export interface LayerTreeNode3D {
   show: boolean
   // event: { [k: string]: any }
   options: { [k: string]: any }
+  matOptions?: { [k: string]: any }
   children: LayerTreeNode3D[]
 }
 
@@ -200,6 +205,13 @@ export default createStore({
       if (state.sceneTreeNodes[0].children) state.selectedPageTreeNode = state.sceneTreeNodes[0].children[0]
     },
     [MutationGlobal.CHANGE_DIMENSION](state: StateGlobalI, payload: { dimensionType: dimensionType }) {
+      if (payload.dimensionType != '3d') {
+        traverseResetSpreadOfNodes(state.selectedPageTreeNode?.trees.threeDimension)
+        module3d.state.threeDimensionContainer.transformControl.detach()
+        module3d.state.threeDimensionContainer.outlineObjects = []
+        this.commit(`3d/${Mutation3D.CLEAR_EDIT_FORM}` as any)
+        this.commit(`3d/${Mutation3D.CLEAR_SELECT_LAYER_NODE}` as any)
+      }
       state.dimensionType = payload.dimensionType
     },
     [MutationGlobal.CHANGE_SELECT_BAR_TOOL_TYPE](state: StateGlobalI, payload: { selectBarToolType: selectBarType }) {

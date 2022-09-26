@@ -1,6 +1,6 @@
 <template>
-  <div class="drawing-borad-3d-main">
-    <canvas ref="scene" class="scene-3d" @contextmenu.stop></canvas>
+  <div class="drawing-borad-3d-main" @contextmenu.stop>
+    <canvas ref="scene" class="scene-3d"></canvas>
   </div>
 </template>
 
@@ -76,8 +76,6 @@ export default defineComponent({
 }
 
 .scene-3d {
-  left: 0;
-  top: 0;
   @apply w-full h-full absolute;
 }
 </style>

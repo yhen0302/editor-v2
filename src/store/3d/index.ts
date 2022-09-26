@@ -1,5 +1,5 @@
 import { LayerTreeNode3D } from '..'
-import mutations3d, { Mutation3DI } from './mutations'
+import mutations3d from './mutations'
 import getters3d from './getters'
 // store3D
 export interface Store3DI {

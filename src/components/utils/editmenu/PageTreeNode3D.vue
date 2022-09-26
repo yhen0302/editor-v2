@@ -1,6 +1,13 @@
 <template>
-  <div class="node">
-    <div class="item" :class="node.selected ? 'item-selected' : ''" :style="'padding-left:' + node.index * 15 + 'px'" @mouseup="selectItem(node)">
+  <div class="node" :class="node.uuid">
+    <div
+      class="item"
+      :class="node.selected ? 'item-selected' : ''"
+      :style="'padding-left:' + node.index * 15 + 'px'"
+      @mouseleave="leaveItem($event.target, node)"
+      @mouseenter="hoverItem($event.target, node)"
+      @mouseup="selectItem(node)"
+    >
       <div class="spread-btn" :class="node.spread ? 'spread-btn-rotate' : ''" :style="node.children.length > 0 ? '' : 'margin-left: 10px'" @mouseup.stop="spread(node)">
         <img src="@/assets/images/main/right/editor_unfold_icn_dark.png" v-show="node.children.length > 0" />
       </div>
@@ -24,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, nextTick } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { LayerTreeNode3D } from '@/store'
@@ -66,9 +73,28 @@ export default defineComponent({
     const selectItem = (node: LayerTreeNode3D) => {
       const e = event as any
       if (e.button != 0) return
+      if (node.selected) return
 
       mutations3D.SELECT_LAYER_NODE({ node })
       mutations3D.TOGGLE_EDIT_FORM({ node })
+
+      state3D.threeDimensionContainer.scene.children.forEach((c: any) => {
+        if (c.traverse)
+          c.traverse((gc: any) => {
+            if (gc.uuid === node.uuid) {
+              state3D.threeDimensionContainer.transformControl.attach(gc)
+              state3D.threeDimensionContainer.outlineObjects = [gc]
+            }
+          })
+      })
+    }
+
+    const hoverItem = (domEle: HTMLElement) => {
+      domEle.style.background = 'rgba(50,52,64,1)'
+    }
+
+    const leaveItem = (domEle: HTMLElement) => {
+      domEle.style.background = 'rgba(50,52,64,0)'
     }
 
     return {
@@ -76,7 +102,9 @@ export default defineComponent({
       visibleImg,
       inVisibleImg,
       changeVisibility,
-      selectItem
+      selectItem,
+      hoverItem,
+      leaveItem
     }
   }
 })
@@ -91,9 +119,9 @@ export default defineComponent({
   height: 32px;
   @apply w-full relative flex items-center;
 }
-.item:hover {
+/* .item:hover {
   background-color: rgba(50, 52, 64, 1);
-}
+} */
 .item-selected {
   background-color: #484848 !important;
 }
@@ -110,6 +138,7 @@ export default defineComponent({
   max-width: 140px;
 }
 .item-name p {
+  user-select: none;
   width: 140px;
   max-width: 140px;
   font-size: 14px;
