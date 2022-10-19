@@ -1,5 +1,5 @@
 export const imageOption = {
-  emitters:{},
+  emitters:[],
   matrixOption: {
     left: 0,
     top: 0,
@@ -11,7 +11,7 @@ export const imageOption = {
 }
 
 export const videoOption = {
-  emitters:{},
+  emitters:[],
   matrixOption: {
     left: 0,
     top: 0,

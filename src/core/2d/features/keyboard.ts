@@ -56,7 +56,7 @@ document.addEventListener('keyup', (ev) => {
 function verifyClashHotKeyWithBrowser(
   ev: KeyboardEvent,
   specialKeySign: SpecialKeySign
-): boolean | hotKeyMap[keyof hotKeyMap] {
+): false | hotKeyMap[keyof hotKeyMap] {
   const keys: Set<string> = new Set([<string>ev.key.toLocaleLowerCase()])
   for (const key in specialKeySign) {
     if (specialKeySign[key as keyof typeof specialKeySign]) keys.add(key)

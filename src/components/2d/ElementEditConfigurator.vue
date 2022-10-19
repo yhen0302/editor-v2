@@ -27,7 +27,7 @@
 <script lang="ts">
 import NavTab from '@/components/2d/common/navTab/NavTab.vue'
 import NavTabItem from '@/components/2d/common/navTab/NavTabItem.vue'
-import Event from './Event.vue'
+import Event from './event/Event.vue'
 import { ref } from 'vue'
 import { Ref } from '@vue/reactivity'
 import { useStore } from 'vuex'

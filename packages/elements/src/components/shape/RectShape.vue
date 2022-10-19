@@ -25,6 +25,8 @@ import { computed, ref } from 'vue'
 import matrixMixin from '../matrixMixin'
 import { getColor } from '../../../../../src/share/util/node'
 import { toPx } from '../../../../../src/share/util/base'
+import baseShapeHook from './baseShapeHook'
+import useMatrix from '../useMatrix'
 
 export default {
   name: 'RectShape',
@@ -32,13 +34,8 @@ export default {
   emits: ['select', 'append'],
   mixins: [matrixMixin],
 
-  setup(props: any) {
-    const color = computed(() => {
-      return getColor(props.node)
-    })
-    const opacity = computed(() => {
-      return (props.node.option.transparency / 100).toFixed(2)
-    })
+  setup(props: any,context) {
+
 
     const borderRadius = computed(() => {
       return toPx({
@@ -48,13 +45,9 @@ export default {
         borderBottomRightRadius: props.node.option.matrixOption.borderBottomRightRadius
       })
     })
-    const boxShadow = computed(() => {
-      return `${props.node.option.shadowX}px ${props.node.option.shadowY}px ${props.node.option.shadowBlur}px ${props.node.option.shadowColor}`
-    })
     return {
-      color,
-      opacity,
-      boxShadow,
+      ...baseShapeHook(props),
+      ...useMatrix(props,context),
       borderRadius
     }
   }

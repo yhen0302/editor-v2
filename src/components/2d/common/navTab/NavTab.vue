@@ -40,7 +40,6 @@ export default {
         </div>
         <div class="nav-right" style="width: 16px"></div>
       </nav>}
-      <line-el color="#363741"></line-el>
       {getCurrentTabCard.value || ""}
     </div>)
   }

@@ -38,15 +38,6 @@ input::-webkit-inner-spin-button {
   background: transparent;
 }
 
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 2017;
-  background: rgba(0, 0, 0, 0.7);
-}
 
 .pointer-events-auto{
   pointer-events: all;

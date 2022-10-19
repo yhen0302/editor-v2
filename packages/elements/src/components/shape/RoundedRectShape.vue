@@ -25,19 +25,15 @@ import { toPx } from '../../../../../src/share/util/base'
 import { computed, ref, watch } from 'vue'
 import matrixMixin from '../matrixMixin'
 import { getColor } from '../../../../../src/share/util/node'
+import baseShapeHook from './baseShapeHook'
+import useMatrix from '../useMatrix'
 
 export default {
   name: 'RoundedRectShape',
   props: ['node'],
   emits: ['select', 'append'],
-  mixins: [matrixMixin],
-  setup(props: any) {
-    const color = computed(() => {
-      return getColor(props.node)
-    })
-    const opacity = computed(() => {
-      return (props.node.option.transparency / 100).toFixed(2)
-    })
+  setup(props: any,context) {
+    const { color, opacity, boxShadow } = baseShapeHook(props)
     const borderRadius = computed(() => {
       return toPx({
         borderTopLeftRadius: props.node.option.matrixOption.borderTopLeftRadius,
@@ -46,17 +42,18 @@ export default {
         borderBottomRightRadius: props.node.option.matrixOption.borderBottomRightRadius
       })
     })
-    const boxShadow = computed(() => {
-      return `${props.node.option.shadowX}px ${props.node.option.shadowY}px ${props.node.option.shadowBlur}px ${props.node.option.shadowColor}`
-    })
+
     return {
-      color,
-      opacity,
+      ...baseShapeHook(props),
+      ...useMatrix(props,context),
       borderRadius,
-      boxShadow
     }
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.rounded-rect-shape {
+  will-change: width, height, left, top;
+}
+</style>

@@ -15,9 +15,10 @@
   display: none;
 }
 </style>
-<script>
-import ContextMenu from '@/components/2d/ContextMenu'
+<script lang="ts">
+import ContextMenu from '@/components/2d/ContextMenu.vue'
+
 export default {
-  components: { ContextMenu }
+  components: {  ContextMenu },
 }
 </script>

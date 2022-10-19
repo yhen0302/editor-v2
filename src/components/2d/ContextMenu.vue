@@ -13,7 +13,7 @@
   </section>
 </template>
 
-<script>
+<script >
 import { useStore } from 'vuex'
 import { toPx } from '@/share/util/base'
 import {

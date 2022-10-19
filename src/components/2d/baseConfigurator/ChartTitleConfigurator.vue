@@ -221,6 +221,7 @@ export default {
         return getters2D['GET_SELECT_NODE'].value.option.echartsOption.unit.show
       },
       set(newVal) {
+        console.log('show',newVal)
         getters2D['GET_SELECT_NODE'].value.option.echartsOption.unit.show = newVal
         updateHeight.value = true
       }

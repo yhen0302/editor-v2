@@ -1,9 +1,9 @@
 <template>
   <div
-    class="text-wrapper absolute flex"
-    v-drag="{ rect: node.option.matrixOption, select: node.select }"
-    draggable="false"
-    :style="{
+    class='text-wrapper absolute flex'
+    v-drag='{ rect: node.option.matrixOption, select: node.select }'
+    draggable='false'
+    :style='{
       width,
       height,
       left,
@@ -13,24 +13,25 @@
       textAlign: align,
       transform: rotate,
       alignItems: verticalAlign
-    }"
+    }'
+    @dblclick.stop='dbClickText'
     @click.stop
-    @mousedown="onMouseDown"
+    @mousedown='onMouseDown'
     @wheel.stop.passive
     @scroll.stop
-    ref="el"
+    ref='el'
   >
     <p
-      class="big-title flex-1"
-      :class="fontStyle"
-      :style="{
+      class='big-title flex-1'
+      :class='fontStyle'
+      :style='{
         color: fontColor,
         fontSize,
         fontFamily
-      }"
-      @dblclick.stop="dbClickText"
-      ref="h1"
-      @input="textElInput"
+      }'
+      @dblclick.stop='dbClickText'
+      ref='h1'
+      @input='textElInput'
       @keydown.stop
       @keyup.stop
       @keypress.stop
@@ -40,103 +41,43 @@
   </div>
 </template>
 
-<script lang="ts">
-import { computed, ref, toRaw, watch } from 'vue'
-import { hexColorToRgba, toPx } from '../../../../../src/share/util/base'
-import matrixMixin from "../matrixMixin";
-import { getColor } from '../../../../../src/share/util/node'
+<script lang='ts'>
+import matrixMixin from '../matrixMixin'
+import baseTextHook from './baseTextHook'
+import useMatrix from '../useMatrix'
 
 export default {
   name: 'TextContent',
   props: ['node'],
   emits: ['select', 'append'],
-  mixins:[matrixMixin],
-  setup(props: any) {
-    const h1 = ref<HTMLElement>()
-    // exterior
-    const color = computed(() => {
-      return getColor(props.node)
-    })
-    const opacity = computed(() => {
-      return (props.node.option.transparency / 100).toFixed(2)
-    })
-    // font
-    const fontColor = computed(() => {
-      return props.node.option.textOption.color
-    })
-    const fontSize = computed(() => {
-      return toPx(props.node.option.textOption.fontSize)
-    })
-
-    const fontFamily = computed(() => {
-      return props.node.option.textOption.fontFamily
-    })
-    const fontStyle = computed(() => {
-      return props.node.option.textOption.fontStyle
-    })
-    const align = computed(() => {
-      return props.node.option.textOption.align
-    })
-    const verticalAlign = computed(() => {
-      return props.node.option.textOption.verticalAlign
-    })
-    // value
-    const value = computed(() => {
-      return props.node.option.value
-    })
-    let dbClickText
-    let textElInput
-    // editor
-    if (IS_EDITOR) {
-      dbClickText = (ev: MouseEvent) => {
-        const target = ev.target as HTMLElement
-        props!.node!.contentEditable = true
-      }
-      watch(
-        () => props.node.contentEditable,
-        (newVal, oldVal) => {
-          h1.value!.contentEditable = String(newVal)
-          if (newVal) h1.value?.focus()
-        }
-      )
-      textElInput = (ev: FocusEvent) => {
-        props!.node.option.value = (ev.target as HTMLElement).innerText
-      }
-    }
-
+  setup(props: any,context) {
     return {
-      color,
-      opacity,
-      value,
-      fontColor,
-      fontSize,
-      fontFamily,
-      fontStyle,
-      align,
-      verticalAlign,
-      dbClickText,
-      h1,
-      textElInput
+      ...baseTextHook(props),
+      ...useMatrix(props,context)
     }
-  },
+  }
 }
 </script>
 
 <style scoped>
-.text-wrapper{
+.text-wrapper {
   overflow-y: scroll;
-  overscroll-behavior-y:contain;
+  overscroll-behavior-y: contain;
 
 }
+
 .weight {
   font-weight: bold;
 }
+
 .underline {
   text-decoration: underline;
 }
+
 .italic {
   font-style: oblique;
 }
+
 .big-title {
   outline: none;
   word-break: break-all;

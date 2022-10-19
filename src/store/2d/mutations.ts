@@ -6,29 +6,11 @@ import { deleteTreeParentQuote } from '@/core/2d/util/tree'
 import store, { LayerTreeNode2D } from '..'
 import { useState } from '../helper'
 
-export interface Mutation2DI {
-  ADD_2D_TREE_NODE: 'ADD_2D_TREE_NODE'
-  // SELECT NODES
-  SELECT_2D_TREE_NODE: 'SELECT_2D_TREE_NODE'
-  CANCEL_SELECT_2D_NODE: 'CANCEL_SELECT_2D_NODE'
-  CLEAR_SELECT_2D_NODES: 'CLEAR_SELECT_2D_NODES'
-  TOGGLE_NODE: 'TOGGLE_NODE'
-  ADD_EMITTER_TO_NODE: 'ADD_EMITTER_TO_NODE'
-  DELETE_SELECT_NODES: 'DELETE_SELECT_NODES'
-  MARSHALLING_SELECT_NODES: 'MARSHALLING_SELECT_NODES'
-  CANCEL_MARSHALLING_SELECT_NODES: 'CANCEL_MARSHALLING_SELECT_NODES'
-  MOVE_UP_OF_NODES: 'MOVE_UP_OF_NODES'
-  MOVE_DOWNWARD_OF_NODES: 'MOVE_DOWNWARD_OF_NODES'
-  MOVE_TO_TOP_OF_NODES: 'MOVE_TO_TOP_OF_NODES'
-  MOVE_TO_BOTTOM_OF_NODES: 'MOVE_TO_BOTTOM_OF_NODES'
-  // copy
-  COPY_NODE_2D: 'COPY_NODE_2D'
-  PASTE_NODE_2D: 'PASTE_NODE_2D'
-  //Lock
-  TOGGLE_LOCK: 'TOGGLE_LOCK'
+export type Mutation2DI = {
+  [key in keyof typeof Mutation2D]: typeof Mutation2D[key]
 }
 
-export const Mutation2D: Mutation2DI = {
+export const Mutation2D = {
   ADD_2D_TREE_NODE: 'ADD_2D_TREE_NODE',
   SELECT_2D_TREE_NODE: 'SELECT_2D_TREE_NODE',
   CANCEL_SELECT_2D_NODE: 'CANCEL_SELECT_2D_NODE',
@@ -36,6 +18,8 @@ export const Mutation2D: Mutation2DI = {
   TOGGLE_NODE: 'TOGGLE_NODE',
   DELETE_SELECT_NODES: 'DELETE_SELECT_NODES',
   ADD_EMITTER_TO_NODE: 'ADD_EMITTER_TO_NODE',
+  EDIT_EMITTER_TO_NODE: 'EDIT_EMITTER_TO_NODE',
+  DELETE_EMITTER_TO_NODE: 'DELETE_EMITTER_TO_NODE',
   MARSHALLING_SELECT_NODES: 'MARSHALLING_SELECT_NODES',
   CANCEL_MARSHALLING_SELECT_NODES: 'CANCEL_MARSHALLING_SELECT_NODES',
   MOVE_UP_OF_NODES: 'MOVE_UP_OF_NODES',
@@ -47,7 +31,7 @@ export const Mutation2D: Mutation2DI = {
   PASTE_NODE_2D: 'PASTE_NODE_2D',
   // lock
   TOGGLE_LOCK: 'TOGGLE_LOCK'
-}
+} as const
 
 function findFirstSelectNode(tree: LayerTreeNode2D[] = [], reverse = false) {
   const out = reverse ? Array.prototype.pop : Array.prototype.shift
@@ -102,7 +86,6 @@ export default {
     if (node.contentEditable) node.contentEditable = false
     state.select2dNodes.delete(node)
   },
-
   [Mutation2D.CLEAR_SELECT_2D_NODES](this: any, state: State2DI) {
     state.select2dNodes.forEach((node) => {
       this.commit('2d/' + Mutation2D.CANCEL_SELECT_2D_NODE, { node })
@@ -118,7 +101,14 @@ export default {
     }
   },
   [Mutation2D.ADD_EMITTER_TO_NODE](state: State2DI, { node, eventType, eventAction, effect }: { node: LayerTreeNode2D; eventType: string; eventAction: string; effect: string }) {
-    node.option.emitters[eventType + ':' + eventAction] = { effect }
+    !Array.isArray(node.option.emitters) ? (node.option.emitters = []) : null
+    node.option.emitters.push({ eventType, eventAction, effect })
+  },
+  [Mutation2D.EDIT_EMITTER_TO_NODE](state: State2DI, { node, eventType, eventAction, effect, eventIndex }) {
+    node.option.emitters.splice(eventIndex, 1, { eventType, eventAction, effect })
+  },
+  [Mutation2D.DELETE_EMITTER_TO_NODE](state: State2DI, { node, eventIndex }) {
+    node.option.emitters.splice(eventIndex, 1)
   },
   [Mutation2D.DELETE_SELECT_NODES](state: State2DI, { nodes }: { nodes: LayerTreeNode2D[] }) {
     for (const node of nodes) {
@@ -231,7 +221,6 @@ export default {
       }
     }
     isNodesFirstBeginContinuous = isNodesFirstBeginContinuous && inSameGroup
-
     if (inSameGroup) {
       if (isNodesFirstBeginContinuous && isFirstInGroupTop) {
         parent = parent.parent || parent

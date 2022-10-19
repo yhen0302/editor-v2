@@ -1,7 +1,7 @@
 <template>
   <div class="input-el-wrapper box-border flex items-center">
     <slot name="prefix"></slot>
-    <input class="inp text-12" :type="type" v-model="valueComputed" />
+    <input class="inp text-12" :type="type" v-model="valueComputed" :placeholder='placeholder'/>
     <slot name="suffix"></slot>
     <div
       class="arrow-box flex flex-col justify-between"
@@ -29,7 +29,8 @@ export default {
   props: {
     value: { default: '' },
     type: { type: String, default: '' },
-    numberIcon: { type: Boolean, default: true }
+    numberIcon: { type: Boolean, default: true },
+    placeholder:{type:String,default:''}
   },
   setup(props, context) {
     const valueComputed = computed({

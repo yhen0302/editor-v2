@@ -38,6 +38,7 @@ export default {
     'node.option.matrixOption':{
       handler(){
         nextTick().then(()=>{
+          if(IS_EDITOR)
           this.$updateRect()
         })
       },

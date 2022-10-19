@@ -1,2 +1,3 @@
-./src/plugins/
-./packages/elements/
+/src/plugins/
+/packages
+/packages/elements/dist/index.js

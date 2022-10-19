@@ -1,15 +1,13 @@
 import { State2DI } from '.'
 
-export interface Getters2DI {
-  GET_CONFIGURATOR: 'GET_CONFIGURATOR'
-  GET_SELECT_STATUS: 'GET_SELECT_STATUS'
-  GET_SELECT_NODE: 'GET_SELECT_NODE'
+export type  Getters2DI =  {
+  [key in keyof typeof Getters2D]:typeof Getters2D[key]
 }
-export const Getters2D: Getters2DI = {
+export const Getters2D = {
   GET_CONFIGURATOR: 'GET_CONFIGURATOR',
   GET_SELECT_STATUS: 'GET_SELECT_STATUS',
   GET_SELECT_NODE: 'GET_SELECT_NODE'
-}
+} as const
 
 export default {
   [Getters2D.GET_CONFIGURATOR](store: State2DI) {
@@ -45,8 +43,6 @@ export default {
           return 'PieChartConfigurator'
         case 'ChartPolarBar':
           return 'AxisPolarChartConfigurator'
-        case 'ChartMultiPolarBar':
-          return 'MultiPolarChartConfigurator'
         case 'ChartMultiGauge':
           return 'MultiGaugeChartConfigurator'
         case 'BaseTable':

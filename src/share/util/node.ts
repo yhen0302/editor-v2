@@ -52,3 +52,13 @@ export class Color {
     this.rgba = rgbaColorToRgbaObj(this.color)
   }
 }
+
+export function findNodeByIdInTree(tree,id){
+  const nodes = [...tree]
+  let node
+  // eslint-disable-next-line no-cond-assign
+  while(node = nodes.shift()){
+    if(node.children)nodes.unshift(...node.children)
+    if(node.id === id)return node
+  }
+}

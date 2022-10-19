@@ -55,10 +55,7 @@ export function toPx(target: number | PxTargetObject): string | PxTargetObject {
   }
 }
 
-export function getCss(
-  el: HTMLElement | null,
-  css: keyof CSSStyleDeclaration
-): CSSStyleDeclaration[keyof CSSStyleDeclaration] {
+export function getCss(el: HTMLElement | null, css: keyof CSSStyleDeclaration): CSSStyleDeclaration[keyof CSSStyleDeclaration] {
   return el && window.getComputedStyle(el)[css]
 }
 
@@ -102,7 +99,6 @@ export function debounce(fn: Function, delay: number, ctx: any = null) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function clone<T extends Object>(object: T, deep = true, cacheMap?: WeakMap<any, any>): T {
   if (!cacheMap) cacheMap = new WeakMap()
   if (typeof object === 'object' && object !== null) {
@@ -119,9 +115,7 @@ export function clone<T extends Object>(object: T, deep = true, cacheMap?: WeakM
         continue
       }
 
-      newObj[key] = deep
-        ? clone(object[key as keyof typeof object], deep, cacheMap)
-        : object[key as keyof typeof object]
+      newObj[key] = deep ? clone(object[key as string], deep, cacheMap) : object[key as keyof typeof object]
     }
 
     return newObj
@@ -130,6 +124,11 @@ export function clone<T extends Object>(object: T, deep = true, cacheMap?: WeakM
 
 export function fileToBlobUrl(file: File) {
   return URL.createObjectURL(file)
+}
+
+// 首字母大写
+export function toUpperFirstLetter(str: string) {
+  return str?str[0].toUpperCase() + str.substring(1):""
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -166,3 +165,16 @@ export function valueHandle(obj: any, path: string): any {
   return res
 }
 
+export function flatTree(tree) {
+  const arr:Array<any> = [],
+    nodes = [...tree]
+  let node:any
+  // eslint-disable-next-line no-cond-assign
+  while ((node = nodes.pop())) {
+    if (node.children) nodes.push(...node.children)
+    else {
+      arr.push(node)
+    }
+  }
+  return arr
+}

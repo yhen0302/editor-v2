@@ -2,6 +2,7 @@
   <div class="select-detail bg-gray-dark" v-if="stateGlobal.selectBarToolType && stateGlobal.dimensionType == '2d'" v-memo="[stateGlobal.selectBarToolType, navIndex]">
     <nav-tab v-model:index="navIndex" :title="activeTitle" style="height: 100%">
       <nav-tab-item v-for="select in stack" :key="select.key" style="height: calc(100% - 65px)">
+        <line-el color="#363741"></line-el>
         <ul class="select-detail-list grid grid-cols-2 box-border p-16" v-if="select.viewType === 'block'">
           <li class="select-detail-item flex flex-col items-center border-box justify-between" v-for="item in select.list" :key="item.type" @click="clickSelectItem(item)">
             <img :src="item.icon" class="select-detail-sub-icon flex-shrink-0" draggable="false" v-if="item.children" />
@@ -27,10 +28,12 @@ import { selectBarData, selectData } from '@/components/2d/localData'
 import NavTab from '@/components/2d/common/navTab/NavTab'
 import NavTabItem from '@/components/2d/common/navTab/NavTabItem'
 import {useState} from '@/store/helper'
+import LineEl from '@/components/2d/common/LineEl'
 
 export default {
   name: 'NavMenu2D',
   components: {
+    LineEl,
     NavTabItem,
     NavTab,
   },
