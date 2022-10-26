@@ -8,6 +8,7 @@ import { nextTick } from 'vue'
 // mutations
 export interface Mutation3DI {
   TEMPLATE_3D_LOADED: 'TEMPLATE_3D_LOADED' // 3D template loaded
+  TEMPLATE_3D_RESET: 'TEMPLATE_3D_RESET' // 3D template reset sceneTree/pageTree/editform(3d)
   SELECT_LAYER_NODE: 'SELECT_LAYER_NODE' // 3D Tree 选中节点（单选）
   CLEAR_SELECT_LAYER_NODE: 'CLEAR_SELECT_LAYER_NODE' // 3D Tree 清空选中节点
   TOGGLE_EDIT_FORM: 'TOGGLE_EDIT_FORM' // 3D 根据节点展示/隐藏 编辑表单
@@ -17,9 +18,11 @@ export interface Mutation3DI {
   CLEAR_EDIT_FORM: 'CLEAR_EDIT_FORM' // 清空右侧表单内容
   SELECT_LAYER_NODE_CONTROLS: 'SELECT_LAYER_NODE_CONTROLS' // 3D Tree 通过控件选中节点（单选）
   UPDATE_SELECT_LAYER_NODE_CONTROLS: 'UPDATE_SELECT_LAYER_NODE_CONTROLS' // 3D Tree 通过控件更新选中节点（单选）
+  UPDATE_CAMERA: 'UPDATE_CAMERA' // 3D 控制器更新后，更新相机节点
 }
 export const Mutation3D = {
   TEMPLATE_3D_LOADED: 'TEMPLATE_3D_LOADED',
+  TEMPLATE_3D_RESET: 'TEMPLATE_3D_RESET',
   SELECT_LAYER_NODE: 'SELECT_LAYER_NODE',
   CLEAR_SELECT_LAYER_NODE: 'CLEAR_SELECT_LAYER_NODE',
   TOGGLE_EDIT_FORM: 'TOGGLE_EDIT_FORM',
@@ -28,7 +31,8 @@ export const Mutation3D = {
   CHANGE_NAV_DETAILS_TYPE: 'CHANGE_NAV_DETAILS_TYPE',
   CLEAR_EDIT_FORM: 'CLEAR_EDIT_FORM',
   SELECT_LAYER_NODE_CONTROLS: 'SELECT_LAYER_NODE_CONTROLS',
-  UPDATE_SELECT_LAYER_NODE_CONTROLS: 'UPDATE_SELECT_LAYER_NODE_CONTROLS'
+  UPDATE_SELECT_LAYER_NODE_CONTROLS: 'UPDATE_SELECT_LAYER_NODE_CONTROLS',
+  UPDATE_CAMERA: 'UPDATE_CAMERA'
 }
 
 export default {
@@ -93,6 +97,35 @@ export default {
         first.value.options.rotation = [((n.rotation.x * 180) / Math.PI).toFixed(4), ((n.rotation.y * 180) / Math.PI).toFixed(4), ((n.rotation.z * 180) / Math.PI).toFixed(4)]
       } else if (mode == 'scale') {
         first.value.options.scale = [parseFloat(n.scale.x).toFixed(4), parseFloat(n.scale.y).toFixed(4), parseFloat(n.scale.z).toFixed(4)]
+      }
+    }
+  },
+  [Mutation3D.TEMPLATE_3D_RESET]() {
+    const stateGlobal = useState(store, 'global')
+
+    // reset selectNode/editForms
+    store.commit(`3d/${Mutation3D.CLEAR_EDIT_FORM}`)
+    store.commit(`3d/${Mutation3D.CLEAR_SELECT_LAYER_NODE}`)
+
+    // reset each sceneTreeNode : pageTreeNode: children : trees : threeDimension
+    for (const sceneTreeNode of stateGlobal.sceneTreeNodes) {
+      for (const pageTreeNode of sceneTreeNode.children) {
+        pageTreeNode.trees.threeDimension = JSON.parse(JSON.stringify(stateGlobal.template.threeDimension))
+      }
+    }
+  },
+  [Mutation3D.UPDATE_CAMERA](state: State3DI, payload: { controls: any }) {
+    const stateGlobal = useState(store, 'global')
+
+    if (stateGlobal.selectedPageTreeNode) {
+      const controls = payload.controls
+      const layerNodesOfCurrentPage = stateGlobal.selectedPageTreeNode.trees.threeDimension
+      for (const n of layerNodesOfCurrentPage) {
+        if (n.type == 'Camera') {
+          n.options.position[0] = parseFloat(controls.object.position.x).toFixed(4)
+          n.options.position[1] = parseFloat(controls.object.position.y).toFixed(4)
+          n.options.position[2] = parseFloat(controls.object.position.z).toFixed(4)
+        }
       }
     }
   }

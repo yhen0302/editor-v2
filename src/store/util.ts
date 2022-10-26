@@ -127,6 +127,9 @@ export function type2DetailsType(type: string | null) {
     case 'template':
       result = 'NavDetailsTemplate3D'
       break
+    case 'threeDimensionIcon':
+      result = 'NavDetailsIcon3D'
+      break
     case 'flyline':
       result = 'NavDetailsFlyLine3D'
       break

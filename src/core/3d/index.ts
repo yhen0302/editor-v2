@@ -1,15 +1,16 @@
 import { flatTreeNodes, loadSceneNodes, parseModelNode, traverseFindNodeById } from './util'
 import store, { LayerTreeNode3D } from '../../store'
 import { useGetter, useMutation, useState } from '../../store/helper'
-import { nextTick } from 'vue'
+import { nextTick, toRaw } from 'vue'
 
 declare const Bol3D: any
 
 export function loadScene({ modelUrls, domElement, publicPath, callback }: any) {
   const stateGlobal = useState(store, 'global')
 
-  const mutations3d = useMutation(store, '3d', ['SELECT_LAYER_NODE_CONTROLS', 'CLEAR_SELECT_LAYER_NODE', 'CLEAR_EDIT_FORM', 'UPDATE_SELECT_LAYER_NODE_CONTROLS'])
+  const mutations3d = useMutation(store, '3d', ['SELECT_LAYER_NODE_CONTROLS', 'CLEAR_SELECT_LAYER_NODE', 'CLEAR_EDIT_FORM', 'UPDATE_SELECT_LAYER_NODE_CONTROLS', 'UPDATE_CAMERA'])
   const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
+  const state3D = useState(store, '3d')
 
   const container = new Bol3D.Container({
     publicPath,
@@ -68,7 +69,30 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
       stateGlobal.template.threeDimension.push(node)
     },
     onLoad: (evt: any) => {
+      ;(window as any).container = evt
+
+      // 校准游标
+      evt.texLoader.load('/utils/calibration.png', (tex: any) => {
+        const calibratMat = new Bol3D.SpriteMaterial({
+          depthTest: false,
+          transparent: true,
+          sizeAttenuation: false,
+          map: tex
+        })
+        const calibrat = new Bol3D.Sprite(calibratMat)
+        evt.scene.add(calibrat)
+        calibrat.scale.set(0.05, 0.05, 0.05)
+        calibrat.renderOrder = 99
+
+        state3D.calibrationCursor = calibrat
+      })
+
       loadSceneNodes(evt)
+
+      evt.orbitControls.addEventListener('end', () => {
+        mutations3d.UPDATE_CAMERA({ controls: evt.orbitControls })
+      })
+
       callback && callback(evt)
     }
   })

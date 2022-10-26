@@ -13,6 +13,7 @@ import { defineComponent, ref } from 'vue'
 import ToolBarItem from '@/components/utils/toolbar/ToolBarItem.vue'
 
 import NavDetailsTemplate3D from '../navdetails/NavDetailsTemplate3D.vue'
+import NavDetailsIcon3D from '../navdetails/NavDetailsIcon3D.vue'
 import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
 import { type2DetailsType } from '@/store/util'
@@ -21,7 +22,8 @@ export default defineComponent({
   name: 'NavMenuElement3D',
   components: {
     ToolBarItem,
-    NavDetailsTemplate3D
+    NavDetailsTemplate3D,
+    NavDetailsIcon3D
   },
   setup() {
     const store = useStore()
@@ -35,19 +37,9 @@ export default defineComponent({
         type: 'template'
       },
       {
-        icon: require('@/assets/images/main/left/editor_element_icon_btn_dark.png'),
-        name: '图标',
-        type: 'threeDimensionIcon'
-      },
-      {
-        icon: require('@/assets/images/main/left/editor_element_text_btn_dark.png'),
-        name: '文本',
-        type: 'threeDimensionText'
-      },
-      {
         icon: require('@/assets/images/main/left/editor_element_mark_btn_dark.png'),
         name: '自由标记',
-        type: 'threeDimensionMark'
+        type: 'threeDimensionIcon'
       },
       {
         icon: require('@/assets/images/main/left/editor_element_flyline_btn_dark.png'),

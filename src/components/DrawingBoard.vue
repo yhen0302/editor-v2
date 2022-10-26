@@ -8,15 +8,27 @@
       :style="{ width: containerWidthPx, height: containerHeightPx, transform: `translate(${drawingBoardContainerX}px,${drawingBoardContainerY}px)` }"
     >
       <div
+        class="drawing-board-utils"
+        :style="{
+          width: `${stateGlobal.drawingBoard.width * stateGlobal.drawingBoard.scale}px`,
+          height: '48px',
+          left: '292px'
+        }"
+      >
+        <div class="util-add-mode" v-show="state3D.mode">
+          <ElButton color="#5475FF" type="primary">ESC退出打点模式</ElButton>
+        </div>
+      </div>
+      <div
         class="drawing-board-size"
         :style="{
-          width: `${store.state.drawingBoard.width * store.state.drawingBoard.scale}px`,
+          width: `${stateGlobal.drawingBoard.width * stateGlobal.drawingBoard.scale}px`,
           height: '32px',
           left: '292px',
           top: '32px'
         }"
       >
-        <p>{{ store.state.drawingBoard.width }} x {{ store.state.drawingBoard.height }}</p>
+        <p>{{ stateGlobal.drawingBoard.width }} x {{ stateGlobal.drawingBoard.height }}</p>
       </div>
       <div
         class="drawing-board"
@@ -24,8 +36,8 @@
         :style="{
           width: widthPx,
           height: heightPx,
-          transform: `scale(${store.state.drawingBoard.scale * 100}%) translate(${(-(1 - store.state.drawingBoard.scale) / (2 * store.state.drawingBoard.scale)) * store.state.drawingBoard.width}px,${
-            (-(1 - store.state.drawingBoard.scale) / (2 * store.state.drawingBoard.scale)) * store.state.drawingBoard.height
+          transform: `scale(${stateGlobal.drawingBoard.scale * 100}%) translate(${(-(1 - stateGlobal.drawingBoard.scale) / (2 * stateGlobal.drawingBoard.scale)) * stateGlobal.drawingBoard.width}px,${
+            (-(1 - stateGlobal.drawingBoard.scale) / (2 * stateGlobal.drawingBoard.scale)) * stateGlobal.drawingBoard.height
           }px)`,
           left: '292px',
           top: '64px'
@@ -45,12 +57,14 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, Ref, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref } from 'vue'
 
 import DrawingBoard2D from '@/components/2d/ArtBoard2DContent.vue'
 import DrawingBoard3D from '@/components/3d/drawingboard/DrawingBoard3D.vue'
 import { useStore } from 'vuex'
 import { useMutation, useState } from '@/store/helper'
+
+import { ElButton } from 'element-plus'
 
 export default defineComponent({
   name: 'Middle',
@@ -66,6 +80,7 @@ export default defineComponent({
 
     const store = useStore()
     const stateGlobal = useState(store, 'global')
+    const state3D = useState(store, '3d')
     const mutations2D = useMutation(store, '2d', ['CLEAR_SELECT_2D_NODES'])
     const { width, height, scale } = stateGlobal.drawingBoard
 
@@ -144,7 +159,8 @@ export default defineComponent({
       scrollY,
       scrollXItem,
       scrollYItem,
-      store,
+      stateGlobal,
+      state3D,
       clean2dSelectedNode
     }
   }
@@ -157,6 +173,13 @@ export default defineComponent({
 }
 .drawing-board-container {
   @apply relative;
+}
+.drawing-board-utils {
+  left: 0;
+  top: 0;
+  @apply absolute flex items-center;
+}
+.util-add-mode {
 }
 .drawing-board-size {
   left: 0;

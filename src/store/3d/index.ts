@@ -18,6 +18,7 @@ export interface State3DI {
   leftNavTitle: string // 左侧导航栏标题
   leftNavPageIndex: number // 左侧导航栏页码
   leftNavDetailsType: string // 左侧导航2（多）级菜单类型
+  calibrationCursor: any
 }
 
 // actions
@@ -37,7 +38,8 @@ export const store3D: Store3DI = {
     editedFormType: null,
     leftNavPageIndex: 0,
     leftNavTitle: '',
-    leftNavDetailsType: ''
+    leftNavDetailsType: '',
+    calibrationCursor: null // 校准游标
   },
   mutations: { ...mutations3d },
   actions: {},
