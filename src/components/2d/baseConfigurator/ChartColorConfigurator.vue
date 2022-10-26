@@ -19,8 +19,8 @@ import { useStore } from 'vuex'
 import { useGetter } from '@/store/helper'
 import { computed } from 'vue'
 import { Color, toColor } from '@/share/util/node'
-import { rotatePointer, clone } from '@/share/util/base'
-
+import { rotatePointer } from '@/share/util/math'
+import { clone } from "@/share/util/base"
 export default {
   name: 'ChartColorConfigurator',
   components: { LineEl, FoldEl, MultiGradientColorPicker },
@@ -61,6 +61,7 @@ export default {
       }
     }
     function pickerColorToEchartsColor(pickerColor) {
+      // 注意 pickerColor 的linear类型 **并不是** 线性渐变颜色
       if (pickerColor.type === 'linear') return pickerColor.color.color
       else {
         const toFixedDouble = (val) => Number(val.toFixed(2))
@@ -68,7 +69,6 @@ export default {
         const deg = pickerColor.deg + 90
         const p1 = rotatePointer(deg)
         const p2 = rotatePointer(deg + 180)
-
         const pointers = {
           x: toFixedDouble(boundaryZeroOne(p1.x)),
           y: toFixedDouble(boundaryZeroOne(p1.y)),

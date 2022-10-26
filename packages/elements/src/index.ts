@@ -17,8 +17,8 @@ import ChartRadar from './components/chart/ChartRadar.vue'
 import ChartScatter from './components/chart/ChartScatter.vue'
 import BaseTable from './components/table/BaseTable.vue'
 import ChartPolarBar from './components/chart/ChartPolarBar.vue'
-import ChartMultiPolarBar from './components/chart/ChartMultiPolarBar.vue'
 import ChartMultiGauge from './components/chart/ChartMultiGauge.vue'
+import BaseIconElement from './components/icon/BaseIconElement.vue'
 
 
 import { App } from 'vue'
@@ -45,8 +45,8 @@ export default {
     app.component(ChartScatter.name, ChartScatter)
     app.component(ChartPolarBar.name,ChartPolarBar)
     app.component('ChartYCategoryBar',ChartBar)
-    app.component(ChartMultiPolarBar.name,ChartMultiPolarBar)
     app.component(ChartMultiGauge.name,ChartMultiGauge)
+    app.component(BaseIconElement.name,BaseIconElement)
   }
 }
 
@@ -67,3 +67,4 @@ export { ChartGauge }
 export { ChartCurve }
 export { BaseTable }
 export {ChartPolarBar}
+export {BaseIconElement}

@@ -31,15 +31,16 @@ const inputConf = {
     }),
     babel({
       presets: ['@babel/preset-env', '@babel/preset-typescript'],
-      plugins: ['@vue/babel-plugin-jsx'],
+      plugins: ['@vue/babel-plugin-jsx','@babel/plugin-transform-runtime'],
       extensions: ['.vue'],
+      babelHelpers:'runtime',
       exclude: 'node_modules/**'
     }),
     replace({
       'process.env.NODE_ENV': `'${process.env.NODE_ENV}'`,
       IS_EDITOR: true
     }),
-    typescript({ allowJs: true })
+    typescript({ allowJs: true,})
   ]
 }
 

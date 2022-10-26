@@ -19,31 +19,21 @@
 </template>
 
 <script lang="ts">
-import { hexColorToRgba, toPx } from '../../../../../src/share/util/base'
 import { computed} from 'vue'
 import matrixMixin from "../matrixMixin";
 import { getColor } from '../../../../../src/share/util/node'
+import baseShapeHook from './baseShapeHook'
+import useMatrix from '../useMatrix'
 
 export default {
   name: 'TriangleShape',
   props: ['node'],
   emits: ['select', 'append'],
   mixins:[matrixMixin],
-  setup(props: any) {
-    // exterior
-    const color = computed(() => {
-      return getColor(props.node)
-    })
-    const opacity = computed(() => {
-      return (props.node.option.transparency / 100).toFixed(2)
-    })
-    const boxShadow = computed(() => {
-      return `${props.node.option.shadowX}px ${props.node.option.shadowY}px ${props.node.option.shadowBlur}px ${props.node.option.shadowColor}`
-    })
+  setup(props: any,context) {
     return {
-      color,
-      opacity,
-      boxShadow
+      ...baseShapeHook(props),
+      ...useMatrix(props,context)
     }
   },
 }

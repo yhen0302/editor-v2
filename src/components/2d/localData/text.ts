@@ -1,7 +1,7 @@
 import { toColor } from '@/share/util/node'
 
 export const bigTitle = {
-  emitters:{},
+  emitters:[],
   matrixOption: {
     left: 0,
     top: 0,
@@ -24,7 +24,7 @@ export const bigTitle = {
 }
 
 export const smallTitle = {
-  emitters:{},
+  emitters:[],
   matrixOption: {
     left: 0,
     top: 0,
@@ -47,7 +47,8 @@ export const smallTitle = {
 }
 
 export const baseTitle = {
-  emitters:{},
+  emitters:[],
+
   matrixOption: {
     left: 0,
     top: 0,
@@ -70,8 +71,7 @@ export const baseTitle = {
 }
 
 export const textContent = {
-  emitters:{},
-
+  emitters:[],
   matrixOption: {
     left: 0,
     top: 0,

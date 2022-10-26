@@ -11,6 +11,12 @@ import { curveChartList } from './chart/curve'
 import { radarChartList } from '@/components/2d/localData/chart/radar'
 import { scatterChartList } from '@/components/2d/localData/chart/scatter'
 import { tableList } from '@/components/2d/localData/table'
+import { toColor } from '@/share/util/node'
+
+function getAssets(url) {
+  const publicPath = location.origin + '/'
+  return publicPath + url
+}
 
 export const selectBarList2d: Array<SelectBarItem> = [
   {
@@ -128,7 +134,44 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
       {
         icon: require('../../../assets/images/editor_shape_icon_btn_dark.png'),
         name: '图标',
-        type: 'base'
+        type: 'base',
+        children: {
+          viewType: 'block',
+          list: [
+            {
+              icon: './icons/救护车.svg',
+              name: '救护车图标',
+              type: 'BaseIconElement',
+              option: {
+                emitters: {},
+                matrixOption: {
+                  left: 0,
+                  top: 0,
+                  height: 100,
+                  width: 200,
+                  rotate: 0
+                },
+                src: getAssets('icons/救护车.svg')
+              }
+            },
+            {
+              icon: './icons/谣言三连.svg',
+              name: '谣言三连图标',
+              type: 'BaseIconElement',
+              option: {
+                emitters: {},
+                matrixOption: {
+                  left: 0,
+                  top: 0,
+                  height: 100,
+                  width: 200,
+                  rotate: 0
+                },
+                src: getAssets('icons/谣言三连.svg')
+              }
+            }
+          ]
+        }
       }
     ],
     viewType: 'block'

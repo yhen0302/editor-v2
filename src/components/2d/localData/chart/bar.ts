@@ -84,9 +84,6 @@ class PolarBar extends Bar {
 class YCategoryBar extends Bar {
   type = 'ChartYCategoryBar'
 }
-class MultiPolarBar extends Bar {
-  type = 'ChartMultiPolarBar'
-}
 export const barChartList = [
   new Bar({
     echartsOption: {

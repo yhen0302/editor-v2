@@ -1,5 +1,5 @@
-export declare type eventType = 'click' | 'doubleclick'
-export declare type eventActionType = 'linkToPage'
+export declare type eventType = 'click' | 'dblclick'
+export declare type eventActionType = 'linkToPage'|'linkToExternal'|'nodeTransform'
 
 // font
 export declare type fontType = 'microsoft YaHei' | 'fangsong' |string

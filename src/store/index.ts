@@ -3,7 +3,6 @@ import { store2D as module2d } from '@/store/2d'
 import { store3D as module3d } from '@/store/3d'
 import { toRaw } from 'vue'
 import { selectSceneNodeByUUID } from './util'
-import { useState } from './helper'
 import { Mutation3D } from './3d/mutations'
 import { reloadThreeDimensionScene, traverseResetSpreadOfNodes } from '@/core/3d/util'
 
@@ -112,16 +111,10 @@ export interface StateGlobalI {
   clipboard: Array<any>
 }
 
-export interface MutationGlobalI {
-  CHANGE_DIMENSION: 'CHANGE_DIMENSION' // 切换2D/3D
-  CHANGE_SELECT_BAR_TOOL_TYPE: 'CHANGE_SELECT_BAR_TOOL_TYPE' // 切换工具类型
-  CHANGE_ART_BOARD_SCALE: 'CHANGE_ART_BOARD_SCALE' // 改变 drawingBoard 大小
-  SCENE_TREE_LOADED: 'SCENE_TREE_LOADED' // 场景树加载完成
-  ADD_SCENE_NODE: 'ADD_SCENE_NODE' // 添加 SCENE NODE
-  ADD_PAGE_NODE: 'ADD_PAGE_NODE' // 添加 PAGE NODE
-  SELECT_PAGE_NODE: 'SELECT_PAGE_NODE' // 选择 PAGE NODE
+export type MutationGlobalI = {
+  [key in keyof typeof MutationGlobal]: typeof MutationGlobal[key]
 }
-const MutationGlobal: MutationGlobalI = {
+const MutationGlobal = {
   CHANGE_DIMENSION: 'CHANGE_DIMENSION',
   CHANGE_SELECT_BAR_TOOL_TYPE: 'CHANGE_SELECT_BAR_TOOL_TYPE',
   CHANGE_ART_BOARD_SCALE: 'CHANGE_ART_BOARD_SCALE',
@@ -129,11 +122,13 @@ const MutationGlobal: MutationGlobalI = {
   ADD_SCENE_NODE: 'ADD_SCENE_NODE',
   ADD_PAGE_NODE: 'ADD_PAGE_NODE',
   SELECT_PAGE_NODE: 'SELECT_PAGE_NODE'
-}
+} as const
 
-export interface ActionsGlobalI {
-  TEST_ACTIONS: 'TEST_ACTIONS'
+export type ActionsGlobalI = {
+  [key in keyof typeof ActionsGlobal]: typeof ActionsGlobal[key]
 }
+const ActionsGlobal = {
+} as const
 
 export interface GettersGlobalI {
   GET_CONFIGURATOR: 'GET_CONFIGURATOR'
@@ -141,7 +136,6 @@ export interface GettersGlobalI {
   GET_SELECT_NODE: 'GET_SELECT_NODE'
 }
 
-const _clipboard: any[] = []
 export default createStore({
   state: {
     dimensionType: '2d', // 2D/3D
@@ -188,15 +182,7 @@ export default createStore({
       y: 0
     }, // 判断菜单的显示隐藏
     // ******** 剪贴板 start ********
-    get clipboard() {
-      return _clipboard
-    },
-    set clipboard(val: any) {
-      _clipboard.unshift(val)
-      if (_clipboard.length > 20) {
-        _clipboard.pop()
-      }
-    }
+    clipboard: []
     // ******** 剪贴板 end ********
   },
   mutations: {
@@ -271,7 +257,8 @@ export default createStore({
       reloadThreeDimensionScene(state.selectedPageTreeNode)
     }
   },
-  actions: {},
+  actions: {
+  },
   getters: {},
   modules: {
     '2d': module2d,

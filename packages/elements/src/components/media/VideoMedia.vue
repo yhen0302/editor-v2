@@ -29,18 +29,17 @@
 </template>
 
 <script lang="ts">
-import { computed } from 'vue'
-import matrixMixin from '../matrixMixin'
+import baseMediaHook from './baseMediaHook'
+import useMatrix from '../useMatrix'
 
 export default {
   name: 'VideoMedia',
   props: ['node'],
   emits: ['select', 'append'],
-  mixins: [matrixMixin],
-  setup(props: any) {
-    const src = computed(() => props.node.option.src)
+  setup(props: any,context) {
     return {
-      src
+      ...baseMediaHook(props),
+      ...useMatrix(props,context)
     }
   }
 }
