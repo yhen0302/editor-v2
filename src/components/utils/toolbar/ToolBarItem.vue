@@ -1,12 +1,12 @@
 <template>
-  <div class="toolbar-item" :key="icon.type">
+  <div class="toolbar-item" :class="props.selected || activeRef ? 'active' : ''" :key="icon.type" @mouseenter="activeRef = true" @mouseleave="activeRef = false">
     <img :src="props.icon" />
     <p>{{ props.name }}</p>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
   name: 'ToolBarItem',
@@ -14,10 +14,13 @@ export default defineComponent({
   props: {
     type: { default: '', type: String },
     icon: { default: '', type: String },
-    name: { default: '', type: String }
+    name: { default: '', type: String },
+    selected: { default: false, type: Boolean }
   },
   setup(props: any) {
-    return { props }
+    const activeRef = ref(false)
+
+    return { props, activeRef }
   }
 })
 </script>
@@ -42,9 +45,12 @@ export default defineComponent({
   margin-left: 8px;
   margin-right: 16px;
 }
-.toolbar-item:hover {
+.active {
   outline: 2px #6582fe solid;
 }
+/* .toolbar-item:hover {
+  outline: 2px #6582fe solid;
+} */
 .toolbar-item img {
   width: 64px;
   height: 64px;

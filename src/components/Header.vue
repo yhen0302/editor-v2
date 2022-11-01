@@ -142,51 +142,48 @@ export default defineComponent({
       uploadJSON.value.click()
     }
     const loadJSON = (e: any) => {
-      const fileList = e.target.files
-      if (fileList.length === 0) return
-
-      if (fileList.length > 1) {
-        ElMessage({
-          message: '一次仅能上传一个配置文件。',
-          type: 'warning'
-        })
-        return false
-      }
-
-      let validateFlag = true
-      const validateTypes = ['ktj']
-      for (const i in fileList) {
-        const file = fileList[i]
-        if (file instanceof File) {
-          const nameArr = file.name.split('.')
-          const type = nameArr[nameArr.length - 1]
-          if (!validateTypes.includes(type.toLowerCase())) {
-            validateFlag = false
-            break
-          }
-        }
-      }
-      if (!validateFlag) {
-        ElMessage({
-          message: '请上传json配置文件。',
-          type: 'warning'
-        })
-        return false
-      }
-
-      EventsBus.emit('toolBarSelected', { node: {} })
-      store.state.dimensionType = null
-      store.state.selectBarToolType = ''
-      nextTick(() => {
-        store.state.dimensionType = '3d'
-        remove3Dnodes()
-        fileList[0].text().then((res: any) => {
-          // 接受
-          store.state.exportContent = JSON.parse(res)
-          store.state.exportType = !store.state.exportType
-          // store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
-        })
-      })
+      // const fileList = e.target.files
+      // if (fileList.length === 0) return
+      // if (fileList.length > 1) {
+      //   ElMessage({
+      //     message: '一次仅能上传一个配置文件。',
+      //     type: 'warning'
+      //   })
+      //   return false
+      // }
+      // let validateFlag = true
+      // const validateTypes = ['ktj']
+      // for (const i in fileList) {
+      //   const file = fileList[i]
+      //   if (file instanceof File) {
+      //     const nameArr = file.name.split('.')
+      //     const type = nameArr[nameArr.length - 1]
+      //     if (!validateTypes.includes(type.toLowerCase())) {
+      //       validateFlag = false
+      //       break
+      //     }
+      //   }
+      // }
+      // if (!validateFlag) {
+      //   ElMessage({
+      //     message: '请上传json配置文件。',
+      //     type: 'warning'
+      //   })
+      //   return false
+      // }
+      // EventsBus.emit('toolBarSelected', { node: {} })
+      // store.state.dimensionType = null
+      // store.state.selectBarToolType = ''
+      // nextTick(() => {
+      //   store.state.dimensionType = '3d'
+      //   remove3Dnodes()
+      //   fileList[0].text().then((res: any) => {
+      //     // 接受
+      //     store.state.exportContent = JSON.parse(res)
+      //     store.state.exportType = !store.state.exportType
+      //     // store.state.pageTreeNodes[0].children[0].trees.twoDimension = store.state.exportContent[0].children[0].trees.twoDimension
+      //   })
+      // })
     }
 
     function remove3Dnodes() {

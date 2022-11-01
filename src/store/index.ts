@@ -4,7 +4,7 @@ import { store3D as module3d } from '@/store/3d'
 import { toRaw } from 'vue'
 import { selectSceneNodeByUUID } from './util'
 import { Mutation3D } from './3d/mutations'
-import { traverseResetSpreadOfNodes } from '@/core/3d/util'
+import { reloadThreeDimensionScene, traverseResetSpreadOfNodes } from '@/core/3d/util'
 
 type DrawingBoardOpts = {
   width: number
@@ -249,6 +249,8 @@ export default createStore({
       // update sceneNode select status
       const sceneTreeNodeCurrSelected = selectSceneNodeByUUID(state.selectedPageTreeNode.parent)
       if (sceneTreeNodeCurrSelected) sceneTreeNodeCurrSelected.selected = true
+
+      reloadThreeDimensionScene(state.selectedPageTreeNode)
     }
   },
   actions: {

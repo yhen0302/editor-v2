@@ -101,11 +101,12 @@ export function traverseResetSpreadOfNodes(nodes: any) {
 
 // 根据template重载3d scene passes
 export function reloadThreeDimensionPassesByTemplate() {
-  const sceneNodes = store.state.template.threeDimension
+  const stateGlobal = useState(store, 'global')
+  const state3D = useState(store, '3d')
+  const sceneNodes = stateGlobal.template.threeDimension
+  const container = state3D.threeDimensionContainer
   const flatSceneNodes: any = []
   flatTreeNodes(sceneNodes, flatSceneNodes)
-
-  const container: any = toRaw(mapState(store, '3d', ['threeDimensionContainer']))
 
   for (const k in flatSceneNodes) {
     const n = flatSceneNodes[k]
@@ -152,7 +153,9 @@ export function reloadThreeDimensionScene(pageNode: PageTreeNode) {
   const flatSceneNodes: any = []
   flatTreeNodes(sceneNodes, flatSceneNodes)
 
-  const container: any = toRaw(mapState(store, '3d', ['threeDimensionContainer']))
+  const state3D = useState(store, '3d')
+
+  const container = toRaw(state3D.threeDimensionContainer)
 
   for (const k in flatSceneNodes) {
     const n = flatSceneNodes[k]
@@ -982,4 +985,11 @@ export function loadSceneNodes(evt: any) {
   }
 
   stateGlobal.template.threeDimension.unshift(cameraNode)
+}
+// 递归找出上面所有父级元素 并乘以相应矩阵
+export function recursiveCalParentsMat(obj: any, v: any, mat: any) {
+  mat.compose(obj.position, new Bol3D.Quaternion().setFromEuler(new Bol3D.Euler().setFromVector3(obj.rotation)), obj.scale)
+  v.applyMatrix4(mat)
+  if (!obj.parent || obj.parent.type == 'Scene') return
+  recursiveCalParentsMat(obj.parent, v, mat)
 }
