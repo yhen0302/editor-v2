@@ -24,7 +24,6 @@ export default function useMatrix(props, { emit }) {
   })
   matrixComputedMap.rotate = computed(() => `rotate(${props.node.option.matrixOption.rotate}deg)`)
 
-  // animation
   watch(
     () => props.node.option.matrixOption,
     () => {
@@ -37,9 +36,15 @@ export default function useMatrix(props, { emit }) {
     }
   )
 
+  // animationStyle
+  const animationStyle = computed(()=>{
+    return props.node.option.animationStyle|| {}
+  })
+
 
   return {
     ...matrixComputedMap,
-    onMouseDown
+    onMouseDown,
+    animationStyle
   }
 }

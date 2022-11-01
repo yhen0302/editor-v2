@@ -9,7 +9,10 @@
       height,
       left,
       transform: rotate,
-      top
+      top,
+      background:color,
+      ...animationStyle
+
     }'
     v-drag='{
       rect: node.option.matrixOption,
@@ -23,6 +26,7 @@
 import { debounce, clone } from '../../../../../src/share/util/base'
 import useMatrix from '../useMatrix'
 import useChart from './useChart'
+import useBackgroundColor from './useBackgroundColor'
 
 export default {
   name: 'ChartMultiGauge',
@@ -40,7 +44,6 @@ export default {
           ['18%', '50%', '82%'][index % Math.min(seriesLength, 3)],
           seriesLength <= 3 ? '60%' : (100 / Math.ceil(seriesLength / 3)) * Math.ceil((index + 1) / 3) - 100 / Math.ceil(seriesLength / 3) / 2 + 5 + '%'
         ]
-        // console.log(gauge.center)
         gauge.progress.itemStyle = gauge.progress.itemStyle || {}
         gauge.progress.itemStyle.color = option.color[index]
         gauge.progress.width = radius / 10
@@ -54,7 +57,8 @@ export default {
       return option
     }
 
-    return { ...useMatrix(props, context), ...useChart(props, context, false, true, preprocessEchartsOption) }
+    return { ...useMatrix(props, context), ...useChart(props, context, false, true, preprocessEchartsOption),
+      ...useBackgroundColor(props) }
   }
 
 }

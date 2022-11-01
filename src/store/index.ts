@@ -108,7 +108,6 @@ export interface StateGlobalI {
   drawingBoard: DrawingBoardOpts
   template: TemplateOpts
   contextmenu: ContextmenuOpts
-  clipboard: Array<any>
 }
 
 export type MutationGlobalI = {
@@ -181,9 +180,6 @@ export default createStore({
       x: 0,
       y: 0
     }, // 判断菜单的显示隐藏
-    // ******** 剪贴板 start ********
-    clipboard: []
-    // ******** 剪贴板 end ********
   },
   mutations: {
     [MutationGlobal.SCENE_TREE_LOADED](state: StateGlobalI) {

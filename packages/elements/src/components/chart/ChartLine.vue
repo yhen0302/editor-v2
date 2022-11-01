@@ -9,7 +9,10 @@
       height,
       left,
       transform: rotate,
-      top
+      top,
+      background:color,
+      ...animationStyle
+
     }"
     v-drag="{
       rect: node.option.matrixOption,
@@ -20,13 +23,9 @@
 </template>
 
 <script>
-import matrixMixin from '../matrixMixin'
-import * as echarts from 'echarts'
-import { debounce } from '../../../../../src/share/util/base'
-import {getCurrentInstance, watch} from 'vue'
-import chartMixin from "./chartMixin";
 import useMatrix from '../useMatrix'
 import useChart from './useChart'
+import useBackgroundColor from './useBackgroundColor'
 
 export default {
   name: 'ChartLine',
@@ -34,7 +33,8 @@ export default {
   setup(props,context) {
     return {
       ...useMatrix(props,context),
-      ...useChart(props,context)
+      ...useChart(props,context),
+      ...useBackgroundColor(props)
     }
   },
 }

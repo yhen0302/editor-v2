@@ -1,8 +1,10 @@
 import { clone, debounce, valueHandle } from '../../../../../src/share/util/base'
 import * as echarts from 'echarts'
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, nextTick, getCurrentInstance } from 'vue'
+import { equal, getMultiKeyFromObject } from '../../../../../src/share/util/object'
 
 export default function useChart(props, context, isYAxis = true, updateOptionOnResize = false, preprocessOptionFn?) {
+  const instance = getCurrentInstance()
   const chartWrap = ref()
   let myChart // echarts instance
   onMounted(() => {
@@ -12,7 +14,7 @@ export default function useChart(props, context, isYAxis = true, updateOptionOnR
 
   const updateEchartsSize = debounce(function(chart) {
     chart.resize()
-  }, 200)
+  }, 100)
   const debounceSetOption = debounce(function(...args: [option: any, notMerg?: boolean, resize?: boolean]) {
     const option = args[0] || props.node.option.echartsOption
     updateEchartsOption(preprocessOptionFn ? preprocessOptionFn(option) : option, ...args.slice(1))
@@ -110,6 +112,28 @@ export default function useChart(props, context, isYAxis = true, updateOptionOnR
     }
   }, { deep: true })
 
+
+  let curAnimationCounter = 0
+  watch(() => props.node.option.animationStyle, (newVal) => {
+    const insideACounter = ++curAnimationCounter
+    nextTick().then(() => {
+      const animationAttr = ['height', 'width']
+      let preState = getMultiKeyFromObject(animationAttr, window.getComputedStyle(chartWrap.value))
+      let counter = 0
+
+      const tick = () => {
+        const curState = getMultiKeyFromObject(animationAttr, window.getComputedStyle(chartWrap.value))
+        if (equal(curState, preState)) counter++
+        // 在渲染5针后值没有变化 || 有一个新的动画开启 时 , 停止当前的动画
+        if (counter === 5 || curAnimationCounter !== insideACounter) return
+        myChart.resize()
+        preState = curState
+        requestAnimationFrame(tick)
+      }
+      tick()
+
+    })
+  })
   return {
     chartWrap
   }

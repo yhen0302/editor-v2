@@ -10,6 +10,8 @@
       left,
       top,
       transform: rotate,
+            ...animationStyle
+
     }'
     @click.stop
     @mousedown='onMouseDown'
@@ -41,9 +43,7 @@
 <script>
 import TableEl from '../../../../../src/components/2d/common/tableEl/TableEl.vue'
 import ColumnEl from '../../../../../src/components/2d/common/tableEl/ColumnEl.vue'
-import matrixMixin from '../matrixMixin'
 import { computed, ref, useCssModule } from 'vue'
-import baseTextHook from '../text/baseTextHook'
 import useMatrix from '../useMatrix'
 
 export default {

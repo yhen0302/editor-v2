@@ -1,7 +1,7 @@
 import { BaseChart } from './base'
 
 let i = 1
-class Pie extends BaseChart {
+export class Pie extends BaseChart {
   name: string
   option: any
   icon = ''
@@ -16,53 +16,21 @@ class Pie extends BaseChart {
   constructor(option: any, notMerge = false) {
     super()
     this.name = '饼图' + i++
-    const defaultEchartsOpt = {
-      color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272'],
-      title: {
-        text: '标题123456',
-        show: false,
-        left: '10%',
-        top: 20,
-        right: 'auto',
-        textStyle: {
-          fontFamily: 'microsoft YaHei',
-          color: '#FFFFFF',
-          fontSize: 18,
-          fontWeight: 'normal',
-          fontStyle: 'normal'
-        }
-      },
-      grid: {
-        top: '20%',
-        bottom: '15%'
-      },
-      unit: {
-        text: '单位',
-        show: false,
-        left: '10%',
-        top: 50,
-        right: 'auto',
-        textStyle: {
-          fontFamily: 'microsoft YaHei',
-          color: '#FFFFFF',
-          fontSize: 18,
-          fontWeight: 'normal',
-          fontStyle: 'normal'
-        }
-      },
-      legend: { show: false }
+    const defaultMatrixOpt = {
+      height: 200,
+      width: 400,
     }
-    this.option = {
-      ...this.defaultOption,
+    const superDefaultOption:any = Object.assign({},this.defaultOption);
+    const temp = superDefaultOption['echartsOption']
+    delete temp['yAxis'];
+    delete temp['xAxis'];
+
+    this.option = this.merge(superDefaultOption,{
       matrixOption: notMerge
         ? option.matrixOption
-        : this.merge(this.defaultMatrixOpt, option.matrixOption),
-      echartsOption: notMerge
-        ? option.echartsOption
-        : this.merge(defaultEchartsOpt, option.echartsOption),
-
-      dataType: 'table'
-    }
+        : this.merge(defaultMatrixOpt, option.matrixOption),
+      echartsOption:option.echartsOption,
+    })
     this.mergeLabel(this.option)
   }
 }
@@ -139,99 +107,6 @@ export const pieChartList = [
               shadowColor: 'rgba(0, 0, 0, 0.5)'
             }
           }
-        }
-      ]
-    }
-  }),
-  new Pie({
-    echartsOption: {
-      backgroundColor: '#031f2d',
-      title: {
-        text: '总考生数',
-        left: 'center',
-        top: '53%',
-        padding: [24, 0],
-        textStyle: {
-          color: '#fff',
-          fontSize: 18,
-          align: 'center'
-        }
-      },
-      series: [
-        {
-          name: '总考生数量',
-          type: 'pie',
-          radius: ['42%', '50%'],
-          hoverAnimation: false,
-          color: ['#c487ee', '#deb140', '#49dff0', '#034079', '#6f81da', '#00ffb4'],
-          label: {
-            formatter: '{white|{b}}\n{yellow|{c}}\n{blue|{d}%}',
-            rich: {
-              yellow: {
-                color: '#ffc72b',
-                fontSize: 30 / 2,
-                padding: [5, 4],
-                align: 'center'
-              },
-              total: {
-                color: '#ffc72b',
-                fontSize: 40 / 2,
-                align: 'center'
-              },
-              white: {
-                color: '#fff',
-                align: 'center',
-                fontSize: 14,
-                padding: [21, 0]
-              },
-              blue: {
-                color: '#49dff0',
-                fontSize: 16,
-                align: 'center'
-              },
-              hr: {
-                borderColor: '#0b5263',
-                width: '100%',
-                borderWidth: 1,
-                height: 0
-              }
-            }
-          },
-          labelLine: {
-            normal: {
-              length: 30,
-              length2: 0,
-              lineStyle: {
-                color: '#0b5263'
-              }
-            }
-          },
-          data: [
-            {
-              value: 2154,
-              name: '曲阜师范大学'
-            },
-            {
-              value: 3854,
-              name: '潍坊学院'
-            },
-            {
-              value: 3515,
-              name: '青岛职业技术学院'
-            },
-            {
-              value: 3515,
-              name: '淄博师范高等专科'
-            },
-            {
-              value: 3854,
-              name: '鲁东大学'
-            },
-            {
-              value: 2154,
-              name: '山东师范大学'
-            }
-          ]
         }
       ]
     }

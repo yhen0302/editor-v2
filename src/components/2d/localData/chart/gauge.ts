@@ -1,7 +1,7 @@
 import { BaseChart } from './base'
 
 let i = 1
-class Gauge extends BaseChart {
+export class Gauge extends BaseChart {
   name: string
   option: any
   icon = ''
@@ -10,60 +10,25 @@ class Gauge extends BaseChart {
   constructor(option: any, notMerge = false) {
     super()
     this.name = '仪表盘' + i++
-    const defaultEchartsOpt = {
-      color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272'],
-      title: {
-        text: '标题123456',
-        show: false,
-        left: '10%',
-        top: 20,
-        right: 'auto',
-        textStyle: {
-          fontFamily: 'microsoft YaHei',
-          color: '#FFFFFF',
-          fontSize: 18,
-          fontWeight: 'normal',
-          fontStyle: 'normal'
-        }
-      },
-      grid: {
-        top: '20%',
-        bottom: '15%'
-      },
-      unit: {
-        text: '单位',
-        show: false,
-        left: '10%',
-        top: 50,
-        right: 'auto',
-        textStyle: {
-          fontFamily: 'microsoft YaHei',
-          color: '#FFFFFF',
-          fontSize: 18,
-          fontWeight: 'normal',
-          fontStyle: 'normal'
-        }
-      },
-      legend: { show: true }
+    const defaultMatrixOpt = {
+      height: 200,
+      width: 400,
     }
-    this.option = {
-      ...this.defaultOption,
-
+    const superDefaultOption:any = Object.assign({},this.defaultOption);
+    const temp = superDefaultOption['echartsOption']
+    delete temp['yAxis'];
+    delete temp['xAxis'];
+    this.option = this.merge(superDefaultOption,{
       matrixOption: notMerge
         ? option.matrixOption
-        : this.merge(this.defaultMatrixOpt, option.matrixOption),
-      echartsOption: notMerge
-        ? option.echartsOption
-        : this.merge(defaultEchartsOpt, option.echartsOption),
-      dataType: 'table'
-    }
+        : this.merge(defaultMatrixOpt, option.matrixOption),
+      echartsOption:option.echartsOption,
+    })
     this.mergeLabel(this.option)
   }
 }
 
-class MultiGauge extends Gauge{
-    type = "ChartMultiGauge"
-}
+
 export const gaugeChartList = [
   new Gauge({
     matrixOption:{
@@ -149,172 +114,4 @@ export const gaugeChartList = [
       ]
     }
   }),
-  new MultiGauge({
-    type: 'multi-gauge-1',
-    echartsOption:{
-      series: [
-        {
-          name: 'Pressure',
-          type: 'gauge',
-          startAngle:90,
-          endAngle:-270,
-          detail: {
-            formatter: '{value}',
-            offsetCenter:[0,0],
-            fontSize:16,
-          },
-          progress:{show:true},
-          splitLine:{show:false},
-          axisTick:{show:false},
-          axisLabel:{show:false},
-          pointer:{show:false},
-          data: [50]
-        },
-        {
-          name: 'Pressure2',
-          type: 'gauge',
-          startAngle:90,
-          endAngle:-270,
-          detail: {
-            formatter: '{value}',
-            offsetCenter:[0,0],
-            fontSize:16,
-          },
-          progress:{show:true},
-          splitLine:{show:false},
-          axisTick:{show:false},
-          axisLabel:{show:false},
-          pointer:{show:false},
-          data: [50]
-        },
-        {
-          name: 'Pressure3',
-          type: 'gauge',
-          startAngle:90,
-          endAngle:-270,
-          detail: {
-            formatter: '{value}',
-            offsetCenter:[0,0],
-            fontSize:16,
-          },
-          progress:{show:true},
-          splitLine:{show:false},
-          axisTick:{show:false},
-          axisLabel:{show:false},
-          pointer:{show:false},
-          data: [50]
-        },
-      ]
-    }
-  }),
-  new MultiGauge({
-    type: 'multi-gauge-2',
-    echartsOption:{
-      series: [
-        {
-          name: 'Pressure',
-          type: 'gauge',
-          startAngle:90,
-          endAngle:-270,
-          detail: {
-            formatter: '{value}',
-            offsetCenter:[0,0],
-            fontSize:16,
-          },
-          progress:{show:true},
-          splitLine:{show:false},
-          axisTick:{show:false},
-          axisLabel:{show:false},
-          pointer:{show:false},
-          data: [50]
-        },
-        {
-          name: 'Pressure3',
-          type: 'gauge',
-          startAngle:90,
-          endAngle:-270,
-          detail: {
-            formatter: '{value}',
-            offsetCenter:[0,0],
-            fontSize:16,
-          },
-          progress:{show:true},
-          splitLine:{show:false},
-          axisTick:{show:false},
-          axisLabel:{show:false},
-          pointer:{show:false},
-          data: [50]
-        },
-        {
-          name: 'Pressure4',
-          type: 'gauge',
-          startAngle:90,
-          endAngle:-270,
-          detail: {
-            formatter: '{value}',
-            offsetCenter:[0,0],
-            fontSize:16,
-          },
-          progress:{show:true},
-          splitLine:{show:false},
-          axisTick:{show:false},
-          axisLabel:{show:false},
-          pointer:{show:false},
-          data: [50]
-        },
-        {
-          name: 'Pressure2',
-          type: 'gauge',
-          startAngle:90,
-          endAngle:-270,
-          detail: {
-            formatter: '{value}',
-            offsetCenter:[0,0],
-            fontSize:16,
-          },
-          progress:{show:true},
-          splitLine:{show:false},
-          axisTick:{show:false},
-          axisLabel:{show:false},
-          pointer:{show:false},
-          data: [50]
-        },
-        {
-          name: 'Pressure2',
-          type: 'gauge',
-          startAngle:90,
-          endAngle:-270,
-          detail: {
-            formatter: '{value}',
-            offsetCenter:[0,0],
-            fontSize:16,
-          },
-          progress:{show:true},
-          splitLine:{show:false},
-          axisTick:{show:false},
-          axisLabel:{show:false},
-          pointer:{show:false},
-          data: [50]
-        },
-        {
-          name: 'Pressure2',
-          type: 'gauge',
-          startAngle:90,
-          endAngle:-270,
-          detail: {
-            formatter: '{value}',
-            offsetCenter:[0,0],
-            fontSize:16,
-          },
-          progress:{show:true},
-          splitLine:{show:false},
-          axisTick:{show:false},
-          axisLabel:{show:false},
-          pointer:{show:false},
-          data: [50]
-        },
-      ]
-    }
-  }),
-
 ]

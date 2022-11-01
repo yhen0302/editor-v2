@@ -1,21 +1,21 @@
 <template>
-  <div class="input-el-wrapper box-border flex items-center">
-    <slot name="prefix"></slot>
-    <input class="inp text-12" :type="type" v-model="valueComputed" :placeholder='placeholder'/>
-    <slot name="suffix"></slot>
+  <div class='input-el-wrapper box-border flex items-center'>
+    <slot name='prefix'></slot>
+    <input class='inp text-12' :type='type' v-model='valueComputed' :placeholder='placeholder' />
+    <slot name='suffix'></slot>
     <div
-      class="arrow-box flex flex-col justify-between"
+      class='arrow-box flex flex-col justify-between'
       v-show="type === 'number' && numberIcon"
     >
       <img
-        class="arrow"
-        src="@/assets/images/editor_add_btn_dark.png"
-        @click="valueComputed++"
+        class='arrow'
+        src='@/assets/images/editor_add_btn_dark.png'
+        @click='valueComputed++'
       />
       <img
-        class="arrow"
-        src="@/assets/images/editor_minus_btn_dark.png"
-        @click="valueComputed--"
+        class='arrow'
+        src='@/assets/images/editor_minus_btn_dark.png'
+        @click='valueComputed--'
       />
     </div>
   </div>
@@ -30,11 +30,12 @@ export default {
     value: { default: '' },
     type: { type: String, default: '' },
     numberIcon: { type: Boolean, default: true },
-    placeholder:{type:String,default:''}
+    placeholder: { type: String, default: '' }
   },
   setup(props, context) {
     const valueComputed = computed({
       get() {
+        if ((props.type === 'number' || props.type === 'float') && isNaN(props.value)) return ''
         return toType(props.type, props.value)
       },
       set(val) {
@@ -43,13 +44,16 @@ export default {
     })
 
     function toType(type, value) {
+      if ((type === 'number' || type === 'float') && value === '') return NaN
       switch (type) {
-        case '':
-          return value.toString()
         case 'number':
           return Number(Number(value).toFixed(0))
         case 'angle':
           return Number(value) + '°'
+        case 'float':
+          return Number(value)
+        default:
+          return value.toString()
       }
     }
 

@@ -9,7 +9,10 @@
       height,
       left,
       transform: rotate,
-      top
+      top,
+      background:color,
+      ...animationStyle
+
     }"
     v-drag="{
       rect: node.option.matrixOption,
@@ -22,6 +25,7 @@
 <script>
 import useMatrix from '../useMatrix'
 import useChart from './useChart'
+import useBackgroundColor from './useBackgroundColor'
 
 export default {
   name: 'ChartPie',
@@ -29,7 +33,8 @@ export default {
   setup(props,context) {
     return {
       ...useMatrix(props, context),
-      ...useChart(props, context, false)
+      ...useChart(props, context, false),
+      ...useBackgroundColor(props)
     }
   },
 }

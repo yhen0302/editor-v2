@@ -6,7 +6,9 @@
       height,
       left,
       transform: rotate,
-      top
+      top,
+            ...animationStyle
+
     }"
     ref="el"
     @mousedown="onMouseDown"

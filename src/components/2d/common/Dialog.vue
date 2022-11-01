@@ -1,6 +1,7 @@
 <template>
-  <section class='dialog' v-show='show' @click='show = false'>
+  <section class='dialog' v-show='show'>
     <div class='dialog-content absolute' @click.stop>
+      <div class='close-btn' @click='show=false' v-if='closeBtn'></div>
       <slot v-if='rendered'></slot>
     </div>
   </section>
@@ -20,7 +21,7 @@ function createModal() {
 
 export default {
   name: 'Dialog',
-  props: { modal: Boolean, visible: Boolean, center: Boolean, destroyOnClose: Boolean },
+  props: { modal: Boolean, visible: Boolean, center: Boolean, destroyOnClose: Boolean,closeBtn:Boolean},
   emits: ['update:visible'],
   setup(props, context) {
     const rendered = ref(false)
@@ -29,7 +30,6 @@ export default {
         return props.visible
       },
       set(val) {
-
         context.emit('update:visible', val)
       }
     })
@@ -82,5 +82,13 @@ export default {
   top: 50%;
   margin-left: 50%;
   transform: translate(-50%, -50%);
+}
+.close-btn{
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  height: 16px;
+  width:16px;
+  background: red;
 }
 </style>

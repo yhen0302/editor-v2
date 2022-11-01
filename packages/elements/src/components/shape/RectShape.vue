@@ -13,7 +13,9 @@
       opacity,
       boxShadow,
       transform:rotate,
-      ...borderRadius
+      ...borderRadius,
+            ...animationStyle
+
     }"
     @mousedown="onMouseDown"
     ref="el"
@@ -21,34 +23,21 @@
 </template>
 
 <script lang="ts">
-import { computed, ref } from 'vue'
-import matrixMixin from '../matrixMixin'
-import { getColor } from '../../../../../src/share/util/node'
-import { toPx } from '../../../../../src/share/util/base'
 import baseShapeHook from './baseShapeHook'
 import useMatrix from '../useMatrix'
+import useBorderRadius from '../useBorderRadius'
 
 export default {
   name: 'RectShape',
   props: ['node'],
   emits: ['select', 'append'],
-  mixins: [matrixMixin],
-
   setup(props: any,context) {
 
 
-    const borderRadius = computed(() => {
-      return toPx({
-        borderTopLeftRadius: props.node.option.matrixOption.borderTopLeftRadius,
-        borderTopRightRadius: props.node.option.matrixOption.borderTopRightRadius,
-        borderBottomLeftRadius: props.node.option.matrixOption.borderBottomLeftRadius,
-        borderBottomRightRadius: props.node.option.matrixOption.borderBottomRightRadius
-      })
-    })
     return {
       ...baseShapeHook(props),
       ...useMatrix(props,context),
-      borderRadius
+      ...useBorderRadius(props)
     }
   }
 }

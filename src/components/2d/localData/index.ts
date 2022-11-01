@@ -12,6 +12,14 @@ import { radarChartList } from '@/components/2d/localData/chart/radar'
 import { scatterChartList } from '@/components/2d/localData/chart/scatter'
 import { tableList } from '@/components/2d/localData/table'
 import { toColor } from '@/share/util/node'
+import { JadePieceList } from '@/components/2d/localData/chart/jadePiece'
+import { yBarChartList } from '@/components/2d/localData/chart/ybar'
+import { areaChartList } from '@/components/2d/localData/chart/area'
+import { preprocessOption } from '@/components/2d/localData/chart/base'
+import { annularChartList } from '@/components/2d/localData/chart/annular'
+import { mulGaugeChartList } from '@/components/2d/localData/chart/mulGauge'
+import { roseChartList } from '@/components/2d/localData/chart/rose'
+import { compositeChartList } from '@/components/2d/localData/chart/composite'
 
 function getAssets(url) {
   const publicPath = location.origin + '/'
@@ -68,7 +76,7 @@ export const selectBarData: Record<string, Array<SelectBarItem>> = {
   '3d': selectBarList3d
 }
 
-interface SelectItem {
+export interface SelectItem {
   type?: selectItemType2d | selectItemType3d | string
   icon: string
   name: string
@@ -201,16 +209,25 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
         type: 'bar',
         children: {
           viewType: 'list',
-          list: barChartList.map((item: SelectItem): SelectItem => {
-            const option = clone(item.option.echartsOption, true)
-            option.grid.bottom = '15%'
-            option.grid.top = '15%'
-            option.legend.show = false
-            option.series[0].label.show = false
-
-            item.icon = getChartUrl(option)
-            return item
-          })
+          list: preprocessOption(barChartList)
+        }
+      },
+      {
+        icon: require('../../../assets/images/editor_chart_histogram_btn_dark.png'),
+        name: '条形图',
+        type: 'bar',
+        children: {
+          viewType: 'list',
+          list: preprocessOption(yBarChartList)
+        }
+      },
+      {
+        icon: require('../../../assets/images/editor_chart_histogram_btn_dark.png'),
+        name: '玉块图',
+        type: 'bar',
+        children: {
+          viewType: 'list',
+          list: preprocessOption(JadePieceList)
         }
       },
       {
@@ -219,20 +236,16 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
         type: 'line',
         children: {
           viewType: 'list',
-          list: lineChartList.map((item: SelectItem): SelectItem => {
-            const option = clone(item.option.echartsOption, true)
-            option.grid.bottom = '15%'
-            option.grid.top = '15%'
-            option.legend.show = false
-            for (let i = 0; i < option.series.length; i++) {
-              if (option.series[i]?.label) {
-                option.series[i].label.show = false
-              }
-            }
-
-            item.icon = getChartUrl(option)
-            return item
-          })
+          list: preprocessOption(lineChartList)
+        }
+      },
+      {
+        icon: require('../../../assets/images/editor_chart_linechart_btn_dark.png'),
+        name: '区域图',
+        type: 'line',
+        children: {
+          viewType: 'list',
+          list: preprocessOption(areaChartList)
         }
       },
       {
@@ -241,16 +254,44 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
         type: 'pie',
         children: {
           viewType: 'list',
-          list: pieChartList.map((item: SelectItem): SelectItem => {
-            const option = clone(item.option.echartsOption, true)
-            option.grid.bottom = '15%'
-            option.grid.top = '15%'
-            option.legend.show = false
-            option.series[0].label.show = false
+          list: preprocessOption(pieChartList)
+        }
+      },
+      {
+        icon: require('../../../assets/images/editor_chart_piechart_btn_dark.png'),
+        name: '环形图',
+        type: 'pie',
+        children: {
+          viewType: 'list',
+          list: preprocessOption(annularChartList)
+        }
+      },
+      {
+        icon: require('../../../assets/images/editor_chart_piechart_btn_dark.png'),
+        name: '玫瑰图',
+        type: 'pie',
+        children: {
+          viewType: 'list',
+          list: preprocessOption(roseChartList)
+        }
+      },
+      {
+        icon: require('../../../assets/images/editor_chart_histogram_btn_dark.png'),
+        name: '复合图',
+        type: 'bar',
+        children: {
+          viewType: 'list',
+          list: preprocessOption(compositeChartList)
+        }
+      },
 
-            item.icon = getChartUrl(option)
-            return item
-          })
+      {
+        icon: require('../../../assets/images/editor_chart_piechart_btn_dark.png'),
+        name: '多环图',
+        type: 'gauge',
+        children: {
+          viewType: 'list',
+          list: preprocessOption(mulGaugeChartList)
         }
       },
       {
@@ -259,15 +300,7 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
         type: 'gauge',
         children: {
           viewType: 'list',
-          list: gaugeChartList.map((item: SelectItem): SelectItem => {
-            const option = clone(item.option.echartsOption, true)
-            option.grid.bottom = '15%'
-            option.grid.top = '15%'
-            option.legend.show = false
-
-            item.icon = getChartUrl(option)
-            return item
-          })
+          list: preprocessOption(gaugeChartList)
         }
       },
       {
@@ -276,16 +309,7 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
         type: 'curve',
         children: {
           viewType: 'list',
-          list: curveChartList.map((item: SelectItem): SelectItem => {
-            const option = clone(item.option.echartsOption, true)
-            option.grid.bottom = '15%'
-            option.grid.top = '15%'
-            option.legend.show = false
-            option.series[0].label.show = false
-
-            item.icon = getChartUrl(option)
-            return item
-          })
+          list: preprocessOption(curveChartList)
         }
       },
       {
@@ -294,16 +318,7 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
         type: 'radar',
         children: {
           viewType: 'list',
-          list: radarChartList.map((item: SelectItem): SelectItem => {
-            const option = clone(item.option.echartsOption, true)
-            option.grid.bottom = '15%'
-            option.grid.top = '15%'
-            option.legend.show = false
-            option.series[0].label.show = false
-
-            item.icon = getChartUrl(option)
-            return item
-          })
+          list: preprocessOption(radarChartList)
         }
       },
       {
@@ -312,16 +327,7 @@ export const selectData: Record<dimensionSelectBarType2d, ViewSelectItem> = {
         type: 'scatter',
         children: {
           viewType: 'list',
-          list: scatterChartList.map((item: SelectItem): SelectItem => {
-            const option = clone(item.option.echartsOption, true)
-            option.grid.bottom = '15%'
-            option.grid.top = '15%'
-            option.legend.show = false
-            option.series[0].label.show = false
-
-            item.icon = getChartUrl(option)
-            return item
-          })
+          list: preprocessOption(scatterChartList)
         }
       }
     ],

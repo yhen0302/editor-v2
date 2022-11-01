@@ -46,3 +46,7 @@ input::-webkit-inner-spin-button {
 .absolute{
   position: absolute;
 }
+
+.flex{
+  display: flex;
+}

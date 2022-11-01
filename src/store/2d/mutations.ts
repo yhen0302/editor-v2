@@ -101,7 +101,7 @@ export default {
     }
   },
   [Mutation2D.ADD_EMITTER_TO_NODE](state: State2DI, { node, eventType, eventAction, effect }: { node: LayerTreeNode2D; eventType: string; eventAction: string; effect: string }) {
-    !Array.isArray(node.option.emitters) ? (node.option.emitters = []) : null
+    Array.isArray(node.option.emitters) || (node.option.emitters = [])
     node.option.emitters.push({ eventType, eventAction, effect })
   },
   [Mutation2D.EDIT_EMITTER_TO_NODE](state: State2DI, { node, eventType, eventAction, effect, eventIndex }) {
@@ -283,17 +283,17 @@ export default {
     for (const node of nodes) state.select2dNodes.add(node)
   },
   [Mutation2D.COPY_NODE_2D](this: any, state) {
-    if (!this.getters[Getters2D.GET_SELECT_NODE]) return
-    const nodes = Array.isArray(this.getters[Getters2D.GET_SELECT_NODE]) ? this.getters[Getters2D.GET_SELECT_NODE] : [this.getters[Getters2D.GET_SELECT_NODE]]
+    if (!this.getters["2d/GET_SELECT_NODE"]) return
+    const nodes = Array.isArray(this.getters["2d/GET_SELECT_NODE"]) ? this.getters["2d/GET_SELECT_NODE"] : [this.getters["2d/GET_SELECT_NODE"]]
 
     state.clipboard.unshift(clone(deleteTreeParentQuote(nodes)))
   },
   [Mutation2D.PASTE_NODE_2D](this: any, state) {
+    console.log(state.clipboard)
     if (state.clipboard.length === 0) return
     state.clipboard[0].forEach((item) => {
-      console.log(item)
-      // item.option.matrixOption.left += 10
-      // item.option.matrixOption.top += 10
+      item.option.matrixOption.left += 10
+      item.option.matrixOption.top += 10
       const node = createNode({
         ...item,
         name: item.name + '副本'

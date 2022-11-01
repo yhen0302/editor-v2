@@ -1,37 +1,42 @@
 <template>
   <div
-    class="chart-bar absolute"
+    class='chart-bar absolute'
     @click.stop
-    draggable="false"
-    @mousedown="onMouseDown"
-    :style="{
+    draggable='false'
+    @mousedown='onMouseDown'
+    :style='{
       width,
       height,
       left,
       transform: rotate,
-      top
-    }"
-    v-drag="{
+      top,
+      background:color,
+      ...animationStyle,
+    }'
+    v-drag='{
       rect: node.option.matrixOption,
       select: node.select,
-    }"
-    ref="chartWrap"
+    }'
+    ref='chartWrap'
   ></div>
 </template>
 
 <script>
 import useMatrix from '../useMatrix'
 import useChart from './useChart'
+import useBackgroundColor from './useBackgroundColor'
 
 export default {
   name: 'ChartBar',
   props: ['node'],
-  setup(props,context) {
+  setup(props, context) {
+
     return {
-      ...useMatrix(props,context),
-      ...useChart(props,context)
+      ...useMatrix(props, context),
+      ...useChart(props, context),
+      ...useBackgroundColor(props)
     }
-  },
+  }
 }
 </script>
 

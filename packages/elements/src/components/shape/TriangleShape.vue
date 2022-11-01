@@ -12,16 +12,15 @@
       background: color,
       transform: rotate,
       opacity,
-      boxShadow
+      boxShadow,
+            ...animationStyle
+
     }"
     @mousedown="onMouseDown"
   ></div>
 </template>
 
 <script lang="ts">
-import { computed} from 'vue'
-import matrixMixin from "../matrixMixin";
-import { getColor } from '../../../../../src/share/util/node'
 import baseShapeHook from './baseShapeHook'
 import useMatrix from '../useMatrix'
 
@@ -29,7 +28,6 @@ export default {
   name: 'TriangleShape',
   props: ['node'],
   emits: ['select', 'append'],
-  mixins:[matrixMixin],
   setup(props: any,context) {
     return {
       ...baseShapeHook(props),

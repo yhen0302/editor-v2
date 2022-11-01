@@ -28,8 +28,8 @@
           </div>
         </div>
 
-        <div class="sub-fold-item-wrap pr-16 pb-16 flex items-center">
-          <div class="config-item-pre pl-16 text-12">透明度</div>
+        <div class="sub-fold-item-wrap pr-16 pb-16 flex items-center" v-if='transparency!==false'>
+          <div class="config-item-pre pl-16 text-12">不透明度</div>
           <div class="config-item-suf flex-1 flex">
             <slider-el class="flex-1" v-model:value="transparency"></slider-el>
             <input-el style="height: 32px; width: 64px" v-model:value="transparency">
@@ -73,6 +73,8 @@ export default {
 
     const transparency = computed({
       get() {
+        // eslint-disable-next-line no-prototype-builtins
+        if(!getters2D['GET_SELECT_NODE'].value.option.hasOwnProperty('transparency'))return false
         return getters2D['GET_SELECT_NODE'].value.option.transparency
       },
       set(val) {

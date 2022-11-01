@@ -14,7 +14,7 @@
         </ul>
       </li>
     </ul>
-    <dialog-el v-model:visible='visible' :modal='true' :destroy-on-close='true'>
+    <dialog-el v-model:visible='visible' :modal='true' :destroy-on-close='true' :close-btn='true' >
       <component :is='"ParameterEditor"+toUpperFirstLetter(curNodeParent?.id)'  :nodeId='curNode?.id' :echo='curNode?.parameter' @update='getParams'
                  :nodeTree='globalStore.selectedPageTreeNode.trees'></component>
     </dialog-el>
@@ -54,6 +54,7 @@ export default {
       let clonedTree2d = clone(tree2d)
       // init Three 2d from global store
       clonedTree2d = clonedTree2d.map((item) => ({ id: item.id, name: item.name }))
+      console.log(checkedNodes.value['2d'])
       // merge modelValue
       if (checkedNodes.value['2d']) {
         for (const [index, initNode] of clonedTree2d.entries()) {

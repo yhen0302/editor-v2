@@ -12,7 +12,10 @@
       opacity,
       textAlign: align,
       transform: rotate,
-      alignItems: verticalAlign
+      alignItems: verticalAlign,
+      ...borderRadius,
+            ...animationStyle
+
     }"
     @dblclick.stop="dbClickText"
     @click.stop
@@ -41,9 +44,9 @@
 </template>
 
 <script lang="ts">
-import matrixMixin from "../matrixMixin";
 import baseTextHook from './baseTextHook'
 import useMatrix from '../useMatrix'
+import useBorderRadius from '../useBorderRadius'
 
 export default {
   name: 'SmallTitle',
@@ -52,7 +55,9 @@ export default {
   setup(props: any,context) {
     return {
       ...baseTextHook(props),
-      ...useMatrix(props,context)
+      ...useMatrix(props,context),
+      ...useBorderRadius(props)
+
     }
   },
 }

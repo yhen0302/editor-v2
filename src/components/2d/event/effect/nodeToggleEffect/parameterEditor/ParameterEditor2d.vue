@@ -4,32 +4,32 @@
       <h1 class='parameter-title'>基础参数</h1>
       <div class='parameter-list flex flex-wrap'>
         <div class='parameter-item flex items-center'>
-          <input-el class='inp-wrap' v-model:value='left'>
+          <input-el class='inp-wrap' v-model:value='left' type='number' placeholder='x偏移量'>
             <template #prefix><span class='inp-suffix text-12'>X</span></template>
           </input-el>
         </div>
         <div class='parameter-item flex items-center'>
-          <input-el class='inp-wrap' v-model:value='top'>
+          <input-el class='inp-wrap' v-model:value='top' type='number' placeholder='y偏移量'>
             <template #prefix><span class='inp-suffix text-12'>Y</span></template>
           </input-el>
         </div>
         <div class='parameter-item flex items-center'>
-          <input-el class='inp-wrap' v-model:value='width'>
+          <input-el class='inp-wrap' v-model:value='width' type='number' placeholder='宽度'>
             <template #prefix><span class='inp-suffix text-12'>W</span></template>
           </input-el>
         </div>
         <div class='parameter-item flex items-center'>
-          <input-el class='inp-wrap' v-model:value='height'>
+          <input-el class='inp-wrap' v-model:value='height' type='number' placeholder='高度'>
             <template #prefix><span class='inp-suffix text-12'>H</span></template>
           </input-el>
         </div>
         <div class='parameter-item flex items-center'>
-          <input-el class='inp-wrap' v-model:value='rotate'>
+          <input-el class='inp-wrap' v-model:value='rotate' type='number' placeholder='角度'>
             <template #prefix><img src='~@/assets/images/editor_angle_icn_dark.png' alt='' /></template>
           </input-el>
         </div>
         <div class='parameter-item flex items-center'>
-          <input-el class='inp-wrap' v-model:value='scale'>
+          <input-el class='inp-wrap' v-model:value='scale' type='float' placeholder='缩放比例'>
             <template #prefix><span class='inp-suffix text-12'>S</span></template>
           </input-el>
         </div>
@@ -42,6 +42,18 @@
         <div class='parameter-item' v-for='item in toggleTypeList' :key='item.value'>
           <span class='toggle-desc'>{{ item.name }}</span>
           <radio-el :value='toggleType===item.value' @update:value='toggleType=item.value'></radio-el>
+        </div>
+      </div>
+      <line-el color='rgb(54, 55, 65)' style='margin: 10px 0;'></line-el>
+    </div>
+    <div class='parameter-box'>
+      <h1 class='parameter-title'>动画配置</h1>
+      <div class='parameter-list flex flex-wrap'>
+        <div class='parameter-item flex items-center'>
+          <span class='animation-conf-text'>动画时长</span>
+          <input-el class='inp-wrap' v-model:value='animationDuration' placeholder='动画时常' type='number' style='width:100px'>
+            <template #suffix><span class='inp-suffix text-12'>ms</span></template>
+          </input-el>
         </div>
       </div>
     </div>
@@ -73,13 +85,14 @@ export default {
         return clone(toRaw(props.echo))
       }else {
         const data = findNodeByIdInTree(toRaw(props.nodeTree.twoDimension), props.nodeId)
-        return { width: data.option.matrixOption.width,
-          height: data.option.matrixOption.height,
-          left: data.option.matrixOption.left,
-          top: data.option.matrixOption.top,
-          scale: 1,
+        return { width: NaN,
+          height: NaN,
+          left: NaN,
+          top: NaN,
+          scale: NaN,
           toggleType: null,
-          rotate: data.option.matrixOption.rotate,}
+          animationDuration:NaN,
+          rotate: NaN,}
       }
     })
     const data = reactive(originNode.value)
@@ -167,5 +180,7 @@ export default {
 .confirm-button {
   background: #7aa6ff;
 }
-
+.animation-conf-text{
+  font-size: 12px;
+}
 </style>
