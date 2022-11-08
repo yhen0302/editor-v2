@@ -40,6 +40,9 @@ import DofPassForms3D from './editForms/DofPassForms3D.vue'
 import GammaPassForms3D from './editForms/GammaPassForms3D.vue'
 // 5.msaa pass
 import MSAAPassForms3D from './editForms/MSAAPassForms3D.vue'
+// add elements
+// 1.icon title
+import IconTitleForms3D from './editForms/IconTitleForms3D.vue'
 
 import { mapState, useGetter } from '@/store/helper'
 
@@ -67,7 +70,9 @@ export default defineComponent({
     OutlinePassForms3D,
     DofPassForms3D,
     GammaPassForms3D,
-    MSAAPassForms3D
+    MSAAPassForms3D,
+    // added elements
+    IconTitleForms3D
   },
   setup() {
     const store = useStore()

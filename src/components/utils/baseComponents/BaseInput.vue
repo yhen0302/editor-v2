@@ -4,7 +4,7 @@
       <p>{{ name }}</p>
     </div>
     <div class="val-input">
-      <input :value="value" @change="change(target)" />
+      <input :value="value" @change="change(target, $event.target.value)" />
     </div>
   </div>
 </template>

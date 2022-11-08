@@ -1,6 +1,6 @@
 <template>
   <div class="nav-details-icon-3d">
-    <ToolBarItem v-for="item in dataList" :key="item.type" :icon="item.icon" :name="item.name" @click="chooseItem(item)" />
+    <ToolBarItem v-for="item in dataList" :key="item.type" :icon="item.icon" :name="item.name" @dragend="addToScene(item)" />
   </div>
 </template>
 
@@ -19,7 +19,8 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const state3D = useState(store, '3d')
-    // const mutations3D = useMutation(store, '3d', ['CHANGE_NAV_PAGE_INDEX', 'CHANGE_NAV_TITLE', 'CHANGE_NAV_DETAILS_TYPE'])
+    const container = state3D.threeDimensionContainer
+    const mutations3D = useMutation(store, '3d', ['ADD_ICONS_BY_TYPE'])
 
     const dataList = ref([
       {
@@ -54,14 +55,15 @@ export default defineComponent({
       }
     ])
 
-    const chooseItem = (item: any) => {
+    const addToScene = (item: any) => {
       const addedPosition = toRaw(state3D.calibrationCursor).position
+      mutations3D.ADD_ICONS_BY_TYPE({ type: item.type, position: addedPosition })
     }
 
     return {
       dataList,
       state3D,
-      chooseItem
+      addToScene
     }
   }
 })

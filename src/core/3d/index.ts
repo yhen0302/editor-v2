@@ -1,4 +1,4 @@
-import { flatTreeNodes, loadSceneNodes, parseModelNode, traverseFindNodeById } from './util'
+import { flatTreeNodes, loadEnvironmentNodes, parseModelNode, loadGroupNodes, traverseFindNodeById } from './util'
 import store, { LayerTreeNode3D } from '../../store'
 import { useGetter, useMutation, useState } from '../../store/helper'
 import { nextTick, toRaw } from 'vue'
@@ -18,7 +18,16 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     viewState: 'orbit',
     modelUrls,
     enableShadow: true,
-    bloomEnabled: false,
+    bloomEnabled: true,
+    bloom: {
+      bloomStrength: 0.75,
+      bloomRadius: 0.15,
+      threshold: 0.035
+    },
+    renderer: {
+      logarithmicDepthBuffer: true,
+      alpha: true
+    },
     outlineEnabled: true,
     dofEnabled: false,
     msaa: {
@@ -63,8 +72,8 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
     },
     onProgress: (model: any) => {
       const node: any = {}
-      const index = 0
-      // 3d模板 存入缓存
+      const index = 1
+      // 模板：模型节点
       parseModelNode(model, index, node)
       stateGlobal.template.threeDimension.push(node)
     },
@@ -82,12 +91,15 @@ export function loadScene({ modelUrls, domElement, publicPath, callback }: any) 
         const calibrat = new Bol3D.Sprite(calibratMat)
         evt.scene.add(calibrat)
         calibrat.scale.set(0.05, 0.05, 0.05)
-        calibrat.renderOrder = 99
+        calibrat.renderOrder = 101
 
         state3D.calibrationCursor = calibrat
       })
 
-      loadSceneNodes(evt)
+      // 模板：分组节点
+      loadGroupNodes(evt)
+      // 模板：环境节点
+      loadEnvironmentNodes(evt)
 
       evt.orbitControls.addEventListener('end', () => {
         mutations3d.UPDATE_CAMERA({ controls: evt.orbitControls })

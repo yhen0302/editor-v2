@@ -528,8 +528,8 @@ export function traverseFindNodeById(nodes: Array<any>, id: string, result: Arra
   })
 }
 
-// 加载场景配置节点(光照/相机/后处理等)
-export function loadSceneNodes(evt: any) {
+// 加载环境配置节点(光照/相机/后处理等)
+export function loadEnvironmentNodes(evt: any) {
   const stateGlobal = useState(store, 'global')
 
   // filterPass(单个) todo
@@ -992,4 +992,58 @@ export function recursiveCalParentsMat(obj: any, v: any, mat: any) {
   v.applyMatrix4(mat)
   if (!obj.parent || obj.parent.type == 'Scene') return
   recursiveCalParentsMat(obj.parent, v, mat)
+}
+
+// 加载场景分组节点（模板组/ICON组/飞线组/效果组等） TODO
+export function loadGroupNodes(evt: any) {
+  const stateGlobal = useState(store, 'global')
+
+  const moduleChildren = stateGlobal.template.threeDimension.splice(0, stateGlobal.template.threeDimension.length)
+
+  // 模板组
+  const moduleGroupNode = {
+    uuid: -99,
+    name: '场景底座',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'Module',
+    children: moduleChildren,
+    show: true,
+    options: {}
+  }
+  stateGlobal.template.threeDimension.push(moduleGroupNode)
+
+  // 自定义模型
+  const modelNode = {
+    uuid: -2,
+    name: '自定义模型',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'ModelGroup',
+    children: [],
+    show: true,
+    options: {}
+  }
+  stateGlobal.template.threeDimension.push(modelNode)
+
+  // ICON组
+  const iconGroupNode = {
+    uuid: -2,
+    name: '自由标记',
+    selected: false,
+    index: 0,
+    spread: false,
+    type: 'IconGroup',
+    children: [],
+    show: true,
+    options: {}
+  }
+  stateGlobal.template.threeDimension.push(iconGroupNode)
+}
+
+// 根据icon类型获取 component组件类型
+export function iconTitleType2ExtendsType(type: number) {
+  return 'IconTitleExtend' + (type + 1)
 }

@@ -20,27 +20,27 @@ const inputConf = {
       target: 'browser',
       preprocessStyles: true,
       postcssPlugins: [pImport()],
-      postcssOptions:{
-        parser:less
+      postcssOptions: {
+        parser: less
       }
     }),
     postcss({
       extensions: ['.css'],
       plugins: [pImport()],
-      parser:less
+      parser: less
     }),
     babel({
       presets: ['@babel/preset-env', '@babel/preset-typescript'],
-      plugins: ['@vue/babel-plugin-jsx','@babel/plugin-transform-runtime'],
+      plugins: ['@vue/babel-plugin-jsx', '@babel/plugin-transform-runtime'],
       extensions: ['.vue'],
-      babelHelpers:'runtime',
+      babelHelpers: 'runtime',
       exclude: 'node_modules/**'
     }),
     replace({
       'process.env.NODE_ENV': `'${process.env.NODE_ENV}'`,
       IS_EDITOR: true
     }),
-    typescript({ allowJs: true,})
+    typescript({ allowJs: true })
   ]
 }
 

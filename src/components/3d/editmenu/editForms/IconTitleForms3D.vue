@@ -1,5 +1,5 @@
 <template>
-  <div class="group-forms-3d-main">
+  <div class="icon-title-forms-3d-main">
     <div class="header">
       <div v-for="item in headerItems" :key="item" class="header-item">
         <EditFormsNavItem :active="item.active" :name="item.name" :type="item.type" @mouseup.stop="chooseNav(item)" />
@@ -8,11 +8,11 @@
 
     <LineEl :color="'#363741'" />
 
-    <BaseTitle :value="'Group'" :height="48" :width="72" />
+    <BaseTitle :value="'IconTitle'" :height="48" :width="72" />
 
     <LineEl :color="'#363741'" />
 
-    <div class="content group" v-show="headerItems[0].active">
+    <div class="content icon-title" v-show="headerItems[0].active">
       <div v-for="(item, key) in formSettings" :key="key" class="content-item">
         <div class="setting-item">
           <BaseTitle :value="key" :height="56" :width="72" :marginRight="8" />
@@ -37,26 +37,59 @@
 
         <LineEl class="division" :color="'#363741'" />
       </div>
+
+      <div ref="iconSelector" class="icon-type-selector overflow-y-hidden">
+        <div class="icon-type-selector-nav">
+          <BaseTitle :value="'样式'" :height="48" :width="72" />
+          <div class="spread-btn" @mouseup="spreadStyle" :class="isSpread ? 'fold' : 'unfold'">
+            <img src="@/assets/images/main/left/editor_card_backarrow_btn_dark.png" />
+          </div>
+        </div>
+
+        <div class="icon-list">
+          <div
+            v-for="item in iconList"
+            :key="item"
+            class="icon-item"
+            :class="item.hovered || item.selected ? 'item-selected' : ''"
+            @mouseenter="itemHover(item, true)"
+            @mouseleave="itemHover(item, false)"
+            @mouseup="itemSelect(item)"
+          >
+            <img :src="item.url" />
+          </div>
+        </div>
+      </div>
+
+      <LineEl :color="'#363741'" />
+
+      <div class="icon-extend-options">
+        <component :is="iconTitleType2ExtendsType(currentType)" :options="extendOptions" />
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, watch, ref } from 'vue'
+import { defineComponent, onMounted, watch, ref, toRaw } from 'vue'
 import { useStore } from 'vuex'
 import LineEl from '@/components/utils/common/LineEl.vue'
 import EditFormsNavItem from '@/components/utils/editmenu/EditFormsNavItem.vue'
 import BaseTitle from '@/components/utils/baseComponents/BaseTitle.vue'
 import BaseInput from '@/components/utils/baseComponents/BaseInput.vue'
 import { useGetter, useState } from '@/store/helper'
+import { iconTitleType2ExtendsType } from '@/core/3d/util'
+
+import IconTitleExtend1 from './IconExtendComponets/IconTitles/IconTitleExtend1.vue'
 
 export default defineComponent({
-  name: 'GroupForms3D',
+  name: 'IconTitleForms3D',
   components: {
     LineEl,
     EditFormsNavItem,
     BaseTitle,
-    BaseInput
+    BaseInput,
+    IconTitleExtend1
   },
   props: ['node'],
   setup(props: any) {
@@ -64,6 +97,33 @@ export default defineComponent({
 
     const state3D = useState(store, '3d')
     const getters3D = useGetter(store, '3d', ['SELECTED_LAYER_NODE'])
+
+    const iconList = ref([
+      {
+        type: 0,
+        url: '',
+        selected: true,
+        hovered: false
+      },
+      {
+        type: 1,
+        url: '',
+        selected: false,
+        hovered: false
+      },
+      {
+        type: 2,
+        url: '',
+        selected: false,
+        hovered: false
+      },
+      {
+        type: 3,
+        url: '',
+        selected: false,
+        hovered: false
+      }
+    ])
 
     watch(
       () => props.node.options.position,
@@ -108,13 +168,15 @@ export default defineComponent({
 
     // content settings
     const formSettings: any = ref([])
+    // extends
+    const extendOptions = ref({})
 
     let currentObj: any
 
     onMounted(() => {
       const { options, uuid } = props.node
 
-      const threeDimensionContainer = state3D.threeDimensionContainer
+      const threeDimensionContainer = toRaw(state3D.threeDimensionContainer)
 
       threeDimensionContainer.scene.traverse((c: any) => {
         if (c.uuid == uuid) currentObj = c
@@ -174,6 +236,34 @@ export default defineComponent({
           }
         ]
       }
+
+      // 编辑扩展属性
+      extendOptions.value = {
+        title: {
+          value: options.title,
+          type: 'string'
+        },
+        color: {
+          value: options.color,
+          type: 'color'
+        },
+        titleHeight: {
+          value: options.titleHeight,
+          type: 'number'
+        }
+      }
+
+      iconList.value.forEach((ic: any) => {
+        if (ic.type == options.type) {
+          ic.selected = true
+          currentType.value = options.type
+        } else {
+          ic.selected = false
+        }
+      })
+
+      // console.log('extendOptions', extendOptions)
+      console.log('onmounted,', currentType.value)
     })
 
     const inputChange = (target: any) => {
@@ -235,19 +325,52 @@ export default defineComponent({
       item.active = true
     }
 
+    const isSpread = ref(false)
+    const iconSelector: any = ref(null)
+    const currentType = ref(-1)
+
+    const spreadStyle = () => {
+      isSpread.value = !isSpread.value
+
+      isSpread.value ? ((iconSelector.value as HTMLElement).className = 'icon-type-selector') : ((iconSelector.value as HTMLElement).className = 'icon-type-selector overflow-y-hidden')
+    }
+
+    const itemHover = (item: any, val: boolean) => {
+      item.hovered = val
+    }
+
+    const itemSelect = (item: any) => {
+      iconList.value.forEach((it: any) => {
+        it.selected = false
+      })
+
+      item.selected = true
+      console.log('currentType.value', currentType.value)
+      currentType.value = item.type
+    }
+
     return {
       store,
       headerItems,
       formSettings,
       inputChange,
-      chooseNav
+      chooseNav,
+      extendOptions,
+      iconList,
+      spreadStyle,
+      isSpread,
+      iconSelector,
+      itemHover,
+      itemSelect,
+      currentType,
+      iconTitleType2ExtendsType
     }
   }
 })
 </script>
 
 <style lang="postcss" scoped>
-.group-forms-3d-main {
+.icon-title-forms-3d-main {
   @apply w-full h-full;
 }
 .header {
@@ -280,7 +403,46 @@ export default defineComponent({
   @apply absolute;
 }
 
+.icon-type-selector {
+  min-height: 100px;
+  @apply w-full flex flex-col;
+}
+.overflow-y-hidden {
+  height: 130px;
+}
+.icon-type-selector-nav {
+  @apply w-full h-auto flex items-center relative;
+}
+.spread-btn {
+  right: 24px;
+  @apply absolute cursor-pointer flex items-center;
+}
+.icon-list {
+  grid-auto-rows: 100px;
+  @apply w-full grid grid-cols-2;
+}
+.icon-item {
+  width: 100px;
+  height: 70px;
+  margin-left: 20px;
+  margin-right: 10px;
+  border-radius: 4px;
+  color: black;
+  background-color: aliceblue;
+  cursor: pointer;
+}
+.item-selected {
+  outline: 2px #6582fe solid;
+}
 
+.fold {
+  transform: rotate(270deg);
+}
+.unfold {
+  transform: rotate(180deg);
+}
 
-
+.icon-extends {
+  width: 100%;
+}
 </style>

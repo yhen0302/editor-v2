@@ -1,9 +1,11 @@
 import { State3DI } from '.'
-import store, { LayerTreeNode3D } from '..'
+import store, { LayerTreeNode3D, PageTreeNode } from '..'
 import { useState } from '../helper'
-import { nodeType2IsType } from '../util'
+import { nodeType2IsType, getIconIndex } from '../util'
 import { spreadChainNodes } from '@/core/3d/util'
 import { nextTick } from 'vue'
+
+declare const Bol3D: any
 
 // mutations
 export interface Mutation3DI {
@@ -19,6 +21,7 @@ export interface Mutation3DI {
   SELECT_LAYER_NODE_CONTROLS: 'SELECT_LAYER_NODE_CONTROLS' // 3D Tree 通过控件选中节点（单选）
   UPDATE_SELECT_LAYER_NODE_CONTROLS: 'UPDATE_SELECT_LAYER_NODE_CONTROLS' // 3D Tree 通过控件更新选中节点（单选）
   UPDATE_CAMERA: 'UPDATE_CAMERA' // 3D 控制器更新后，更新相机节点
+  ADD_ICONS_BY_TYPE: 'ADD_ICONS_BY_TYPE' // 根据类型添加icon
 }
 export const Mutation3D = {
   TEMPLATE_3D_LOADED: 'TEMPLATE_3D_LOADED',
@@ -32,7 +35,8 @@ export const Mutation3D = {
   CLEAR_EDIT_FORM: 'CLEAR_EDIT_FORM',
   SELECT_LAYER_NODE_CONTROLS: 'SELECT_LAYER_NODE_CONTROLS',
   UPDATE_SELECT_LAYER_NODE_CONTROLS: 'UPDATE_SELECT_LAYER_NODE_CONTROLS',
-  UPDATE_CAMERA: 'UPDATE_CAMERA'
+  UPDATE_CAMERA: 'UPDATE_CAMERA',
+  ADD_ICONS_BY_TYPE: 'ADD_ICONS_BY_TYPE'
 }
 
 export default {
@@ -42,7 +46,9 @@ export default {
 
     const stateGlobal = useState(store, 'global')
 
-    if (stateGlobal.sceneTreeNodes[0].children) stateGlobal.sceneTreeNodes[0].children[0].trees.threeDimension = JSON.parse(JSON.stringify(stateGlobal.template.threeDimension))
+    if (stateGlobal.sceneTreeNodes[0].children) {
+      stateGlobal.sceneTreeNodes[0].children[0].trees.threeDimension = JSON.parse(JSON.stringify(stateGlobal.template.threeDimension))
+    }
   },
   [Mutation3D.SELECT_LAYER_NODE](state: State3DI, payload: { node: LayerTreeNode3D }) {
     store.commit(`3d/${Mutation3D.CLEAR_SELECT_LAYER_NODE}`)
@@ -127,6 +133,60 @@ export default {
           n.options.position[2] = parseFloat(controls.object.position.z).toFixed(4)
         }
       }
+    }
+  },
+  [Mutation3D.ADD_ICONS_BY_TYPE](state: State3DI, payload: { type: string }) {
+    const stateGlobal = useState(store, 'global')
+    let iconGroup: any
+    stateGlobal.selectedPageTreeNode?.trees.threeDimension.forEach((c: LayerTreeNode3D) => {
+      if (c.type === 'IconGroup') {
+        iconGroup = c
+      }
+    })
+    let addedObject: any = null
+    const container = state.threeDimensionContainer
+    const type = payload.type
+
+    if (type == 'title') {
+      addedObject = new Bol3D.CompositeIconTitle({
+        titleHeight: 0.5,
+        color: '#ff0000',
+        type: 0,
+        title: '标题类型1'
+      })
+      addedObject.scale.set(100, 100, 100)
+      addedObject.renderOrder = 100
+      const index = getIconIndex(iconGroup)
+      addedObject.uuid = 'icon-title-' + index
+      container.scene.add(addedObject)
+      container.addBloom(addedObject.children[0])
+      container.transformControl.attach(addedObject)
+
+      const titleNode = {
+        uuid: addedObject.uuid,
+        name: addedObject.uuid,
+        selected: false,
+        index: 1,
+        spread: false,
+        type: 'CompositeIconTitle',
+        children: [],
+        show: true,
+        options: {
+          position: [parseFloat(addedObject.position.x.toFixed(4)), parseFloat(addedObject.position.y.toFixed(4)), parseFloat(addedObject.position.z.toFixed(4))],
+          rotation: [
+            parseFloat(((addedObject.rotation.x * 180) / Math.PI).toFixed(4)),
+            parseFloat(((addedObject.rotation.y * 180) / Math.PI).toFixed(4)),
+            parseFloat(((addedObject.rotation.z * 180) / Math.PI).toFixed(4))
+          ],
+          scale: [parseFloat(addedObject.scale.x.toFixed(4)), parseFloat(addedObject.scale.y.toFixed(4)), parseFloat(addedObject.scale.z.toFixed(4))],
+          type: 0,
+          title: '标题类型1',
+          color: '#ff0000',
+          titleHeight: 0.5
+        }
+      }
+
+      iconGroup.children.push(titleNode)
     }
   }
 }

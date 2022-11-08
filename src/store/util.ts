@@ -1,5 +1,5 @@
 import { useState } from './helper'
-import store, { SceneTreeNode } from './index'
+import store, { LayerTreeNode3D, SceneTreeNode } from './index'
 
 // 根据UUID查找Scene Node
 export function selectSceneNodeByUUID(uuid: string): SceneTreeNode | null {
@@ -82,6 +82,9 @@ export function nodeType2IsType(type: string) {
     case 'MSAAPass':
       result = 'MSAAPassForms3D'
       break
+    case 'CompositeIconTitle':
+      result = 'IconTitleForms3D'
+      break
   }
 
   return result
@@ -156,4 +159,17 @@ export function type2DetailsType(type: string | null) {
       break
   }
   return result
+}
+
+// 添加icon时，获取Icon的index
+export function getIconIndex(iconGroup: LayerTreeNode3D) {
+  let maxIndex = -1
+  iconGroup.children.forEach((ic: LayerTreeNode3D) => {
+    const strArr = (ic.uuid as string).split('-')
+    const index = parseInt(strArr[strArr.length - 1])
+
+    if (index > maxIndex) maxIndex = index
+  })
+
+  return maxIndex + 1
 }
