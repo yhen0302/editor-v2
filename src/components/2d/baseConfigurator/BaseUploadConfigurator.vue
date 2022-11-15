@@ -3,7 +3,7 @@
     <fold-el title="上传图片" :line-show="false">
       <template #default>
         <div class="fold-content">
-          <upload-el @update="onUpdate" :type-verification="typeVerification">
+          <upload-el @update="onUpdate" :accept="accept" :type-verification="typeVerification">
             <template #upload-content>
               <div class="relative w-full h-full flex-1" v-if="src">
                 <img :src="src" v-if="viewType === 'ImageMedia'" class="w-full h-full" />
@@ -43,7 +43,7 @@ export default {
       }
     })
     function imageMimeTypeVerification(file: File) {
-      return file.type === 'image/png' || file.type === 'image/jpeg'
+      return file.type === 'image/png' || file.type === 'image/jpeg' || file.type === "image/gif"
     }
 
     function videoMimeTypeVerification(file: File) {
@@ -66,8 +66,10 @@ export default {
     async function uploadFileToServer(files) {
       const formData = new FormData()
       formData.append('files', files[0])
-      const res = (await uploadFile(formData)).data
-      // console.log(res)
+      const upProcess = (ev) => {
+        console.log("已上传：", (ev.loaded / ev.total * 100).toFixed(2) + "%")
+      }
+      const res = await uploadFile(formData, upProcess)
       // 上传成功
       if (res.code === 200) {
         src.value = res.data[0]
@@ -76,16 +78,23 @@ export default {
 
     const tip = computed(() => {
       if (getters2D['GET_SELECT_NODE'].value.type === 'ImageMedia') {
-        return '*支持大小不超多5MB的PNG、JPG格式文件'
+        return '*支持大小不超多5MB的PNG、JPG, GIF格式文件'
       } else {
         return '*最大可以上传10MB的 AVI、MPEG、MP4 视频文件'
       }
     })
 
+    const accept = computed(() => {
+      if (getters2D['GET_SELECT_NODE'].value.type === 'ImageMedia') {
+        return '.png,.jpg,.gif'
+      } else {
+        return '.avi,.mpeg,.mp4'
+      }
+    })
     const viewType = computed(() => {
       return getters2D['GET_SELECT_NODE'].value.type
     })
-    return { src, onUpdate, typeVerification, tip, viewType }
+    return { src, onUpdate, typeVerification, tip, viewType, accept }
   }
 }
 </script>
@@ -101,6 +110,7 @@ export default {
   color: #757a87;
   text-align: left;
 }
+
 .upload-placeholder {
   left: 0;
   top: 0;

@@ -23,6 +23,7 @@
       :multiple="multiple"
       v-show="false"
       ref="inp"
+      :accept="accept"
       @input="inpChange"
     />
   </section>
@@ -37,7 +38,8 @@ export default {
     multiple: { type: Boolean, default: false },
     placeHolderUrl: String,
     typeVerification: { type: Function, default: () => true },
-    contentText: String
+    contentText: String,
+    accept:String
   },
   emits: ['update'],
   setup(props, context) {
